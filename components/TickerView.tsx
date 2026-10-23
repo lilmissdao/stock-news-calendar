@@ -282,10 +282,16 @@ function MoveChart({ ticker, points, onOpen }: { ticker: string; points: MovePoi
     groups.set(point.date, list);
   }
 
+  const summary = points
+    .slice()
+    .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
+    .map((point) => `${formatShort(point.date)} ${formatMove(point.move)}${point.sole ? "" : " (several tickers)"}`)
+    .join(" · ");
+
   return (
     <figure className="chart">
       <figcaption>Stated move</figcaption>
-      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} aria-label={`Stated percent moves on ${ticker} items`}>
+      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} aria-label={`Stated percent moves on ${ticker} items. ${summary}`}>
         <line className="axis" x1={MARGIN.left} y1={zero} x2={WIDTH - MARGIN.right} y2={zero} />
         <text className="tick" x={MARGIN.left - 8} y={yOf(maxAbs)} textAnchor="end">
           {formatMove(maxAbs)}
@@ -336,8 +342,8 @@ function MoveChart({ ticker, points, onOpen }: { ticker: string; points: MovePoi
         )}
       </svg>
       <p className="chart-note">
-        Filled markers are items that name only {ticker}. Open markers name several tickers, so the percent may describe the
-        group or the market.
+        {summary}. Filled markers are items that name only {ticker}. Open markers name several tickers, so the percent may
+        describe the group or the market.
       </p>
     </figure>
   );

@@ -68,11 +68,11 @@ export const STORIES: Story[] = [
   {
     id: "capex",
     title: "Meta capex → NVDA → CoreWeave → rates",
-    blurb: "Recorded links: Meta’s cash burn, Nvidia, CoreWeave’s debt, bond yields, and the Fed.",
+    blurb: "Recorded links: Meta’s cash burn and stock raise, Nvidia’s backstops, CoreWeave and the other neoclouds, bond yields, and the Fed.",
     columns: [
-      ["2026-10-22-meta-q3"],
-      ["2026-10-23-nvda-drop"],
-      ["2026-10-23-crwv-drop", "2026-10-22-dc-debt-frozen"],
+      ["2026-10-22-meta-q3", "2026-10-26-meta-raise"],
+      ["2026-10-23-nvda-drop", "2026-10-26-nvda-backstops"],
+      ["2026-10-23-crwv-drop", "2026-10-22-dc-debt-frozen", "2026-10-26-neoclouds", "2026-10-26-spcx-gpu-debt"],
       ["2026-10-22-bond-yields"],
       ["2026-10-28-fed-decision"],
     ],
@@ -80,10 +80,10 @@ export const STORIES: Story[] = [
   {
     id: "iran",
     title: "Iran / oil → airlines & defense",
-    blurb: "Recorded links: the oil shock, reported Iran strikes, Boeing, Lockheed, energy earnings, and the Fed.",
+    blurb: "Recorded links: the oil shock and the Oct 26 pullback, reported Iran strikes and the Tehran talks, Boeing, Lockheed, energy earnings, and the Fed.",
     columns: [
-      ["2026-10-22-futures-iran-oil"],
-      ["2026-11-03-iran-strikes-plan"],
+      ["2026-10-22-futures-iran-oil", "2026-10-26-oil-pullback"],
+      ["2026-11-03-iran-strikes-plan", "2026-10-26-tehran-talks"],
       ["2026-10-22-lmt-earnings", "2026-10-27-ba-earnings", "2026-10-30-energy-earnings"],
       ["2026-10-28-fed-decision"],
     ],

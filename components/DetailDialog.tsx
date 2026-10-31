@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { formatMove, formatPretty, formatPrice, precisionLabel } from "@/lib/format";
-import { eventLabel, industryColor, STATUS_LABELS } from "@/lib/taxonomy";
+import { formatMarketCap, formatMove, formatPretty, formatPrice, precisionLabel } from "@/lib/format";
+import { eventLabel, industryColor, LINK_LABELS, RELIANCE_LABELS, STATUS_LABELS } from "@/lib/taxonomy";
 import type { NewsItem } from "@/lib/types";
 
 export function DetailDialog({
@@ -92,6 +92,24 @@ export function DetailDialog({
                   <dd>{formatPretty(item.source_digest_date)}</dd>
                 </>
               ) : null}
+              {item.graph_node ? (
+                <>
+                  <dt>Drug</dt>
+                  <dd>
+                    {item.graph_node.drug}
+                    {item.graph_node.unverified ? " · unverified" : ""}
+                    {item.graph_node.generic ? " · generic threat" : ""}
+                  </dd>
+                  <dt>Reliance</dt>
+                  <dd>{item.graph_node.reliance ? RELIANCE_LABELS[item.graph_node.reliance] : "Not stated"}</dd>
+                  {item.graph_node.market_cap_b != null ? (
+                    <>
+                      <dt>Market cap</dt>
+                      <dd>{formatMarketCap(item.graph_node.market_cap_b)}</dd>
+                    </>
+                  ) : null}
+                </>
+              ) : null}
             </dl>
             {item.tickers.length > 0 ? (
               <div className="ticker-row">
@@ -123,6 +141,9 @@ export function DetailDialog({
                           <small>
                             {formatPretty(entry.item.date)}
                             {visibleIds.has(entry.item.id) ? "" : " · hidden by filters"}
+                            {item.link_kinds[entry.id] || entry.item.link_kinds[item.id]
+                              ? ` · ${LINK_LABELS[(item.link_kinds[entry.id] ?? entry.item.link_kinds[item.id])!]}`
+                              : ""}
                           </small>
                         </span>
                       </button>

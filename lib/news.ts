@@ -1,4 +1,4 @@
-import type { DatePrecision, NewsItem, PriceMention, Status } from "./types";
+import type { DatePrecision, GraphNode, LinkKind, NewsItem, PriceMention, Reliance, Status } from "./types";
 
 const PRECISIONS = new Set<DatePrecision>(["day", "month", "quarter", "unknown"]);
 const STATUSES = new Set<Status>(["happened", "upcoming", "developing"]);
@@ -29,6 +29,38 @@ function asStatus(value: unknown): Status {
   return typeof value === "string" && STATUSES.has(value as Status) ? (value as Status) : "happened";
 }
 
+const RELIANCE = new Set<Reliance>(["very_high", "high", "medium", "low"]);
+const LINK_KINDS = new Set<LinkKind>(["rival", "generic_threat", "royalty", "unverified"]);
+
+function asReliance(value: unknown): Reliance | null {
+  return typeof value === "string" && RELIANCE.has(value as Reliance) ? (value as Reliance) : null;
+}
+
+function asGraphNode(value: unknown): GraphNode | null {
+  if (!value || typeof value !== "object") return null;
+  const record = value as Record<string, unknown>;
+  const cap = record.market_cap_b;
+  return {
+    label: asString(record.label),
+    drug: asString(record.drug),
+    reliance: asReliance(record.reliance),
+    market_cap_b: typeof cap === "number" && !Number.isNaN(cap) ? cap : null,
+    cluster: asString(record.cluster, "other"),
+    order: typeof record.order === "number" && !Number.isNaN(record.order) ? record.order : 0,
+    unverified: record.unverified === true,
+    generic: record.generic === true,
+  };
+}
+
+function asLinkKinds(value: unknown): Partial<Record<string, LinkKind>> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const out: Partial<Record<string, LinkKind>> = {};
+  for (const [key, kind] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof kind === "string" && LINK_KINDS.has(kind as LinkKind)) out[key] = kind as LinkKind;
+  }
+  return out;
+}
+
 export function normalizeNews(raw: unknown): NewsItem[] {
   if (!Array.isArray(raw)) return [];
   return raw.map((row, index) => {
@@ -53,6 +85,9 @@ export function normalizeNews(raw: unknown): NewsItem[] {
         : date,
       related_ids: asStringList(record.related_ids),
       connection_notes: asString(record.connection_notes),
+      graph_node: asGraphNode(record.graph_node),
+      graph_only: record.graph_only === true,
+      link_kinds: asLinkKinds(record.link_kinds),
     };
   });
 }

@@ -2033,7 +2033,8 @@
       "2026-12-18-roche-giredestrant-fda-advanced",
       "2026-10-23-mrna-melanoma-vaccine",
       "2026-10-26-nvo-awiqli",
-      "2026-10-28-mrna-melanoma-data"
+      "2026-10-28-mrna-melanoma-data",
+      "node-lly-inluriyo"
     ],
     "connection_notes": "Lilly's imlunestrant competes with Roche giredestrant. Oct 26 digest confirmed Lilly before the open. Oct 27 digest listed Lilly before the open again. Oct 29 digest: the beat is in, led by Mounjaro and Zepbound."
   },
@@ -2076,23 +2077,29 @@
     "id": "2026-10-30-fda-ino",
     "date": "2026-10-30",
     "date_precision": "day",
-    "status": "upcoming",
-    "title": "FDA decision: Inovio INO-3107",
-    "summary": "The FDA decision on Inovio's INO-3107 is due Oct 30.",
+    "status": "happened",
+    "title": "Voceryq approved; Precigen falls as much as 27%",
+    "summary": "Inovio's Voceryq received accelerated approval on Oct 30, 2026 for adult recurrent respiratory papillomatosis. It should be orderable in about 60 days, with a full launch in Q1 2027. Precigen, whose only approved drug is Papzimeos for the same disease, fell as much as 27% after hours. Papzimeos H1 2026 sales were $74.7M of $78.2M revenue, and Precigen's market cap was about $2.36B before the drop.",
     "tickers": [
-      "INO"
+      "INO",
+      "PGEN"
     ],
     "companies": [
-      "Inovio"
+      "Inovio",
+      "Precigen"
     ],
-    "industry": "Pharma/Biotech",
+    "industry": "Biotech / rare disease",
     "event_type": "fda",
-    "key_number": "",
+    "key_number": "PGEN as much as -27% after hours",
     "price_mentioned": null,
-    "move_pct": null,
-    "source_digest_date": "2026-10-23",
-    "related_ids": [],
-    "connection_notes": ""
+    "move_pct": -27,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-pgen-papzimeos",
+      "node-ino-voceryq",
+      "2027-01-01-ino-voceryq-launch"
+    ],
+    "connection_notes": "The Oct 23 note expected an FDA decision on INO-3107. Oct 31: Voceryq was approved, and Precigen sold off after hours."
   },
   {
     "id": "2026-11-01-fda-agio",
@@ -2484,9 +2491,11 @@
     "related_ids": [
       "2026-12-18-roche-giredestrant-fda-advanced",
       "2026-10-21-oncology-landscape",
-      "2026-10-23-roche-enspryng"
+      "2026-10-23-roche-enspryng",
+      "2026-10-31-roche-giredestrant-pending",
+      "node-roche-giredestrant"
     ],
-    "connection_notes": "Competes with AZN camizestrant and LLY imlunestrant (oral SERDs); Roche Itovebi (inavolisib) PIK3CA niche. Also listed in Oct 23 digest."
+    "connection_notes": "Competes with AZN camizestrant and LLY imlunestrant (oral SERDs); Roche Itovebi (inavolisib) PIK3CA niche. Also listed in Oct 23 digest. Oct 31 note: the decision date is unverified, and the drug-rivalry map also includes Rigel's Veppanu and Menarini's Orserdu."
   },
   {
     "id": "2026-12-09-orcl-earnings",
@@ -2540,9 +2549,11 @@
     "source_digest_date": "2026-10-23",
     "related_ids": [
       "2026-11-30-roche-giredestrant-fda-early",
-      "2026-10-29-lly-earnings"
+      "2026-10-29-lly-earnings",
+      "2026-10-31-roche-giredestrant-pending",
+      "node-roche-giredestrant"
     ],
-    "connection_notes": "Oral SERD race vs camizestrant (AZN) and imlunestrant (LLY). First reported Oct 21."
+    "connection_notes": "Oral SERD race vs camizestrant (AZN) and imlunestrant (LLY). First reported Oct 21. Oct 31 note: the decision date is unverified."
   },
   {
     "id": "2026-10-22-crwv-funding-need",
@@ -7701,5 +7712,1229 @@
       "2026-11-05-iren-earnings"
     ],
     "connection_notes": "Lumentum's report is the checkpoint for the unsigned Marvell talks. IREN also reports Nov 5."
+  },
+  {
+    "id": "node-pgen-papzimeos",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Precigen · Papzimeos",
+    "summary": "Papzimeos is Precigen's only approved drug, for adult recurrent respiratory papillomatosis. H1 2026 sales were $74.7M of $78.2M revenue. Market cap was about $2.36B before the after-hours drop when Inovio's Voceryq was approved.",
+    "tickers": [
+      "PGEN"
+    ],
+    "companies": [
+      "Precigen"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "H1 sales $74.7M of $78.2M revenue",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-ino-voceryq",
+      "2026-10-30-fda-ino",
+      "2027-01-01-ino-voceryq-launch"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival of Inovio's Voceryq. Reliance is very high because Papzimeos is the only approved product.",
+    "graph_node": {
+      "label": "PGEN",
+      "drug": "Papzimeos",
+      "reliance": "very_high",
+      "market_cap_b": 2.36,
+      "cluster": "rrp",
+      "order": 1
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-ino-voceryq": "rival"
+    }
+  },
+  {
+    "id": "node-ino-voceryq",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Inovio · Voceryq",
+    "summary": "Voceryq received accelerated approval on Oct 30, 2026. It should be orderable in about 60 days, with a full launch in Q1 2027. It rivals Precigen's Papzimeos in adult recurrent respiratory papillomatosis. Reliance and market cap were not stated.",
+    "tickers": [
+      "INO"
+    ],
+    "companies": [
+      "Inovio"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Accelerated approval Oct 30, 2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-pgen-papzimeos",
+      "2026-10-30-fda-ino",
+      "2027-01-01-ino-voceryq-launch"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival of Precigen's Papzimeos.",
+    "graph_node": {
+      "label": "INO",
+      "drug": "Voceryq",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "rrp",
+      "order": 2
+    },
+    "graph_only": true
+  },
+  {
+    "id": "node-srpt-exondys51",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Sarepta · Exondys 51",
+    "summary": "Exondys 51 is Sarepta's exon-51 Duchenne therapy. The exon-skipping family did $230.6M of revenue in Q2. Sarepta also sells Elevidys, so reliance on Exondys 51 is high rather than the whole company. The shares were $18.62, and the market cap was about $2.04B.",
+    "tickers": [
+      "SRPT"
+    ],
+    "companies": [
+      "Sarepta"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Exon-skipping family Q2 revenue $230.6M",
+    "price_mentioned": {
+      "ticker": "SRPT",
+      "price": 18.62
+    },
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-dyn-dyne251",
+      "2026-11-05-srpt-earnings",
+      "2027-01-21-dyn-pdufa"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival of Dyne's z-rostudirsen (DYNE-251). Sarepta reports Q3 on Nov 5, 2026.",
+    "graph_node": {
+      "label": "SRPT",
+      "drug": "Exondys 51",
+      "reliance": "high",
+      "market_cap_b": 2.04,
+      "cluster": "dmd",
+      "order": 1
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-dyn-dyne251": "rival"
+    }
+  },
+  {
+    "id": "node-dyn-dyne251",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Dyne · z-rostudirsen",
+    "summary": "z-rostudirsen (DYNE-251) is under FDA priority review, with a PDUFA date of Jan 21, 2027. It is dosed every 4 weeks, versus weekly dosing for the exon-skipping drugs it would rival. Market cap was about $3.2B. Reliance was not stated.",
+    "tickers": [
+      "DYN"
+    ],
+    "companies": [
+      "Dyne"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "PDUFA Jan 21, 2027; dosed every 4 weeks",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-srpt-exondys51",
+      "2026-11-05-srpt-earnings",
+      "2027-01-21-dyn-pdufa"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival of Sarepta's Exondys 51.",
+    "graph_node": {
+      "label": "DYN",
+      "drug": "DYNE-251",
+      "reliance": null,
+      "market_cap_b": 3.2,
+      "cluster": "dmd",
+      "order": 2
+    },
+    "graph_only": true
+  },
+  {
+    "id": "node-zvra-miplyffa",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Zevra · Miplyffa",
+    "summary": "Miplyffa is Zevra's drug for Niemann-Pick type C. Q2 US sales were $30.2M of $39.7M revenue. The shares were $10.28, and the market cap was about $610M. Reliance is very high.",
+    "tickers": [
+      "ZVRA"
+    ],
+    "companies": [
+      "Zevra"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Q2 US sales $30.2M of $39.7M revenue",
+    "price_mentioned": {
+      "ticker": "ZVRA",
+      "price": 10.28
+    },
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-beren-adrabetadex",
+      "node-intrabio-aqneursa",
+      "2026-11-17-beren-adrabetadex-pdufa"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival of Beren's adrabetadex, which is limited to infantile-onset disease. IntraBio's Aqneursa may already be approved for NPC; that was not verified.",
+    "graph_node": {
+      "label": "ZVRA",
+      "drug": "Miplyffa",
+      "reliance": "very_high",
+      "market_cap_b": 0.61,
+      "cluster": "npc",
+      "order": 1
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-beren-adrabetadex": "rival",
+      "node-intrabio-aqneursa": "unverified"
+    }
+  },
+  {
+    "id": "node-beren-adrabetadex",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Beren · adrabetadex",
+    "summary": "Beren Therapeutics is private. Adrabetadex is for infantile-onset Niemann-Pick type C only, under priority review, with a PDUFA date of Nov 17, 2026. Reliance and market cap were not stated.",
+    "tickers": [],
+    "companies": [
+      "Beren Therapeutics"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "PDUFA Nov 17, 2026; infantile-onset NPC only",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-zvra-miplyffa",
+      "node-intrabio-aqneursa",
+      "2026-11-17-beren-adrabetadex-pdufa"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival of Zevra's Miplyffa. The possible IntraBio Aqneursa approval was not verified.",
+    "graph_node": {
+      "label": "Beren",
+      "drug": "adrabetadex",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "npc",
+      "order": 2
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-intrabio-aqneursa": "unverified"
+    }
+  },
+  {
+    "id": "node-intrabio-aqneursa",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "IntraBio · Aqneursa",
+    "summary": "Aqneursa may already be approved for Niemann-Pick type C. That report was not verified, so the link is marked unverified. Reliance and market cap were not stated.",
+    "tickers": [],
+    "companies": [
+      "IntraBio"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Approval for NPC not verified",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-zvra-miplyffa",
+      "node-beren-adrabetadex",
+      "2026-11-17-beren-adrabetadex-pdufa"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Unverified link in NPC, alongside Zevra's Miplyffa and Beren's adrabetadex.",
+    "graph_node": {
+      "label": "IntraBio",
+      "drug": "Aqneursa",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "npc",
+      "order": 3,
+      "unverified": true
+    },
+    "graph_only": true
+  },
+  {
+    "id": "node-cprx-firdapse",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Catalyst · Firdapse",
+    "summary": "Firdapse treats Lambert-Eaton myasthenic syndrome. 2025 sales were $358M. 2026 guidance is $435-450M, about 70% of revenue. Market cap was about $3.86B. Reliance is high. The threat is generics, not another branded drug: Teva and Lupin settled for a 2035 entry, and Hetero has a patent case.",
+    "tickers": [
+      "CPRX"
+    ],
+    "companies": [
+      "Catalyst"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "2025 sales $358M; 2026 guide $435-450M",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-firdapse-generics"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Generic threat from Teva, Lupin, and Hetero. Not a rival branded drug.",
+    "graph_node": {
+      "label": "CPRX",
+      "drug": "Firdapse",
+      "reliance": "high",
+      "market_cap_b": 3.86,
+      "cluster": "lems",
+      "order": 1
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-firdapse-generics": "generic_threat"
+    }
+  },
+  {
+    "id": "node-firdapse-generics",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Firdapse generic threat",
+    "summary": "Teva and Lupin settled for a 2035 generic entry on Firdapse. Hetero has a patent case. This is a generic threat to Catalyst, not a rival drug.",
+    "tickers": [],
+    "companies": [
+      "Teva",
+      "Lupin",
+      "Hetero"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Teva/Lupin entry 2035; Hetero patent case",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-cprx-firdapse"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Generic threat to Catalyst's Firdapse.",
+    "graph_node": {
+      "label": "Generics",
+      "drug": "Firdapse",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "lems",
+      "order": 2,
+      "generic": true
+    },
+    "graph_only": true
+  },
+  {
+    "id": "node-boehringer-spevigo",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Boehringer · Spevigo",
+    "summary": "Spevigo, from Boehringer Ingelheim, is the only approved IL-36 drug for generalized pustular psoriasis. Boehringer is private. Reliance on Spevigo is low.",
+    "tickers": [],
+    "companies": [
+      "Boehringer Ingelheim"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Only approved IL-36 drug for generalized pustular psoriasis",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-vnda-quimilza",
+      "2026-12-12-vnda-quimilza-pdufa"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival of Vanda's imsidolimab (Quimilza). Reliance is low.",
+    "graph_node": {
+      "label": "Boehringer",
+      "drug": "Spevigo",
+      "reliance": "low",
+      "market_cap_b": null,
+      "cluster": "gpp",
+      "order": 1
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-vnda-quimilza": "rival"
+    }
+  },
+  {
+    "id": "node-vnda-quimilza",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Vanda · Quimilza",
+    "summary": "Vanda's imsidolimab, branded Quimilza, has a PDUFA date of Dec 12, 2026. It would rival Boehringer's Spevigo in generalized pustular psoriasis. Reliance and market cap were not stated.",
+    "tickers": [
+      "VNDA"
+    ],
+    "companies": [
+      "Vanda"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "PDUFA Dec 12, 2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-boehringer-spevigo",
+      "2026-12-12-vnda-quimilza-pdufa"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival of Boehringer's Spevigo.",
+    "graph_node": {
+      "label": "VNDA",
+      "drug": "Quimilza",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "gpp",
+      "order": 2
+    },
+    "graph_only": true
+  },
+  {
+    "id": "node-clinuvel-scenesse",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Clinuvel · Scenesse",
+    "summary": "Scenesse, from ASX-listed Clinuvel, is the only approved treatment for erythropoietic protoporphyria. Reliance is high. Market cap was not stated.",
+    "tickers": [],
+    "companies": [
+      "Clinuvel"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Only approved EPP treatment",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-iron-bitopertin",
+      "2026-12-01-iron-bitopertin-resubmission",
+      "2027-06-01-iron-bitopertin-decision"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival of Disc Medicine's bitopertin. The FDA rejected bitopertin in Feb 2026; a resubmission is planned by the end of 2026.",
+    "graph_node": {
+      "label": "Clinuvel",
+      "drug": "Scenesse",
+      "reliance": "high",
+      "market_cap_b": null,
+      "cluster": "epp",
+      "order": 1
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-iron-bitopertin": "rival"
+    }
+  },
+  {
+    "id": "node-iron-bitopertin",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Disc Medicine · bitopertin",
+    "summary": "Bitopertin is Disc Medicine's drug for erythropoietic protoporphyria. The FDA rejected it in Feb 2026. Phase 3 APOLLO then hit all endpoints. A resubmission is planned by the end of 2026, with a decision about mid-2027. Both of those dates are approximate. Reliance and market cap were not stated.",
+    "tickers": [
+      "IRON"
+    ],
+    "companies": [
+      "Disc Medicine"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Phase 3 APOLLO hit all endpoints; resubmission by end-2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-clinuvel-scenesse",
+      "2026-12-01-iron-bitopertin-resubmission",
+      "2027-06-01-iron-bitopertin-decision"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival of Clinuvel's Scenesse. Resubmission timing and the mid-2027 decision are approximate.",
+    "graph_node": {
+      "label": "IRON",
+      "drug": "bitopertin",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "epp",
+      "order": 2
+    },
+    "graph_only": true
+  },
+  {
+    "id": "node-roche-giredestrant",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Roche · giredestrant",
+    "summary": "Giredestrant is Roche's oral SERD for ER-positive breast cancer. An FDA decision is pending, and the date was not verified. Reliance and market cap were not stated in this note. Earlier calendar rows pin Nov 30 (early disease) and Dec 18 (advanced disease).",
+    "tickers": [
+      "ROG"
+    ],
+    "companies": [
+      "Roche"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "FDA decision pending; date unverified",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-rigl-veppanu",
+      "node-lly-inluriyo",
+      "node-azn-camizestrant",
+      "node-menarini-orserdu",
+      "2026-10-31-roche-giredestrant-pending",
+      "2026-11-30-roche-giredestrant-fda-early",
+      "2026-12-18-roche-giredestrant-fda-advanced"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rivals Rigel's Veppanu, Lilly's Inluriyo, AstraZeneca's camizestrant, and Menarini/Stemline's Orserdu. Arvinas receives Veppanu royalties. The decision date is unverified.",
+    "graph_node": {
+      "label": "Roche",
+      "drug": "giredestrant",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "serd",
+      "order": 1
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-rigl-veppanu": "rival",
+      "node-lly-inluriyo": "rival",
+      "node-azn-camizestrant": "rival",
+      "node-menarini-orserdu": "rival"
+    }
+  },
+  {
+    "id": "node-rigl-veppanu",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Rigel · Veppanu",
+    "summary": "Veppanu (vepdegestrant) is licensed from Arvinas. Rigel's shares were $51.31, near a one-year high. Q3 earnings are Nov 3, 2026. Tavalisse is the main drug, so reliance on Veppanu is low. Market cap was not stated.",
+    "tickers": [
+      "RIGL"
+    ],
+    "companies": [
+      "Rigel"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "$51.31, near a one-year high; Q3 earnings Nov 3",
+    "price_mentioned": {
+      "ticker": "RIGL",
+      "price": 51.31
+    },
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-roche-giredestrant",
+      "node-lly-inluriyo",
+      "node-azn-camizestrant",
+      "node-menarini-orserdu",
+      "node-arvn-veppanu",
+      "2026-11-03-rigl-earnings"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Oral SERD rival of Roche giredestrant, Lilly Inluriyo, AstraZeneca camizestrant, and Menarini Orserdu. Licensed from Arvinas, which receives royalties.",
+    "graph_node": {
+      "label": "RIGL",
+      "drug": "Veppanu",
+      "reliance": "low",
+      "market_cap_b": null,
+      "cluster": "serd",
+      "order": 2
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-lly-inluriyo": "rival",
+      "node-azn-camizestrant": "rival",
+      "node-menarini-orserdu": "rival"
+    }
+  },
+  {
+    "id": "node-lly-inluriyo",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Lilly · Inluriyo",
+    "summary": "Inluriyo (imlunestrant) is Eli Lilly's oral SERD in the same ER-positive breast cancer set as Roche's giredestrant. Reliance and market cap for this drug were not stated.",
+    "tickers": [
+      "LLY"
+    ],
+    "companies": [
+      "Eli Lilly"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Oral SERD imlunestrant",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-roche-giredestrant",
+      "node-rigl-veppanu",
+      "node-azn-camizestrant",
+      "node-menarini-orserdu",
+      "2026-10-29-lly-earnings"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival in the oral SERD set. Lilly's Oct 29 earnings print was led by Mounjaro and Zepbound, not this drug.",
+    "graph_node": {
+      "label": "LLY",
+      "drug": "Inluriyo",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "serd",
+      "order": 3
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-azn-camizestrant": "rival",
+      "node-menarini-orserdu": "rival"
+    }
+  },
+  {
+    "id": "node-azn-camizestrant",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "AstraZeneca · camizestrant",
+    "summary": "Camizestrant is AstraZeneca's oral SERD in the same ER-positive breast cancer set as Roche's giredestrant. Reliance and market cap for this drug were not stated.",
+    "tickers": [
+      "AZN"
+    ],
+    "companies": [
+      "AstraZeneca"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Oral SERD camizestrant",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-roche-giredestrant",
+      "node-rigl-veppanu",
+      "node-lly-inluriyo",
+      "node-menarini-orserdu"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival in the oral SERD set.",
+    "graph_node": {
+      "label": "AZN",
+      "drug": "camizestrant",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "serd",
+      "order": 4
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-menarini-orserdu": "rival"
+    }
+  },
+  {
+    "id": "node-menarini-orserdu",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Menarini · Orserdu",
+    "summary": "Orserdu, from Menarini/Stemline, is an oral SERD in the same ER-positive breast cancer set as Roche's giredestrant. Reliance and market cap were not stated.",
+    "tickers": [],
+    "companies": [
+      "Menarini",
+      "Stemline"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Oral SERD Orserdu",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-roche-giredestrant",
+      "node-rigl-veppanu",
+      "node-lly-inluriyo",
+      "node-azn-camizestrant"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Rival in the oral SERD set.",
+    "graph_node": {
+      "label": "Menarini",
+      "drug": "Orserdu",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "serd",
+      "order": 5
+    },
+    "graph_only": true
+  },
+  {
+    "id": "node-arvn-veppanu",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Arvinas · Veppanu royalty",
+    "summary": "Arvinas licensed Veppanu (vepdegestrant) to Rigel and receives royalties. The shares were $7.30. Q3 earnings are Nov 3, 2026. Reliance on that royalty stream is medium. Market cap was not stated.",
+    "tickers": [
+      "ARVN"
+    ],
+    "companies": [
+      "Arvinas"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "$7.30; Q3 earnings Nov 3",
+    "price_mentioned": {
+      "ticker": "ARVN",
+      "price": 7.3
+    },
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-rigl-veppanu",
+      "2026-11-03-rigl-earnings",
+      "2026-11-03-arvn-earnings"
+    ],
+    "connection_notes": "Snapshot as of Oct 31, 2026. Royalty link to Rigel's Veppanu, not a separate rival product.",
+    "graph_node": {
+      "label": "ARVN",
+      "drug": "Veppanu royalty",
+      "reliance": "medium",
+      "market_cap_b": null,
+      "cluster": "serd",
+      "order": 6
+    },
+    "graph_only": true,
+    "link_kinds": {
+      "node-rigl-veppanu": "royalty"
+    }
+  },
+  {
+    "id": "node-xfor-xolremdi",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "X4 Pharmaceuticals · Xolremdi",
+    "summary": "Xolremdi is X4's drug for WHIM syndrome. No rival was named. Q2 sales were $2.4M, and the market cap was about $321M. Reliance is very high.",
+    "tickers": [
+      "XFOR"
+    ],
+    "companies": [
+      "X4 Pharmaceuticals"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Q2 sales $2.4M",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [],
+    "connection_notes": "Snapshot as of Oct 31, 2026. No rival named yet.",
+    "graph_node": {
+      "label": "XFOR",
+      "drug": "Xolremdi",
+      "reliance": "very_high",
+      "market_cap_b": 0.321,
+      "cluster": "monopoly",
+      "order": 1
+    },
+    "graph_only": true
+  },
+  {
+    "id": "node-mirm-ctexli",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Mirum · Ctexli",
+    "summary": "Ctexli is Mirum's drug for CTX. No rival was named. Reliance is low. Sales and market cap were not stated.",
+    "tickers": [
+      "MIRM"
+    ],
+    "companies": [
+      "Mirum"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "CTX; reliance low",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [],
+    "connection_notes": "Snapshot as of Oct 31, 2026. No rival named yet.",
+    "graph_node": {
+      "label": "MIRM",
+      "drug": "Ctexli",
+      "reliance": "low",
+      "market_cap_b": null,
+      "cluster": "monopoly",
+      "order": 2
+    },
+    "graph_only": true
+  },
+  {
+    "id": "node-rytm-imcivree",
+    "date": "2026-10-31",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Rhythm · Imcivree",
+    "summary": "Imcivree is Rhythm's drug for hypothalamic obesity. No rival was named. Q2 sales were $71.3M. Reliance is very high. Market cap was not stated.",
+    "tickers": [
+      "RYTM"
+    ],
+    "companies": [
+      "Rhythm"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Q2 sales $71.3M",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [],
+    "connection_notes": "Snapshot as of Oct 31, 2026. No rival named yet.",
+    "graph_node": {
+      "label": "RYTM",
+      "drug": "Imcivree",
+      "reliance": "very_high",
+      "market_cap_b": null,
+      "cluster": "monopoly",
+      "order": 3
+    },
+    "graph_only": true
+  },
+  {
+    "id": "2027-01-01-ino-voceryq-launch",
+    "date": "2027-01-01",
+    "date_precision": "quarter",
+    "status": "upcoming",
+    "title": "Voceryq full launch (Q1 2027)",
+    "summary": "Inovio expects a full Voceryq launch in Q1 2027. The drug should be orderable about 60 days after the Oct 30, 2026 accelerated approval. The quarter is the stated window, so the day is not pinned.",
+    "tickers": [
+      "INO"
+    ],
+    "companies": [
+      "Inovio"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "other",
+    "key_number": "Full launch Q1 2027; orderable ~60 days after approval",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "2026-10-30-fda-ino",
+      "node-pgen-papzimeos",
+      "node-ino-voceryq"
+    ],
+    "connection_notes": "Follows the Oct 30, 2026 approval. Rivals Precigen's Papzimeos."
+  },
+  {
+    "id": "2026-11-05-srpt-earnings",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "Sarepta Q3 earnings",
+    "summary": "Sarepta reports Q3 on Nov 5, 2026. The exon-skipping family, including Exondys 51, did $230.6M of revenue in Q2. Sarepta also sells Elevidys. Shares were $18.62 as of Oct 31, and the market cap was about $2.04B. Dyne's rival z-rostudirsen has a PDUFA date of Jan 21, 2027.",
+    "tickers": [
+      "SRPT"
+    ],
+    "companies": [
+      "Sarepta"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "earnings",
+    "key_number": "Q3 earnings Nov 5; exon-skipping family Q2 revenue $230.6M",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-srpt-exondys51",
+      "node-dyn-dyne251",
+      "2027-01-21-dyn-pdufa"
+    ],
+    "connection_notes": "The $18.62 price is the Oct 31 snapshot, not a Nov 5 print, so it is stored on the Sarepta bubble rather than this row."
+  },
+  {
+    "id": "2027-01-21-dyn-pdufa",
+    "date": "2027-01-21",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "PDUFA: Dyne z-rostudirsen (DYNE-251)",
+    "summary": "FDA priority-review decision for Dyne's z-rostudirsen in exon-51 Duchenne. It is dosed every 4 weeks, versus weekly for Sarepta's Exondys 51. Dyne's market cap was about $3.2B.",
+    "tickers": [
+      "DYN"
+    ],
+    "companies": [
+      "Dyne",
+      "Sarepta"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "PDUFA Jan 21, 2027",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "2026-11-05-srpt-earnings",
+      "node-srpt-exondys51",
+      "node-dyn-dyne251"
+    ],
+    "connection_notes": ""
+  },
+  {
+    "id": "2026-11-17-beren-adrabetadex-pdufa",
+    "date": "2026-11-17",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "PDUFA: Beren adrabetadex (infantile NPC)",
+    "summary": "Priority-review decision for Beren Therapeutics' adrabetadex, for infantile-onset Niemann-Pick type C only. Beren is private. Zevra's Miplyffa is the approved NPC drug: Q2 US sales $30.2M of $39.7M revenue, market cap about $610M. IntraBio's Aqneursa may already be approved for NPC; that was not verified.",
+    "tickers": [
+      "ZVRA"
+    ],
+    "companies": [
+      "Beren Therapeutics",
+      "Zevra"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "PDUFA Nov 17, 2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-zvra-miplyffa",
+      "node-beren-adrabetadex",
+      "node-intrabio-aqneursa"
+    ],
+    "connection_notes": ""
+  },
+  {
+    "id": "2026-12-12-vnda-quimilza-pdufa",
+    "date": "2026-12-12",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "PDUFA: Vanda Quimilza (imsidolimab)",
+    "summary": "FDA decision date for Vanda's imsidolimab, branded Quimilza. Boehringer Ingelheim's Spevigo is the only approved IL-36 drug for generalized pustular psoriasis. Boehringer is private, and reliance on Spevigo is low.",
+    "tickers": [
+      "VNDA"
+    ],
+    "companies": [
+      "Vanda",
+      "Boehringer Ingelheim"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "PDUFA Dec 12, 2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-vnda-quimilza",
+      "node-boehringer-spevigo"
+    ],
+    "connection_notes": ""
+  },
+  {
+    "id": "2026-12-01-iron-bitopertin-resubmission",
+    "date": "2026-12-01",
+    "date_precision": "month",
+    "status": "upcoming",
+    "title": "Disc Medicine bitopertin resubmission (approx.)",
+    "summary": "Disc Medicine plans to resubmit bitopertin for erythropoietic protoporphyria by the end of 2026. The date is approximate, so it is not pinned to a day. The FDA rejected the drug in Feb 2026. Phase 3 APOLLO then hit all endpoints. A decision is expected about mid-2027. Clinuvel's Scenesse is the only approved EPP treatment.",
+    "tickers": [
+      "IRON"
+    ],
+    "companies": [
+      "Disc Medicine",
+      "Clinuvel"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "Resubmission planned by end-2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-clinuvel-scenesse",
+      "node-iron-bitopertin",
+      "2027-06-01-iron-bitopertin-decision"
+    ],
+    "connection_notes": "Month precision. The end-2026 window was stated as approximate."
+  },
+  {
+    "id": "2027-06-01-iron-bitopertin-decision",
+    "date": "2027-06-01",
+    "date_precision": "month",
+    "status": "upcoming",
+    "title": "Bitopertin FDA decision ~mid-2027 (approx.)",
+    "summary": "A decision on Disc Medicine's bitopertin resubmission is expected about the middle of 2027. The month is approximate. Clinuvel's Scenesse remains the only approved EPP treatment.",
+    "tickers": [
+      "IRON"
+    ],
+    "companies": [
+      "Disc Medicine",
+      "Clinuvel"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "Decision about mid-2027",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "2026-12-01-iron-bitopertin-resubmission",
+      "node-clinuvel-scenesse",
+      "node-iron-bitopertin"
+    ],
+    "connection_notes": "Month precision. Mid-2027 was stated as approximate, so June is only the middle of the year."
+  },
+  {
+    "id": "2026-10-31-roche-giredestrant-pending",
+    "date": "2026-10-31",
+    "date_precision": "unknown",
+    "status": "developing",
+    "title": "Roche giredestrant FDA decision pending (date unverified)",
+    "summary": "Roche's oral SERD giredestrant, for ER-positive breast cancer, still has an FDA decision pending. The date was not verified, so it is not pinned to a day. Earlier rows in this file pin Nov 30 for early disease and Dec 18 for advanced disease. Rivals include Rigel's Veppanu, Lilly's Inluriyo, AstraZeneca's camizestrant, and Menarini/Stemline's Orserdu.",
+    "tickers": [
+      "ROG",
+      "RIGL",
+      "LLY",
+      "AZN"
+    ],
+    "companies": [
+      "Roche",
+      "Rigel",
+      "Eli Lilly",
+      "AstraZeneca",
+      "Menarini",
+      "Stemline"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "Decision date unverified",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-roche-giredestrant",
+      "2026-11-30-roche-giredestrant-fda-early",
+      "2026-12-18-roche-giredestrant-fda-advanced"
+    ],
+    "connection_notes": "Left off a single day because the Oct 31 note says the date is unverified."
+  },
+  {
+    "id": "2026-11-03-rigl-earnings",
+    "date": "2026-11-03",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "Rigel Q3 earnings",
+    "summary": "Rigel reports Q3 on Nov 3, 2026. As of Oct 31 the shares were $51.31, near a one-year high. Tavalisse is the main drug. Veppanu (vepdegestrant), licensed from Arvinas, is an oral SERD, and reliance on it is low. Arvinas reports the same day.",
+    "tickers": [
+      "RIGL"
+    ],
+    "companies": [
+      "Rigel"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "earnings",
+    "key_number": "Q3 earnings Nov 3; shares were $51.31",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "node-rigl-veppanu",
+      "node-arvn-veppanu",
+      "2026-11-03-arvn-earnings"
+    ],
+    "connection_notes": "The $51.31 price is the Oct 31 snapshot, stored on the Rigel bubble."
+  },
+  {
+    "id": "2026-11-03-arvn-earnings",
+    "date": "2026-11-03",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "Arvinas Q3 earnings",
+    "summary": "Arvinas reports Q3 on Nov 3, 2026. As of Oct 31 the shares were $7.30. Arvinas licensed Veppanu to Rigel and receives royalties. Reliance on that royalty stream is medium.",
+    "tickers": [
+      "ARVN"
+    ],
+    "companies": [
+      "Arvinas"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "earnings",
+    "key_number": "Q3 earnings Nov 3; shares were $7.30",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [
+      "2026-11-03-rigl-earnings",
+      "node-arvn-veppanu"
+    ],
+    "connection_notes": "The $7.30 price is the Oct 31 snapshot, stored on the Arvinas bubble."
+  },
+  {
+    "id": "2026-09-28-egtx-emcitate",
+    "date": "2026-09-28",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "FDA approves Egetis Emcitate for MCT8 deficiency",
+    "summary": "Egetis, listed in Stockholm, won FDA approval of Emcitate for MCT8 deficiency on Sep 28, 2026. No rival was named. Reliance is very high.",
+    "tickers": [
+      "EGTX"
+    ],
+    "companies": [
+      "Egetis"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "FDA approval Sep 28, 2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [],
+    "connection_notes": "No rival named yet. Noted Oct 31, 2026.",
+    "graph_node": {
+      "label": "EGTX",
+      "drug": "Emcitate",
+      "reliance": "very_high",
+      "market_cap_b": null,
+      "cluster": "monopoly",
+      "order": 4
+    }
+  },
+  {
+    "id": "2026-11-22-savara-molgramostim",
+    "date": "2026-11-22",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "PDUFA: Savara molgramostim",
+    "summary": "First-ever-treatment FDA decision date for Savara's molgramostim. No rival was named. Reliance and market cap were not stated.",
+    "tickers": [],
+    "companies": [
+      "Savara"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "First-ever-treatment PDUFA Nov 22, 2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [],
+    "connection_notes": "",
+    "graph_node": {
+      "label": "Savara",
+      "drug": "molgramostim",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "pdufa",
+      "order": 1
+    }
+  },
+  {
+    "id": "2026-11-22-capricor-deramiocel",
+    "date": "2026-11-22",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "PDUFA: Capricor deramiocel",
+    "summary": "First-ever-treatment FDA decision date for Capricor's deramiocel. No rival was named. Reliance and market cap were not stated.",
+    "tickers": [],
+    "companies": [
+      "Capricor"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "First-ever-treatment PDUFA Nov 22, 2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [],
+    "connection_notes": "",
+    "graph_node": {
+      "label": "Capricor",
+      "drug": "deramiocel",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "pdufa",
+      "order": 2
+    }
+  },
+  {
+    "id": "2026-11-27-bridgebio-bbp418",
+    "date": "2026-11-27",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "PDUFA: BridgeBio BBP-418",
+    "summary": "First-ever-treatment FDA decision date for BridgeBio's BBP-418. No rival was named. Reliance and market cap were not stated.",
+    "tickers": [],
+    "companies": [
+      "BridgeBio"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "First-ever-treatment PDUFA Nov 27, 2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [],
+    "connection_notes": "",
+    "graph_node": {
+      "label": "BridgeBio",
+      "drug": "BBP-418",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "pdufa",
+      "order": 3
+    }
+  },
+  {
+    "id": "2026-12-30-saol-sl1009",
+    "date": "2026-12-30",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "PDUFA: Saol SL1009",
+    "summary": "First-ever-treatment FDA decision date for Saol's SL1009. Saol is private. No rival was named. Reliance and market cap were not stated.",
+    "tickers": [],
+    "companies": [
+      "Saol"
+    ],
+    "industry": "Biotech / rare disease",
+    "event_type": "fda",
+    "key_number": "First-ever-treatment PDUFA Dec 30, 2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-10-31",
+    "related_ids": [],
+    "connection_notes": "",
+    "graph_node": {
+      "label": "Saol",
+      "drug": "SL1009",
+      "reliance": null,
+      "market_cap_b": null,
+      "cluster": "pdufa",
+      "order": 4
+    }
   }
 ]

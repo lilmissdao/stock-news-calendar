@@ -18,7 +18,7 @@ Open [http://localhost:3000](http://localhost:3000). `npm run build` produces a 
 - **Calendar** opens on October 2026. Move to earlier or later months with Prev and Next. Items with a day-level date sit on that day, color-coded by industry. Month, quarter, and uncertain dates stay in the “This month / undated” strip instead of being pinned to a guessed day. A crowded day keeps a few headlines in the cell and lists the rest in the agenda. Click an item for the summary, key number, stated price, stated move, and related items.
 - **List** is the same filtered set as a timeline.
 - **Ticker** picks one symbol and shows its items in order. A price line is drawn only from `price_mentioned` rows whose ticker is the one you picked. Percent moves are markers from `move_pct`. Filled markers are items that name only that ticker. Open markers name several tickers, so the percent may describe the group or the tape rather than that symbol alone. Linked items from `related_ids` can be shown on the same timeline, including reactions that land on a later date.
-- **Connections** is a graph of `related_ids`. Drag to pan, drag a node to move it, and click a node for the write-up. Two reading paths are laid out from links already in the file: Meta capex → Nvidia → CoreWeave debt → rates, and Iran / oil → airlines and defense.
+- **Connections** is a graph of `related_ids`. Drag to pan, drag a node to move it, and click a node for the write-up. Two reading paths are laid out from links already in the file: Meta capex → Nvidia → CoreWeave debt → rates, and Iran / oil → airlines and defense. **Biotech drug rivalries** draws company/drug bubbles. Size is reliance on that drug (very high means the only product), nudged by a stated market cap. A solid line is a rival drug, a dashed line is a generic threat, a dotted line is a royalty, and a faint dashed line was not verified.
 - **Upcoming**, in the side column, is the next 14 days of items whose status is `upcoming`. It follows the filters.
 
 Filters (industry, ticker or company or headline, event type, status, stated price range, and move direction plus a minimum size) apply to every view. Prices and moves are never filled in when the file leaves them null.
@@ -47,6 +47,9 @@ Light and dark follow the system preference until you toggle them. The choice is
 | `source_digest_date` | `YYYY-MM-DD` the note was written down. |
 | `related_ids` | Ids of connected items. Use `[]` when nothing connects. |
 | `connection_notes` | Why the links exist, or `""`. |
+| `graph_node` | Optional. Present when the row is a bubble on Biotech drug rivalries: `label`, `drug`, `reliance` (`very_high`, `high`, `medium`, `low`, or null), `market_cap_b` (billions, or null), `cluster`, `order`. |
+| `graph_only` | Optional `true`. Hides the row from the calendar. Use it for a company bubble that is not itself a dated event. |
+| `link_kinds` | Optional map of a related id to `rival`, `generic_threat`, `royalty`, or `unverified`. |
 
 Only record what was actually in the source notes. Leave price and move null when a number was not stated.
 

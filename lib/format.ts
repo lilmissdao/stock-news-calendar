@@ -96,6 +96,14 @@ export function monthMatrix(year: number, month: number): Date[][] {
   return weeks;
 }
 
+export function formatMarketCap(billions: number): string {
+  if (billions >= 1) {
+    const text = billions.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+    return `~$${text}B`;
+  }
+  return `~$${Math.round(billions * 1000)}M`;
+}
+
 export function formatPrice(price: number): string {
   const text = Number.isInteger(price) ? price.toLocaleString("en-US") : String(price);
   return `$${text}`;

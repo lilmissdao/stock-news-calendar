@@ -1,9 +1,10 @@
-import type { Story } from "./types";
+import type { LinkKind, Reliance, Story } from "./types";
 
 export const INDUSTRY_COLORS: Record<string, string> = {
   Semiconductors: "#0f8f86",
   "AI/Cloud": "#5b6cff",
   "Pharma/Biotech": "#d4537e",
+  "Biotech / rare disease": "#9a3d78",
   Energy: "#e07a3d",
   Defense: "#3d7ec9",
   Macro: "#8a8175",
@@ -64,7 +65,28 @@ export const STATUS_LABELS = {
   developing: "Developing",
 } as const;
 
+export const RELIANCE_LABELS: Record<Reliance, string> = {
+  very_high: "Very high · only product",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+};
+
+export const LINK_LABELS: Record<LinkKind, string> = {
+  rival: "Rival drug",
+  generic_threat: "Generic threat",
+  royalty: "Royalty or license",
+  unverified: "Unverified link",
+};
+
 export const STORIES: Story[] = [
+  {
+    id: "drug-rivalries",
+    title: "Biotech drug rivalries",
+    blurb:
+      "As of Oct 31, 2026. Each bubble is a company and a drug. Bigger means the company relies on that drug more, with a nudge from any market cap that was stated. A solid line is a rival drug, a dashed line is a generic threat, a dotted line is a royalty, and a faint dashed line was not verified. Dated decisions sit on the calendar. Filter to Biotech / rare disease to see only this set.",
+    columns: [],
+  },
   {
     id: "capex",
     title: "Meta capex → NVDA → CoreWeave → rates",

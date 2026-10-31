@@ -1,6 +1,6 @@
-import type { NewsItem } from "./types";
+import type { LinkKind, NewsItem } from "./types";
 
-export type GraphEdge = { source: string; target: string };
+export type GraphEdge = { source: string; target: string; kind?: LinkKind };
 export type Point = { x: number; y: number };
 
 export function undirectedEdges(items: NewsItem[]): GraphEdge[] {

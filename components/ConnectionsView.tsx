@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { formatShort } from "@/lib/format";
+import { formatMarketCap, formatShort } from "@/lib/format";
 import { edgeKey, layoutForce, undirectedEdges, type GraphEdge, type Point } from "@/lib/graph";
-import { industryColor, STORIES } from "@/lib/taxonomy";
-import type { NewsItem } from "@/lib/types";
+import { bubbleRadius, layoutRivalry, legendRadius, rivalryEdges, type ClusterCaption } from "@/lib/rivalry";
+import { industryColor, LINK_LABELS, RELIANCE_LABELS, STORIES } from "@/lib/taxonomy";
+import type { LinkKind, NewsItem, Reliance } from "@/lib/types";
 
 const WORLD = { width: 1100, height: 680 };
 const HOME = { x: 0, y: 0, w: WORLD.width, h: WORLD.height };
@@ -22,7 +23,8 @@ export function ConnectionsView({
 }) {
   const [storyId, setStoryId] = useState<string>("capex");
   const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
-  const edges = useMemo(() => undirectedEdges(items), [items]);
+  const linkItems = useMemo(() => items.filter((item) => !item.graph_only), [items]);
+  const edges = useMemo(() => undirectedEdges(linkItems), [linkItems]);
   const linkedIds = useMemo(() => {
     const ids = new Set<string>();
     for (const edge of edges) {
@@ -31,8 +33,9 @@ export function ConnectionsView({
     }
     return [...ids];
   }, [edges]);
-  const isolates = items.filter((item) => !linkedIds.includes(item.id));
+  const isolates = linkItems.filter((item) => !linkedIds.includes(item.id));
   const story = STORIES.find((entry) => entry.id === storyId) ?? null;
+  const rivalryCount = items.filter((item) => item.graph_node).length;
 
   return (
     <div className="graph-view">
@@ -46,7 +49,9 @@ export function ConnectionsView({
           </button>
         ))}
       </div>
-      {story ? (
+      {story?.id === "drug-rivalries" ? (
+        <RivalryGraph items={items} byId={byId} selectedId={selectedId} hover={hover} onHover={setHover} onOpen={onOpen} />
+      ) : story ? (
         <StoryGraph storyId={story.id} items={items} byId={byId} selectedId={selectedId} onOpen={onOpen} />
       ) : (
         <ForceGraph
@@ -59,7 +64,10 @@ export function ConnectionsView({
           onOpen={onOpen}
         />
       )}
-      <Legend items={items} />
+      {story?.id === "drug-rivalries" ? null : <Legend items={linkItems} />}
+      {storyId === "all" && rivalryCount > 0 ? (
+        <p className="chart-note">Sized drug-rivalry bubbles are on Biotech drug rivalries. Bubble size is reliance on that drug.</p>
+      ) : null}
       {storyId === "all" && isolates.length > 0 ? (
         <section className="isolates">
           <h3>No links to other visible items</h3>
@@ -77,7 +85,7 @@ export function ConnectionsView({
       ) : null}
       {hover && byId.get(hover.id) ? (
         <div className="tip" style={{ left: hover.x + 12, top: hover.y + 12 }}>
-          {byId.get(hover.id)?.title}
+          {tipText(byId.get(hover.id) as NewsItem)}
         </div>
       ) : null}
     </div>
@@ -191,6 +199,10 @@ function ForceGraph({
   hover,
   onHover,
   onOpen,
+  preset,
+  world = WORLD,
+  captions = [],
+  sized = false,
 }: {
   ids: string[];
   edges: GraphEdge[];
@@ -199,11 +211,19 @@ function ForceGraph({
   hover: { id: string; x: number; y: number } | null;
   onHover: (hover: { id: string; x: number; y: number } | null) => void;
   onOpen: (id: string) => void;
+  preset?: Map<string, Point>;
+  world?: { width: number; height: number };
+  captions?: ClusterCaption[];
+  sized?: boolean;
 }) {
-  const signature = `${ids.join("|")}#${edges.map(edgeKey).join("|")}`;
-  const laidOut = useMemo(() => layoutForce(ids, edges, WORLD.width, WORLD.height), [signature, ids, edges]);
+  const home = { x: 0, y: 0, w: world.width, h: world.height };
+  const signature = `${ids.join("|")}#${edges.map(edgeKey).join("|")}#${world.width}x${world.height}#${sized ? "sized" : "plain"}`;
+  const laidOut = useMemo(
+    () => preset ?? layoutForce(ids, edges, world.width, world.height),
+    [signature, ids, edges, preset, world.width, world.height],
+  );
   const [pos, setPos] = useState<Map<string, Point>>(laidOut);
-  const [cam, setCam] = useState<Camera>(HOME);
+  const [cam, setCam] = useState<Camera>(home);
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ kind: "pan" | "node"; id?: string; x: number; y: number; moved: boolean } | null>(null);
   const camRef = useRef(cam);
@@ -211,8 +231,8 @@ function ForceGraph({
 
   useEffect(() => {
     setPos(laidOut);
-    setCam(HOME);
-  }, [laidOut]);
+    setCam(home);
+  }, [laidOut, home.w, home.h]);
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -258,7 +278,7 @@ function ForceGraph({
         <button type="button" onClick={() => setCam((current) => zoomAt(current, 1.15, 0.5, 0.5))} aria-label="Zoom out">
           −
         </button>
-        <button type="button" onClick={() => setCam(HOME)}>
+        <button type="button" onClick={() => setCam(home)}>
           Fit
         </button>
       </div>
@@ -267,7 +287,7 @@ function ForceGraph({
         ref={svgRef}
         className="graph"
         viewBox={`${cam.x} ${cam.y} ${cam.w} ${cam.h}`}
-        aria-label="News items linked by related ids"
+        aria-label={sized ? "Drug rivalry map. Bubble size shows reliance on the drug." : "News items linked by related ids"}
         onPointerDown={(event) => {
           const target = event.target as Element;
           const node = target.closest("[data-node]");
@@ -313,20 +333,43 @@ function ForceGraph({
         }}
         onPointerLeave={() => onHover(null)}
       >
+        {captions.map((caption) => (
+          <text key={caption.label} x={caption.x} y={caption.y} className="cluster-label">
+            {caption.label}
+          </text>
+        ))}
         {edges.map((edge) => {
           const a = pos.get(edge.source);
           const b = pos.get(edge.target);
           if (!a || !b) return null;
-          const start = circleEdge(a, b, 16);
-          const end = circleEdge(b, a, 16);
+          const start = circleEdge(a, b, sized ? drawRadius(byId.get(edge.source), false) : 16);
+          const end = circleEdge(b, a, sized ? drawRadius(byId.get(edge.target), false) : 16);
           const dim = neighborIds && !(neighborIds.has(edge.source) && neighborIds.has(edge.target));
-          return <line key={edgeKey(edge)} x1={start.x} y1={start.y} x2={end.x} y2={end.y} className={dim ? "link dim" : "link"} />;
+          const kindClass = edge.kind ? ` ${edge.kind}` : "";
+          return (
+            <line
+              key={edgeKey(edge)}
+              x1={start.x}
+              y1={start.y}
+              x2={end.x}
+              y2={end.y}
+              className={dim ? `link dim${kindClass}` : `link${kindClass}`}
+            >
+              {edge.kind ? <title>{LINK_LABELS[edge.kind]}</title> : null}
+            </line>
+          );
         })}
         {ids.map((id) => {
           const item = byId.get(id);
           const point = pos.get(id);
           if (!item || !point) return null;
           const dim = neighborIds ? !neighborIds.has(id) : false;
+          const selected = selectedId === id;
+          const radius = sized ? drawRadius(item, false) : selected ? 16 : 13;
+          const color = industryColor(item.industry);
+          const generic = item.graph_node?.generic === true;
+          const unverified = item.graph_node?.unverified === true;
+          const label = item.graph_node?.label ?? item.tickers[0] ?? item.industry;
           return (
             <g
               key={id}
@@ -337,13 +380,21 @@ function ForceGraph({
               <circle
                 cx={point.x}
                 cy={point.y}
-                r={selectedId === id ? 16 : 13}
-                fill={industryColor(item.industry)}
-                className={selectedId === id ? "selected" : ""}
+                r={radius}
+                fill={generic ? "var(--bg-elev)" : color}
+                stroke={selected ? "var(--ink)" : generic || unverified ? color : "transparent"}
+                strokeWidth={selected ? 3 : generic || unverified ? 2 : 0}
+                strokeDasharray={!selected && unverified ? "4 3" : undefined}
+                className={selected ? "selected" : ""}
               />
-              <text x={point.x} y={point.y + 24} textAnchor="middle" className="node-label">
-                {item.tickers[0] ?? item.industry}
+              <text x={point.x} y={point.y + (sized ? radius + 14 : 24)} textAnchor="middle" className="node-label">
+                {label}
               </text>
+              {sized && item.graph_node?.drug ? (
+                <text x={point.x} y={point.y + radius + 26} textAnchor="middle" className="node-sub">
+                  {item.graph_node.drug}
+                </text>
+              ) : null}
               <title>{item.title}</title>
             </g>
           );
@@ -394,9 +445,121 @@ function circleEdge(from: Point, to: Point, radius: number): Point {
   return { x: from.x + (dx / dist) * radius, y: from.y + (dy / dist) * radius };
 }
 
+function drawRadius(item: NewsItem | undefined, _selected: boolean): number {
+  if (item?.graph_node) return bubbleRadius(item.graph_node);
+  return 15;
+}
+
+function tipText(item: NewsItem): string {
+  const node = item.graph_node;
+  if (!node) return item.title;
+  const reliance = node.reliance ? RELIANCE_LABELS[node.reliance] : "Reliance not stated";
+  const cap = node.market_cap_b != null ? `, ${formatMarketCap(node.market_cap_b)}` : "";
+  return `${node.label} · ${node.drug} — ${reliance}${cap}`;
+}
+
+function RivalryGraph({
+  items,
+  byId,
+  selectedId,
+  hover,
+  onHover,
+  onOpen,
+}: {
+  items: NewsItem[];
+  byId: Map<string, NewsItem>;
+  selectedId: string | null;
+  hover: { id: string; x: number; y: number } | null;
+  onHover: (hover: { id: string; x: number; y: number } | null) => void;
+  onOpen: (id: string) => void;
+}) {
+  const nodes = items.filter((item) => item.graph_node);
+  const nodeSignature = nodes.map((item) => item.id).join("|");
+  const layout = useMemo(() => layoutRivalry(nodes), [nodeSignature]);
+  const edges = useMemo(() => rivalryEdges(nodes), [nodeSignature]);
+  const hidden = [...byId.values()].filter((item) => item.graph_node && !nodes.some((node) => node.id === item.id)).length;
+
+  if (nodes.length === 0) {
+    return <p className="empty">This chain is hidden by the current filters.</p>;
+  }
+
+  return (
+    <div>
+      <p className="story-blurb">{STORIES.find((entry) => entry.id === "drug-rivalries")?.blurb}</p>
+      <RivalryLegend />
+      <ForceGraph
+        ids={nodes.map((item) => item.id)}
+        edges={edges}
+        byId={byId}
+        selectedId={selectedId}
+        hover={hover}
+        onHover={onHover}
+        onOpen={onOpen}
+        preset={layout.positions}
+        world={{ width: WORLD.width, height: layout.height }}
+        captions={layout.captions}
+        sized
+      />
+      <p className="chart-note">
+        Drag the background to pan, drag a bubble to move it, and click a bubble for the write-up. {nodes.length} companies, {edges.length} links.
+        {hidden > 0 ? ` ${hidden} hidden by filters.` : ""}
+      </p>
+    </div>
+  );
+}
+
+function RivalryLegend() {
+  const sizes: { reliance: Reliance | null; label: string }[] = [
+    { reliance: null, label: "Not stated" },
+    { reliance: "low", label: "Low" },
+    { reliance: "medium", label: "Medium" },
+    { reliance: "high", label: "High" },
+    { reliance: "very_high", label: "Very high" },
+  ];
+  const kinds: LinkKind[] = ["rival", "generic_threat", "royalty", "unverified"];
+  return (
+    <div className="rival-legend">
+      <div>
+        <h3>Bubble size</h3>
+        <ul className="legend legend-bubbles">
+          {sizes.map((entry) => {
+            const radius = legendRadius(entry.reliance) * 0.42;
+            return (
+              <li key={entry.label}>
+                <svg width={radius * 2 + 4} height={radius * 2 + 4} aria-hidden="true">
+                  <circle cx={radius + 2} cy={radius + 2} r={radius} fill={industryColor("Biotech / rare disease")} />
+                </svg>
+                {entry.label}
+              </li>
+            );
+          })}
+        </ul>
+        <p className="legend-note">
+          Size is how much the company relies on the drug. Very high means it is the only product. A stated market cap makes the bubble a little larger or smaller inside that band. Hollow is a generic threat. A dashed outline was not verified.
+        </p>
+      </div>
+      <div>
+        <h3>Lines</h3>
+        <ul className="legend">
+          {kinds.map((kind) => (
+            <li key={kind}>
+              <span className={`edge-sample ${kind}`} />
+              {LINK_LABELS[kind]}
+            </li>
+          ))}
+          <li>
+            <i style={{ background: industryColor("Biotech / rare disease") }} />
+            Biotech / rare disease
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 function zoomAt(camera: Camera, factor: number, px: number, py: number): Camera {
-  const nextW = Math.min(2200, Math.max(420, camera.w * factor));
-  const nextH = nextW * (HOME.h / HOME.w);
+  const nextW = Math.min(2800, Math.max(420, camera.w * factor));
+  const nextH = nextW * (camera.h / camera.w);
   const mx = camera.x + px * camera.w;
   const my = camera.y + py * camera.h;
   return { x: mx - px * nextW, y: my - py * nextH, w: nextW, h: nextH };

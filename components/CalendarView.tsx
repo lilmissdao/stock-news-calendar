@@ -30,14 +30,14 @@ export function CalendarView({
   const pinned = useMemo(() => {
     const map = new Map<string, NewsItem[]>();
     for (const item of items) {
-      if (item.date_precision !== "day") continue;
+      if (item.graph_only || item.date_precision !== "day") continue;
       const list = map.get(item.date) ?? [];
       list.push(item);
       map.set(item.date, list);
     }
     return map;
   }, [items]);
-  const undated = items.filter((item) => item.date_precision !== "day" && item.date.startsWith(key));
+  const undated = items.filter((item) => !item.graph_only && item.date_precision !== "day" && item.date.startsWith(key));
   const agenda = pinned.get(selectedDay) ?? [];
   const prev = shiftMonth(year, month, -1);
   const next = shiftMonth(year, month, 1);

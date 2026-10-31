@@ -1,5 +1,18 @@
 export type DatePrecision = "day" | "month" | "quarter" | "unknown";
 export type Status = "happened" | "upcoming" | "developing";
+export type Reliance = "very_high" | "high" | "medium" | "low";
+export type LinkKind = "rival" | "generic_threat" | "royalty" | "unverified";
+
+export type GraphNode = {
+  label: string;
+  drug: string;
+  reliance: Reliance | null;
+  market_cap_b: number | null;
+  cluster: string;
+  order: number;
+  unverified: boolean;
+  generic: boolean;
+};
 
 export type PriceMention = {
   ticker: string;
@@ -23,6 +36,9 @@ export type NewsItem = {
   source_digest_date: string;
   related_ids: string[];
   connection_notes: string;
+  graph_node: GraphNode | null;
+  graph_only: boolean;
+  link_kinds: Partial<Record<string, LinkKind>>;
 };
 
 export type MoveDir = "any" | "up" | "down";

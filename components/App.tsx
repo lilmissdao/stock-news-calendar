@@ -7,6 +7,7 @@ import { DetailDialog } from "@/components/DetailDialog";
 import { Filters } from "@/components/Filters";
 import { ListView } from "@/components/ListView";
 import { StocksView } from "@/components/StocksView";
+import { TickerSearch } from "@/components/TickerSearch";
 import { TickerView } from "@/components/TickerView";
 import { UpcomingPanel } from "@/components/UpcomingPanel";
 import { EMPTY_FILTERS, applyFilters, filtersActive } from "@/lib/filter";
@@ -145,6 +146,7 @@ export function App({ items }: { items: NewsItem[] }) {
           <p className="kicker">For Dao</p>
           <h1>Stock News Calendar</h1>
         </div>
+        <TickerSearch items={items} onPick={openStock} />
         <div className="top-actions">
           <div className="view-switch" role="tablist" aria-label="Views">
             {VIEWS.map((entry) => (

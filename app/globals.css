@@ -108,6 +108,78 @@ button:focus-visible, input:focus-visible, select:focus-visible, circle:focus-vi
   justify-content: flex-end;
 }
 
+.ticker-search {
+  position: relative;
+  flex: 1 1 260px;
+  max-width: 420px;
+  min-width: 200px;
+}
+.ticker-search input {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  padding: 8px 16px;
+  font-size: 16px;
+}
+.suggest {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  max-height: min(420px, 60vh);
+  overflow: auto;
+}
+.suggest button {
+  width: 100%;
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  padding: 8px 10px;
+}
+.suggest button.active,
+.suggest button[aria-selected="true"] {
+  background: var(--muted);
+}
+.suggest-ticker {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.suggest-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-soft);
+}
+.suggest-hint {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+.suggest-empty {
+  padding: 10px 12px;
+  color: var(--ink-soft);
+}
+
 .view-switch {
   display: flex;
   gap: 4px;
@@ -621,6 +693,8 @@ main { min-width: 0; }
 
 @media (max-width: 640px) {
   .shell { width: min(100% - 16px, 1240px); }
+  .ticker-search { order: 2; flex-basis: 100%; max-width: none; min-width: 0; }
+  .top-actions { order: 3; }
   .view-switch { flex-wrap: wrap; overflow: visible; border-radius: 16px; }
   .stock-group { grid-template-columns: 1fr; gap: 4px; }
   .stock-scroller { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }

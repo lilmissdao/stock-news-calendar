@@ -13,6 +13,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). `npm run build` produces a production build that Vercel can deploy with no extra configuration and no environment variables.
 
+The search box in the top bar matches a ticker or a company name as you type. `nvd`, `nvidia`, `lilly`, and `LLY` all work. A Story hint means that name has a story page. Otherwise the pick opens the ticker chart. Names live in `data/ticker-names.json`.
+
 ## Views
 
 - **Calendar** opens on October 2026. Move to earlier or later months with Prev and Next. Items with a day-level date sit on that day, color-coded by industry. Month, quarter, and uncertain dates stay in the “This month / undated” strip instead of being pinned to a guessed day. A crowded day keeps a few headlines in the cell and lists the rest in the agenda. Click an item for the summary, key number, stated price, stated move, and related items.

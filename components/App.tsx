@@ -6,17 +6,20 @@ import { ConnectionsView } from "@/components/ConnectionsView";
 import { DetailDialog } from "@/components/DetailDialog";
 import { Filters } from "@/components/Filters";
 import { ListView } from "@/components/ListView";
+import { StocksView } from "@/components/StocksView";
 import { TickerView } from "@/components/TickerView";
 import { UpcomingPanel } from "@/components/UpcomingPanel";
 import { EMPTY_FILTERS, applyFilters, filtersActive } from "@/lib/filter";
 import { parseISODate, toISODate } from "@/lib/format";
 import { indexById } from "@/lib/news";
+import { STOCK_BY_TICKER } from "@/lib/stocks";
 import type { FilterState, NewsItem, ViewId } from "@/lib/types";
 
 const VIEWS: { id: ViewId; label: string }[] = [
   { id: "calendar", label: "Calendar" },
   { id: "list", label: "List" },
   { id: "ticker", label: "Ticker" },
+  { id: "stocks", label: "Stocks" },
   { id: "connections", label: "Connections" },
 ];
 
@@ -28,6 +31,7 @@ export function App({ items }: { items: NewsItem[] }) {
   const [selectedDay, setSelectedDay] = useState("2026-10-23");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [ticker, setTicker] = useState("NVDA");
+  const [stock, setStock] = useState("NVDA");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [upcomingOpen, setUpcomingOpen] = useState(false);
   const [today, setToday] = useState<string | null>(null);
@@ -56,6 +60,32 @@ export function App({ items }: { items: NewsItem[] }) {
   useEffect(() => {
     setToday(toISODate(new Date()));
   }, []);
+
+  useEffect(() => {
+    function fromHash() {
+      const match = window.location.hash.match(/^#stocks\/([A-Za-z0-9.-]+)$/i);
+      if (!match) return;
+      const symbol = match[1].toUpperCase();
+      if (!STOCK_BY_TICKER.has(symbol)) return;
+      setStock(symbol);
+      setTicker(symbol);
+      setView("stocks");
+    }
+    fromHash();
+    window.addEventListener("hashchange", fromHash);
+    return () => window.removeEventListener("hashchange", fromHash);
+  }, []);
+
+  useEffect(() => {
+    if (view === "stocks") {
+      const next = `#stocks/${stock}`;
+      if (window.location.hash !== next) window.history.replaceState(null, "", next);
+      return;
+    }
+    if (window.location.hash.toLowerCase().startsWith("#stocks/")) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  }, [view, stock]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -94,6 +124,18 @@ export function App({ items }: { items: NewsItem[] }) {
     setTicker(symbol);
     setView("ticker");
     setSelectedId(null);
+  }
+
+  function openStock(symbol: string) {
+    const next = symbol.toUpperCase();
+    if (STOCK_BY_TICKER.has(next)) {
+      setStock(next);
+      setTicker(next);
+      setView("stocks");
+      setSelectedId(null);
+      return;
+    }
+    openTicker(next);
   }
 
   return (
@@ -159,7 +201,24 @@ export function App({ items }: { items: NewsItem[] }) {
           ) : null}
           {view === "list" ? <ListView items={filtered} onOpen={openItem} /> : null}
           {view === "ticker" ? (
-            <TickerView items={items} filtered={filtered} ticker={ticker} onTicker={setTicker} onOpen={openItem} />
+            <TickerView
+              items={items}
+              filtered={filtered}
+              ticker={ticker}
+              onTicker={setTicker}
+              onOpen={openItem}
+              onStory={STOCK_BY_TICKER.has(ticker) ? () => openStock(ticker) : undefined}
+            />
+          ) : null}
+          {view === "stocks" ? (
+            <StocksView
+              items={items}
+              stock={stock}
+              today={today}
+              onStock={openStock}
+              onOpen={openItem}
+              onChart={openTicker}
+            />
           ) : null}
           {view === "connections" ? (
             <ConnectionsView items={filtered} byId={byId} selectedId={selectedId} onOpen={openItem} />

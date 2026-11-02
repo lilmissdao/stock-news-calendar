@@ -1,0 +1,1848 @@
+{
+  "about": "One object per stock. Copy an object to add a ticker. Point news_ids at ids in data/news.json. Do not invent a price, a percent, or a date. If a figure is not confirmed, leave it out or set unverified to true.",
+  "groups": ["Chips", "AI and cloud", "Power", "Pharma"],
+  "stocks": [
+    {
+      "ticker": "NVDA",
+      "name": "Nvidia",
+      "industry": "Semiconductors",
+      "group": "Chips",
+      "order": 10,
+      "blurb": "Nvidia still sells the chips the AI buildout runs on. The pile-up is that buyers are borrowing to pay, China can close a door, and Google and AMD are now real second sources.",
+      "peers": ["AMD", "AVGO", "TSM", "MU", "ARM"],
+      "pin_ids": ["2026-10-22-earnings-concentration", "2026-10-30-openai-shortfall", "2026-10-28-chip-export-rules", "2026-10-30-intc-us-stake", "2026-10-28-openai-tpu"],
+      "skip_ids": ["2026-10-21-market-close", "2026-10-30-chip-premarket-sndk"],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
+      "backfill": [
+        {
+          "id": "bf-nvda-deepseek",
+          "date": "2025-01-27",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "DeepSeek selloff: Nvidia fell just under 17%",
+          "summary": "Nvidia fell just under 17% after China's DeepSeek put out a low-cost AI model. Reuters put the one-day loss of market value at about $593 billion, a record for any company. The fear was that AI might need fewer expensive chips.",
+          "event_type": "market_move",
+          "key_number": "Just under 17%; about $593B of value",
+          "tickers": ["AMD", "AVGO", "MU", "ARM"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Reuters, Jan 27, 2025"
+        },
+        {
+          "id": "bf-nvda-h20",
+          "date": "2025-04-01",
+          "date_precision": "month",
+          "status": "happened",
+          "title": "US requires a license for H20 chips to China",
+          "summary": "In April 2025 the US told Nvidia it needed a license to ship H20 chips to China. Nvidia warned the charge could reach $5.5 billion. The exact day is not pinned here.",
+          "event_type": "policy",
+          "key_number": "Warned charge up to $5.5B",
+          "tickers": ["AMD", "AVGO", "TSM"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Nvidia, April 2025"
+        },
+        {
+          "id": "bf-nvda-fy26q1",
+          "date": "2025-05-28",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Q1 fiscal 2026: $44.1B revenue, $4.5B H20 charge",
+          "summary": "Revenue was $44.1 billion and profit was $18.8 billion. The H20 charge was $4.5 billion, less than the $5.5 billion warning. Nvidia said it missed $2.5 billion of H20 sales and that the next quarter could lose about $8 billion to the same rules.",
+          "event_type": "earnings",
+          "key_number": "Revenue $44.1B; H20 charge $4.5B",
+          "tickers": [],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Nvidia, May 28, 2025"
+        },
+        {
+          "id": "bf-nvda-fy26q2",
+          "date": "2025-08-27",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Q2 fiscal 2026: $46.7B revenue, Blackwell still ramping",
+          "summary": "Revenue was $46.7 billion, up 56% from a year earlier. Data-center revenue was $41.1 billion. Blackwell data-center revenue grew 17% from the prior quarter.",
+          "event_type": "earnings",
+          "key_number": "Revenue $46.7B; data center $41.1B",
+          "tickers": ["TSM"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Nvidia, Aug 27, 2025"
+        },
+        {
+          "id": "bf-nvda-fy26q3",
+          "date": "2025-11-19",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Q3 fiscal 2026: record $57.0B revenue",
+          "summary": "Revenue was $57.0 billion, up 62% from a year earlier. Data-center revenue was $51.2 billion.",
+          "event_type": "earnings",
+          "key_number": "Revenue $57.0B; data center $51.2B",
+          "tickers": [],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Nvidia, Nov 19, 2025"
+        },
+        {
+          "id": "bf-nvda-fy26q4",
+          "date": "2026-02-25",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Fiscal 2026: $215.9B revenue, and no China in the guide",
+          "summary": "Q4 revenue was $68.1 billion and data-center revenue was $62.3 billion. Full-year revenue was $215.9 billion, up 65%. The next-quarter guide assumed no data-center compute revenue from China.",
+          "event_type": "earnings",
+          "key_number": "Q4 $68.1B; year $215.9B; China assumed at zero",
+          "tickers": [],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Nvidia, Feb 25, 2026"
+        },
+        {
+          "id": "bf-nvda-fy27q1",
+          "date": "2026-05-20",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Q1 fiscal 2027: $81.6B revenue",
+          "summary": "Revenue was $81.6 billion, up 85% from a year earlier and above the $78 billion guide. Data-center revenue was $75.2 billion.",
+          "event_type": "earnings",
+          "key_number": "Revenue $81.6B; data center $75.2B",
+          "tickers": [],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Nvidia, May 20, 2026"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "nvda-openai-cash",
+          "title": "OpenAI does not have the cash it planned on",
+          "reason": "A short funding round means less money for the GPUs Nvidia is counting on, and for the cloud bills at Oracle and CoreWeave.",
+          "via": "OpenAI",
+          "level": "high",
+          "tickers": ["ORCL", "CRWV", "AMD", "MSFT"],
+          "news_ids": ["2026-10-30-openai-shortfall", "2026-10-23-openai-raise", "2026-10-08-openai-revenue-ft-ai-selloff"]
+        },
+        {
+          "id": "nvda-backstops",
+          "title": "Nvidia is financing its own customers",
+          "reason": "Backstops for neoclouds and for OpenAI's Ohio site tie Nvidia's balance sheet to demand that might not show up. If the buyer cannot pay, Nvidia is already on the hook.",
+          "via": "CoreWeave and OpenAI",
+          "level": "high",
+          "tickers": ["CRWV", "ORCL"],
+          "news_ids": ["2026-10-26-nvda-backstops", "2026-10-29-nvda-stargate-ohio", "2026-10-22-crwv-funding-need"]
+        },
+        {
+          "id": "nvda-china",
+          "title": "China export rules can shut a door again",
+          "reason": "The H20 license already cost billions in 2025, and the guide in February 2026 assumed no China data-center compute sales. The Affiliates Rule comes back Nov 10. That rule also covers a company's foreign affiliates, not just direct sales to China.",
+          "via": "US export rules",
+          "level": "high",
+          "tickers": ["AMD", "AVGO", "TSM"],
+          "news_ids": ["2026-11-10-affiliates-rule", "2026-10-28-chip-export-rules"]
+        },
+        {
+          "id": "nvda-tpu",
+          "title": "Google's chips are now a second source",
+          "reason": "OpenAI plans to buy Google TPUs, and Oracle will host them. No order size is stated. A real order would chip away at Nvidia's lock on that spending.",
+          "via": "Alphabet and Oracle",
+          "level": "medium",
+          "tickers": ["GOOGL", "AVGO", "ORCL"],
+          "news_ids": ["2026-10-28-openai-tpu", "2026-10-28-openai-tpu-order", "2026-10-27-orcl-tpu"]
+        },
+        {
+          "id": "nvda-amd",
+          "title": "AMD has a signed OpenAI chip deal",
+          "reason": "OpenAI agreed in Oct 2025 to deploy AMD GPUs, with a warrant that can become about 10% of AMD. That is demand Nvidia does not automatically get.",
+          "via": "AMD",
+          "level": "medium",
+          "tickers": ["AMD"],
+          "news_ids": ["2026-10-30-openai-shortfall"]
+        },
+        {
+          "id": "nvda-capex-rates",
+          "title": "The buyers need low-ish rates to keep spending",
+          "reason": "Meta, Amazon, Microsoft and Google are the demand. A hot CPI or jobs print that locks in a December Fed hike makes that spending look expensive. Tariffs feed the same inflation path.",
+          "via": "The Fed",
+          "level": "medium",
+          "tickers": ["META", "AMZN", "MSFT", "GOOGL"],
+          "news_ids": ["2026-10-28-fed-decision", "2026-11-10-cpi", "2026-11-06-jobs", "2026-10-22-meta-q3", "2026-10-30-amzn-capex"]
+        },
+        {
+          "id": "nvda-hbm",
+          "title": "The new chips need memory Nvidia does not make",
+          "reason": "HBM is the stacked memory on the newest AI chips. SK hynix says it is tight, and the HBM4 handoff for Vera Rubin is aimed at Q2 2027. A slip there slips Nvidia's next platform.",
+          "via": "Micron and SK hynix",
+          "level": "low",
+          "tickers": ["MU"],
+          "news_ids": ["2027-04-01-samsung-sk-hbm4", "2026-10-28-sk-hynix-return"]
+        }
+      ]
+    },
+    {
+      "ticker": "AMD",
+      "name": "AMD",
+      "industry": "Semiconductors",
+      "group": "Chips",
+      "order": 20,
+      "blurb": "AMD is the credible second GPU source, with an OpenAI deal to prove it. The same OpenAI cash problem, Intel's PC slump, and China rules can still hit it.",
+      "peers": ["NVDA", "AVGO", "INTC", "TSM", "ARM"],
+      "pin_ids": ["2026-10-30-intc-bofa-amzn-targets", "2026-10-30-openai-shortfall"],
+      "skip_ids": ["2026-10-22-market-close", "2026-10-27-market-close", "2026-11-03-midterms"],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
+      "backfill": [
+        {
+          "id": "bf-amd-deepseek",
+          "date": "2025-01-27",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "DeepSeek day: AMD fell more than 6%",
+          "summary": "AMD fell more than 6% in the same selloff that cut Nvidia just under 17%. The worry was that a cheaper Chinese model meant less demand for pricey AI chips.",
+          "event_type": "market_move",
+          "key_number": "More than 6% down",
+          "tickers": ["NVDA"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CNBC, Jan 27, 2025"
+        },
+        {
+          "id": "bf-amd-openai",
+          "date": "2025-10-06",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "OpenAI will deploy AMD GPUs, and can own about 10%",
+          "summary": "OpenAI agreed to deploy up to 6 gigawatts of AMD Instinct GPUs, starting with 1 gigawatt in the second half of 2026. AMD issued a warrant for up to 160 million shares, about 10% if it is all used. Reuters reported the shares surged more than 34%. AMD told Reuters it expects more than $100 billion of revenue over time from OpenAI and customers that follow. OpenAI did not state a dollar total.",
+          "event_type": "deal",
+          "key_number": "Up to 6 GW; warrant up to 160M shares; shares more than +34%",
+          "tickers": ["NVDA", "MSFT", "ORCL"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "AMD, Reuters and CNBC, Oct 6, 2025"
+        }
+      ],
+      "catalysts": [
+        {
+          "id": "cat-amd-q3",
+          "date": "2026-11-03",
+          "date_precision": "day",
+          "status": "upcoming",
+          "title": "AMD reports after the close",
+          "summary": "Tuesday after the close, call at 5 PM. The calendar guide is about $13 billion of revenue, plus or minus $0.3 billion, up 41% from a year ago. Consensus EPS is $1.68. It is the test of AI GPU demand outside Nvidia, on the same day as the midterms.",
+          "event_type": "earnings",
+          "key_number": "Guide about $13B; EPS $1.68",
+          "tickers": ["NVDA"],
+          "news_ids": ["2026-11-03-midterms"],
+          "unverified": false,
+          "source": "Calendar"
+        }
+      ],
+      "cautions": [
+        {
+          "id": "amd-openai-cash",
+          "title": "The OpenAI deal needs OpenAI to be able to pay",
+          "reason": "The warrant and the gigawatts only matter if OpenAI funds the build. The round is short of its target, which hits AMD, Nvidia and Oracle together.",
+          "via": "OpenAI",
+          "level": "high",
+          "tickers": ["NVDA", "ORCL", "CRWV", "MSFT"],
+          "news_ids": ["2026-10-30-openai-shortfall", "2026-10-23-openai-raise"]
+        },
+        {
+          "id": "amd-pc",
+          "title": "Intel's PC slump lands on AMD too",
+          "reason": "BofA flagged up to $750 million of PC-related headwind for AMD after Intel's weak guide. AMD's report this week is the check.",
+          "via": "Intel",
+          "level": "high",
+          "tickers": ["INTC"],
+          "news_ids": ["2026-10-30-intc-bofa-amzn-targets", "2026-10-29-intc-earnings"]
+        },
+        {
+          "id": "amd-china",
+          "title": "Export rules do not stop at Nvidia",
+          "reason": "A tighter China rule, including the Affiliates Rule on Nov 10, can limit AMD's data-center chips the same way H20 limited Nvidia.",
+          "via": "US export rules",
+          "level": "medium",
+          "tickers": ["NVDA", "AVGO", "TSM"],
+          "news_ids": ["2026-11-10-affiliates-rule", "2026-10-28-chip-export-rules"]
+        },
+        {
+          "id": "amd-custom",
+          "title": "Big customers are designing their own chips",
+          "reason": "Google's TPUs, Amazon's Trainium and Broadcom's custom accelerators are the path around both AMD and Nvidia. OpenAI is already looking at Google's chips.",
+          "via": "Broadcom and Alphabet",
+          "level": "medium",
+          "tickers": ["AVGO", "GOOGL", "AMZN", "NVDA"],
+          "news_ids": ["2026-10-28-openai-tpu", "2026-10-22-avgo-openai-pullback"]
+        },
+        {
+          "id": "amd-rates",
+          "title": "A December hike hits the multiple",
+          "reason": "AMD trades on AI growth. CPI on Nov 10 and the jobs report are the inputs the Fed just said it is watching. Section 232 tariffs sit on the same inflation path.",
+          "via": "The Fed",
+          "level": "low",
+          "tickers": ["NVDA"],
+          "news_ids": ["2026-10-28-fed-decision", "2026-11-10-cpi", "2026-10-26-canada-deal"]
+        }
+      ]
+    },
+    {
+      "ticker": "INTC",
+      "name": "Intel",
+      "industry": "Semiconductors",
+      "group": "Chips",
+      "order": 30,
+      "blurb": "Intel is a turnaround with the US government on the shareholder list. The foundry still needs an outside customer, and the PC guide just broke.",
+      "peers": ["AMD", "TSM", "NVDA", "QCOM"],
+      "pin_ids": [],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
+      "backfill": [
+        {
+          "id": "bf-intc-stake",
+          "date": "2025-08-22",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "US takes a 9.9% Intel stake at $20.47",
+          "summary": "The government agreed to buy 433.3 million shares, a 9.9% stake, at $20.47. The $8.9 billion is unpaid CHIPS Act grants ($5.7 billion) plus $3.2 billion from Secure Enclave. The stake is passive, with no board seat. A five-year warrant for another 5%, at $20, kicks in only if Intel stops owning at least 51% of the foundry.",
+          "event_type": "policy",
+          "key_number": "9.9% at $20.47; $8.9B; warrant for 5% more",
+          "tickers": ["TSM"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Intel, Aug 22, 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "intc-foundry",
+          "title": "The foundry still has no outside customer",
+          "reason": "Foundry means Intel making chips for other companies, not just itself. BofA says a win on the 18A-P or 14A processes is what brings the stock back. Tan says a couple of customers are possible over the next two quarters. Nothing is signed.",
+          "via": "Intel foundry",
+          "level": "high",
+          "tickers": ["TSM", "NVDA", "AMD"],
+          "news_ids": ["2026-10-30-intc-foundry", "2026-10-30-intc-bofa-amzn-targets"]
+        },
+        {
+          "id": "intc-stake",
+          "title": "The government stake makes the stock a policy trade",
+          "reason": "Friday's 29% drop cut about $12 billion from the value of the roughly 10% US stake. Nvidia's own Intel stake lost about $6 billion the same day. A further slide is a political story, not just a product story.",
+          "via": "US government",
+          "level": "high",
+          "tickers": ["NVDA"],
+          "news_ids": ["2026-10-30-intc-us-stake", "2026-10-30-intc-drop"]
+        },
+        {
+          "id": "intc-pc",
+          "title": "The PC slump is the guide, not a one-day move",
+          "reason": "Q4 revenue was guided to $15-16 billion against about $17.1 billion expected. Intel sees the PC slump lasting. That also hits AMD.",
+          "via": "PC demand",
+          "level": "high",
+          "tickers": ["AMD"],
+          "news_ids": ["2026-10-29-intc-earnings", "2026-10-30-intc-drop"]
+        },
+        {
+          "id": "intc-tsm",
+          "title": "TSMC already does the job Intel wants",
+          "reason": "Nvidia, AMD, Apple and Broadcom build at TSMC. Intel has to win a customer away from a factory that is already full of AI orders.",
+          "via": "TSMC",
+          "level": "medium",
+          "tickers": ["TSM", "NVDA", "AMD", "AAPL", "AVGO"],
+          "news_ids": ["2026-11-17-nvda-earnings"]
+        },
+        {
+          "id": "intc-tariff",
+          "title": "Tariffs can shrink the PC and auto chip market",
+          "reason": "Section 232 is the national-security tariff law. The Canada talks and the Mexico steel fight are still open, and the midterms decide how hard the next round is. Weaker autos and PCs mean fewer Intel chips.",
+          "via": "Section 232",
+          "level": "medium",
+          "tickers": ["AMD"],
+          "news_ids": ["2026-10-26-canada-deal", "2026-10-22-mexico-steel-tariffs", "2026-11-03-midterms"]
+        },
+        {
+          "id": "intc-warrant",
+          "title": "Selling the foundry trips a government warrant",
+          "reason": "The 2025 deal includes a warrant for another 5% if Intel owns less than 51% of the foundry. A split or a sale meant to save the factories would dilute holders.",
+          "via": "US government",
+          "level": "low",
+          "tickers": [],
+          "news_ids": ["2026-10-30-intc-foundry"]
+        }
+      ]
+    },
+    {
+      "ticker": "AVGO",
+      "name": "Broadcom",
+      "industry": "Semiconductors",
+      "group": "Chips",
+      "order": 40,
+      "blurb": "Broadcom sells the custom AI chips and the network switches around Nvidia. The risk is the same circular financing: it is lending to Anthropic so Anthropic can buy Broadcom.",
+      "peers": ["NVDA", "AMD", "GOOGL", "MRVL", "TSM"],
+      "pin_ids": ["2026-10-28-openai-tpu-order", "2026-10-30-openai-shortfall"],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
+      "backfill": [
+        {
+          "id": "bf-avgo-q4",
+          "date": "2025-12-11",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Q4 fiscal 2025: $18.0B revenue, AI chips still doubling",
+          "summary": "Revenue was $18.0 billion, up 28% from a year earlier, which Broadcom tied to AI semiconductor revenue up 74%. It said AI semiconductor revenue should double year over year to $8.2 billion in the next quarter, on custom AI accelerators and Ethernet switches.",
+          "event_type": "earnings",
+          "key_number": "Revenue $18.0B; next-quarter AI chips guided to $8.2B",
+          "tickers": ["GOOGL", "NVDA"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Broadcom, Dec 11, 2025"
+        },
+        {
+          "id": "bf-avgo-anthropic-tpu",
+          "date": "2025-10-27",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Anthropic lined up as many as 1 million Google TPUs",
+          "summary": "CNBC reported that Anthropic would reserve as many as 1 million of Google's TPU chips. Broadcom is the design partner on those custom chips. No signed dollar total is in this note. CNBC called the deal worth tens of billions.",
+          "event_type": "deal",
+          "key_number": "As many as 1 million TPUs; dollar total not confirmed",
+          "tickers": ["GOOGL", "NVDA"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CNBC, Oct 27, 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "avgo-loan",
+          "title": "Broadcom is lending Anthropic the money to buy Broadcom",
+          "reason": "A loan of up to $42 billion, plus a $63 billion vehicle to buy the chips and lease them back, is vendor financing. If Anthropic's IPO or its credit rating disappoints, the circle breaks.",
+          "via": "Anthropic",
+          "level": "high",
+          "tickers": ["NVDA", "GOOGL", "CRWV"],
+          "news_ids": ["2026-10-22-avgo-anthropic-loan", "2026-10-27-avgo-anthropic-spv", "2026-11-anthropic-ipo"]
+        },
+        {
+          "id": "avgo-openai",
+          "title": "OpenAI revenue doubts already moved the stock",
+          "reason": "Broadcom fell about 4.3% when OpenAI's revenue estimate was cut. Custom-chip orders from the labs are only as good as the labs' funding.",
+          "via": "OpenAI",
+          "level": "high",
+          "tickers": ["NVDA", "ORCL", "AMD"],
+          "news_ids": ["2026-10-22-avgo-openai-pullback", "2026-10-30-openai-shortfall"]
+        },
+        {
+          "id": "avgo-tpu-terms",
+          "title": "The OpenAI TPU order still has no terms",
+          "reason": "A plan with no size is not revenue. If it slips, the custom-chip story loses the customer Broadcom's investors just started counting.",
+          "via": "OpenAI and Alphabet",
+          "level": "medium",
+          "tickers": ["GOOGL", "NVDA", "ORCL"],
+          "news_ids": ["2026-10-28-openai-tpu-order", "2026-10-28-openai-tpu"]
+        },
+        {
+          "id": "avgo-nvda",
+          "title": "Nvidia is still the default chip",
+          "reason": "Custom chips win when a cloud customer wants off Nvidia. They lose when that customer goes back to buying GPUs, or when export rules hit the whole accelerator stack.",
+          "via": "Nvidia",
+          "level": "medium",
+          "tickers": ["NVDA", "AMD"],
+          "news_ids": ["2026-11-17-nvda-earnings", "2026-11-10-affiliates-rule"]
+        }
+      ]
+    },
+    {
+      "ticker": "MRVL",
+      "name": "Marvell",
+      "industry": "Semiconductors",
+      "group": "Chips",
+      "order": 50,
+      "blurb": "Marvell bet the company on custom AI chips and, this week, on buying Lumentum. The deal is huge, and it is not closed.",
+      "peers": ["AVGO", "NVDA", "AMD"],
+      "pin_ids": ["2026-11-05-lite-net-abnb"],
+      "skip_ids": ["2026-10-28-sk-hynix-return"],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [
+        {
+          "id": "bf-mrvl-q4",
+          "date": "2025-03-01",
+          "date_precision": "month",
+          "status": "happened",
+          "title": "Quarter ended Feb 1, 2025: data center was 75% of sales",
+          "summary": "Revenue was $1.817 billion, up 27% from a year earlier. Data-center revenue was $1.366 billion, up 78%, and about 75% of the total. Marvell said custom AI chips and a custom Arm processor had moved into high-volume production. The report day is not pinned here.",
+          "event_type": "earnings",
+          "key_number": "Revenue $1.817B; data center $1.366B",
+          "tickers": ["ARM", "NVDA"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Marvell, quarter ended Feb 1, 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "mrvl-deal",
+          "title": "The $115B Lumentum deal can still break",
+          "reason": "It is all stock, it needs shareholder and regulatory approval, and closing is aimed at the first half of 2028. The stock already fell 13.2% when the talks leaked, on fear of overpaying.",
+          "via": "Lumentum",
+          "level": "high",
+          "tickers": [],
+          "news_ids": ["2026-11-02-mrvl-lite-deal", "2026-10-29-mrvl-lite-talks", "2026-10-29-mrvl-lite"]
+        },
+        {
+          "id": "mrvl-custom",
+          "title": "Custom chips live or die with a few clouds",
+          "reason": "A handful of hyperscalers are the customers. If they switch to Broadcom, or back to Nvidia, Marvell's data-center mix has nowhere else to go.",
+          "via": "Broadcom and Nvidia",
+          "level": "medium",
+          "tickers": ["AVGO", "NVDA", "AMZN", "GOOGL"],
+          "news_ids": ["2026-10-28-openai-tpu-order", "2026-11-17-nvda-earnings"]
+        },
+        {
+          "id": "mrvl-rates",
+          "title": "A richer multiple needs the AI spend to continue",
+          "reason": "Optical and custom silicon are priced for the buildout. A Fed hike or a capex cut at the clouds hits the reason to own the Lumentum deal.",
+          "via": "The Fed",
+          "level": "low",
+          "tickers": ["NVDA", "AVGO"],
+          "news_ids": ["2026-11-10-cpi", "2026-10-30-amzn-capex"]
+        }
+      ]
+    },
+    {
+      "ticker": "MU",
+      "name": "Micron",
+      "industry": "Semiconductors",
+      "group": "Chips",
+      "order": 60,
+      "blurb": "Micron is the memory piece of the AI trade, and with Nvidia it is a huge slice of S&P earnings growth. The caution is a cycle: memory booms end when the buyers pause.",
+      "peers": ["NVDA", "AMD", "TSM"],
+      "pin_ids": ["2027-04-01-samsung-sk-hbm4", "2026-10-22-chip-equipment-selloff"],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
+      "backfill": [],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "mu-cycle",
+          "title": "Memory is a boom until the orders stop",
+          "reason": "Micron and Nvidia are about 36% of S&P earnings growth this quarter. That concentration is the bull case and the crash case. A capex pause at the clouds hits memory first.",
+          "via": "Nvidia and the clouds",
+          "level": "high",
+          "tickers": ["NVDA", "AMZN", "MSFT", "GOOGL", "META"],
+          "news_ids": ["2026-10-22-earnings-concentration", "2026-10-30-amzn-capex", "2026-10-22-meta-q3"]
+        },
+        {
+          "id": "mu-hbm",
+          "title": "HBM supply is tight, and so is the next spec",
+          "reason": "HBM is stacked memory for AI chips. SK hynix says it is sold out for years, and HBM4 for Nvidia's Vera Rubin is aimed at Q2 2027. Tight supply helps price until a rival qualifies and the price breaks.",
+          "via": "SK hynix and Samsung",
+          "level": "medium",
+          "tickers": ["NVDA"],
+          "news_ids": ["2026-10-28-sk-hynix-return", "2027-04-01-samsung-sk-hbm4"]
+        },
+        {
+          "id": "mu-china",
+          "title": "China rules can hit memory as well as GPUs",
+          "reason": "The Affiliates Rule and the wider chip-export draft are aimed at the AI stack. Memory shipped into China for those systems is in the same blast radius.",
+          "via": "US export rules",
+          "level": "medium",
+          "tickers": ["NVDA", "TSM"],
+          "news_ids": ["2026-11-10-affiliates-rule", "2026-10-28-chip-export-rules"]
+        },
+        {
+          "id": "mu-openai",
+          "title": "OpenAI's funding hole is a memory order hole",
+          "reason": "Less money for GPUs means fewer servers and less HBM. Oracle, CoreWeave and Nvidia are the path from OpenAI's round to Micron's orders.",
+          "via": "OpenAI",
+          "level": "low",
+          "tickers": ["NVDA", "ORCL", "CRWV"],
+          "news_ids": ["2026-10-30-openai-shortfall", "2026-10-26-nvda-backstops"]
+        }
+      ]
+    },
+    {
+      "ticker": "TSM",
+      "name": "TSMC",
+      "industry": "Semiconductors",
+      "group": "Chips",
+      "order": 70,
+      "blurb": "TSMC builds the advanced chips for Nvidia, AMD, Apple and Broadcom. The calendar barely mentions it. The risks are Taiwan, China rules, and Arizona still being a small slice of the real output.",
+      "peers": ["NVDA", "AMD", "AVGO", "AAPL", "INTC"],
+      "pin_ids": ["2026-10-28-chip-export-rules", "2026-11-17-nvda-earnings"],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
+      "backfill": [
+        {
+          "id": "bf-tsm-q3",
+          "date": "2025-10-16",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Q3 2025 revenue about $33.1B, up 40.8%",
+          "summary": "TSMC said AI demand drove the quarter. Revenue was about $33.1 billion, up 40.8% from a year earlier. It also said it plans six advanced fabs in Arizona. The dollar figure is a conversion of the company's report.",
+          "event_type": "earnings",
+          "key_number": "About $33.1B, up 40.8%",
+          "tickers": ["NVDA", "AMD", "AAPL"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "TSMC earnings call, Oct 16, 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "tsm-taiwan",
+          "title": "The advanced chips are still mostly made in Taiwan",
+          "reason": "A blockade, a quake, or an export fight around Taiwan stops the AI supply chain at once. Arizona does not replace that output.",
+          "via": "Taiwan",
+          "level": "high",
+          "tickers": ["NVDA", "AMD", "AAPL", "AVGO"],
+          "news_ids": ["2026-11-17-nvda-earnings"]
+        },
+        {
+          "id": "tsm-export",
+          "title": "China rules hit TSMC's customers and its tools",
+          "reason": "Congress is pushing tighter limits on chip-tool sales into China, and the Affiliates Rule returns Nov 10. That squeezes both the China orders and the machines TSMC needs.",
+          "via": "US export rules",
+          "level": "high",
+          "tickers": ["NVDA", "ASML"],
+          "news_ids": ["2026-10-28-chip-export-rules", "2026-11-10-affiliates-rule"]
+        },
+        {
+          "id": "tsm-intel",
+          "title": "Intel's foundry is the political alternative",
+          "reason": "The US owns about 10% of Intel and wants leading chips made at home. A forced shift of orders would take volume from TSMC. Intel still has no outside customer.",
+          "via": "Intel",
+          "level": "medium",
+          "tickers": ["INTC", "NVDA"],
+          "news_ids": ["2026-10-30-intc-us-stake", "2026-10-30-intc-foundry"]
+        },
+        {
+          "id": "tsm-demand",
+          "title": "TSMC gets paid only if the AI orders stay",
+          "reason": "OpenAI's funding hole, custom-chip shifts, and a capex cut all show up at TSMC a quarter later. Nvidia's Nov 17 report is the near read.",
+          "via": "Nvidia and OpenAI",
+          "level": "medium",
+          "tickers": ["NVDA", "ORCL", "AVGO"],
+          "news_ids": ["2026-10-30-openai-shortfall", "2026-11-17-nvda-earnings"]
+        }
+      ]
+    },
+    {
+      "ticker": "QCOM",
+      "name": "Qualcomm",
+      "industry": "Semiconductors",
+      "group": "Chips",
+      "order": 80,
+      "blurb": "Qualcomm still lives on phone chips, especially Apple's modem, and it is trying to sell AI servers. Apple has said it will leave. The AI chips are a 2026-2027 story, not this quarter's profit.",
+      "peers": ["AAPL", "ARM", "NVDA", "AMD"],
+      "pin_ids": ["2026-11-04-uber-adp-arm-qcom-app-dash"],
+      "skip_ids": ["2026-10-30-intc-drop"],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
+      "backfill": [
+        {
+          "id": "bf-qcom-q4",
+          "date": "2025-11-05",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Fiscal Q4 2025: revenue $11.27B, and an AI-server plan",
+          "summary": "Revenue was $11.27 billion, up 10%. Handset chips were $6.96 billion, up 14%. Qualcomm said it expects to lose Apple's modem business over the coming years. It also said the AI200 server chip is planned for 2026 and the AI250 for 2027.",
+          "event_type": "earnings",
+          "key_number": "Revenue $11.27B; handsets $6.96B",
+          "tickers": ["AAPL", "NVDA"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Qualcomm, via CNBC, Nov 5, 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "qcom-apple",
+          "title": "Apple is taking the modem in-house",
+          "reason": "Qualcomm has said it expects to lose Apple as a modem customer. Phones are still most of the chip profit, so that exit is the hole the AI servers have to fill.",
+          "via": "Apple",
+          "level": "high",
+          "tickers": ["AAPL"],
+          "news_ids": ["2026-11-02-aapl-pltr-earnings"]
+        },
+        {
+          "id": "qcom-nvda",
+          "title": "The AI server plan walks into Nvidia's market",
+          "reason": "AI200 and AI250 are the attempt to sell full racks. Nvidia already owns that budget. A late or small launch does not move the Qualcomm story.",
+          "via": "Nvidia",
+          "level": "medium",
+          "tickers": ["NVDA", "AMD"],
+          "news_ids": ["2026-11-17-nvda-earnings"]
+        },
+        {
+          "id": "qcom-china",
+          "title": "Phone sales in China are the quiet risk",
+          "reason": "Export rules and a weak China phone market hit Qualcomm faster than they hit a data-center pure play. The Affiliates Rule is the dated policy event.",
+          "via": "China phones",
+          "level": "medium",
+          "tickers": ["ARM", "AAPL"],
+          "news_ids": ["2026-11-10-affiliates-rule", "2026-10-28-chip-export-rules"]
+        },
+        {
+          "id": "qcom-arm",
+          "title": "The chip design sits on Arm",
+          "reason": "Qualcomm pays Arm for the right to design its chips. A royalty fight or a higher rate would tax the phone business while Apple is already leaving.",
+          "via": "Arm",
+          "level": "low",
+          "tickers": ["ARM"],
+          "news_ids": ["2026-11-04-uber-adp-arm-qcom-app-dash"]
+        }
+      ]
+    },
+    {
+      "ticker": "ARM",
+      "name": "Arm",
+      "industry": "Semiconductors",
+      "group": "Chips",
+      "order": 90,
+      "blurb": "Arm gets a royalty on a huge share of the chips in this app, from phones to Nvidia's Grace CPU. It does not sell the GPU. If the customers slow down, the royalty slows down.",
+      "peers": ["NVDA", "QCOM", "AAPL", "AMD"],
+      "pin_ids": ["2026-11-04-uber-adp-arm-qcom-app-dash", "2026-10-30-chip-premarket-sndk"],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
+      "backfill": [],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "arm-customers",
+          "title": "Royalties follow other companies' volumes",
+          "reason": "Apple, Qualcomm, Nvidia and Amazon decide how many Arm chips ship. Arm does not. A phone slump or a pause in Grace CPU orders shows up here with a lag.",
+          "via": "Apple, Qualcomm, Nvidia",
+          "level": "high",
+          "tickers": ["AAPL", "QCOM", "NVDA", "AMZN"],
+          "news_ids": ["2026-11-04-uber-adp-arm-qcom-app-dash", "2026-11-17-nvda-earnings", "2026-11-02-aapl-pltr-earnings"]
+        },
+        {
+          "id": "arm-china",
+          "title": "China export rules reach Arm's customers",
+          "reason": "Arm was on the Friday chip tape when Intel's guide hit the group. A tighter Affiliates Rule limits the phones and accelerators that pay the royalty.",
+          "via": "US export rules",
+          "level": "medium",
+          "tickers": ["QCOM", "NVDA"],
+          "news_ids": ["2026-11-10-affiliates-rule", "2026-10-30-chip-premarket-sndk"]
+        },
+        {
+          "id": "arm-custom",
+          "title": "Some big customers want off the royalty",
+          "reason": "Qualcomm has fought Arm over license scope before, and Apple designs as much as it can itself. A lost license or a lower rate is a direct cut to revenue.",
+          "via": "Qualcomm and Apple",
+          "level": "medium",
+          "tickers": ["QCOM", "AAPL"],
+          "news_ids": ["2026-11-04-uber-adp-arm-qcom-app-dash"]
+        }
+      ]
+    },
+    {
+      "ticker": "SMCI",
+      "name": "Supermicro",
+      "industry": "Semiconductors",
+      "group": "Chips",
+      "order": 100,
+      "blurb": "Supermicro builds the servers around Nvidia's chips. It already told the market this quarter is much bigger than it guided. The open question is the outlook, and whether the books stay clean.",
+      "peers": ["NVDA", "CRWV"],
+      "pin_ids": [],
+      "skip_ids": ["2026-11-03-midterms"],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [
+        {
+          "id": "bf-smci-fy25",
+          "date": "2025-08-05",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Fiscal 2025 sales $22.0B, gross margin 9.5%",
+          "summary": "Full-year net sales were $22.0 billion, up from $15.0 billion. Net income was $1.0 billion, down from $1.2 billion. Fourth-quarter sales were $5.8 billion and the gross margin was 9.5%. Revenue grew. The profit rate did not.",
+          "event_type": "earnings",
+          "key_number": "Sales $22.0B; Q4 margin 9.5%",
+          "tickers": ["NVDA"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Supermicro, Aug 5, 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "smci-nvda",
+          "title": "The servers only sell if Nvidia's chips do",
+          "reason": "A weak Nvidia guide, or a shift to Google TPUs that Supermicro does not build, hits the order book. Nvidia reports Nov 17.",
+          "via": "Nvidia",
+          "level": "high",
+          "tickers": ["NVDA", "GOOGL"],
+          "news_ids": ["2026-11-17-nvda-earnings", "2026-11-03-smci-earnings"]
+        },
+        {
+          "id": "smci-books",
+          "title": "The pre-announcement still needs a clean report",
+          "reason": "Revenue was pre-announced at $18.5-19.5 billion against a prior guide of $14.5-15.5 billion. The outlook is what matters, and Supermicro's books were a controversy before this run. No new accounting figure is in the file.",
+          "via": "Supermicro",
+          "level": "high",
+          "tickers": ["NVDA"],
+          "news_ids": ["2026-11-03-smci-earnings"]
+        },
+        {
+          "id": "smci-neocloud",
+          "title": "Neocloud customers are the stressed buyers",
+          "reason": "CoreWeave and the other GPU clouds are the ones stretching to buy servers. Their debt freeze and OpenAI's short round are a demand cut for the box-makers.",
+          "via": "CoreWeave",
+          "level": "medium",
+          "tickers": ["CRWV", "NVDA", "ORCL"],
+          "news_ids": ["2026-10-22-dc-debt-frozen", "2026-10-23-crwv-drop", "2026-10-30-openai-shortfall"]
+        }
+      ]
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft",
+      "industry": "AI/Cloud",
+      "group": "AI and cloud",
+      "order": 110,
+      "blurb": "Microsoft is the OpenAI partner with a real cloud profit. The caution is the size of the AI build, and that OpenAI is now also signing Oracle, AMD and Google.",
+      "peers": ["GOOGL", "AMZN", "ORCL", "NVDA"],
+      "pin_ids": ["2026-10-30-openai-shortfall", "2026-10-23-openai-raise"],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [
+        {
+          "id": "bf-msft-capex",
+          "date": "2025-10-29",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Capex hit $34.9B in a quarter",
+          "summary": "Microsoft spent $34.9 billion on capex in the quarter, up 74% from a year earlier. About half went to GPUs and CPUs. Data-center leasing alone was $11.1 billion. The company had said capex growth would speed up in fiscal 2026.",
+          "event_type": "earnings",
+          "key_number": "Capex $34.9B; leasing $11.1B",
+          "tickers": ["NVDA", "ORCL"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Microsoft, reported Oct 29, 2025"
+        },
+        {
+          "id": "bf-msft-group-capex",
+          "date": "2025-10-31",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "The four clouds guided to more than $380B of capex",
+          "summary": "CNBC reported that Alphabet, Meta, Microsoft and Amazon together were guiding to more than $380 billion of capital spending. Microsoft's piece is on a fiscal-year clock, not the calendar year.",
+          "event_type": "earnings",
+          "key_number": "Four companies, more than $380B",
+          "tickers": ["GOOGL", "META", "AMZN", "NVDA"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CNBC, Oct 31, 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "msft-openai",
+          "title": "OpenAI is spreading the spend beyond Azure",
+          "reason": "The short round, the Oracle contract, the AMD deal and the Google TPU plan all dilute the idea that Microsoft owns OpenAI's demand.",
+          "via": "OpenAI",
+          "level": "high",
+          "tickers": ["ORCL", "AMD", "GOOGL", "NVDA"],
+          "news_ids": ["2026-10-30-openai-shortfall", "2027-orcl-openai-payments", "2026-10-28-openai-tpu"]
+        },
+        {
+          "id": "msft-capex",
+          "title": "The build is large enough to scare the multiple",
+          "reason": "A quarter at $34.9 billion, with more growth promised, only works if Azure keeps filling it. The October 2026 print is the latest check, and rates decide what investors will pay for it.",
+          "via": "Azure capex",
+          "level": "high",
+          "tickers": ["NVDA", "AMZN", "GOOGL"],
+          "news_ids": ["2026-10-28-msft-earnings", "2026-10-28-fed-decision", "2026-11-10-cpi"]
+        },
+        {
+          "id": "msft-safety",
+          "title": "The Texas case is an overhang on the OpenAI tie",
+          "reason": "Texas sued OpenAI and Altman over safety claims. Microsoft is the distribution partner, so a limit on launches limits a product Microsoft is selling.",
+          "via": "Texas v. OpenAI",
+          "level": "medium",
+          "tickers": ["ORCL"],
+          "news_ids": ["2026-10-26-paxton-openai"]
+        },
+        {
+          "id": "msft-anthropic",
+          "title": "Anthropic is undercutting government AI prices",
+          "reason": "A 40% discount on Claude for US governments is pressure on Microsoft and Palantir, not a Microsoft win.",
+          "via": "Anthropic",
+          "level": "low",
+          "tickers": ["PLTR", "GOOGL"],
+          "news_ids": ["2026-10-28-anthropic-gsa"]
+        }
+      ]
+    },
+    {
+      "ticker": "GOOGL",
+      "name": "Alphabet",
+      "industry": "AI/Cloud",
+      "group": "AI and cloud",
+      "order": 120,
+      "blurb": "Alphabet just had its worst day on record after spending more than the ads could fund. The offset is the TPU: other companies may finally buy Google's chip.",
+      "peers": ["MSFT", "AMZN", "META", "NVDA", "AVGO"],
+      "pin_ids": ["2026-10-30-openai-shortfall"],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [
+        {
+          "id": "bf-googl-tpu",
+          "date": "2025-10-27",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Anthropic lined up as many as 1 million TPUs",
+          "summary": "CNBC reported Anthropic would reserve as many as 1 million Google TPUs. No signed dollar figure is confirmed here. It is the early version of the custom-chip sales story that showed up again in Oct 2026.",
+          "event_type": "deal",
+          "key_number": "As many as 1 million TPUs",
+          "tickers": ["AVGO", "NVDA"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CNBC, Oct 27, 2025"
+        },
+        {
+          "id": "bf-googl-capex",
+          "date": "2025-10-31",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "The four clouds guided past $380B of capex",
+          "summary": "CNBC said Alphabet, Meta, Microsoft and Amazon together were guiding to more than $380 billion of capital spending. Alphabet's own new total was part of that lift. The exact Alphabet dollar guide is not separated here.",
+          "event_type": "earnings",
+          "key_number": "Four companies, more than $380B",
+          "tickers": ["MSFT", "META", "AMZN"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CNBC, Oct 31, 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "googl-fcf",
+          "title": "The spending turned free cash flow negative",
+          "reason": "Thursday's close was the worst day ever, about $500 billion of value, after negative free cash flow and a search miss. More capex without ad growth is the same setup again.",
+          "via": "Alphabet's own spend",
+          "level": "high",
+          "tickers": ["MSFT", "META", "AMZN"],
+          "news_ids": ["2026-10-28-googl-msft-earnings", "2026-10-29-market-close"]
+        },
+        {
+          "id": "googl-tpu-terms",
+          "title": "The OpenAI chip order is still a plan",
+          "reason": "No terms. If it stays that way, the TPU sales story is a headline. If it closes, it helps Google and hurts Nvidia.",
+          "via": "OpenAI",
+          "level": "medium",
+          "tickers": ["NVDA", "AVGO", "ORCL"],
+          "news_ids": ["2026-10-28-openai-tpu", "2026-10-28-openai-tpu-order", "2026-10-28-orcl-tpu-2027"]
+        },
+        {
+          "id": "googl-search",
+          "title": "AI answers can tax the search profit",
+          "reason": "The ad engine funds the chips. A search miss, which just happened, means the AI spend has to be carried by a weaker core.",
+          "via": "Search ads",
+          "level": "medium",
+          "tickers": ["MSFT"],
+          "news_ids": ["2026-10-28-googl-msft-earnings", "2026-10-29-market-close"]
+        },
+        {
+          "id": "googl-power",
+          "title": "The data centers need power deals that are not done",
+          "reason": "Nuclear agreements with Constellation help, but new power is slow. A grid-cost bill in Congress would push more of the upgrade bill onto the data centers.",
+          "via": "Constellation and the grid",
+          "level": "low",
+          "tickers": ["CEG", "VST"],
+          "news_ids": ["2026-10-26-googl-ceg-nuclear", "2026-11-02-datacenter-power-bill"]
+        }
+      ]
+    },
+    {
+      "ticker": "AMZN",
+      "name": "Amazon",
+      "industry": "AI/Cloud",
+      "group": "AI and cloud",
+      "order": 130,
+      "blurb": "Amazon is spending $220 billion this year, mostly so AWS can keep up. The stock fell because free cash flow went negative. Trainium is the chip it hopes will cost less than Nvidia.",
+      "peers": ["MSFT", "GOOGL", "NVDA", "ORCL"],
+      "pin_ids": [],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [
+        {
+          "id": "bf-amzn-capex-2025",
+          "date": "2025-10-30",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "2025 capex lifted to about $125B",
+          "summary": "Amazon said 2025 capex would be about $125 billion, up from a prior $118 billion, and that 2026 would be higher. A lot of it was chips, data centers and power, including its own Trainium chip. That was the year before the $220 billion plan now in the calendar.",
+          "event_type": "earnings",
+          "key_number": "2025 capex about $125B",
+          "tickers": ["NVDA", "MSFT", "GOOGL"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "Amazon, via CNBC, Oct 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "amzn-fcf",
+          "title": "Free cash flow is the bill for the AI build",
+          "reason": "Trailing free cash flow was down $42.4 billion on the latest print, and 2027 capex was guided higher again. The retail cash cow is funding AWS. If retail slows, the spend gets harder to defend.",
+          "via": "AWS capex",
+          "level": "high",
+          "tickers": ["NVDA", "MSFT", "GOOGL"],
+          "news_ids": ["2026-10-29-amzn-intc-earnings", "2026-10-30-amzn-capex"]
+        },
+        {
+          "id": "amzn-nvidia",
+          "title": "Trainium has to work or the Nvidia bill stays",
+          "reason": "Custom chips only help if customers use them. Until then Amazon is one of Nvidia's biggest buyers, exposed to Nvidia's price and to export rules on those GPUs.",
+          "via": "Nvidia",
+          "level": "medium",
+          "tickers": ["NVDA", "AVGO"],
+          "news_ids": ["2026-11-17-nvda-earnings", "2026-10-30-amzn-capex"]
+        },
+        {
+          "id": "amzn-rates",
+          "title": "A hike makes $220B of capex look worse",
+          "reason": "Jobs Friday and CPI on Nov 10 feed the December Fed decision. Higher rates raise the hurdle on data-center projects that do not earn cash yet.",
+          "via": "The Fed",
+          "level": "medium",
+          "tickers": ["MSFT", "META", "GOOGL"],
+          "news_ids": ["2026-11-06-jobs", "2026-11-10-cpi", "2026-10-28-fed-decision"]
+        },
+        {
+          "id": "amzn-power",
+          "title": "Power, not chips, can be the bottleneck",
+          "reason": "Vistra and Constellation are the supply. A Senate bill to make data centers pay grid upgrades would raise the cost of the same capex plan.",
+          "via": "Vistra and Constellation",
+          "level": "low",
+          "tickers": ["VST", "CEG"],
+          "news_ids": ["2026-11-02-datacenter-power-bill", "2026-10-28-ceg-vst-loans"]
+        }
+      ]
+    },
+    {
+      "ticker": "META",
+      "name": "Meta",
+      "industry": "AI/Cloud",
+      "group": "AI and cloud",
+      "order": 140,
+      "blurb": "Meta is spending so hard on AI that free cash flow went negative, then it sold stock to keep going. Nvidia is both the supplier and, now, a buyer of that stock.",
+      "peers": ["GOOGL", "MSFT", "AMZN", "NVDA"],
+      "pin_ids": ["2026-10-27-nvda-meta-3b"],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [
+        {
+          "id": "bf-meta-capex",
+          "date": "2025-10-30",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "2025 capex narrowed to $70-72B, and the stock fell 11%",
+          "summary": "Meta narrowed its 2025 capex guide to $70-72 billion. The stock fell 11%, its steepest drop in three years, even though the quarter beat. Investors were pricing the spend, not the beat.",
+          "event_type": "earnings",
+          "key_number": "2025 capex $70-72B; stock about -11%",
+          "tickers": ["NVDA"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CNBC, Oct 31, 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "meta-fcf",
+          "title": "The AI spend already ate the cash",
+          "reason": "Free cash flow went negative, the stock fell, and Meta raised about $37.5 billion with an ATM still ahead. That is dilution to fund GPUs.",
+          "via": "Meta capex",
+          "level": "high",
+          "tickers": ["NVDA"],
+          "news_ids": ["2026-10-22-meta-q3", "2026-10-26-meta-raise", "2027-01-01-meta-atm"]
+        },
+        {
+          "id": "meta-circle",
+          "title": "Nvidia buying the stock is circular",
+          "reason": "Nvidia is investing $3 billion in Meta's offering while Meta buys Nvidia systems. It props up demand with the supplier's own cash.",
+          "via": "Nvidia",
+          "level": "high",
+          "tickers": ["NVDA", "CRWV"],
+          "news_ids": ["2026-10-27-nvda-meta-3b", "2026-10-26-nvda-backstops"]
+        },
+        {
+          "id": "meta-rates",
+          "title": "A long-duration stock feels a hike first",
+          "reason": "Meta has no cloud rent to offset the build. CPI, jobs and the Fed are the outside clock on how long investors tolerate negative cash flow.",
+          "via": "The Fed",
+          "level": "medium",
+          "tickers": ["MSFT", "GOOGL", "AMZN"],
+          "news_ids": ["2026-10-28-fed-decision", "2026-11-10-cpi", "2026-11-06-jobs"]
+        },
+        {
+          "id": "meta-penalty",
+          "title": "The New Mexico penalty is a separate cash hit",
+          "reason": "A $25 billion penalty is not an AI problem, but it is cash Meta cannot spend on data centers.",
+          "via": "New Mexico",
+          "level": "low",
+          "tickers": [],
+          "news_ids": ["2026-10-22-meta-nm-penalty"]
+        }
+      ]
+    },
+    {
+      "ticker": "AAPL",
+      "name": "Apple",
+      "industry": "Consumer",
+      "group": "AI and cloud",
+      "order": 150,
+      "blurb": "Apple spends less on AI data centers than the others, so it is the shelter when that trade sells off. It is also the stock that gets left behind if the iPhone does not need a new AI reason to upgrade.",
+      "peers": ["MSFT", "GOOGL", "QCOM"],
+      "pin_ids": ["2026-11-02-aapl-pltr-earnings", "2026-10-08-openai-revenue-ft-ai-selloff"],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "aapl-iphone",
+          "title": "Tonight is the first read on iPhone 18",
+          "reason": "The calendar puts consensus EPS at $1.98 and revenue near $113.4 billion. If the phone cycle is ordinary, the 'less AI risk' story is just a slower stock.",
+          "via": "iPhone",
+          "level": "high",
+          "tickers": ["QCOM"],
+          "news_ids": ["2026-11-02-aapl-pltr-earnings"]
+        },
+        {
+          "id": "aapl-china",
+          "title": "China is both demand and a political risk",
+          "reason": "Phone sales there matter more to Apple than data-center rules do. Export fights and local rivals are the outside hit. No China unit figure is in this file.",
+          "via": "China",
+          "level": "medium",
+          "tickers": ["QCOM"],
+          "news_ids": ["2026-11-10-affiliates-rule"]
+        },
+        {
+          "id": "aapl-modem",
+          "title": "The modem shift is a Qualcomm story that can slip",
+          "reason": "Qualcomm expects to lose Apple's modem over time. A delay keeps a cost in the phone. An early exit is a Qualcomm problem, not an Apple one, unless the in-house modem disappoints.",
+          "via": "Qualcomm",
+          "level": "low",
+          "tickers": ["QCOM"],
+          "news_ids": ["2026-11-04-uber-adp-arm-qcom-app-dash"]
+        }
+      ]
+    },
+    {
+      "ticker": "ORCL",
+      "name": "Oracle",
+      "industry": "AI/Cloud",
+      "group": "AI and cloud",
+      "order": 160,
+      "blurb": "Oracle borrowed to build for OpenAI, and OpenAI is short of cash. The stock is down about half in a year and sits near junk. That is the whole story.",
+      "peers": ["MSFT", "CRWV", "NVDA", "GOOGL"],
+      "pin_ids": [],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [
+        {
+          "id": "bf-orcl-300",
+          "date": "2025-09-10",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "OpenAI signs a roughly $300B computing deal",
+          "summary": "The Wall Street Journal, via Reuters, reported OpenAI would buy about $300 billion of computing from Oracle over roughly five years. On Sept 23 OpenAI said the partnership exceeds $300 billion and that Stargate, the January plan with SoftBank, was a $500 billion, 10-gigawatt commitment.",
+          "event_type": "deal",
+          "key_number": "About $300B over about five years",
+          "tickers": ["MSFT", "NVDA", "CRWV"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "WSJ via Reuters, Sept 10, 2025; OpenAI, Sept 23, 2025"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "orcl-openai",
+          "title": "The $300B customer cannot raise what it planned",
+          "reason": "About $11 billion is committed against a target that was cut from $30 billion to about $20 billion. Payments on the contract start in 2027. A weak close means Oracle built the data centers for revenue that slips.",
+          "via": "OpenAI",
+          "level": "high",
+          "tickers": ["NVDA", "CRWV", "MSFT"],
+          "news_ids": ["2026-10-30-openai-shortfall", "2027-orcl-openai-payments", "2026-10-23-openai-raise"]
+        },
+        {
+          "id": "orcl-debt",
+          "title": "The debt is already near junk",
+          "reason": "About $169 billion of debt, about $288 billion of leases not started, borrowings of $125 billion against $37 billion of cash. Interest expense is up 55%. There is not much room for a customer to delay.",
+          "via": "Oracle's balance sheet",
+          "level": "high",
+          "tickers": ["CRWV"],
+          "news_ids": ["2026-10-23-orcl-debt", "2026-10-26-orcl-price", "2026-12-09-orcl-earnings"]
+        },
+        {
+          "id": "orcl-tpu",
+          "title": "Hosting Google chips cuts both ways",
+          "reason": "TPUs on Oracle's cloud diversify the hardware and also admit Nvidia is not the only chip OpenAI will use. The 2027 timing is the part that is not here yet.",
+          "via": "Alphabet",
+          "level": "medium",
+          "tickers": ["GOOGL", "NVDA", "AVGO"],
+          "news_ids": ["2026-10-27-orcl-tpu", "2026-10-28-orcl-tpu-2027"]
+        },
+        {
+          "id": "orcl-rates",
+          "title": "Higher rates raise the cost of the debt pile",
+          "reason": "A December hike does not just hit the multiple. It hits the interest on the build. CPI and jobs are the dated inputs.",
+          "via": "The Fed",
+          "level": "medium",
+          "tickers": ["CRWV"],
+          "news_ids": ["2026-10-28-fed-decision", "2026-11-10-cpi", "2026-11-06-jobs"]
+        },
+        {
+          "id": "orcl-safety",
+          "title": "The Texas OpenAI suit is an overhang",
+          "reason": "Paxton's case seeks age limits and safety reviews before launches. Oracle is a host for that product.",
+          "via": "Texas v. OpenAI",
+          "level": "low",
+          "tickers": ["MSFT"],
+          "news_ids": ["2026-10-26-paxton-openai"]
+        }
+      ]
+    },
+    {
+      "ticker": "PLTR",
+      "name": "Palantir",
+      "industry": "AI/Cloud",
+      "group": "AI and cloud",
+      "order": 170,
+      "blurb": "Palantir reports today, into a government market where Anthropic just cut Claude's price by 40%. The growth is real in the calendar. The multiple assumes it keeps up.",
+      "peers": ["MSFT", "GOOGL"],
+      "pin_ids": ["2026-11-02-aapl-pltr-earnings", "2026-10-28-anthropic-gsa"],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "pltr-anthropic",
+          "title": "Anthropic is discounting the government",
+          "reason": "A 40% cut on Claude for US governments, and about 500 government users already, is direct pressure on Palantir's public-sector price.",
+          "via": "Anthropic",
+          "level": "high",
+          "tickers": ["MSFT", "GOOGL"],
+          "news_ids": ["2026-10-28-anthropic-gsa", "2026-11-02-aapl-pltr-earnings"]
+        },
+        {
+          "id": "pltr-multiple",
+          "title": "The guide leaves no room for a miss",
+          "reason": "The calendar guide is about $2.16 billion of revenue, up about 85%. Options imply an 11% move. A high multiple plus a hot CPI is a bad mix.",
+          "via": "The multiple",
+          "level": "high",
+          "tickers": [],
+          "news_ids": ["2026-11-02-aapl-pltr-earnings", "2026-11-10-cpi", "2026-10-28-fed-decision"]
+        },
+        {
+          "id": "pltr-budget",
+          "title": "A funding fight can delay government deals",
+          "reason": "The midterms feed a Dec 11 funding fight. Palantir sells to the government. A shutdown or a cut delays revenue even if the software wins.",
+          "via": "US budget",
+          "level": "medium",
+          "tickers": [],
+          "news_ids": ["2026-11-03-midterms"]
+        }
+      ]
+    },
+    {
+      "ticker": "CRWV",
+      "name": "CoreWeave",
+      "industry": "AI/Cloud",
+      "group": "AI and cloud",
+      "order": 180,
+      "blurb": "CoreWeave rents Nvidia GPUs and borrowed to do it. The bonds yield about 15%, and the calendar's CDS price implies about a 63% chance of default within five years. OpenAI is both the customer and the problem.",
+      "peers": ["NVDA", "ORCL", "NBIS", "IREN"],
+      "pin_ids": ["2026-10-30-openai-shortfall"],
+      "skip_ids": ["2026-10-30-chip-premarket-sndk", "2026-10-08-openai-revenue-ft-ai-selloff"],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [
+        {
+          "id": "bf-crwv-openai",
+          "date": "2025-03-10",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "OpenAI contract of up to $11.9B",
+          "summary": "CoreWeave signed a five-year deal to supply AI capacity to OpenAI, worth up to $11.9 billion. OpenAI got $350 million of CoreWeave stock. That made OpenAI a customer and an owner before the IPO.",
+          "event_type": "deal",
+          "key_number": "Up to $11.9B; $350M of stock to OpenAI",
+          "tickers": ["NVDA", "MSFT"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CoreWeave, March 10, 2025"
+        },
+        {
+          "id": "bf-crwv-ipo",
+          "date": "2025-03-28",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "IPO priced at $40 and closed flat",
+          "summary": "CoreWeave priced 37.5 million shares at $40 and started trading March 28. Reuters said it closed at $40, flat to the offer, at a value of about $23 billion. The deal was cut back and priced below the range. Investors flagged how much of the business was Microsoft.",
+          "event_type": "ipo",
+          "key_number": "$40; about $23B value; closed flat",
+          "tickers": ["NVDA", "MSFT"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CoreWeave and Reuters, March 28, 2025"
+        },
+        {
+          "id": "bf-crwv-fy25",
+          "date": "2026-02-26",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "2025 revenue $5.13B, backlog $66.8B",
+          "summary": "Full-year revenue was $5.131 billion. The CEO called it the fastest cloud to $5 billion of annual revenue. The CFO said revenue backlog reached $66.8 billion, more than four times the start of the year.",
+          "event_type": "earnings",
+          "key_number": "Revenue $5.131B; backlog $66.8B",
+          "tickers": ["NVDA"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CoreWeave, Feb 26, 2026"
+        }
+      ],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "crwv-debt",
+          "title": "The debt market is pricing a default",
+          "reason": "Bonds yield about 15%. CDS above 11% was described as about a 63% chance of default within five years. Risky data-center debt is frozen until after the midterms. Baird says CoreWeave needs about $30 billion in 2027.",
+          "via": "CoreWeave's lenders",
+          "level": "high",
+          "tickers": ["NVDA", "ORCL"],
+          "news_ids": ["2026-10-23-crwv-drop", "2026-10-26-neoclouds", "2026-10-22-dc-debt-frozen", "2026-10-22-crwv-funding-need"]
+        },
+        {
+          "id": "crwv-openai",
+          "title": "OpenAI's shortfall is CoreWeave's demand",
+          "reason": "The 2025 contract made OpenAI a pillar customer. A round that closes light means less capacity to rent. Nvidia owns about 9% and has been backstopping neoclouds, which ties the lender to the tenant.",
+          "via": "OpenAI and Nvidia",
+          "level": "high",
+          "tickers": ["NVDA", "ORCL", "MSFT"],
+          "news_ids": ["2026-10-30-openai-shortfall", "2026-10-26-nvda-backstops", "2026-11-11-crwv-earnings"]
+        },
+        {
+          "id": "crwv-msft",
+          "title": "Microsoft concentration never went away",
+          "reason": "IPO investors flagged the Microsoft reliance. If Azure fills its own GPUs first, CoreWeave is the overflow, not the plan.",
+          "via": "Microsoft",
+          "level": "medium",
+          "tickers": ["MSFT", "NVDA"],
+          "news_ids": ["2026-10-28-msft-earnings"]
+        },
+        {
+          "id": "crwv-rates",
+          "title": "Higher rates make 15% bonds worse",
+          "reason": "CPI and the jobs report decide whether the December hike happens. CoreWeave reports the same afternoon as CPI. The print and the macro number land together.",
+          "via": "The Fed",
+          "level": "medium",
+          "tickers": [],
+          "news_ids": ["2026-11-10-cpi", "2026-11-11-crwv-earnings", "2026-10-28-fed-decision"]
+        }
+      ]
+    },
+    {
+      "ticker": "TSLA",
+      "name": "Tesla",
+      "industry": "Autos",
+      "group": "AI and cloud",
+      "order": 190,
+      "blurb": "Tesla's quarter beat, and the stock is trading a SpaceX merger and a robotaxi story that are not done. The chip plan, Terafab, is a mid-2027 item.",
+      "peers": ["SPCX", "NVDA"],
+      "pin_ids": [],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "tsla-merger",
+          "title": "The SpaceX merger has no terms",
+          "reason": "Both boards formed committees. Musk says it has merit. Barclays upgraded on the idea. None of that is a deal, and SpaceX is also borrowing $40 billion for GPUs.",
+          "via": "SpaceX",
+          "level": "high",
+          "tickers": ["SPCX"],
+          "news_ids": ["2026-10-23-spacex-tesla-merger", "2026-10-26-tsla-barclays", "2026-10-26-spcx-gpu-debt"]
+        },
+        {
+          "id": "tsla-robotaxi",
+          "title": "Robotaxi is still a story, not a line item",
+          "reason": "The upgrade cites it. The calendar does not show a dated launch or a revenue figure. Until it does, the multiple is hope.",
+          "via": "Robotaxi",
+          "level": "medium",
+          "tickers": [],
+          "news_ids": ["2026-10-22-tsla-q3", "2026-10-26-tsla-barclays"]
+        },
+        {
+          "id": "tsla-rates",
+          "title": "Car demand and the multiple both hate a hike",
+          "reason": "Autos are rate-sensitive, and so is a stock priced for robotaxis. CPI and jobs are the outside clock. Tariffs on metals and Canada are the other one.",
+          "via": "The Fed and Section 232",
+          "level": "medium",
+          "tickers": [],
+          "news_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-10-26-canada-deal", "2026-10-28-fed-decision"]
+        },
+        {
+          "id": "tsla-chips",
+          "title": "Terafab does not help this year",
+          "reason": "The first chip is aimed at mid-2027. Until then Tesla still buys someone else's silicon, and a slip pushes the date out further.",
+          "via": "Terafab",
+          "level": "low",
+          "tickers": ["NVDA"],
+          "news_ids": ["2027-tesla-terafab"]
+        }
+      ]
+    },
+    {
+      "ticker": "SPCX",
+      "name": "SpaceX",
+      "industry": "Space",
+      "group": "AI and cloud",
+      "order": 200,
+      "blurb": "SpaceX is in the tape as a stock, with a share unlock, a $40 billion GPU loan, and merger talks with Tesla. The financing and a Louisiana lawsuit are both still open.",
+      "peers": ["TSLA", "CRWV", "NVDA"],
+      "pin_ids": ["2026-10-26-anthropic-s1"],
+      "skip_ids": ["2026-11-02-ai-power-premarket"],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "spcx-gpu-debt",
+          "title": "The $40B GPU loan is a new balance-sheet risk",
+          "reason": "SpaceX borrowed to buy GPUs, with deliveries in the first half of 2027. Musk also said lenders have shut off funding for AI-dependent clouds. SpaceX is now on both sides of that sentence.",
+          "via": "GPU lenders",
+          "level": "high",
+          "tickers": ["NVDA", "CRWV", "TSLA"],
+          "news_ids": ["2026-10-26-spcx-gpu-debt", "2026-10-29-spcx-open", "2026-10-26-neoclouds"]
+        },
+        {
+          "id": "spcx-merger",
+          "title": "A Tesla merger is still just committees",
+          "reason": "No terms. A deal would mix a car company, a rocket company and a $40 billion chip loan. The unlock already showed how fast the stock moves when supply hits.",
+          "via": "Tesla",
+          "level": "high",
+          "tickers": ["TSLA"],
+          "news_ids": ["2026-10-23-spacex-tesla-merger", "2026-10-23-spcx-unlock"]
+        },
+        {
+          "id": "spcx-lawsuit",
+          "title": "The Louisiana tax suit and the wireless talks are open",
+          "reason": "A lawsuit over spaceport tax breaks, plus unsigned talks for Boost Mobile, are both extra. Neither is a closed deal.",
+          "via": "Louisiana and EchoStar",
+          "level": "medium",
+          "tickers": ["T", "TMUS"],
+          "news_ids": ["2026-10-28-spcx-drop", "2026-10-29-spcx-open", "2026-11-02-spcx-boost"]
+        },
+        {
+          "id": "spcx-openai",
+          "title": "Anthropic's filing lists SpaceX compute",
+          "reason": "The S-1 is a read-through on GPU commitments. If the AI labs cannot fund the capacity, the chips SpaceX borrowed to buy have a weaker resale story.",
+          "via": "Anthropic and OpenAI",
+          "level": "low",
+          "tickers": ["NVDA", "CRWV"],
+          "news_ids": ["2026-10-26-anthropic-s1", "2026-10-30-openai-shortfall"]
+        }
+      ]
+    },
+    {
+      "ticker": "VST",
+      "name": "Vistra",
+      "industry": "Energy",
+      "group": "Power",
+      "order": 210,
+      "blurb": "Vistra sells the power the AI data centers need, and it reports Friday. The demand is real. The cautions are unsigned deals, a grid-cost bill, and loans that are not final.",
+      "peers": ["CEG", "NVDA", "AMZN"],
+      "pin_ids": ["2026-10-30-amzn-capex", "2026-10-28-doe-nuclear-loans"],
+      "skip_ids": ["2026-10-22-power-selloff"],
+      "macro_ids": ["2026-11-10-cpi"],
+      "backfill": [],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "vst-unsigned",
+          "title": "The data-center talks are not contracts",
+          "reason": "Nothing is signed on the new co-location talks. The 207 megawatt New Era deal does not start until the third quarter of 2027. Between now and then the stock is a promise.",
+          "via": "Data-center customers",
+          "level": "high",
+          "tickers": ["CEG", "AMZN", "NVDA"],
+          "news_ids": ["2026-10-27-vst-talks", "2027-07-01-vst-new-era"]
+        },
+        {
+          "id": "vst-bill",
+          "title": "Congress may send the grid bill to the data centers",
+          "reason": "A House bill passed 417-3 to make big data centers pay upgrade costs. It stalled in the Senate, 57-43. A Democratic House after Tuesday could revive a tougher version. That can slow the customers or cut Vistra's pricing power.",
+          "via": "US Senate",
+          "level": "high",
+          "tickers": ["CEG", "AMZN"],
+          "news_ids": ["2026-11-02-datacenter-power-bill", "2026-11-03-midterms"]
+        },
+        {
+          "id": "vst-loan",
+          "title": "The $4.2B federal loan is still conditional",
+          "reason": "The Energy Department commitment is cheaper financing, not cash in hand. It still needs due diligence and final documents.",
+          "via": "Department of Energy",
+          "level": "medium",
+          "tickers": ["CEG"],
+          "news_ids": ["2026-10-28-doe-nuclear-loans", "2026-10-28-ceg-vst-loans"]
+        },
+        {
+          "id": "vst-capex",
+          "title": "If the clouds cut capex, the power demand slips",
+          "reason": "Amazon holding $220 billion is the bull case. OpenAI's short round and a Fed hike are how that demand gets delayed.",
+          "via": "Amazon and OpenAI",
+          "level": "medium",
+          "tickers": ["AMZN", "NVDA", "ORCL"],
+          "news_ids": ["2026-10-30-amzn-capex", "2026-10-30-openai-shortfall", "2026-11-06-jobs"]
+        }
+      ]
+    },
+    {
+      "ticker": "CEG",
+      "name": "Constellation Energy",
+      "industry": "Energy",
+      "group": "Power",
+      "order": 220,
+      "blurb": "Constellation is the nuclear name in the AI power trade, with Google on one side and a federal loan on the other. The loan is not final, and the grid politics are live.",
+      "peers": ["VST", "GOOGL", "AMZN"],
+      "pin_ids": ["2026-10-26-googl-ceg-nuclear", "2026-10-30-amzn-capex", "2026-11-02-datacenter-power-bill"],
+      "skip_ids": [],
+      "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
+      "backfill": [],
+      "catalysts": [],
+      "cautions": [
+        {
+          "id": "ceg-loan",
+          "title": "Up to $5B from the DOE is still a commitment",
+          "reason": "The loan for nuclear uprates is conditional on due diligence. Until it closes, the cheaper capital is a headline. The calendar cites about 1.1 gigawatts on the Constellation uprates.",
+          "via": "Department of Energy",
+          "level": "high",
+          "tickers": ["VST"],
+          "news_ids": ["2026-10-28-doe-nuclear-loans", "2026-10-28-ceg-vst-loans"]
+        },
+        {
+          "id": "ceg-grid",
+          "title": "Data centers may have to pay for the grid",
+          "reason": "The Senate stalled a bill that passed the House 417-3. If it comes back after the midterms, the hyperscalers' cost of new load goes up, which can slow the contracts Constellation wants.",
+          "via": "Congress",
+          "level": "high",
+          "tickers": ["VST", "AMZN", "GOOGL"],
+          "news_ids": ["2026-11-02-datacenter-power-bill", "2026-11-03-midterms"]
+        },
+        {
+          "id": "ceg-google",
+          "title": "The Google nuclear deals have to become megawatts",
+          "reason": "A signed path with Alphabet is the demand proof. New nuclear is slow. A capex cut at Google shows up here as a delay, not a cancellation headline.",
+          "via": "Alphabet",
+          "level": "medium",
+          "tickers": ["GOOGL", "VST"],
+          "news_ids": ["2026-10-26-googl-ceg-nuclear", "2026-10-28-googl-msft-earnings"]
+        },
+        {
+          "id": "ceg-rates",
+          "title": "Nuclear projects are long-dated rate bets",
+          "reason": "A December hike raises the discount rate on power that arrives years out. Jobs and CPI are the dates.",
+          "via": "The Fed",
+          "level": "low",
+          "tickers": ["VST"],
+          "news_ids": ["2026-10-28-fed-decision", "2026-11-06-jobs", "2026-11-10-cpi"]
+        }
+      ]
+    },
+    {
+      "ticker": "LLY",
+      "name": "Eli Lilly",
+      "industry": "Pharma/Biotech",
+      "group": "Pharma",
+      "order": 310,
+      "blurb": "Lilly leads the weight-loss drugs, and the last quarter beat again on Mounjaro and Zepbound. The pile-up is Medicare's price, cheap copies, and Novo's pill.",
+      "peers": ["NVO", "PFE"],
+      "pin_ids": ["2026-12-18-roche-giredestrant-fda-advanced", "2026-10-31-roche-giredestrant-pending"],
+      "skip_ids": [],
+      "macro_ids": [],
+      "backfill": [
+        {
+          "id": "bf-lly-compound",
+          "date": "2025-03-19",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "FDA's grace period for copied tirzepatide ended",
+          "summary": "Tirzepatide is the drug in Mounjaro and Zepbound. FDA said the shortage was resolved on Dec 19, 2024. The grace period for pharmacies copying it ended Feb 18, 2025, and for larger outsourcing facilities on March 19, 2025. A court denied the compounders' injunction on March 5, 2025. Copies were supposed to stop. Some kept going.",
+          "event_type": "fda",
+          "key_number": "503B grace period ended March 19, 2025",
+          "tickers": ["NVO"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "FDA"
+        },
+        {
+          "id": "bf-lly-foundayo",
+          "date": "2026-04-01",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "FDA approves Foundayo, the orforglipron pill",
+          "summary": "FDA approved Foundayo for weight loss on April 1, 2026, 50 days after the filing and 294 days before a Jan 20, 2027 deadline. It was the first new molecule approved under the priority-voucher pilot, and the fastest new-molecule approval since 2002. It is a daily GLP-1 pill. GLP-1 is the hormone-style drug class used for weight and diabetes.",
+          "event_type": "fda",
+          "key_number": "Approved April 1, 2026; prior deadline Jan 20, 2027",
+          "tickers": ["NVO"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "FDA, April 1, 2026"
+        },
+        {
+          "id": "bf-lly-bridge",
+          "date": "2026-07-01",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Medicare weight-loss bridge starts at $50 a month",
+          "summary": "From July 1, 2026 through Dec 31, 2027, eligible Medicare Part D patients can get Foundayo, Wegovy, or the Zepbound KwikPen for weight loss at a $50 copay. CMS said manufacturers supply them at a $245 net price. Diabetes uses stay in normal Part D, not this bridge. CMS added Foundayo to the list on April 6, after the approval.",
+          "event_type": "policy",
+          "key_number": "$50 copay; $245 net price; ends Dec 31, 2027",
+          "tickers": ["NVO"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CMS"
+        }
+      ],
+      "catalysts": [
+        {
+          "id": "cat-lly-bridge-end",
+          "date": "2027-12-31",
+          "date_precision": "day",
+          "status": "upcoming",
+          "title": "Medicare weight-loss bridge ends",
+          "summary": "The $50 Medicare price for Foundayo and Zepbound KwikPen runs only through Dec 31, 2027. What replaces it is not set. That is the policy cliff.",
+          "event_type": "policy",
+          "key_number": "Ends Dec 31, 2027",
+          "tickers": ["NVO"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CMS"
+        },
+        {
+          "id": "cat-lly-midterms",
+          "date": "2026-11-03",
+          "date_precision": "day",
+          "status": "upcoming",
+          "title": "Midterms are a drug-price vote",
+          "summary": "Control of Congress shapes drug-pricing policy. Lilly does not report that day. Pfizer does. The vote still matters for what Medicare pays after the bridge.",
+          "event_type": "policy",
+          "key_number": "Nov 3",
+          "tickers": ["PFE", "NVO"],
+          "news_ids": ["2026-11-03-midterms"],
+          "unverified": false,
+          "source": "Calendar"
+        }
+      ],
+      "cautions": [
+        {
+          "id": "lly-medicare",
+          "title": "Medicare's $50 price is a volume bet",
+          "reason": "More patients at $245 net, and a $50 copay, can mean more scripts and less price. The bridge ends Dec 31, 2027. A worse deal after that is the cliff. Novo's Wegovy is on the same price list, so this is a shared cut.",
+          "via": "Medicare",
+          "level": "high",
+          "tickers": ["NVO"],
+          "news_ids": ["2026-11-03-midterms"]
+        },
+        {
+          "id": "lly-compound",
+          "title": "Copied GLP-1s did not fully go away",
+          "reason": "FDA ended the shortage grace period in early 2025. Compounded copies are cheaper and were supposed to stop. Lingering copies, or a new shortage, cap what Lilly can charge.",
+          "via": "Compounding pharmacies",
+          "level": "high",
+          "tickers": ["NVO"],
+          "news_ids": []
+        },
+        {
+          "id": "lly-novo",
+          "title": "Novo already has the pill lead on the calendar",
+          "reason": "FDA approved Novo's Wegovy pill on Dec 22, 2025, months before Foundayo. Wegovy pill and injection are both on the Medicare bridge. Lilly's edge is the latest sales beat, not a monopoly.",
+          "via": "Novo Nordisk",
+          "level": "high",
+          "tickers": ["NVO"],
+          "news_ids": ["2026-10-26-nvo-awiqli", "2026-10-29-lly-earnings"]
+        },
+        {
+          "id": "lly-serd",
+          "title": "The breast-cancer pill is a side fight Lilly can lose",
+          "reason": "Inluriyo (imlunestrant) is Lilly's oral SERD, a pill for a type of breast cancer. Roche's rival, giredestrant, has FDA dates on the calendar, and one of those dates is marked unverified in the file.",
+          "via": "Roche",
+          "level": "medium",
+          "tickers": [],
+          "news_ids": ["2026-12-18-roche-giredestrant-fda-advanced", "2026-10-31-roche-giredestrant-pending"]
+        },
+        {
+          "id": "lly-politics",
+          "title": "Drug prices are on the midterm ballot",
+          "reason": "A Congress that pushes harder on Medicare negotiation can reopen the $245 price before the bridge ends. The vote is Tuesday.",
+          "via": "US midterms",
+          "level": "medium",
+          "tickers": ["PFE", "NVO"],
+          "news_ids": ["2026-11-03-midterms"]
+        }
+      ]
+    },
+    {
+      "ticker": "NVO",
+      "name": "Novo Nordisk",
+      "industry": "Pharma/Biotech",
+      "group": "Pharma",
+      "order": 320,
+      "blurb": "Novo got the first weight-loss pill, then Lilly got one too and kept beating on injections. Medicare now prices them side by side at $50.",
+      "peers": ["LLY", "PFE"],
+      "pin_ids": ["2026-10-29-lly-earnings"],
+      "skip_ids": [],
+      "macro_ids": [],
+      "backfill": [
+        {
+          "id": "bf-nvo-pill",
+          "date": "2025-12-22",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "FDA approves the Wegovy pill",
+          "summary": "FDA approved once-daily oral Wegovy, 25 mg of semaglutide, for weight loss and to cut heart risk in adults with obesity or overweight plus a related condition. Novo called it the first oral GLP-1 for obesity in the US. Lilly's Foundayo came later, on April 1, 2026.",
+          "event_type": "fda",
+          "key_number": "Wegovy pill approved Dec 22, 2025",
+          "tickers": ["LLY"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "FDA and Novo Nordisk, Dec 22, 2025"
+        },
+        {
+          "id": "bf-nvo-bridge",
+          "date": "2026-07-01",
+          "date_precision": "day",
+          "status": "happened",
+          "title": "Wegovy joins the Medicare $50 bridge",
+          "summary": "CMS put Wegovy injections and tablets on the Medicare GLP-1 Bridge with Lilly's Foundayo and Zepbound KwikPen. Eligible patients pay $50. The manufacturer net price is $245. It runs through Dec 31, 2027.",
+          "event_type": "policy",
+          "key_number": "$50 copay; $245 net; through Dec 31, 2027",
+          "tickers": ["LLY"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CMS"
+        }
+      ],
+      "catalysts": [
+        {
+          "id": "cat-nvo-bridge-end",
+          "date": "2027-12-31",
+          "date_precision": "day",
+          "status": "upcoming",
+          "title": "Medicare weight-loss bridge ends",
+          "summary": "The shared $50 price for Wegovy and Lilly's weight drugs ends Dec 31, 2027. The next Medicare price is not set.",
+          "event_type": "policy",
+          "key_number": "Ends Dec 31, 2027",
+          "tickers": ["LLY"],
+          "news_ids": [],
+          "unverified": false,
+          "source": "CMS"
+        }
+      ],
+      "cautions": [
+        {
+          "id": "nvo-lilly",
+          "title": "Lilly is taking the sales lead",
+          "reason": "Lilly just beat again on Mounjaro and Zepbound, with EPS of $7.48 on $24.4 billion of revenue. Novo's pill was first. Lilly's injectable franchise is the one still surprising on the upside.",
+          "via": "Eli Lilly",
+          "level": "high",
+          "tickers": ["LLY"],
+          "news_ids": ["2026-10-29-lly-earnings"]
+        },
+        {
+          "id": "nvo-price",
+          "title": "The $50 Medicare price caps the premium",
+          "reason": "Wegovy sits on the same bridge price as Foundayo and Zepbound. Volume can rise while the net price stays at $245. The program ends in 2027 and could be replaced by something tighter.",
+          "via": "Medicare",
+          "level": "high",
+          "tickers": ["LLY"],
+          "news_ids": ["2026-11-03-midterms"]
+        },
+        {
+          "id": "nvo-compound",
+          "title": "Compounded copies hit Novo's semaglutide too",
+          "reason": "The shortage fight was loudest around Lilly's tirzepatide, but compounded GLP-1s are the same cheap alternative for Wegovy. A new shortage ruling would reopen that door.",
+          "via": "Compounding pharmacies",
+          "level": "medium",
+          "tickers": ["LLY"],
+          "news_ids": []
+        },
+        {
+          "id": "nvo-politics",
+          "title": "Drug-price policy is on Tuesday's ballot",
+          "reason": "The midterms shape Medicare negotiation. Novo does not report that day. The policy still lands on Wegovy.",
+          "via": "US midterms",
+          "level": "medium",
+          "tickers": ["LLY", "PFE"],
+          "news_ids": ["2026-11-03-midterms"]
+        }
+      ]
+    },
+    {
+      "ticker": "PFE",
+      "name": "Pfizer",
+      "industry": "Pharma/Biotech",
+      "group": "Pharma",
+      "order": 330,
+      "blurb": "Pfizer is not the weight-loss leader. The near events are oncology labels and a report on election day. Drug-price politics are the outside risk, and the calendar flags a Metsera bet without spelling out the terms.",
+      "peers": ["LLY", "NVO"],
+      "pin_ids": [],
+      "skip_ids": [],
+      "macro_ids": [],
+      "backfill": [],
+      "catalysts": [
+        {
+          "id": "cat-pfe-earnings",
+          "date": "2026-11-03",
+          "date_precision": "day",
+          "status": "upcoming",
+          "title": "Pfizer reports before the open",
+          "summary": "Pfizer reports Tuesday morning, the same day as the midterms. The vote is a live input for drug prices. The calendar also flags a Metsera bet. The terms of that bet are not written out in the news item.",
+          "event_type": "earnings",
+          "key_number": "Before the open, with the midterms",
+          "tickers": ["LLY", "NVO"],
+          "news_ids": ["2026-11-03-midterms"],
+          "unverified": false,
+          "source": "Calendar"
+        }
+      ],
+      "cautions": [
+        {
+          "id": "pfe-glp1",
+          "title": "The obesity trade belongs to Lilly and Novo",
+          "reason": "Pfizer does not have the GLP-1 franchise those two are fighting over. A Metsera deal, if that is the bet the calendar means, is an attempt to buy in. Terms are not in the file, so this stays a watch, not a number.",
+          "via": "Eli Lilly and Novo Nordisk",
+          "level": "high",
+          "tickers": ["LLY", "NVO"],
+          "news_ids": ["2026-10-29-lly-earnings", "2026-11-03-midterms"]
+        },
+        {
+          "id": "pfe-price",
+          "title": "Medicare negotiation hits the older drugs",
+          "reason": "Pfizer's large primary-care drugs are the kind of products Medicare price talks target. Tuesday's election is the policy catalyst already on the calendar. No new negotiated price is stated here.",
+          "via": "Medicare",
+          "level": "high",
+          "tickers": ["LLY"],
+          "news_ids": ["2026-11-03-midterms"]
+        },
+        {
+          "id": "pfe-oncology",
+          "title": "The oncology wins have not moved the stock",
+          "reason": "Talzenna's label got wider, and Elrexfio met a Phase 3 goal, but the shares slipped on the Elrexfio news. Good trials are not the same as a growth story.",
+          "via": "Elrexfio and Talzenna",
+          "level": "medium",
+          "tickers": [],
+          "news_ids": ["2026-10-27-pfe-talzenna", "2026-10-28-pfe-elrexfio"]
+        }
+      ]
+    }
+  ]
+}

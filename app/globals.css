@@ -467,6 +467,86 @@ main { min-width: 0; }
   pointer-events: none;
 }
 
+.stocks { display: flex; flex-direction: column; gap: 14px; }
+.stock-picker { display: flex; flex-direction: column; gap: 10px; }
+.stock-picker .field { max-width: 420px; }
+.stock-groups { display: flex; flex-direction: column; gap: 8px; }
+.stock-group { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 8px; align-items: center; }
+.stock-group > span {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.stock-scroller {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.stock-chip { flex: none; }
+.stock-chip small {
+  font-size: 11px;
+  min-width: 1.1rem;
+  text-align: center;
+  border-radius: 99px;
+  background: var(--muted);
+  padding: 0 5px;
+}
+.stock-chip[aria-pressed="true"] small { background: color-mix(in srgb, var(--bg) 22%, transparent); color: inherit; }
+
+.story-hero, .story-col, .story-block, .beat, .caution {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.story-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-end;
+  padding: 16px;
+}
+.story-hero h2 { margin: 0; font-size: clamp(1.7rem, 3vw, 2.3rem); }
+.story-hero h2 span { color: var(--ink-soft); font-family: var(--font-sans), sans-serif; font-size: 0.62em; font-weight: 500; }
+.story-hero p { margin: 8px 0 0; max-width: 62ch; }
+.story-meter { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 180px; }
+.story-meter > p { margin: 0; font-weight: 600; }
+.meter { display: flex; flex-wrap: wrap; gap: 4px; }
+.meter i { width: 28px; height: 14px; border-radius: 99px; background: var(--muted); display: inline-block; }
+.meter i.high { background: var(--down); }
+.meter i.medium { background: var(--accent); }
+.meter i.low { background: var(--ink-soft); }
+.story-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.85fr); gap: 12px; align-items: start; }
+.story-col, .story-block { padding: 14px; }
+.story-col h3, .story-block h3 { margin: 0; font-size: 1.25rem; }
+.beats { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.beat, .beat-hit {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  padding: 10px 12px;
+  color: inherit;
+}
+.beat-hit { border: 1px solid var(--line); background: var(--bg-elev); border-radius: 16px; cursor: pointer; }
+.beat-date { color: var(--ink-soft); font-size: 12px; }
+.beat-key { font-family: var(--font-serif), Georgia, serif; font-size: 1.05rem; }
+.beat .card-summary, .caution p { margin: 0; }
+.beat .card-summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.story-block { display: flex; flex-direction: column; gap: 8px; }
+.cautions { display: flex; flex-direction: column; gap: 8px; }
+.caution { padding: 12px; border-left: 4px solid var(--accent); }
+.caution.level-high { border-left-color: var(--down); }
+.caution.level-low { border-left-color: var(--ink-soft); }
+.caution h4 { margin: 0; font-family: var(--font-serif), Georgia, serif; font-size: 1.15rem; font-weight: 500; }
+.story-block .related { margin-top: 4px; }
+
 .detail {
   width: min(520px, 100%);
   max-height: min(860px, calc(100vh - 32px));
@@ -502,6 +582,9 @@ main { min-width: 0; }
 
 @media (max-width: 980px) {
   .body { grid-template-columns: 1fr; }
+  .story-grid { grid-template-columns: 1fr; }
+  .story-hero { flex-direction: column; align-items: stretch; }
+  .story-meter { min-width: 0; }
   .upcoming { position: static; padding: 0; overflow: hidden; }
   .upcoming-toggle {
     display: flex;
@@ -538,6 +621,11 @@ main { min-width: 0; }
 
 @media (max-width: 640px) {
   .shell { width: min(100% - 16px, 1240px); }
+  .view-switch { flex-wrap: wrap; overflow: visible; border-radius: 16px; }
+  .stock-group { grid-template-columns: 1fr; gap: 4px; }
+  .stock-scroller { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+  .stock-chip, .story-meter .text-btn, .ticker-head .text-btn { min-height: 40px; }
+  .beat, .beat-hit, .caution { padding: 12px; }
   .detail {
     width: 100%;
     height: 100%;

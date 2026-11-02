@@ -49,12 +49,14 @@ export function TickerView({
   ticker,
   onTicker,
   onOpen,
+  onStory,
 }: {
   items: NewsItem[];
   filtered: NewsItem[];
   ticker: string;
   onTicker: (ticker: string) => void;
   onOpen: (id: string) => void;
+  onStory?: () => void;
 }) {
   const [includeLinked, setIncludeLinked] = useState(true);
   const options = useMemo(() => {
@@ -147,6 +149,11 @@ export function TickerView({
           <input type="checkbox" checked={includeLinked} onChange={(event) => setIncludeLinked(event.target.checked)} />
           Show linked reactions
         </label>
+        {onStory ? (
+          <button type="button" className="text-btn" onClick={onStory}>
+            Story
+          </button>
+        ) : null}
       </div>
       <PriceChart ticker={ticker} points={prices} onOpen={onOpen} />
       <MoveChart ticker={ticker} points={moves} onOpen={onOpen} />

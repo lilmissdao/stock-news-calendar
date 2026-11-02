@@ -54,7 +54,50 @@ export type FilterState = {
   moveMin: string;
 };
 
-export type ViewId = "calendar" | "list" | "ticker" | "connections";
+export type ViewId = "calendar" | "list" | "ticker" | "stocks" | "connections";
+
+export type CautionLevel = "high" | "medium" | "low";
+
+export type StoryEvent = {
+  id: string;
+  date: string;
+  date_precision: DatePrecision;
+  status: Status;
+  title: string;
+  summary: string;
+  event_type: string;
+  key_number: string;
+  tickers: string[];
+  news_ids: string[];
+  unverified: boolean;
+  source: string;
+};
+
+export type StockCaution = {
+  id: string;
+  title: string;
+  reason: string;
+  via: string;
+  level: CautionLevel;
+  tickers: string[];
+  news_ids: string[];
+};
+
+export type StockProfile = {
+  ticker: string;
+  name: string;
+  industry: string;
+  group: string;
+  order: number;
+  blurb: string;
+  peers: string[];
+  pin_ids: string[];
+  skip_ids: string[];
+  macro_ids: string[];
+  backfill: StoryEvent[];
+  catalysts: StoryEvent[];
+  cautions: StockCaution[];
+};
 
 export type Story = {
   id: string;

@@ -43,6 +43,30 @@ export function toISODate(date: Date): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
+const NEW_YORK = "America/New_York";
+
+/** Calendar date for an instant in America/New_York. Never a fixed date. */
+export function todayInNewYork(now: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: NEW_YORK,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+  if (!year || !month || !day) {
+    throw new Error("Could not read the current date in America/New_York");
+  }
+  return `${year}-${month}-${day}`;
+}
+
+export function monthOfISO(iso: string): { year: number; month: number } {
+  const date = parseISODate(iso);
+  return { year: date.getFullYear(), month: date.getMonth() };
+}
+
 export function formatPretty(iso: string): string {
   const date = parseISODate(iso);
   return `${WEEKDAYS[date.getDay()]}, ${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;

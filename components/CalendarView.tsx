@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ItemCard } from "@/components/ItemCard";
-import { formatMonth, formatPretty, monthKey, monthMatrix, parseISODate, precisionLabel, shiftMonth, toISODate } from "@/lib/format";
+import { formatMonth, formatPretty, monthKey, monthMatrix, monthOfISO, precisionLabel, shiftMonth, toISODate } from "@/lib/format";
 import { industryColor } from "@/lib/taxonomy";
 import type { NewsItem } from "@/lib/types";
 
@@ -27,6 +27,9 @@ export function CalendarView({
 }) {
   const key = monthKey(year, month);
   const weeks = useMemo(() => monthMatrix(year, month), [year, month]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollBehavior = useRef<ScrollBehavior>("auto");
+  const [focusToday, setFocusToday] = useState(0);
   const pinned = useMemo(() => {
     const map = new Map<string, NewsItem[]>();
     for (const item of items) {
@@ -42,6 +45,21 @@ export function CalendarView({
   const prev = shiftMonth(year, month, -1);
   const next = shiftMonth(year, month, 1);
 
+  useEffect(() => {
+    const root = scrollRef.current;
+    if (!root || !today) return;
+    const cell = root.querySelector<HTMLElement>('[data-today="true"]');
+    if (!cell) return;
+    const pad = 8;
+    const rootRect = root.getBoundingClientRect();
+    const cellRect = cell.getBoundingClientRect();
+    const behavior = scrollBehavior.current;
+    scrollBehavior.current = "auto";
+    if (cellRect.left >= rootRect.left + pad && cellRect.right <= rootRect.right - pad) return;
+    const delta = cellRect.left - rootRect.left - pad;
+    root.scrollTo({ left: Math.max(0, root.scrollLeft + delta), behavior });
+  }, [year, month, today, focusToday]);
+
   return (
     <div className="cal">
       <div className="cal-nav">
@@ -56,11 +74,13 @@ export function CalendarView({
         </div>
         <button
           type="button"
-          className="text-btn"
+          className="today-jump"
           onClick={() => {
             if (!today) return;
-            const date = parseISODate(today);
-            onMonth(date.getFullYear(), date.getMonth());
+            const current = monthOfISO(today);
+            scrollBehavior.current = "smooth";
+            setFocusToday((tick) => tick + 1);
+            onMonth(current.year, current.month);
             onSelectDay(today);
           }}
         >
@@ -88,7 +108,7 @@ export function CalendarView({
         )}
       </section>
       <div className="cal-layout">
-        <div className="cal-scroll">
+        <div className="cal-scroll" ref={scrollRef}>
           <div className="month-grid" role="grid" aria-label={formatMonth(year, month)}>
             {WEEKDAYS.map((day) => (
               <div key={day} className="dow" role="columnheader">
@@ -107,6 +127,7 @@ export function CalendarView({
                 <div
                   key={iso}
                   role="gridcell"
+                  data-today={today === iso ? "true" : undefined}
                   className={[
                     "day",
                     outside ? "out" : "",
@@ -120,10 +141,14 @@ export function CalendarView({
                     type="button"
                     className="day-num"
                     aria-pressed={selectedDay === iso}
-                    aria-label={`${formatPretty(iso)}, ${dayItems.length} items`}
+                    aria-current={today === iso ? "date" : undefined}
+                    aria-label={`${formatPretty(iso)}${today === iso ? ", today" : ""}, ${dayItems.length} items`}
                     onClick={() => onSelectDay(iso)}
                   >
-                    {date.getDate()}
+                    <span className="day-num-stack">
+                      <span className="day-num-mark">{date.getDate()}</span>
+                      {today === iso ? <span className="today-tag">Today</span> : null}
+                    </span>
                     {dayItems.length > 0 ? <span className="day-count">{dayItems.length}</span> : null}
                   </button>
                   {dayItems.length > 0 ? (
@@ -153,7 +178,10 @@ export function CalendarView({
         </div>
         <section className="agenda" aria-label={`Items on ${formatPretty(selectedDay)}`}>
           <header>
-            <h3>{formatPretty(selectedDay)}</h3>
+            <h3>
+              {formatPretty(selectedDay)}
+              {today === selectedDay ? <span className="today-tag">Today</span> : null}
+            </h3>
             <p>{agenda.length === 0 ? "Nothing pinned to this day." : `${agenda.length} pinned to this day`}</p>
           </header>
           <div className="agenda-list">

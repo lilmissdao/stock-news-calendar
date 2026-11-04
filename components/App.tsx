@@ -11,7 +11,7 @@ import { TickerSearch } from "@/components/TickerSearch";
 import { TickerView } from "@/components/TickerView";
 import { UpcomingPanel } from "@/components/UpcomingPanel";
 import { EMPTY_FILTERS, applyFilters, filtersActive } from "@/lib/filter";
-import { parseISODate, toISODate } from "@/lib/format";
+import { monthOfISO, parseISODate, todayInNewYork } from "@/lib/format";
 import { indexById } from "@/lib/news";
 import { STOCK_BY_TICKER } from "@/lib/stocks";
 import type { FilterState, NewsItem, ViewId } from "@/lib/types";
@@ -24,19 +24,20 @@ const VIEWS: { id: ViewId; label: string }[] = [
   { id: "connections", label: "Connections" },
 ];
 
-export function App({ items }: { items: NewsItem[] }) {
+export function App({ items, today: initialToday }: { items: NewsItem[]; today: string }) {
   const [view, setView] = useState<ViewId>("calendar");
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [month, setMonth] = useState({ year: 2026, month: 9 });
-  const [selectedDay, setSelectedDay] = useState("2026-10-23");
+  const [month, setMonth] = useState(() => monthOfISO(initialToday));
+  const [selectedDay, setSelectedDay] = useState(initialToday);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [ticker, setTicker] = useState("NVDA");
   const [stock, setStock] = useState("NVDA");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [upcomingOpen, setUpcomingOpen] = useState(false);
-  const [today, setToday] = useState<string | null>(null);
+  const [today, setToday] = useState(initialToday);
   const themeReady = useRef(false);
+  const alignedToday = useRef(false);
 
   useLayoutEffect(() => {
     const stored = localStorage.getItem("snc-theme");
@@ -58,9 +59,15 @@ export function App({ items }: { items: NewsItem[] }) {
     localStorage.setItem("snc-theme", theme);
   }, [theme]);
 
-  useEffect(() => {
-    setToday(toISODate(new Date()));
-  }, []);
+  useLayoutEffect(() => {
+    if (alignedToday.current) return;
+    alignedToday.current = true;
+    const iso = todayInNewYork();
+    if (iso === initialToday) return;
+    setToday(iso);
+    setSelectedDay(iso);
+    setMonth(monthOfISO(iso));
+  }, [initialToday]);
 
   useEffect(() => {
     function fromHash() {

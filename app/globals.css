@@ -301,8 +301,21 @@ main { min-width: 0; }
   gap: 12px;
   align-items: center;
 }
-.month-switch { display: flex; align-items: center; gap: 8px; }
+.cal-nav { flex-wrap: wrap; }
+.month-switch { display: flex; align-items: center; gap: 8px; flex: 1 1 auto; min-width: 0; }
 .month-switch h2, .ticker-head h2, .timeline-head h2, .upcoming-desk h2 { margin: 0; }
+.month-switch h2 { font-size: clamp(1.25rem, 4vw, 1.75rem); }
+.today-jump {
+  flex: none;
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+  border-radius: 999px;
+  min-height: 40px;
+  padding: 6px 16px;
+  font-weight: 700;
+}
+.today-jump:hover { filter: brightness(1.08); }
 .ticker-head h2 span { color: var(--ink-soft); font-family: var(--font-sans), sans-serif; font-size: 0.7em; font-weight: 500; }
 
 .undated, .agenda, .chart, .upcoming, .day, .card, .graph, .node-card {
@@ -329,18 +342,51 @@ main { min-width: 0; }
 .dow { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); padding: 0 4px 4px; }
 .day { min-height: 118px; padding: 6px; border-radius: 12px; display: flex; flex-direction: column; gap: 4px; }
 .day.out { opacity: 0.45; }
+.day.out.today { opacity: 1; }
 .day.selected { box-shadow: inset 0 0 0 1.5px var(--ink); }
-.day.today .day-num { color: var(--accent); }
+.day.today {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg-elev));
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.day.today.selected { box-shadow: inset 0 0 0 2px var(--accent); }
 .day-num {
   border: 0;
   background: transparent;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 4px;
   padding: 0 2px;
   font-variant-numeric: tabular-nums;
 }
-.day-count { font-size: 11px; color: var(--ink-soft); }
+.day-num-stack { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.day-num-mark {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.85rem;
+  height: 1.85rem;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-weight: 600;
+  line-height: 1;
+}
+.day.today .day-num-mark {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--bg-elev), 0 0 0 4px var(--accent);
+}
+.today-tag {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1;
+}
+.day-count { margin-left: auto; font-size: 11px; color: var(--ink-soft); }
 .mix { display: flex; height: 5px; border-radius: 99px; overflow: hidden; }
 .day-pills { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .pill, .more {
@@ -362,6 +408,7 @@ main { min-width: 0; }
 .more { justify-content: center; background: transparent; color: var(--ink-soft); }
 
 .agenda { padding: 12px; }
+.agenda h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .agenda header p, .upcoming-desk p, .ticker-head p, .story-blurb, .chart-note, .companies { color: var(--ink-soft); margin: 4px 0 0; }
 .agenda-list, .upcoming-body { max-height: calc(100vh - 180px); overflow: auto; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 .upcoming { padding: 12px; position: sticky; top: 12px; }
@@ -693,6 +740,12 @@ main { min-width: 0; }
 
 @media (max-width: 640px) {
   .shell { width: min(100% - 16px, 1240px); }
+  .cal-nav { gap: 8px; }
+  .month-switch { gap: 4px; }
+  .month-switch button, .today-jump { min-height: 44px; }
+  .today-jump { padding: 8px 16px; }
+  .day { min-height: 108px; }
+  .today-tag { font-size: 9px; letter-spacing: 0.04em; }
   .ticker-search { order: 2; flex-basis: 100%; max-width: none; min-width: 0; }
   .top-actions { order: 3; }
   .view-switch { flex-wrap: wrap; overflow: visible; border-radius: 16px; }

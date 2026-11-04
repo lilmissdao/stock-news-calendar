@@ -20,7 +20,7 @@ The search box in the top bar matches a ticker or a company name as you type. `n
 - **Calendar** opens on the current month and day in America/New_York. Move to earlier or later months with Prev and Next, or jump back with Today. Items with a day-level date sit on that day, color-coded by industry. Month, quarter, and uncertain dates stay in the “This month / undated” strip instead of being pinned to a guessed day. A crowded day keeps a few headlines in the cell and lists the rest in the agenda. Click an item for the summary, key number, stated price, stated move, and related items.
 - **List** is the same filtered set as a timeline.
 - **Ticker** picks one symbol and shows its items in order. A price line is drawn only from `price_mentioned` rows whose ticker is the one you picked. Percent moves are markers from `move_pct`. Filled markers are items that name only that ticker. Open markers name several tickers, so the percent may describe the group or the tape rather than that symbol alone. Linked items from `related_ids` can be shown on the same timeline, including reactions that land on a later date. If that symbol has a story page, a Story button opens it.
-- **Stocks** is one page per major ticker: what happened, what’s coming, cautions that pile up from outside, and links to related stocks and calendar items. The list of tickers lives in `data/stocks.json`. Recent items come from `data/news.json`. Older rows in that file are a researched backfill. A figure is included only when a source states it.
+- **Stocks** is one page per major ticker: a short summary of what happened, what’s coming, and the outside risks, then the dated history, upcoming catalysts, cautions, and links to related stocks and calendar items. The list of tickers lives in `data/stocks.json`. Recent items come from `data/news.json`. Older rows in that file are a researched backfill. A figure is included only when a source states it.
 - **Connections** is a graph of `related_ids`. Drag to pan, drag a node to move it, and click a node for the write-up. Two reading paths are laid out from links already in the file: Meta capex → Nvidia → CoreWeave debt → rates, and Iran / oil → airlines and defense. **Biotech drug rivalries** draws company/drug bubbles. Size is reliance on that drug (very high means the only product), nudged by a stated market cap. A solid line is a rival drug, a dashed line is a generic threat, a dotted line is a royalty, and a faint dashed line was not verified.
 - **Upcoming**, in the side column, is the next 14 days of items whose status is `upcoming`. It follows the filters.
 
@@ -80,7 +80,7 @@ The caution count on each chip is the number of cautions in that object. The bar
 2. Copy an existing object and give it a new `id`.
 3. Fill the fields above. Point `related_ids` at ids that already exist, and add the new id onto those items when the link should be visible from both sides (the graph treats a link in either direction as one edge).
 4. Check that the file is still valid JSON.
-5. Commit the file. A connected Vercel project will rebuild from that commit.
+5. Run `npm run briefs` and commit `data/news.json` together with `data/briefs.json`. A connected Vercel project will rebuild from that commit.
 
 ```json
 {
@@ -102,3 +102,7 @@ The caution count on each chip is the number of cautions in that object. The bar
   "connection_notes": ""
 }
 ```
+
+## Summaries
+
+Day cards, stock pages, and long notes get a short summary made only from titles, key numbers, prices, moves, and cautions already in the files. A long note keeps its full text; the short version is the first sentence, or the key number when the note is one long sentence. `npm run briefs` writes `data/briefs.json`. The site uses that text when it still matches the items on screen, and rebuilds the same lines when a filter hides some of them. No model and no API key.

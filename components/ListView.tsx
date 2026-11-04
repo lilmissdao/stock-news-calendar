@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
+import { BriefCard } from "@/components/BriefCard";
 import { ItemCard } from "@/components/ItemCard";
 import { formatPretty } from "@/lib/format";
+import { dayBriefFor } from "@/lib/saved-briefs";
 import type { NewsItem } from "@/lib/types";
 
 export function ListView({ items, onOpen }: { items: NewsItem[]; onOpen: (id: string) => void }) {
@@ -34,6 +36,7 @@ export function ListView({ items, onOpen }: { items: NewsItem[]; onOpen: (id: st
         <section key={date} className="t-day">
           <h3>{formatPretty(date)}</h3>
           <div className="t-cards">
+            <BriefCard brief={dayBriefFor(date, group)} label={`Summary for ${formatPretty(date)}`} />
             {group.map((item) => (
               <ItemCard key={item.id} item={item} onOpen={onOpen} showSummary />
             ))}

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { formatMarketCap, formatMove, formatPretty, formatPrice, precisionLabel } from "@/lib/format";
+import { itemBriefFor } from "@/lib/saved-briefs";
 import { eventLabel, industryColor, LINK_LABELS, RELIANCE_LABELS, STATUS_LABELS } from "@/lib/taxonomy";
 import type { NewsItem } from "@/lib/types";
 
@@ -35,6 +36,8 @@ export function DetailDialog({
       })
     : [];
   const precision = item ? precisionLabel(item) : null;
+  const brief = item ? itemBriefFor(item) : null;
+  const rest = item ? (brief && item.summary.startsWith(brief) ? item.summary.slice(brief.length).trim() : item.summary) : "";
 
   return (
     <dialog
@@ -64,7 +67,13 @@ export function DetailDialog({
               <span>{eventLabel(item.event_type)}</span>
               {precision ? <span>{precision}</span> : null}
             </p>
-            <p className="summary">{item.summary}</p>
+            {brief ? (
+              <p className="item-brief">
+                <span className="kicker">Short version</span>
+                {brief}
+              </p>
+            ) : null}
+            {rest ? <p className="summary">{rest}</p> : null}
             {item.key_number ? (
               <figure className="keynum">
                 <figcaption>Key number</figcaption>

@@ -1,5 +1,8 @@
 import { useMemo } from "react";
+import { BriefCard } from "@/components/BriefCard";
 import { formatPretty, precisionLabel } from "@/lib/format";
+import { itemBrief } from "@/lib/brief";
+import { stockBriefFor } from "@/lib/saved-briefs";
 import { assembleStock, cautionCounts, STOCK_BY_TICKER, STOCK_GROUPS, STOCKS, type StoryBeat } from "@/lib/stocks";
 import { eventLabel, industryColor, STATUS_LABELS } from "@/lib/taxonomy";
 import type { NewsItem, StockCaution, StockProfile } from "@/lib/types";
@@ -109,6 +112,8 @@ export function StocksView({
         </div>
       </header>
 
+      <BriefCard brief={stockBriefFor(profile, story)} label={`Summary for ${profile.ticker}`} />
+
       <div className="story-grid">
         <section className="story-col">
           <h3>What happened</h3>
@@ -180,6 +185,17 @@ export function StocksView({
   );
 }
 
+function beatBody(beat: StoryBeat) {
+  const brief = itemBrief({ title: beat.title, summary: beat.summary, key_number: beat.keyNumber });
+  const rest = brief && beat.summary.startsWith(brief) ? beat.summary.slice(brief.length).trim() : beat.summary;
+  return (
+    <>
+      {brief ? <span className="item-brief">{brief}</span> : null}
+      {rest ? <span className="card-summary">{rest}</span> : null}
+    </>
+  );
+}
+
 function Beat({ beat, today, onOpen }: { beat: StoryBeat; today: string | null; onOpen: (id: string) => void }) {
   const precision = precisionLabel({
     date: beat.date,
@@ -196,7 +212,7 @@ function Beat({ beat, today, onOpen }: { beat: StoryBeat; today: string | null; 
         <span>{eventLabel(beat.eventType)}</span>
         {beat.unverified ? <span className="badge developing">Unverified</span> : null}
       </span>
-      {beat.summary ? <span className="card-summary">{beat.summary}</span> : null}
+      {beatBody(beat)}
       {beat.keyNumber ? <span className="beat-key">{beat.keyNumber}</span> : null}
       {beat.source ? <span className="follow">{beat.source}</span> : null}
       {beat.tickers.length > 0 ? <span className="tickers">{beat.tickers.join("  ")}</span> : null}

@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "briefs": "tsx scripts/write-briefs.ts"
   },
   "dependencies": {
     "next": "^15.5.4",
@@ -16,6 +17,7 @@
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "tsx": "^4.23.15",
     "typescript": "^5.8.3"
   }
 }

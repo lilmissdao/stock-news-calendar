@@ -1,4 +1,4 @@
-import raw from "@/data/stocks.json";
+import raw from "../data/stocks.json" with { type: "json" };
 import { indexById } from "@/lib/news";
 import type { DatePrecision, NewsItem, Status, StockCaution, StockProfile, StoryEvent } from "@/lib/types";
 

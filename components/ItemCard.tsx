@@ -1,4 +1,5 @@
 import { formatMove, formatPretty, formatPrice, precisionLabel } from "@/lib/format";
+import { itemBriefFor } from "@/lib/saved-briefs";
 import { eventLabel, industryColor, STATUS_LABELS } from "@/lib/taxonomy";
 import type { NewsItem } from "@/lib/types";
 
@@ -17,6 +18,8 @@ export function ItemCard({
 }) {
   const precision = precisionLabel(item);
   const price = item.price_mentioned;
+  const brief = showSummary ? itemBriefFor(item) : null;
+  const summaryText = showSummary ? brief ?? item.summary : "";
 
   return (
     <article className="card" id={`news-${item.id}`}>
@@ -31,7 +34,7 @@ export function ItemCard({
             <span>{eventLabel(item.event_type)}</span>
             {precision ? <span>{precision}</span> : null}
           </span>
-          {showSummary ? <span className="card-summary">{item.summary}</span> : null}
+          {summaryText ? <span className="card-summary">{summaryText}</span> : null}
           <span className="stats">
             {item.move_pct != null ? (
               <span className={item.move_pct > 0 ? "up" : item.move_pct < 0 ? "down" : ""}>

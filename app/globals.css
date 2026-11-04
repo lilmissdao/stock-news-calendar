@@ -407,6 +407,28 @@ main { min-width: 0; }
 .pill span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .more { justify-content: center; background: transparent; color: var(--ink-soft); }
 
+.brief {
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-elev));
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin: 0 0 12px;
+}
+.brief h3 { margin: 0; font-size: 1.05rem; }
+.brief-note { margin: 2px 0 8px; color: var(--ink-soft); font-size: 12px; }
+.brief-lead { margin: 0 0 8px; }
+.brief ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.brief li { margin: 0; }
+.item-brief { margin: 0; font-weight: 600; }
+.item-brief .kicker { display: block; margin-bottom: 2px; }
+.card-body .item-brief { font-weight: 600; }
+
 .agenda { padding: 12px; }
 .agenda h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .agenda header p, .upcoming-desk p, .ticker-head p, .story-blurb, .chart-note, .companies { color: var(--ink-soft); margin: 4px 0 0; }

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { BriefCard } from "@/components/BriefCard";
 import { ItemCard } from "@/components/ItemCard";
 import { formatMonth, formatPretty, monthKey, monthMatrix, monthOfISO, precisionLabel, shiftMonth, toISODate } from "@/lib/format";
+import { dayBriefFor } from "@/lib/saved-briefs";
 import { industryColor } from "@/lib/taxonomy";
 import type { NewsItem } from "@/lib/types";
 
@@ -42,6 +44,7 @@ export function CalendarView({
   }, [items]);
   const undated = items.filter((item) => !item.graph_only && item.date_precision !== "day" && item.date.startsWith(key));
   const agenda = pinned.get(selectedDay) ?? [];
+  const daySummary = useMemo(() => dayBriefFor(selectedDay, agenda), [selectedDay, agenda]);
   const prev = shiftMonth(year, month, -1);
   const next = shiftMonth(year, month, 1);
 
@@ -107,6 +110,7 @@ export function CalendarView({
           </ul>
         )}
       </section>
+      <BriefCard brief={daySummary} label={`Summary for ${formatPretty(selectedDay)}`} />
       <div className="cal-layout">
         <div className="cal-scroll" ref={scrollRef}>
           <div className="month-grid" role="grid" aria-label={formatMonth(year, month)}>

@@ -142,7 +142,8 @@
       "2026-11-14-fda-smmt",
       "2026-10-27-pfe-talzenna",
       "2026-10-26-gmab-petosemtamab",
-      "2026-10-28-mrna-melanoma-data"
+      "2026-10-28-mrna-melanoma-data",
+      "2026-11-05-onc-brukinsa"
     ],
     "connection_notes": "Keytruda 2028 cliff drives Merck's vaccine combo and Roche/AZN competition."
   },
@@ -1517,7 +1518,7 @@
     "date_precision": "day",
     "status": "developing",
     "title": "SpaceX-Tesla merger: special committees formed",
-    "summary": "Special committees at both companies are reviewing a deal, with no terms yet. Bloomberg reports an effort to announce in the first half of 2027. Morgan Stanley set a $300 target on SpaceX and sees $175B in 2027 revenue. Analysts say a Democratic Congress could slow a Tesla-SpaceX merger through scrutiny, though it can't block one. Tesla and SpaceX formed special committees around Oct 20 to explore a merger; Musk said it has \"a lot of merit,\" and there are still no terms. Earlier notes put the combined value at about $3.5-3.7T, and Barclays' Oct 26 Tesla upgrade (Overweight, target $450 from $370) modeled a combination.",
+    "summary": "Special committees at both companies are reviewing a deal, with no terms yet. Bloomberg reports an effort to announce in the first half of 2027. Morgan Stanley set a $300 target on SpaceX and sees $175B in 2027 revenue. Analysts say a Democratic Congress could slow a Tesla-SpaceX merger through scrutiny, though it can't block one. Tesla and SpaceX formed special committees around Oct 20 to explore a merger; Musk said it has \"a lot of merit,\" and there are still no terms. Earlier notes put the combined value at about $3.5-3.7T, and Barclays' Oct 26 Tesla upgrade (Overweight, target $450 from $370) modeled a combination. The Nov 5 note says the special committees are still reviewing, a first-half 2027 announcement was previously flagged, and a Democratic Congress adds scrutiny.",
     "tickers": [
       "TSLA",
       "SPCX"
@@ -1532,7 +1533,7 @@
     "key_number": "~$3.5-3.7T combined",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-22-tsla-q3",
       "2026-10-23-spcx-unlock",
@@ -1543,7 +1544,7 @@
       "2026-11-04-musk-stocks",
       "2026-11-12-starship-flight-15"
     ],
-    "connection_notes": "First reported Oct 22, with no terms. Oct 26 digest: Barclays models a merger. Oct 27 digest: both companies formed special committees around Oct 20, and Musk said a merger has a lot of merit. Nov 4 digest: committees are still reviewing, with no terms. Bloomberg says there is an effort to announce in the first half of 2027. Morgan Stanley's SpaceX target is $300, with $175B of 2027 revenue. A Democratic Congress adds scrutiny and could slow a deal, but the note says Congress can't block one. The H1 2027 window is not a single day, so the date stays on the original note."
+    "connection_notes": "First reported Oct 22, with no terms. Oct 26 digest: Barclays models a merger. Oct 27 digest: both companies formed special committees around Oct 20, and Musk said a merger has a lot of merit. Nov 4 digest: committees are still reviewing, with no terms. Bloomberg says there is an effort to announce in the first half of 2027. Morgan Stanley's SpaceX target is $300, with $175B of 2027 revenue. A Democratic Congress adds scrutiny and could slow a deal, but the note says Congress can't block one. The H1 2027 window is not a single day, so the date stays on the original note. Nov 5 digest restates the open review, the previously flagged first-half 2027 window, and added Democratic scrutiny. No new terms were given."
   },
   {
     "id": "2026-10-23-moodys-france",
@@ -1574,7 +1575,7 @@
     "date_precision": "day",
     "status": "developing",
     "title": "OpenAI still raising after the target was cut to about $20B",
-    "summary": "The FT reports OpenAI cut its funding round to about $20B from $30B at a $1.25T valuation, with UAE investors leading. The smaller round is still in progress, and its IPO is targeted for 2027. A shrinking round fits the AI-bubble worry and matters for Oracle, CoreWeave and other companies relying on OpenAI contracts. OpenAI is also running a Georgia Grid Protectors pilot that would let it cut up to 1,000 MW of data-center power use at peak hours, which helps the power-politics problem. OpenAI is still trying to raise up to $20B at a $1.25T valuation, with about $11B committed. On Monday it signed UAE deals with ADNOC, G42 and Mubadala as it courts Gulf money. A weak close would hurt the whole AI-infrastructure trade. An IPO is targeted for 2027, and a retail offering had been planned at $1.25T. Friday's reports put about $11B committed against a $30B original target that was cut to about $20B, with the valuation down to $1.25T from $1.4T and a UAE group led by MGX as the anchor. Earlier notes had the round led by UAE investors and Coatue, signatures due at the end of the following week, and about $600B of compute by 2030.",
+    "summary": "The FT reports OpenAI cut its funding round to about $20B from $30B at a $1.25T valuation, with UAE investors leading. The smaller round is still in progress, and its IPO is targeted for 2027. A shrinking round fits the AI-bubble worry and matters for Oracle, CoreWeave and other companies relying on OpenAI contracts. OpenAI is also running a Georgia Grid Protectors pilot that would let it cut up to 1,000 MW of data-center power use at peak hours, which helps the power-politics problem. OpenAI is still trying to raise up to $20B at a $1.25T valuation, with about $11B committed. On Monday it signed UAE deals with ADNOC, G42 and Mubadala as it courts Gulf money. A weak close would hurt the whole AI-infrastructure trade. An IPO is targeted for 2027, and a retail offering had been planned at $1.25T. Friday's reports put about $11B committed against a $30B original target that was cut to about $20B, with the valuation down to $1.25T from $1.4T and a UAE group led by MGX as the anchor. Earlier notes had the round led by UAE investors and Coatue, signatures due at the end of the following week, and about $600B of compute by 2030. On Nov 5, president Greg Brockman said a majority of sales now come from enterprises. Asked if OpenAI is ready for an IPO in 2027, he said he thinks so. No listing date is set.",
     "tickers": [
       "ORCL",
       "MSFT",
@@ -1593,14 +1594,15 @@
       "MGX",
       "ADNOC",
       "G42",
-      "Mubadala"
+      "Mubadala",
+      "Greg Brockman"
     ],
     "industry": "AI/Cloud",
     "event_type": "deal",
-    "key_number": "Up to $20B at $1.25T; about $11B committed; Monday UAE deals with ADNOC, G42 and Mubadala",
+    "key_number": "Brockman: majority of sales from enterprises; ready for a 2027 IPO, he thinks so; no listing date",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-08-openai-revenue-ft-ai-selloff",
       "2027-orcl-openai-payments",
@@ -1626,9 +1628,11 @@
       "2026-11-02-ai-infra-drop",
       "2026-11-04-texas-moratorium",
       "2026-11-03-amd-earnings",
-      "2026-11-04-meta-bonds"
+      "2026-11-04-meta-bonds",
+      "2026-11-05-openai-dc-compact",
+      "2026-11-05-openai-pierre"
     ],
-    "connection_notes": "Oct 29 digest: the round is being finalized, led by UAE investors and Coatue. Nov 2 digest: the raise continues with family offices, wealthy individuals and a retail offering, and an IPO is targeted for 2027. The Friday shortfall figures are on the linked happened item. The earlier $30B and Coatue wording is kept as prior color. Nov 3 digest: the raise is still open at up to $20B and $1.25T, about $11B is committed, and Monday's UAE deals are with ADNOC, G42 and Mubadala. Oracle's $20B stock-and-bond raise and CoreWeave's report are the linked financing items. AMD is now on the ticker list because the note names it. The date stays on the original note. Nov 4 digest: the FT restates the cut to about $20B from $30B at $1.25T, with UAE investors leading, and the round is still in progress. The new fact is the Georgia Grid Protectors pilot, up to 1,000 MW of data-center power at peak hours. The 2027 IPO target was already here. Oracle's raise and CoreWeave's report stay linked."
+    "connection_notes": "Oct 29 digest: the round is being finalized, led by UAE investors and Coatue. Nov 2 digest: the raise continues with family offices, wealthy individuals and a retail offering, and an IPO is targeted for 2027. The Friday shortfall figures are on the linked happened item. The earlier $30B and Coatue wording is kept as prior color. Nov 3 digest: the raise is still open at up to $20B and $1.25T, about $11B is committed, and Monday's UAE deals are with ADNOC, G42 and Mubadala. Oracle's $20B stock-and-bond raise and CoreWeave's report are the linked financing items. AMD is now on the ticker list because the note names it. The date stays on the original note. Nov 4 digest: the FT restates the cut to about $20B from $30B at $1.25T, with UAE investors leading, and the round is still in progress. The new fact is the Georgia Grid Protectors pilot, up to 1,000 MW of data-center power at peak hours. The 2027 IPO target was already here. Oracle's raise and CoreWeave's report stay linked. Nov 5 digest: Brockman's enterprise-sales comment and the 2027 IPO answer. The raise figures were already on this row. The power blueprint and the Pierre Computer deal are separate linked items. Prior key number: Up to $20B at $1.25T; about $11B committed; Monday UAE deals with ADNOC, G42 and Mubadala"
   },
   {
     "id": "2026-10-23-spacex-cell-sites",
@@ -1666,7 +1670,8 @@
       "2026-10-23-spacex-tesla-merger",
       "2026-10-26-vz-earnings",
       "2026-10-28-spcx-drop",
-      "2026-11-02-spcx-boost"
+      "2026-11-02-spcx-boost",
+      "2026-11-04-qcom-earnings"
     ],
     "connection_notes": ""
   },
@@ -1918,7 +1923,9 @@
       "2026-11-25-pce-gdp",
       "2026-11-02-ism",
       "2026-11-04-bonds-dollar-oil",
-      "2026-11-04-fed-logan"
+      "2026-11-04-fed-logan",
+      "2026-11-18-fomc-minutes",
+      "2026-12-09-fomc"
     ],
     "connection_notes": "First listed Oct 22. Oct 23 and Oct 26 digests carried the hike-odds figures. Oct 27 digest: the meeting starts that day, the decision is Wednesday with Warsh's press conference, and a hold is still expected. Oil is a swing factor for the inflation picture. Oct 28 digest: a hold is still expected, a December hike and at least three more by late 2027 are priced, and gas is about $4.27/gal. Oct 29 digest: the hold is in, 10-2, with both dissenters wanting a hike, and futures price a strong chance of a December hike."
   },
@@ -2236,7 +2243,8 @@
       "2026-10-26-cdns-nue-whr-well",
       "2026-10-26-nue-earnings",
       "2026-10-28-canada-talks",
-      "2026-10-28-canada-no-timeline"
+      "2026-10-28-canada-no-timeline",
+      "2026-11-05-section-301"
     ],
     "connection_notes": "Deadline coincides with midterms; ALV -6.3% on Oct 23 is another auto signal."
   },
@@ -2246,7 +2254,7 @@
     "date_precision": "day",
     "status": "happened",
     "title": "Democrats won the House and Senate; Trump says he will work with them",
-    "summary": "Democrats won both the House and Senate in Tuesday's midterms, the AP reported. Futures fell hard overnight, then flipped higher after Trump said he accepts the results and will work with the Democrats. AI and data-center stocks and Musk stocks are the losers. Solar, hospitals and insurers, and small caps are the winners. Earlier notes, written before the results: prediction markets put a Democratic sweep above 75% and JPMorgan at 66%. JPMorgan saw the S&P moving -0.25% to +0.5% on Wednesday on a sweep, and up to about 1% higher if Republicans held the House. Sweep losers in that note were data center names, defense and banks. Winners were hospitals (HCA, THC) and insurers (UNH, CNC). Control of Congress shapes the Dec 11 funding fight, tariffs and drug-pricing policy. The debt is above $40T and the FY2026 deficit is about $2T.",
+    "summary": "Democrats won both the House and Senate in Tuesday's midterms, the AP reported. Futures fell hard overnight, then flipped higher after Trump said he accepts the results and will work with the Democrats. AI and data-center stocks and Musk stocks are the losers. Solar, hospitals and insurers, and small caps are the winners. Earlier notes, written before the results: prediction markets put a Democratic sweep above 75% and JPMorgan at 66%. JPMorgan saw the S&P moving -0.25% to +0.5% on Wednesday on a sweep, and up to about 1% higher if Republicans held the House. Sweep losers in that note were data center names, defense and banks. Winners were hospitals (HCA, THC) and insurers (UNH, CNC). Control of Congress shapes the Dec 11 funding fight, tariffs and drug-pricing policy. The debt is above $40T and the FY2026 deficit is about $2T. The Nov 5 note puts the Senate at least 54-44 and House gains at 30 seats or more. Trump said he would get along with Democrats but stressed his veto power, and markets read the acceptance as lower political-tail risk.",
     "tickers": [
       "HCA",
       "THC",
@@ -2267,10 +2275,10 @@
     ],
     "industry": "Policy",
     "event_type": "policy",
-    "key_number": "Democrats won the House and Senate (AP)",
+    "key_number": "Senate at least 54-44; House gains at least 30 seats; Trump stresses veto power",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-22-dc-debt-frozen",
       "2026-11-03-iran-strikes-plan",
@@ -2309,9 +2317,17 @@
       "2026-11-04-sector-rotation",
       "2026-11-04-solar-credits",
       "2026-11-04-aca-subsidies",
-      "2026-10-23-spacex-tesla-merger"
+      "2026-10-23-spacex-tesla-merger",
+      "2026-11-04-market-rip",
+      "2026-11-04-oil-crash",
+      "2026-11-05-section-301",
+      "2026-11-05-openai-dc-compact",
+      "2026-11-05-dc-selloff",
+      "2026-11-04-vst-drop",
+      "2026-11-04-sector-color",
+      "2026-11-04-vance-war"
     ],
-    "connection_notes": "Gate for data center debt, Iran timing and tariffs. Oct 26 digest: Pentagon strike options after the vote, AMD's call at 5 PM, and CHGG reports. Oct 27 digest restates the midterms, AMD after the close, and Chegg, and adds Booking (4 PM, call 4:30 PM) and Duolingo. Canada tariff talks could land before this vote. Pfizer was on the Oct 22 slate. Oct 28 digest: debt above $40T, FY2026 deficit about $2T, and September JOLTS at 10 AM alongside AMD, Duolingo and Chegg. Oct 29 digest: AMD's quarter is a read on AI GPU demand outside Nvidia. Oct 30 digest: the election shapes the Dec 11 funding fight, tariffs and drug pricing. AMD guided about $13B of revenue with consensus EPS of $1.68. Shopify reports before the open with Pfizer. Arista and Astera Labs report after the close with Supermicro. Nov 2 digest: House and Senate expectations, the grid-cost watch, Pfizer's Metsera bet, AMD's guide band, the 41% growth figure and Friday's drop, Amgen, and Duolingo at 5 PM. Shopify still reports before the open. Earlier notes kept JOLTS, Chegg, Booking and Astera Labs on this slate. Nov 3 digest: the vote is today, so this is no longer an upcoming slate. The sweep odds, the Wednesday S&P ranges, and the sector winners and losers are the new figures. JOLTS, Shopify, Pfizer and the after-close earnings are their own items. Banks on the rate-cap point were not named. Nov 4 digest: the AP says Democrats won both chambers. Trump accepts the results and says he will work with the Democrats. The overnight futures drop and the rebound, and the sector winners and losers, are the linked items."
+    "connection_notes": "Gate for data center debt, Iran timing and tariffs. Oct 26 digest: Pentagon strike options after the vote, AMD's call at 5 PM, and CHGG reports. Oct 27 digest restates the midterms, AMD after the close, and Chegg, and adds Booking (4 PM, call 4:30 PM) and Duolingo. Canada tariff talks could land before this vote. Pfizer was on the Oct 22 slate. Oct 28 digest: debt above $40T, FY2026 deficit about $2T, and September JOLTS at 10 AM alongside AMD, Duolingo and Chegg. Oct 29 digest: AMD's quarter is a read on AI GPU demand outside Nvidia. Oct 30 digest: the election shapes the Dec 11 funding fight, tariffs and drug pricing. AMD guided about $13B of revenue with consensus EPS of $1.68. Shopify reports before the open with Pfizer. Arista and Astera Labs report after the close with Supermicro. Nov 2 digest: House and Senate expectations, the grid-cost watch, Pfizer's Metsera bet, AMD's guide band, the 41% growth figure and Friday's drop, Amgen, and Duolingo at 5 PM. Shopify still reports before the open. Earlier notes kept JOLTS, Chegg, Booking and Astera Labs on this slate. Nov 3 digest: the vote is today, so this is no longer an upcoming slate. The sweep odds, the Wednesday S&P ranges, and the sector winners and losers are the new figures. JOLTS, Shopify, Pfizer and the after-close earnings are their own items. Banks on the rate-cap point were not named. Nov 4 digest: the AP says Democrats won both chambers. Trump accepts the results and says he will work with the Democrats. The overnight futures drop and the rebound, and the sector winners and losers, are the linked items. Nov 5 digest: Senate at least 54-44, House gains of at least 30 seats, and Trump's veto stress. Tariff math and the Wednesday rally are the linked items. Prior key number: Democrats won the House and Senate (AP)"
   },
   {
     "id": "2026-11-03-iran-strikes-plan",
@@ -2319,7 +2335,7 @@
     "date_precision": "day",
     "status": "developing",
     "title": "Iran talks still open after the Qeshm strike; Evercore flags S&P 6,800",
-    "summary": "Trump told the FT he has no immediate plans to strike Iran and partly blamed the war, and gas prices, for the GOP losses. Any easing of the war could pull oil lower from above $100. Qatar says both sides are reviewing proposals, while Iran says it will not accept excessive demands. An Iranian official says the two sides are far from a deal, and the US struck Iran's Qeshm Island. Evercore warns the S&P could fall to 6,800 if fighting escalates after the midterms. Oil, Exxon, Chevron, airlines and defense are the market read-through. Earlier notes: Trump told Fox he is near a decision on a deal with Iran or more strikes, the Pentagon had reportedly prepared strike options for after the Nov 3 vote, and he said on Oct 26 there would not be a strike that day.",
+    "summary": "Trump told the FT he has no immediate plans to strike Iran and partly blamed the war, and gas prices, for the GOP losses. Any easing of the war could pull oil lower from above $100. Qatar says both sides are reviewing proposals, while Iran says it will not accept excessive demands. An Iranian official says the two sides are far from a deal, and the US struck Iran's Qeshm Island. Evercore warns the S&P could fall to 6,800 if fighting escalates after the midterms. Oil, Exxon, Chevron, airlines and defense are the market read-through. Earlier notes: Trump told Fox he is near a decision on a deal with Iran or more strikes, the Pentagon had reportedly prepared strike options for after the Nov 3 vote, and he said on Oct 26 there would not be a strike that day. The Nov 5 note says oil priced de-escalation after Vance and Trump comments, and there is no signed deal. VP Vance said the reason the GOP lost is the war, which fed the oil risk-premium unwind. Wednesday WTI fell 8.3% to $88.12 and Brent fell 8.7% to $94.62. Brent bounced more than 1% Thursday morning.",
     "tickers": [
       "XOM",
       "CVX"
@@ -2334,10 +2350,10 @@
     ],
     "industry": "Geopolitics",
     "event_type": "geopolitics",
-    "key_number": "Far from a deal; Evercore S&P 6,800 if fighting escalates after the midterms",
+    "key_number": "No signed deal; WTI $88.12 (-8.3%); Brent $94.62 (-8.7%)",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-22-futures-iran-oil",
       "2026-10-22-lmt-earnings",
@@ -2354,9 +2370,12 @@
       "2026-11-02-oil-iran",
       "2026-11-02-defense-budget",
       "2026-11-03-oil",
-      "2026-11-04-bonds-dollar-oil"
+      "2026-11-04-bonds-dollar-oil",
+      "2026-11-04-oil-crash",
+      "2026-11-05-boe-hike",
+      "2026-11-04-vance-war"
     ],
-    "connection_notes": "Oil, airlines, defense and the Fed are the market read-through. Oct 23 digest: strikes planned after Nov 3. Oct 26 digest: Pentagon options are prepared, and Trump said there would not be a strike that day. Oct 27 digest: he is near a decision on a deal or more strikes. Nov 3 digest: Qatar says both sides are reviewing proposals, Iran rejects excessive demands, an official says the sides are far from a deal, the US struck Qeshm Island, and Evercore's downside is 6,800. Tuesday's oil bounce is the linked tape. Airlines were not named. The date is the note date. Earlier Brent levels stay on the older oil items. Nov 4 digest: no immediate strike plans, and Trump partly blamed the war and gas prices for the GOP losses. Easing could pull oil lower from above $100. Brent at about $103 is on the linked bonds and oil item. The election result is the linked midterms item."
+    "connection_notes": "Oil, airlines, defense and the Fed are the market read-through. Oct 23 digest: strikes planned after Nov 3. Oct 26 digest: Pentagon options are prepared, and Trump said there would not be a strike that day. Oct 27 digest: he is near a decision on a deal or more strikes. Nov 3 digest: Qatar says both sides are reviewing proposals, Iran rejects excessive demands, an official says the sides are far from a deal, the US struck Qeshm Island, and Evercore's downside is 6,800. Tuesday's oil bounce is the linked tape. Airlines were not named. The date is the note date. Earlier Brent levels stay on the older oil items. Nov 4 digest: no immediate strike plans, and Trump partly blamed the war and gas prices for the GOP losses. Easing could pull oil lower from above $100. Brent at about $103 is on the linked bonds and oil item. The election result is the linked midterms item. Nov 5 digest: no signed deal, Vance's war comment, and the Wednesday oil crash. The prices live on this continuing story and on the linked Wednesday oil item. Two benchmarks, so no single price or move is set here. Prior key number: Far from a deal; Evercore S&P 6,800 if fighting escalates after the midterms"
   },
   {
     "id": "2026-11-06-jobs",
@@ -2364,7 +2383,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "October jobs report at 8:30 AM; about 63K vs 29K prior",
-    "summary": "The forecast is about 63K versus 29K prior. It is a big input for a December hike. Moderna and Humana are expected before the open. Vistra reports, with a 10 AM ET call, and it is a power and data-center demand read. The October jobs report is out Friday, Nov 6 at 8:30 AM ET. The note expects 63K jobs and gives 4.2% unemployment. It is the key input for a December Fed hike. The Fed's Bowman speaks at 12:15 PM. Vistra reports Q3 the same day, with the call at 10 AM. Humana and Charter report before the open. Nvidia's $1B Naver investment is due the same day. An earlier digest noted jobless claims of 194K, the lowest since mid-July. The Fed held at 3.75-4.00% on Oct 28, with two dissents in favor of a hike, so a hot number raises December hike risk.",
+    "summary": "The forecast is about 63K versus 29K prior. It is a big input for a December hike. Moderna and Humana are expected before the open. Vistra reports, with a 10 AM ET call, and it is a power and data-center demand read. The October jobs report is out Friday, Nov 6 at 8:30 AM ET. The note expects 63K jobs and gives 4.2% unemployment. It is the key input for a December Fed hike. The Fed's Bowman speaks at 12:15 PM. Vistra reports Q3 the same day, with the call at 10 AM. Humana and Charter report before the open. Nvidia's $1B Naver investment is due the same day. An earlier digest noted jobless claims of 194K, the lowest since mid-July. The Fed held at 3.75-4.00% on Oct 28, with two dissents in favor of a hike, so a hot number raises December hike risk. The Nov 5 note puts consensus roughly in the mid-50s to mid-60s thousand for October payrolls and unemployment at about 4.2%. It is a major input for December hike odds. Vistra reports Q3 before the open, with a 10 AM ET call, the first post-Texas-election AI-power read. Moderna and Humana are before the open. October Challenger layoff announcements were 43,994, the lowest October since 2023.",
     "tickers": [
       "VST",
       "HUM",
@@ -2380,10 +2399,10 @@
     ],
     "industry": "Macro",
     "event_type": "macro_data",
-    "key_number": "About 63K vs 29K prior; 8:30 AM ET; Vistra call 10 AM; Moderna and Humana before the open",
+    "key_number": "Consensus mid-50s to mid-60s thousand payrolls; unemployment about 4.2%; 8:30 AM ET; Vistra BMO, call 10 AM",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-28-fed-decision",
       "2026-10-29-gdp-pce",
@@ -2397,9 +2416,18 @@
       "2026-11-04-bonds-dollar-oil",
       "2026-11-04-fed-logan",
       "2026-11-04-texas-moratorium",
-      "2026-11-09-ceg-earnings"
+      "2026-11-09-ceg-earnings",
+      "2026-11-05-treasuries",
+      "2026-11-05-dollar-fedwatch",
+      "2026-11-05-boe-hike",
+      "2026-11-05-challenger",
+      "2026-11-04-vst-drop",
+      "2026-11-04-mrna-ebola",
+      "2026-11-13-ppi",
+      "2026-11-17-retail-sales",
+      "2026-12-09-fomc"
     ],
-    "connection_notes": "Oct 27 digest reconfirmed Friday, Nov 6. The 194K claims figure is from the Oct 23 digest. Oct 28 digest adds the 8:30 AM release time. Oct 29 digest: the report is a key input for a December Fed hike. Oct 30 digest: still the key input for a December hike. Vistra reports the same morning, and Nvidia's Naver investment is due the same day. Nov 2 digest: the Oct 28 hold and the two dissents are why a hot jobs number raises December hike risk. Vistra still reports Q3 the same day. Nov 3 digest: the expected jobs figure is 63K, unemployment is 4.2%, Bowman speaks at 12:15 PM, and Humana and Charter report before the open. Vistra's 10 AM call was already on this row. The 4.2% figure is stated with the jobs expectation; the note does not separately label it a forecast. Nov 4 digest: the forecast is about 63K versus 29K prior. Moderna joins Humana before the open. Vistra's 10 AM call is a power and data-center demand read. The 63K expectation, the 4.2% unemployment figure, Bowman at 12:15 PM and Charter were already on this row."
+    "connection_notes": "Oct 27 digest reconfirmed Friday, Nov 6. The 194K claims figure is from the Oct 23 digest. Oct 28 digest adds the 8:30 AM release time. Oct 29 digest: the report is a key input for a December Fed hike. Oct 30 digest: still the key input for a December hike. Vistra reports the same morning, and Nvidia's Naver investment is due the same day. Nov 2 digest: the Oct 28 hold and the two dissents are why a hot jobs number raises December hike risk. Vistra still reports Q3 the same day. Nov 3 digest: the expected jobs figure is 63K, unemployment is 4.2%, Bowman speaks at 12:15 PM, and Humana and Charter report before the open. Vistra's 10 AM call was already on this row. The 4.2% figure is stated with the jobs expectation; the note does not separately label it a forecast. Nov 4 digest: the forecast is about 63K versus 29K prior. Moderna joins Humana before the open. Vistra's 10 AM call is a power and data-center demand read. The 63K expectation, the 4.2% unemployment figure, Bowman at 12:15 PM and Charter were already on this row. Nov 5 digest: payrolls consensus is a range, mid-50s to mid-60s thousand, which sits next to the earlier about-63K figure. Unemployment about 4.2% was already here. Challenger, the Vistra drop, and Moderna's Wednesday move are the linked items. Prior key number: About 63K vs 29K prior; 8:30 AM ET; Vistra call 10 AM; Moderna and Humana before the open"
   },
   {
     "id": "2026-11-10-cpi",
@@ -2407,7 +2435,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "October CPI at 8:30 AM; a hot print cements a December hike",
-    "summary": "October CPI is released at 8:30 AM ET by the BLS. A hot number cements a December hike. CoreWeave reports the same day at 5 PM ET, its first print since the election hit to data centers. October CPI is released Tuesday, Nov 10 at 8:30 AM ET. It is the key input for a December hike. FedWatch was about 76% on a hike as of Monday. CoreWeave reports the same day, and US-hosted Ukraine-Russia talks run Nov 10-11. Both are linked.",
+    "summary": "October CPI is released at 8:30 AM ET by the BLS. A hot number cements a December hike. CoreWeave reports the same day at 5 PM ET, its first print since the election hit to data centers. October CPI is released Tuesday, Nov 10 at 8:30 AM ET. It is the key input for a December hike. FedWatch was about 76% on a hike as of Monday. CoreWeave reports the same day, and US-hosted Ukraine-Russia talks run Nov 10-11. Both are linked. The Nov 5 note keeps October CPI at 8:30 AM ET on Nov 10. CoreWeave's Q3 call is the same day at 5:00 PM ET, its first print since the midterm hit to data-center names.",
     "tickers": [],
     "companies": [
       "US economy"
@@ -2417,7 +2445,7 @@
     "key_number": "CPI 8:30 AM ET (BLS); a hot number cements a December hike",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-28-fed-decision",
       "2026-11-10-affiliates-rule",
@@ -2429,9 +2457,13 @@
       "2026-11-02-ism",
       "2026-11-10-ukraine-talks",
       "2026-11-04-bonds-dollar-oil",
-      "2026-11-04-fed-logan"
+      "2026-11-04-fed-logan",
+      "2026-11-05-treasuries",
+      "2026-11-13-ppi",
+      "2026-11-17-retail-sales",
+      "2026-12-09-fomc"
     ],
-    "connection_notes": "Oct 26 digest added the 8:30 AM release time. Oct 27 digest reconfirmed Tuesday, Nov 10 at 8:30 AM. Oct 28 digest: the print is key for December Fed hike odds. Oct 30 digest: still a key input for a December hike. CoreWeave's Q3 call is the same afternoon. Nov 2 digest: October CPI at 8:30 AM ET remains the key input for a December Fed hike. Nov 3 digest: FedWatch was about 76% for a hike as of Monday. CoreWeave's report and the Abu Dhabi talks are the linked items, dated on the first day of the talks' Nov 10-11 range. Nov 4 digest: the release is the BLS October CPI at 8:30 AM ET, and a hot number cements a December hike. CoreWeave's 5 PM report is the same day. The earlier FedWatch figure of about 76% stays from the Nov 3 note."
+    "connection_notes": "Oct 26 digest added the 8:30 AM release time. Oct 27 digest reconfirmed Tuesday, Nov 10 at 8:30 AM. Oct 28 digest: the print is key for December Fed hike odds. Oct 30 digest: still a key input for a December hike. CoreWeave's Q3 call is the same afternoon. Nov 2 digest: October CPI at 8:30 AM ET remains the key input for a December Fed hike. Nov 3 digest: FedWatch was about 76% for a hike as of Monday. CoreWeave's report and the Abu Dhabi talks are the linked items, dated on the first day of the talks' Nov 10-11 range. Nov 4 digest: the release is the BLS October CPI at 8:30 AM ET, and a hot number cements a December hike. CoreWeave's 5 PM report is the same day. The earlier FedWatch figure of about 76% stays from the Nov 3 note. Nov 5 digest restates the 8:30 AM CPI release and CoreWeave's 5:00 PM call. No new CPI consensus figure was given."
   },
   {
     "id": "2026-11-10-affiliates-rule",
@@ -2457,7 +2489,8 @@
       "2026-11-17-nvda-earnings",
       "2026-10-22-asia-china-bear",
       "2026-11-10-cpi",
-      "2026-10-28-chip-export-rules"
+      "2026-10-28-chip-export-rules",
+      "2026-11-05-nvda-h200"
     ],
     "connection_notes": ""
   },
@@ -2467,7 +2500,7 @@
     "date_precision": "unknown",
     "status": "developing",
     "title": "Anthropic IPO: roadshow no earlier than Nov 10, first trade no earlier than Nov 16",
-    "summary": "Anthropic's roadshow can start Nov 10 at the earliest, and the earliest trading date is Nov 16. Yahoo's math, based on SpaceX's IPO timeline, points to around Nov 18. This could be one of the biggest IPOs ever and could pull money away from other AI names. Price range and share count are not set. The amended S-1, including nine-month revenue of $33.2B and $895.4B of compute and infrastructure commitments, is the linked item. It is a read-through for Amazon and Alphabet, its largest backers. Earlier notes had the roadshow starting Nov 9, with pricing the week of Nov 16, and a valuation fight of $2T versus the $1.5-1.6T some investors want. Goldman Sachs and Morgan Stanley are leading. The first S-1 showed $16.29B of first-half revenue, up 1,304%, and an $80.7B net loss. A Nov 2 note said IFR had a target of up to $100B raised at about a $2T valuation, Q3 revenue of $16.8B, and growth of 45% quarter over quarter. The day stays unpinned because the note gives an earliest trade date and a Yahoo estimate around Nov 18, not one confirmed session.",
+    "summary": "Anthropic's roadshow can start Nov 10 at the earliest, and the earliest trading date is Nov 16. Yahoo's math, based on SpaceX's IPO timeline, points to around Nov 18. This could be one of the biggest IPOs ever and could pull money away from other AI names. Price range and share count are not set. The amended S-1, including nine-month revenue of $33.2B and $895.4B of compute and infrastructure commitments, is the linked item. It is a read-through for Amazon and Alphabet, its largest backers. Earlier notes had the roadshow starting Nov 9, with pricing the week of Nov 16, and a valuation fight of $2T versus the $1.5-1.6T some investors want. Goldman Sachs and Morgan Stanley are leading. The first S-1 showed $16.29B of first-half revenue, up 1,304%, and an $80.7B net loss. A Nov 2 note said IFR had a target of up to $100B raised at about a $2T valuation, Q3 revenue of $16.8B, and growth of 45% quarter over quarter. The day stays unpinned because the note gives an earliest trade date and a Yahoo estimate around Nov 18, not one confirmed session. The Nov 5 note says the amended S-1 is out, the roadshow is earliest about Nov 10, and a coming-up line also puts the earliest start at about Nov 9-10. Earliest pricing is about Nov 13, though bankers rarely use a Friday, and trading can start as early as the week of Nov 16. Nine-month revenue is $33.2B and compute and infrastructure commitments are about $895.4B.",
     "tickers": [
       "ANT",
       "GOOGL",
@@ -2488,10 +2521,10 @@
     ],
     "industry": "AI/Cloud",
     "event_type": "ipo",
-    "key_number": "Roadshow earliest Nov 10; first trade earliest Nov 16; Yahoo math around Nov 18; 9-month revenue $33.2B",
+    "key_number": "Roadshow earliest about Nov 10 (also cited about Nov 9-10); earliest pricing about Nov 13; first trade week of Nov 16; 9-month revenue $33.2B; commitments about $895.4B",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-22-anthropic-nscale",
       "2026-10-22-avgo-anthropic-loan",
@@ -2512,9 +2545,12 @@
       "2026-10-30-ant-bb-rating",
       "2026-11-09-tgtx-earnings",
       "2026-11-03-anthropic-s1",
-      "2026-11-09-cbrs-lockup"
+      "2026-11-09-cbrs-lockup",
+      "2026-11-05-riot-corsicana",
+      "2026-11-13-ppi",
+      "2026-11-09-ceg-earnings"
     ],
-    "connection_notes": "Filing data first reported Oct 22. Oct 26 digest: a public filing could come as early as that day, with a roadshow the week of Nov 9 and a mid-November listing still the target. Oct 27 digest: the S-1 is now public and reports point to the week of Nov 16, before Thanksgiving, so this stays off a single calendar day. The Monday filing is the linked happened item. Oct 28 digest: Axios says mid-November is possible, at about $1.5T and up to $100B. The date stays unpinned. Oct 29 digest: the price range is expected about two weeks after the Oct 26 filing, and the reported target valuation is $1.5-2T. Oct 30 digest: roadshow the week of Nov 9, trading as soon as the week of Nov 16, led by Goldman Sachs and Morgan Stanley, still no price range, valuation closer to $1.5T than $2T. The day stays unpinned. Earlier notes had a $1.5-2T target and an Axios mid-November path of up to $100B at about $1.5T. Nov 2 digest: IFR's up-to-$100B and about-$2T target, the Q3 revenue and growth figures, the roadshow and pricing window, and Monday, Nov 16 as the earliest possible first trade. Earlier notes had a valuation closer to $1.5T than $2T and no price range. The day stays unpinned. Nov 3 digest: IFR has the roadshow starting Nov 9 and pricing the week after, and the week of Nov 16 is the expected pricing and first trade. The date stays Nov 16 with unknown precision because it is a week, not a day. The amended S-1 is the later set of figures. Cerebras's last lock-up ends the morning the roadshow is expected to start. Nov 4 digest: the earliest roadshow start moves to Nov 10, from the earlier Nov 9, and the earliest first trade is Nov 16. Yahoo's SpaceX-based math points to around Nov 18. The date stays Nov 16 with unknown precision. The nine-month S-1 figures are on the filing item."
+    "connection_notes": "Filing data first reported Oct 22. Oct 26 digest: a public filing could come as early as that day, with a roadshow the week of Nov 9 and a mid-November listing still the target. Oct 27 digest: the S-1 is now public and reports point to the week of Nov 16, before Thanksgiving, so this stays off a single calendar day. The Monday filing is the linked happened item. Oct 28 digest: Axios says mid-November is possible, at about $1.5T and up to $100B. The date stays unpinned. Oct 29 digest: the price range is expected about two weeks after the Oct 26 filing, and the reported target valuation is $1.5-2T. Oct 30 digest: roadshow the week of Nov 9, trading as soon as the week of Nov 16, led by Goldman Sachs and Morgan Stanley, still no price range, valuation closer to $1.5T than $2T. The day stays unpinned. Earlier notes had a $1.5-2T target and an Axios mid-November path of up to $100B at about $1.5T. Nov 2 digest: IFR's up-to-$100B and about-$2T target, the Q3 revenue and growth figures, the roadshow and pricing window, and Monday, Nov 16 as the earliest possible first trade. Earlier notes had a valuation closer to $1.5T than $2T and no price range. The day stays unpinned. Nov 3 digest: IFR has the roadshow starting Nov 9 and pricing the week after, and the week of Nov 16 is the expected pricing and first trade. The date stays Nov 16 with unknown precision because it is a week, not a day. The amended S-1 is the later set of figures. Cerebras's last lock-up ends the morning the roadshow is expected to start. Nov 4 digest: the earliest roadshow start moves to Nov 10, from the earlier Nov 9, and the earliest first trade is Nov 16. Yahoo's SpaceX-based math points to around Nov 18. The date stays Nov 16 with unknown precision. The nine-month S-1 figures are on the filing item. Nov 5 digest adds the about-Nov-13 earliest pricing day and the Friday caveat. The roadshow line is about Nov 10 in the deals section and about Nov 9-10 on the coming-up calendar. The date stays Nov 16 with unknown precision because the first trade is a week, not one session. Prior key number: Roadshow earliest Nov 10; first trade earliest Nov 16; Yahoo math around Nov 18; 9-month revenue $33.2B"
   },
   {
     "id": "2026-11-17-nvda-earnings",
@@ -2522,7 +2558,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "Nvidia Q3 FY2027 after the close, call at 5 PM",
-    "summary": "Nvidia reports Q3 FY2027 earnings on Tuesday, Nov 17 after the close, with a 5 PM ET call. The note calls it the biggest AI-trade test of the month. An earlier note had the results at 4:20 PM ET and called it the biggest test of the AI trade.",
+    "summary": "Nvidia reports Q3 FY2027 earnings on Tuesday, Nov 17 after the close, with a 5 PM ET call. The note calls it the biggest AI-trade test of the month. An earlier note had the results at 4:20 PM ET and called it the biggest test of the AI trade. The Nov 5 note calls the Tuesday after-close report, with a call around 5 PM ET, the biggest AI-spend and guidance test of the month after the China H200 stall and the data-center permitting scare.",
     "tickers": [
       "NVDA"
     ],
@@ -2531,10 +2567,10 @@
     ],
     "industry": "Semiconductors",
     "event_type": "earnings",
-    "key_number": "Q3 FY2027 after the close; call 5 PM ET Nov 17",
+    "key_number": "FY Q3 after the close Nov 17; call about 5 PM ET; test after H200 and data-center permitting",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-23-nvda-drop",
       "2026-10-22-earnings-concentration",
@@ -2570,9 +2606,14 @@
       "2026-11-03-china-ai-chips",
       "2026-11-03-market-close",
       "2026-11-04-fed-logan",
-      "2026-11-03-amd-earnings"
+      "2026-11-03-amd-earnings",
+      "2026-11-05-nvda-h200",
+      "2026-11-05-dc-selloff",
+      "2026-11-04-mu-close",
+      "2026-11-17-retail-sales",
+      "2026-10-26-spcx-gpu-debt"
     ],
-    "connection_notes": "Oct 28 digest confirms Tuesday, Nov 17, after the close, for Q3 FY27. Oct 29 digest: the call is at 5 PM ET, and the print is the biggest AI-trade catalyst of the quarter. Oct 30 digest: Q3 fiscal 2027, call at 5 PM ET, the quarter's biggest AI catalyst, just past the window. Nov 3 digest: the results time is 4:20 PM ET, and the print is the biggest test of the AI trade. The earlier 5 PM call time stays in the summary. Nov 4 digest: Q3 FY2027, after the close, call at 5 PM ET, the biggest AI-trade test of the month. The Nov 3 note had the results at 4:20 PM."
+    "connection_notes": "Oct 28 digest confirms Tuesday, Nov 17, after the close, for Q3 FY27. Oct 29 digest: the call is at 5 PM ET, and the print is the biggest AI-trade catalyst of the quarter. Oct 30 digest: Q3 fiscal 2027, call at 5 PM ET, the quarter's biggest AI catalyst, just past the window. Nov 3 digest: the results time is 4:20 PM ET, and the print is the biggest test of the AI trade. The earlier 5 PM call time stays in the summary. Nov 4 digest: Q3 FY2027, after the close, call at 5 PM ET, the biggest AI-trade test of the month. The Nov 3 note had the results at 4:20 PM. Nov 5 digest ties the print to the Hong Kong H200 stockpile and the permitting selloff. The call time stays about 5 PM ET. Prior key number: Q3 FY2027 after the close; call 5 PM ET Nov 17"
   },
   {
     "id": "2026-11-30-roche-giredestrant-fda-early",
@@ -2628,7 +2669,8 @@
       "2026-10-23-orcl-debt",
       "2026-10-26-orcl-price",
       "2026-10-28-orcl-investor-day",
-      "2026-10-23-openai-raise"
+      "2026-10-23-openai-raise",
+      "2026-11-05-orcl-tencent-lease"
     ],
     "connection_notes": ""
   },
@@ -2938,22 +2980,26 @@
     "date_precision": "day",
     "status": "happened",
     "title": "SpaceX closes $40B GPU debt; neocloud warning",
-    "summary": "SpaceX closed $40B of debt to buy GPUs, with deliveries in H1 2027. SPCX rose 1.1% to about $149, Bernstein's target went to $268 from $248, and Musk said lenders have shut off funding for AI-dependent cloud companies and that 200 or more neoclouds will fail.",
+    "summary": "SpaceX closed $40B of debt to buy GPUs, with deliveries in H1 2027. SPCX rose 1.1% to about $149, Bernstein's target went to $268 from $248, and Musk said lenders have shut off funding for AI-dependent cloud companies and that 200 or more neoclouds will fail. The Nov 5 note says Goldman and Apollo are approaching buyers for portions of the $40B GPU financing, in slices of up to $500M. An Apollo SPV would buy Nvidia Rubin chips, about $47.3B of equipment plus $7B of lease prepay, with deliveries in the first half of 2027. SPCX was about -3.8% on the election reaction. The note calls it a test of AI debt appetite after the election, with CoreWeave CDS still above 1,100 bp.",
     "tickers": [
-      "SPCX"
+      "SPCX",
+      "NVDA"
     ],
     "companies": [
-      "SpaceX"
+      "SpaceX",
+      "Goldman Sachs",
+      "Apollo",
+      "Nvidia"
     ],
     "industry": "Space",
     "event_type": "deal",
-    "key_number": "$40B GPU debt; Bernstein target $268",
+    "key_number": "$40B financing; slices up to $500M; Rubin equipment about $47.3B plus $7B lease prepay; SPCX about -3.8%",
     "price_mentioned": {
       "ticker": "SPCX",
       "price": 149
     },
     "move_pct": 1.1,
-    "source_digest_date": "2026-10-27",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-23-spcx-unlock",
       "2026-10-23-spacex-tesla-merger",
@@ -2965,9 +3011,10 @@
       "2026-10-26-anthropic-s1",
       "2026-11-anthropic-ipo",
       "2026-10-28-spcx-drop",
-      "2026-10-29-spcx-open"
+      "2026-10-29-spcx-open",
+      "2026-11-17-nvda-earnings"
     ],
-    "connection_notes": "Musk's neocloud-failure comment hit CRWV, NBIS and IREN the same morning. GPU deliveries on this financing are H1 2027. Oct 27 digest: Anthropic's S-1 lists compute commitments of up to $120.5B to SpaceX for Nvidia GPUs."
+    "connection_notes": "Musk's neocloud-failure comment hit CRWV, NBIS and IREN the same morning. GPU deliveries on this financing are H1 2027. Oct 27 digest: Anthropic's S-1 lists compute commitments of up to $120.5B to SpaceX for Nvidia GPUs. Nov 5 digest: pre-syndication of up to $500M slices, the Rubin SPV split of about $47.3B plus $7B, and SPCX about -3.8%. The earlier $149 close and +1.1% stay on this row because they are a different session. Deliveries remain the first half of 2027. Prior key number: $40B GPU debt; Bernstein target $268"
   },
   {
     "id": "2026-10-26-neoclouds",
@@ -2975,7 +3022,7 @@
     "date_precision": "day",
     "status": "happened",
     "title": "Neoclouds drop; CoreWeave CDS implies ~63% default odds",
-    "summary": "CoreWeave, Nebius and IREN are each down more than 35% in October. On Oct 26 each fell more than 4% premarket, and CoreWeave's CDS spread was above 11%, implying about a 63% chance of default within five years.",
+    "summary": "CoreWeave, Nebius and IREN are each down more than 35% in October. On Oct 26 each fell more than 4% premarket, and CoreWeave's CDS spread was above 11%, implying about a 63% chance of default within five years. The Nov 5 note says CoreWeave's CDS is still above 1,100 bp. Wednesday CoreWeave was about -10%, and Thursday premarket CoreWeave and Nebius were each about -4%.",
     "tickers": [
       "CRWV",
       "NBIS",
@@ -2988,10 +3035,10 @@
     ],
     "industry": "AI/Cloud",
     "event_type": "market_move",
-    "key_number": "Down >35% in October; CDS >11%",
+    "key_number": "CDS above 1,100 bp; Wednesday CRWV about -10%; Thursday CRWV and NBIS about -4% premarket",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-10-27",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-26-spcx-gpu-debt",
       "2026-10-23-crwv-drop",
@@ -3005,9 +3052,10 @@
       "2026-10-28-glxy-pipeline",
       "2026-11-11-crwv-earnings",
       "2026-11-05-iren-earnings",
-      "2026-10-29-crwv-nbis"
+      "2026-10-29-crwv-nbis",
+      "2026-11-05-dc-selloff"
     ],
-    "connection_notes": "Oct 26 digest: each down at least 30% in October and more than 4% premarket, with CDS above 11%. Oct 27 digest: each down more than 35% in October. CoreWeave also announced new Denmark capacity."
+    "connection_notes": "Oct 26 digest: each down at least 30% in October and more than 4% premarket, with CDS above 11%. Oct 27 digest: each down more than 35% in October. CoreWeave also announced new Denmark capacity. Nov 5 digest: CDS still above 1,100 bp, Wednesday about -10%, Thursday premarket about -4% for CoreWeave and Nebius. The October drawdown stays the original tape. Prior key number: Down >35% in October; CDS >11%"
   },
   {
     "id": "2026-10-26-nvda-backstops",
@@ -3377,7 +3425,9 @@
     "price_mentioned": null,
     "move_pct": -4.5,
     "source_digest_date": "2026-10-26",
-    "related_ids": [],
+    "related_ids": [
+      "2026-11-05-other-movers"
+    ],
     "connection_notes": ""
   },
   {
@@ -3974,25 +4024,26 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "FDA target dates: Summit ivonescimab and Cytokinetics aficamten",
-    "summary": "Saturday, Nov 14 is also the FDA target date for a Cytokinetics aficamten (CYTK) label update. The note calls both that update and Summit's ivonescimab decision big binary events. The FDA decision on Saturday, Nov 14 is for Summit Therapeutics' ivonescimab plus chemo in EGFR-mutant lung cancer. It is a big yes-or-no catalyst for SMMT.",
+    "summary": "Saturday, Nov 14 is also the FDA target date for a Cytokinetics aficamten (CYTK) label update. The note calls both that update and Summit's ivonescimab decision big binary events. The FDA decision on Saturday, Nov 14 is for Summit Therapeutics' ivonescimab plus chemo in EGFR-mutant lung cancer. It is a big yes-or-no catalyst for SMMT. The Nov 5 note lists a Friday Nov 14 PDUFA cluster: a Cytokinetics aficamten expansion, BioXcel's IGALMI sNDA, and Summit's ivonescimab BLA in EGFR-positive non-small cell lung cancer.",
     "tickers": [
       "SMMT",
       "CYTK"
     ],
     "companies": [
       "Summit Therapeutics",
-      "Cytokinetics"
+      "Cytokinetics",
+      "BioXcel"
     ],
     "industry": "Pharma/Biotech",
     "event_type": "fda",
-    "key_number": "Nov 14: SMMT ivonescimab in EGFR-mutant lung cancer; CYTK aficamten label update",
+    "key_number": "Nov 14: CYTK aficamten expansion; BioXcel IGALMI sNDA; SMMT ivonescimab BLA in EGFR NSCLC",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-21-oncology-landscape"
     ],
-    "connection_notes": "Cancer antibody decision, tied to the broader oncology landscape. First listed Oct 26. Oct 27 digest reconfirmed the Nov 14 date. Nov 2 digest: the regimen is ivonescimab plus chemo in EGFR-mutant lung cancer, and the decision is a yes-or-no catalyst. Nov 3 digest restates Saturday, Nov 14, ivonescimab plus chemo in EGFR-mutant lung cancer, as a yes-or-no for SMMT. Nov 4 digest: the same Saturday also has a Cytokinetics aficamten label update. Both are big binary events. Summit's regimen was already on this row."
+    "connection_notes": "Cancer antibody decision, tied to the broader oncology landscape. First listed Oct 26. Oct 27 digest reconfirmed the Nov 14 date. Nov 2 digest: the regimen is ivonescimab plus chemo in EGFR-mutant lung cancer, and the decision is a yes-or-no catalyst. Nov 3 digest restates Saturday, Nov 14, ivonescimab plus chemo in EGFR-mutant lung cancer, as a yes-or-no for SMMT. Nov 4 digest: the same Saturday also has a Cytokinetics aficamten label update. Both are big binary events. Summit's regimen was already on this row. Nov 5 digest adds BioXcel's IGALMI sNDA to the Saturday cluster. The digest named tickers for Cytokinetics and Summit only, so BioXcel is a company name without a symbol here. Summit's EGFR NSCLC use was already on this row. Prior key number: Nov 14: SMMT ivonescimab in EGFR-mutant lung cancer; CYTK aficamten label update"
   },
   {
     "id": "2026-10-26-market-close",
@@ -5486,7 +5537,8 @@
       "2026-11-02-ai-power-premarket",
       "2026-11-02-datacenter-power-bill",
       "2026-11-03-etn-be",
-      "2026-11-04-texas-moratorium"
+      "2026-11-04-texas-moratorium",
+      "2026-11-04-vrt-infineon"
     ],
     "connection_notes": "Premarket result. Read-through to the other AI-power names and to Microsoft and Alphabet capex. Oct 29 digest: Wednesday's close was +16.5% at $242.94, with full-year revenue guidance of $14.45-14.85B."
   },
@@ -6096,7 +6148,8 @@
     "related_ids": [
       "2026-10-28-mrna-melanoma-data",
       "2026-10-23-mrna-melanoma-vaccine",
-      "2026-10-26-mrna-premarket"
+      "2026-10-26-mrna-premarket",
+      "2026-11-04-mrna-ebola"
     ],
     "connection_notes": "Follows the Phase 3 melanoma readout. Overall survival on that study is not yet mature."
   },
@@ -6183,7 +6236,8 @@
       "2026-11-17-nvda-earnings",
       "2026-10-22-lrcx-earnings",
       "2026-10-22-chip-equipment-selloff",
-      "2026-11-03-china-ai-chips"
+      "2026-11-03-china-ai-chips",
+      "2026-11-05-nvda-h200"
     ],
     "connection_notes": "Equipment names are Applied Materials, Lam Research, KLA and ASML, with Nvidia on the chip-export side. No rule text or date was stated."
   },
@@ -6259,7 +6313,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "CoreWeave Q3 after the close Nov 10, call at 5 PM",
-    "summary": "CoreWeave's Nov 10 report, at 5 PM ET, is its first print since the election hit to data centers. CoreWeave reports Q3 on Nov 10 at 5 PM ET, with debt and financing in focus. It is the main test of AI-neocloud debt and backlog. An Oct 28 note had the call on Nov 11. Thursday, Oct 29, it closed down 5% at $60.74 as worries about AI debt financing linger. On Monday it fell 8.6% to $50.15. Debt, cash burn and financing are the focus after OpenAI's funding shortfall.",
+    "summary": "CoreWeave's Nov 10 report, at 5 PM ET, is its first print since the election hit to data centers. CoreWeave reports Q3 on Nov 10 at 5 PM ET, with debt and financing in focus. It is the main test of AI-neocloud debt and backlog. An Oct 28 note had the call on Nov 11. Thursday, Oct 29, it closed down 5% at $60.74 as worries about AI debt financing linger. On Monday it fell 8.6% to $50.15. Debt, cash burn and financing are the focus after OpenAI's funding shortfall. The Nov 5 note puts the Q3 call at 5:00 PM ET on Nov 10, the first print since the midterm hit to data-center names. Thursday premarket CoreWeave was about -4%, and Wednesday it was about -10%.",
     "tickers": [
       "CRWV"
     ],
@@ -6268,10 +6322,10 @@
     ],
     "industry": "AI/Cloud",
     "event_type": "earnings",
-    "key_number": "Nov 10 at 5 PM ET; debt and financing in focus; Mon $50.15 (-8.6%)",
+    "key_number": "Q3 call 5:00 PM ET Nov 10; first print since the midterm hit; Wednesday about -10%; Thursday about -4%",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-28-googl-msft-earnings",
       "2026-10-28-glxy-helios",
@@ -6296,9 +6350,10 @@
       "2026-11-02-ai-infra-drop",
       "2026-11-12-nbis-cbrs",
       "2026-11-04-datacenter-ballots",
-      "2026-11-04-texas-moratorium"
+      "2026-11-04-texas-moratorium",
+      "2026-11-05-dc-selloff"
     ],
-    "connection_notes": "The test of the debt and demand worries that the Copenhagen launch eased. Oct 30 digest moves the report to Nov 10 after the close. The Oct 28 note had Wednesday, Nov 11. The id is unchanged. Nov 2 digest: the call is still Tuesday, Nov 10 at 5 PM ET, and the focus is debt, cash burn and financing after OpenAI's shortfall. Nov 3 digest: the report is at 5 PM ET, and debt and financing are the focus. Monday's drop to $50.15 is also on the AI-infrastructure tape. The id still says Nov 11 because an earlier note had that date. Nov 4 digest: the 5 PM ET call is the first print since the election hit to data centers. CPI is the same morning."
+    "connection_notes": "The test of the debt and demand worries that the Copenhagen launch eased. Oct 30 digest moves the report to Nov 10 after the close. The Oct 28 note had Wednesday, Nov 11. The id is unchanged. Nov 2 digest: the call is still Tuesday, Nov 10 at 5 PM ET, and the focus is debt, cash burn and financing after OpenAI's shortfall. Nov 3 digest: the report is at 5 PM ET, and debt and financing are the focus. Monday's drop to $50.15 is also on the AI-infrastructure tape. The id still says Nov 11 because an earlier note had that date. Nov 4 digest: the 5 PM ET call is the first print since the election hit to data centers. CPI is the same morning. Nov 5 digest restates Nov 10 at 5:00 PM ET. The Wednesday and Thursday moves are also on the data-center tape. The id still says Nov 11 because an earlier note had that date. Prior key number: Nov 10 at 5 PM ET; debt and financing in focus; Mon $50.15 (-8.6%)"
   },
   {
     "id": "2026-10-29-futures",
@@ -6379,7 +6434,9 @@
     "source_digest_date": "2026-11-02",
     "related_ids": [
       "2026-10-29-robotics-232-clock",
-      "2026-11-02-robotics-232-register"
+      "2026-11-02-robotics-232-register",
+      "2026-11-05-aglt-ipo",
+      "2026-11-05-abb-robotics"
     ],
     "connection_notes": "The proclamation is in. The 180-day negotiation is the linked developing item. Nov 2 digest: the proclamation was published in the Federal Register and still adds no tariffs."
   },
@@ -6418,7 +6475,7 @@
     "date_precision": "day",
     "status": "happened",
     "title": "Government funding runs through Dec 11",
-    "summary": "The stopgap runs to Dec 11, so the lame-duck session decides whether there is a shutdown fight. Congress is out for the campaign recess and has passed only 3 of the 12 full-year spending bills, so another stopgap looks likely.",
+    "summary": "The stopgap runs to Dec 11, so the lame-duck session decides whether there is a shutdown fight. Congress is out for the campaign recess and has passed only 3 of the 12 full-year spending bills, so another stopgap looks likely. The Nov 5 note says that stopgap still runs through Dec 11, 2026, and a funding gap can begin Dec 12 if no new appropriations pass.",
     "tickers": [],
     "companies": [
       "Congress"
@@ -6428,12 +6485,12 @@
     "key_number": "Stopgap to Dec 11; lame-duck session decides the shutdown fight",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-03",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-12-11-funding-deadline",
       "2026-11-03-midterms"
     ],
-    "connection_notes": "Current funding law. The Dec 11 deadline is the linked upcoming item. Oct 30 digest: Congress is out for the campaign recess, only 3 of 12 full-year spending bills are passed, and another stopgap looks likely. Nov 2 digest: the stopgap still runs to Dec 11, and the lame-duck session after the midterms decides whether there is a shutdown fight. Nov 3 digest restates that the stopgap runs to Dec 11 and the lame-duck session decides whether there is a shutdown fight. The Dec 11 deadline is the linked item. Status stays happened for the stopgap that is already in place."
+    "connection_notes": "Current funding law. The Dec 11 deadline is the linked upcoming item. Oct 30 digest: Congress is out for the campaign recess, only 3 of 12 full-year spending bills are passed, and another stopgap looks likely. Nov 2 digest: the stopgap still runs to Dec 11, and the lame-duck session after the midterms decides whether there is a shutdown fight. Nov 3 digest restates that the stopgap runs to Dec 11 and the lame-duck session decides whether there is a shutdown fight. The Dec 11 deadline is the linked item. Status stays happened for the stopgap that is already in place. Nov 5 digest restates the current CR. The Dec 11 deadline is the linked item."
   },
   {
     "id": "2026-12-11-funding-deadline",
@@ -6441,17 +6498,17 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "Government funding deadline",
-    "summary": "A shutdown is possible at 12:01 AM Dec 12. The lame-duck fight starts now with Democrats emboldened. The government funding deadline is Dec 11. The stopgap runs to that date, so the lame-duck session decides whether there is a shutdown fight. A shutdown is possible starting Dec 12 without another bill. Congress is out for the campaign recess and has passed only 3 of the 12 full-year spending bills, so another stopgap looks likely. Control of Congress after the Nov 3 midterms shapes this fight.",
+    "summary": "A shutdown is possible at 12:01 AM Dec 12. The lame-duck fight starts now with Democrats emboldened. The government funding deadline is Dec 11. The stopgap runs to that date, so the lame-duck session decides whether there is a shutdown fight. A shutdown is possible starting Dec 12 without another bill. Congress is out for the campaign recess and has passed only 3 of the 12 full-year spending bills, so another stopgap looks likely. Control of Congress after the Nov 3 midterms shapes this fight. The Nov 5 note says funding under the current continuing resolution runs through Dec 11, 2026, and without new appropriations a funding gap can begin Dec 12. Shutdown risk runs into year-end, with a lame-duck session and new Democratic majorities.",
     "tickers": [],
     "companies": [
       "Congress"
     ],
     "industry": "Policy",
     "event_type": "policy",
-    "key_number": "Shutdown possible 12:01 AM Dec 12; lame-duck fight starts now",
+    "key_number": "CR through Dec 11, 2026; funding gap can begin Dec 12; year-end shutdown risk with new Democratic majorities",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-29-funding-stopgap",
       "2026-11-03-midterms",
@@ -6459,7 +6516,7 @@
       "2026-11-04-solar-credits",
       "2026-11-04-aca-subsidies"
     ],
-    "connection_notes": "The stopgap that funds the government through this date is the linked item. Oct 30 digest: another stopgap looks likely, and the midterm result shapes the fight. The shutdown risk from Dec 12 was already on this item. Nov 2 digest: the lame-duck session after the midterms is what decides the shutdown fight. The stopgap still runs to this date. Nov 3 digest restates the Dec 11 stopgap and the lame-duck decision. No new date was given. Nov 4 digest: shutdown possible at 12:01 AM Dec 12, and the lame-duck fight starts now with Democrats emboldened. The Dec 11 date was already on this row."
+    "connection_notes": "The stopgap that funds the government through this date is the linked item. Oct 30 digest: another stopgap looks likely, and the midterm result shapes the fight. The shutdown risk from Dec 12 was already on this item. Nov 2 digest: the lame-duck session after the midterms is what decides the shutdown fight. The stopgap still runs to this date. Nov 3 digest restates the Dec 11 stopgap and the lame-duck decision. No new date was given. Nov 4 digest: shutdown possible at 12:01 AM Dec 12, and the lame-duck fight starts now with Democrats emboldened. The Dec 11 date was already on this row. Nov 5 digest restates the Dec 11 expiration and a possible gap from Dec 12, now with new Democratic majorities in the lame duck. Prior key number: Shutdown possible 12:01 AM Dec 12; lame-duck fight starts now"
   },
   {
     "id": "2026-10-28-baba-bidu",
@@ -6679,7 +6736,7 @@
     "date_precision": "day",
     "status": "happened",
     "title": "Genmab jumps on Phase 3 petosemtamab survival data",
-    "summary": "Genmab shares have doubled in three months after three Phase 3 wins in October. It reports Q3 on Nov 5. Genmab jumped about 27% to 33% on Wednesday to an all-time high. Its Phase 3 trial of petosemtamab plus Merck's Keytruda in first-line PD-L1+ head and neck cancer cut the risk of death by 50% at the first interim look, a hazard ratio of 0.50.",
+    "summary": "Genmab shares have doubled in three months after three Phase 3 wins in October. It reports Q3 on Nov 5. Genmab jumped about 27% to 33% on Wednesday to an all-time high. Its Phase 3 trial of petosemtamab plus Merck's Keytruda in first-line PD-L1+ head and neck cancer cut the risk of death by 50% at the first interim look, a hazard ratio of 0.50. The Nov 5 note says Genmab reports Thursday after about 11:00 AM ET. Shares have roughly doubled in three months on three October Phase 3 wins, including petosemtamab plus Keytruda cutting the risk of death by 50% in recurrent or metastatic head and neck cancer.",
     "tickers": [
       "GMAB",
       "MRK"
@@ -6690,17 +6747,17 @@
     ],
     "industry": "Pharma/Biotech",
     "event_type": "trial",
-    "key_number": "HR 0.50; risk of death cut 50%; about +27% to +33%",
+    "key_number": "Reports about 11:00 AM ET Nov 5; petosemtamab plus Keytruda cut death risk 50% in R/M head and neck",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-29-gmab-filing",
       "2026-10-26-gmab-petosemtamab",
       "2026-10-23-mrk-keytruda-tumor-agnostic",
       "2026-11-05-lite-net-abnb"
     ],
-    "connection_notes": "Wednesday move on the head and neck Phase 3. Separate from Monday's colorectal petosemtamab data. The move is a range and covers two tickers, so move_pct is unset. A filing is the linked developing item. Nov 4 digest: the stock has doubled in three months after three October Phase 3 wins, and Q3 is Nov 5. The 50% cut in the risk of death when petosemtamab is added to Keytruda was already this row. Thursday's slate is the linked earnings day."
+    "connection_notes": "Wednesday move on the head and neck Phase 3. Separate from Monday's colorectal petosemtamab data. The move is a range and covers two tickers, so move_pct is unset. A filing is the linked developing item. Nov 4 digest: the stock has doubled in three months after three October Phase 3 wins, and Q3 is Nov 5. The 50% cut in the risk of death when petosemtamab is added to Keytruda was already this row. Thursday's slate is the linked earnings day. Nov 5 digest adds the about-11:00 AM ET report time. The three-month doubling and the 50% death-risk cut were already on this row. Prior key number: HR 0.50; risk of death cut 50%; about +27% to +33%"
   },
   {
     "id": "2026-10-29-gmab-filing",
@@ -6818,7 +6875,7 @@
     "date_precision": "day",
     "status": "developing",
     "title": "Marvell-Lumentum deal still needs approvals",
-    "summary": "Marvell's $115B all-stock deal to buy Lumentum still needs shareholder and regulatory approval, with close targeted for the first half of 2028. Analysts are now questioning the price. The earlier pitch was more than $1B in cost savings and a $550B addressable market. It could pressure optical rivals COHR and CIEN and set off more AI networking M&A.",
+    "summary": "Marvell's $115B all-stock deal to buy Lumentum still needs shareholder and regulatory approval, with close targeted for the first half of 2028. Analysts are now questioning the price. The earlier pitch was more than $1B in cost savings and a $550B addressable market. It could pressure optical rivals COHR and CIEN and set off more AI networking M&A. The Nov 5 note says the all-stock deal, about $115B when it was announced Nov 2, is still overhanging Marvell and Lumentum. Close is still targeted for the first half of 2028, and shareholder and regulatory approvals are still pending.",
     "tickers": [
       "MRVL",
       "LITE",
@@ -6834,14 +6891,15 @@
     "key_number": "Needs shareholder and regulatory approval; close 1H 2028; analysts questioning the price",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-03",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-29-mrvl-lite",
       "2026-11-05-lite-net-abnb",
       "2026-11-02-mrvl-lite-deal",
-      "2026-11-02-mrvl-lite-drop"
+      "2026-11-02-mrvl-lite-drop",
+      "2026-11-05-cohr-earnings"
     ],
-    "connection_notes": "Late-stage talks. No announcement date beyond next week was stated. Oct 30 digest: talks continue, nothing is confirmed, and Lumentum's Nov 5 report is the next checkpoint for price and mix. Nov 2 digest: the deal is now agreed and the open questions are approvals, cost savings and the addressable market. COHR and CIEN were not given company names. Thursday's close, down 13.2% at $218.34, stays on the earlier tape item. The $115B terms are on the deal item. Nov 3 digest: approvals are still open, the close target is still the first half of 2028, and analysts are questioning the price. Monday's drops and the $115B terms are the linked items. COHR and CIEN were not given company names."
+    "connection_notes": "Late-stage talks. No announcement date beyond next week was stated. Oct 30 digest: talks continue, nothing is confirmed, and Lumentum's Nov 5 report is the next checkpoint for price and mix. Nov 2 digest: the deal is now agreed and the open questions are approvals, cost savings and the addressable market. COHR and CIEN were not given company names. Thursday's close, down 13.2% at $218.34, stays on the earlier tape item. The $115B terms are on the deal item. Nov 3 digest: approvals are still open, the close target is still the first half of 2028, and analysts are questioning the price. Monday's drops and the $115B terms are the linked items. COHR and CIEN were not given company names. Nov 5 digest restates the overhang, the about-$115B announcement value, and the first-half 2028 close. No new price was given."
   },
   {
     "id": "2026-10-29-cmg-earnings",
@@ -7045,17 +7103,17 @@
     "date_precision": "day",
     "status": "developing",
     "title": "Futures price a December hike; more hikes in 2027 are possible",
-    "summary": "Futures see a strong chance of a hike at the December meeting, and a couple more hikes in 2027 are possible. Q3 GDP grew 3.4% and September PCE was 3.6%, and strong growth plus inflation above 3% keeps a December hike in play. The Nov 6 jobs report and Nov 10 CPI are the next inputs.",
+    "summary": "Futures see a strong chance of a hike at the December meeting, and a couple more hikes in 2027 are possible. Q3 GDP grew 3.4% and September PCE was 3.6%, and strong growth plus inflation above 3% keeps a December hike in play. The Nov 6 jobs report and Nov 10 CPI are the next inputs. As of the Nov 5 morning note, CME FedWatch showed about an 80.7% chance of at least a 25 bp hike in December, up from 77.4%. The Bank of England has just raised Bank Rate 25 bp to 4.0%. The December meeting is Dec 8-9, with the decision typically Wednesday Dec 9 around 2 PM, and minutes of the Oct 27-28 meeting are due Nov 18 at 2:00 PM ET.",
     "tickers": [],
     "companies": [
       "Federal Reserve"
     ],
     "industry": "Macro",
     "event_type": "fed",
-    "key_number": "GDP +3.4%; PCE 3.6%; December hike still in play",
+    "key_number": "FedWatch about 80.7% for at least a 25 bp December hike, up from 77.4%",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-10-30",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-28-fed-decision",
       "2026-10-29-gdp-pce",
@@ -7064,9 +7122,14 @@
       "2026-11-10-cpi",
       "2026-10-30-futures",
       "2026-11-04-bonds-dollar-oil",
-      "2026-11-04-fed-logan"
+      "2026-11-04-fed-logan",
+      "2026-11-05-treasuries",
+      "2026-11-05-dollar-fedwatch",
+      "2026-11-05-boe-hike",
+      "2026-11-18-fomc-minutes",
+      "2026-12-09-fomc"
     ],
-    "connection_notes": "Forward odds after Wednesday's hold. Earlier notes had at least three more hikes by late 2027 priced in. PCE is Oct 29 and the jobs report is Nov 6. Oct 30 digest: strong growth plus inflation above 3% keeps a December hike in play. Earlier notes had a strong chance of a December hike and a couple more hikes possible in 2027."
+    "connection_notes": "Forward odds after Wednesday's hold. Earlier notes had at least three more hikes by late 2027 priced in. PCE is Oct 29 and the jobs report is Nov 6. Oct 30 digest: strong growth plus inflation above 3% keeps a December hike in play. Earlier notes had a strong chance of a December hike and a couple more hikes possible in 2027. Nov 5 digest: FedWatch about 80.7%, up from 77.4%. The December meeting, the Nov 18 minutes, and the Bank of England hike are the linked items. Prior key number: GDP +3.4%; PCE 3.6%; December hike still in play"
   },
   {
     "id": "2026-10-29-intc-earnings",
@@ -7145,25 +7208,26 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "October PCE and the second Q3 GDP estimate",
-    "summary": "October PCE and the second estimate of Q3 GDP are out at 8:30 AM ET on Nov 25.",
+    "summary": "October PCE and the second estimate of Q3 GDP are out at 8:30 AM ET on Nov 25. The Nov 5 note also puts the Beige Book at 2:00 PM ET on Nov 25, the same morning as the second estimate of Q3 GDP and October PCE at 8:30 AM.",
     "tickers": [],
     "companies": [
       "US economy"
     ],
     "industry": "Macro",
     "event_type": "macro_data",
-    "key_number": "8:30 AM ET",
+    "key_number": "Beige Book 2:00 PM ET; Q3 GDP second estimate and October PCE at 8:30 AM",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-10-30",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-28-fed-decision",
       "2026-10-29-fed-hike-odds",
       "2026-10-29-gdp-pce",
       "2026-11-06-jobs",
-      "2026-11-10-cpi"
+      "2026-11-10-cpi",
+      "2026-12-09-fomc"
     ],
-    "connection_notes": "Follows the Oct 29 GDP and September PCE prints, and sits with the December hike debate. Oct 30 digest: the first Q3 GDP estimate was 3.4% and September PCE was 3.6% year over year."
+    "connection_notes": "Follows the Oct 29 GDP and September PCE prints, and sits with the December hike debate. Oct 30 digest: the first Q3 GDP estimate was 3.4% and September PCE was 3.6% year over year. Nov 5 digest adds the 2:00 PM Beige Book to the existing 8:30 AM GDP and PCE release. Prior key number: 8:30 AM ET"
   },
   {
     "id": "2026-10-30-futures",
@@ -7743,7 +7807,8 @@
       "2026-11-11-crwv-earnings",
       "2026-10-30-big-tech-selloff",
       "2026-11-02-ai-power-premarket",
-      "2026-11-02-datacenter-power-bill"
+      "2026-11-02-datacenter-power-bill",
+      "2026-11-05-trade-deficit"
     ],
     "connection_notes": "Forward capex path from the same report as the earnings item. Memory suppliers were not named. Nov 2 digest: the roughly $220B 2026 capex plan was unchanged, and Friday's close was down 1.4%."
   },
@@ -7879,7 +7944,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "ADP at 8:15 and ISM at 10; Qualcomm, Arm and AppLovin after the close",
-    "summary": "On Wednesday, Nov 4, ADP private payrolls are at 8:15 AM ET, forecast about 68K versus 90K prior, and ISM services is at 10 AM, forecast 54.8. Before the open: CVS, Uber, McDonald's, Datadog and Circle. After the close: Qualcomm at 4:00 PM, Arm and AppLovin at 4:05, plus MercadoLibre, Expedia, McKesson, Figma and Joby. Lisa Su is on CNBC at 9 AM. The note says Qualcomm and Arm set the tone for chips tomorrow. Oracle's $20B offerings close today. Prints already in for Uber, McDonald's, Datadog and CVS are on the linked items. Earlier notes had Okta joining the S&P 500 at the open, Uber's call at 8 AM, Motorola Solutions after the close, DoorDash after the close, and McDonald's as expected but not confirmed. ADP's earlier expected print was 68K, and ISM services was 54.8 at 10:00 AM.",
+    "summary": "On Wednesday, Nov 4, ADP private payrolls are at 8:15 AM ET, forecast about 68K versus 90K prior, and ISM services is at 10 AM, forecast 54.8. Before the open: CVS, Uber, McDonald's, Datadog and Circle. After the close: Qualcomm at 4:00 PM, Arm and AppLovin at 4:05, plus MercadoLibre, Expedia, McKesson, Figma and Joby. Lisa Su is on CNBC at 9 AM. The note says Qualcomm and Arm set the tone for chips tomorrow. Oracle's $20B offerings close today. Prints already in for Uber, McDonald's, Datadog and CVS are on the linked items. Earlier notes had Okta joining the S&P 500 at the open, Uber's call at 8 AM, Motorola Solutions after the close, DoorDash after the close, and McDonald's as expected but not confirmed. ADP's earlier expected print was 68K, and ISM services was 54.8 at 10:00 AM. Results now in from that after-close slate, and recorded on the linked items, include Qualcomm, Arm, AppLovin, MercadoLibre, Expedia, and McKesson.",
     "tickers": [
       "OKTA",
       "ORCL",
@@ -7927,7 +7992,7 @@
     "key_number": "ADP about 68K vs 90K prior, 8:15 AM; ISM services 54.8 at 10 AM; QCOM 4:00 PM; ARM and APP 4:05",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-28-dash-cart-deal",
       "2026-10-28-dash-cart-talks",
@@ -7938,9 +8003,15 @@
       "2026-11-04-ddog-earnings",
       "2026-11-04-cvs-earnings",
       "2026-11-04-uber-earnings",
-      "2026-11-04-mcd-earnings"
+      "2026-11-04-mcd-earnings",
+      "2026-11-04-qcom-earnings",
+      "2026-11-04-arm-earnings",
+      "2026-11-04-app-earnings",
+      "2026-11-04-mck-earnings",
+      "2026-11-04-meli-earnings",
+      "2026-11-04-expe-earnings"
     ],
-    "connection_notes": "ADP payrolls are the macro release, so no ADP ticker is set. DoorDash's Instacart deal is the linked item. Nov 2 digest: Okta's index entry and the unconfirmed McDonald's date. McDonald's was not given a ticker. Uber was already on this slate. Nov 3 digest: Oracle's offerings close this day, ADP's expected print is 68K, ISM services is 54.8 at 10:00 AM, Uber's call is at 8 AM, and Motorola Solutions joins the after-close list. Arm, DoorDash and the unconfirmed McDonald's date stay as earlier notes. McDonald's was not given a ticker. Nov 4 digest: ADP is about 68K versus 90K prior, ISM services is 54.8 at 10 AM, and the before-open and after-close lists are restated with times. Lisa Su is on CNBC at 9 AM. Uber, McDonald's, Datadog and CVS results that are already in are linked."
+    "connection_notes": "ADP payrolls are the macro release, so no ADP ticker is set. DoorDash's Instacart deal is the linked item. Nov 2 digest: Okta's index entry and the unconfirmed McDonald's date. McDonald's was not given a ticker. Uber was already on this slate. Nov 3 digest: Oracle's offerings close this day, ADP's expected print is 68K, ISM services is 54.8 at 10:00 AM, Uber's call is at 8 AM, and Motorola Solutions joins the after-close list. Arm, DoorDash and the unconfirmed McDonald's date stay as earlier notes. McDonald's was not given a ticker. Nov 4 digest: ADP is about 68K versus 90K prior, ISM services is 54.8 at 10 AM, and the before-open and after-close lists are restated with times. Lisa Su is on CNBC at 9 AM. Uber, McDonald's, Datadog and CVS results that are already in are linked. Nov 5 digest has the Qualcomm, Arm, AppLovin, MercadoLibre, Expedia, and McKesson prints. This row stays the Wednesday slate."
   },
   {
     "id": "2026-11-05-lite-net-abnb",
@@ -7948,7 +8019,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "Genmab, Airbnb, Atlassian, IREN and others report; three Fed speakers",
-    "summary": "On Thursday, Nov 5, Fed speakers are Hammack, Barkin and Logan, and Logan is on the AI economy. Earnings that day: Genmab, Airbnb, Atlassian, IREN, IonQ, Microchip and Sony. IREN is a key neocloud test after the data-center selloff, on its own item. Genmab's Phase 3 result is the linked item. Earlier notes had Airbnb and Axon after the close, Barkin at 9:10 AM ET and Logan at 7:00 PM ET, plus Lumentum and Cloudflare after the close.",
+    "summary": "On Thursday, Nov 5, Fed speakers are Hammack, Barkin and Logan, and Logan is on the AI economy. Earnings that day: Genmab, Airbnb, Atlassian, IREN, IonQ, Microchip and Sony. IREN is a key neocloud test after the data-center selloff, on its own item. Genmab's Phase 3 result is the linked item. Earlier notes had Airbnb and Axon after the close, Barkin at 9:10 AM ET and Logan at 7:00 PM ET, plus Lumentum and Cloudflare after the close. The Nov 5 digest says Genmab reports after about 11:00 AM ET.",
     "tickers": [
       "ABNB",
       "AXON",
@@ -7979,10 +8050,10 @@
     ],
     "industry": "Semiconductors",
     "event_type": "earnings",
-    "key_number": "Hammack, Barkin and Logan; GMAB, ABNB, TEAM, IREN, IONQ, MCHP and SONY report",
+    "key_number": "Genmab after about 11:00 AM ET; also ABNB, TEAM, IREN, IONQ, MCHP, SONY; Hammack, Barkin, Logan",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-29-mrvl-lite-talks",
       "2026-10-29-mrvl-lite",
@@ -7992,7 +8063,7 @@
       "2026-11-03-guidance-pops",
       "2026-10-28-gmab-keytruda"
     ],
-    "connection_notes": "Lumentum's report is the checkpoint for the unsigned Marvell talks. IREN also reports Nov 5. Nov 2 digest: Marvell agreed to an all-stock purchase of Lumentum. Approvals are still open, and Lumentum's report remains on this date. Nov 3 digest adds Axon after the close and the Barkin and Logan speeches. Lumentum and Cloudflare stay from the earlier note. Cloudflare's JPMorgan upgrade is the linked premarket item. IREN also reports Nov 5. Nov 4 digest: Hammack joins Barkin and Logan, Logan speaks on the AI economy, and the earnings list adds Genmab, Atlassian, IREN, IonQ, Microchip and Sony. The earlier Barkin and Logan clock times stay. IREN's own row has the neocloud test."
+    "connection_notes": "Lumentum's report is the checkpoint for the unsigned Marvell talks. IREN also reports Nov 5. Nov 2 digest: Marvell agreed to an all-stock purchase of Lumentum. Approvals are still open, and Lumentum's report remains on this date. Nov 3 digest adds Axon after the close and the Barkin and Logan speeches. Lumentum and Cloudflare stay from the earlier note. Cloudflare's JPMorgan upgrade is the linked premarket item. IREN also reports Nov 5. Nov 4 digest: Hammack joins Barkin and Logan, Logan speaks on the AI economy, and the earnings list adds Genmab, Atlassian, IREN, IonQ, Microchip and Sony. The earlier Barkin and Logan clock times stay. IREN's own row has the neocloud test. Nov 5 digest pins Genmab to about 11:00 AM ET. The rest of Thursday's slate was already here. Genmab's Phase 3 history is the linked item. Prior key number: Hammack, Barkin and Logan; GMAB, ABNB, TEAM, IREN, IONQ, MCHP and SONY report"
   },
   {
     "id": "node-pgen-papzimeos",
@@ -9098,7 +9169,9 @@
     "price_mentioned": null,
     "move_pct": null,
     "source_digest_date": "2026-10-31",
-    "related_ids": [],
+    "related_ids": [
+      "2026-11-05-anip-egetis"
+    ],
     "connection_notes": "No rival named yet. Noted Oct 31, 2026.",
     "graph_node": {
       "label": "EGTX",
@@ -9319,7 +9392,8 @@
       "2026-11-02-defense-budget",
       "2026-11-03-midterms",
       "2026-11-02-alk-cmcsa-layoffs",
-      "2026-11-03-oil"
+      "2026-11-03-oil",
+      "2026-11-04-oil-crash"
     ],
     "connection_notes": "Monday oil move. The crude drop and the Exxon premarket move are separate, so no single move_pct is set. VLO is named only as a ticker. Nov 3 digest says Brent and WTI both fell more than 7% on Monday, and then rebounded Tuesday. This row keeps the Monday morning levels. Tuesday's prices and the Qeshm strike are the linked item."
   },
@@ -9970,7 +10044,8 @@
       "2026-11-03-etn-be",
       "2026-11-04-datacenter-ballots",
       "2026-11-04-texas-moratorium",
-      "2026-11-09-ceg-earnings"
+      "2026-11-09-ceg-earnings",
+      "2026-11-05-openai-dc-compact"
     ],
     "connection_notes": "No vote date was stated, so this stays on the note date. A Democratic House is the linked midterm watch. Hyperscalers were not named. Nov 3 digest: Goldman's read is limited tax incentives under a Democratic Congress, no likely national moratorium, and state fights as the bigger risk. The midterms item is the linked vote. Hyperscalers were not named. The House and Senate votes stay from the earlier note."
   },
@@ -10726,7 +10801,8 @@
       "2026-10-23-openai-raise",
       "2026-11-02-orcl-offering",
       "2026-10-23-orcl-debt",
-      "2026-11-04-meta-bonds"
+      "2026-11-04-meta-bonds",
+      "2026-11-05-orcl-tencent-lease"
     ],
     "connection_notes": "Forward plan from the same note as Monday's priced deal. OpenAI's raise and CoreWeave's Nov 10 report are the other financing links. The older debt stock is the linked Oracle debt item. No calendar day was given for the cash-flow turn, so this stays on the note date. Nov 4 digest: the path is vendor financing, customer-supplied hardware and prepayments, and capex peaks this fiscal year and next. Free cash flow turning positive in the second half of FY2028 was already on this row."
   },
@@ -10761,7 +10837,8 @@
       "2026-11-17-nvda-earnings",
       "2026-11-03-asia-chips",
       "2026-10-28-chip-export-rules",
-      "2026-11-04-asia"
+      "2026-11-04-asia",
+      "2026-11-05-nvda-h200"
     ],
     "connection_notes": "No start date beyond possibly 2027 was stated, so this stays on the note date rather than a guessed day in 2027. Nvidia's Nov 17 report and Tuesday's Asia chip selloff are the linked items."
   },
@@ -10869,7 +10946,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "Nebius before the open and Cerebras after the close",
-    "summary": "Nebius reports before the open on Nov 12, with an 8 AM call, and Cerebras reports after the close. The note calls both a neocloud and AI-chip stress test.",
+    "summary": "Nebius reports before the open on Nov 12, with an 8 AM call, and Cerebras reports after the close. The note calls both a neocloud and AI-chip stress test. The Nov 5 note says Nebius reports Q3 before the open on Nov 12. Starship Flight 15, a double-catch, is the same day and is no earlier than Nov 12, pending FAA approval.",
     "tickers": [
       "NBIS",
       "CBRS"
@@ -10883,13 +10960,14 @@
     "key_number": "NBIS before the open, 8 AM call; CBRS after the close",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-03",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-11-09-cbrs-lockup",
       "2026-11-02-ai-infra-drop",
-      "2026-11-11-crwv-earnings"
+      "2026-11-11-crwv-earnings",
+      "2026-11-12-starship-flight-15"
     ],
-    "connection_notes": "Cerebras's Nov 9 lock-up and Monday's Nebius drop are the linked items. CoreWeave's earlier report is the other neocloud test."
+    "connection_notes": "Cerebras's Nov 9 lock-up and Monday's Nebius drop are the linked items. CoreWeave's earlier report is the other neocloud test. Nov 5 digest restates Nebius before the open and does not restate the 8 AM call, which stays from the earlier note. Cerebras after the close was already on this row. Flight 15 is the linked item."
   },
   {
     "id": "2026-11-04-futures",
@@ -10981,7 +11059,9 @@
       "2026-11-02-ism",
       "2026-11-03-oil",
       "2026-11-10-cpi",
-      "2026-11-06-jobs"
+      "2026-11-06-jobs",
+      "2026-11-04-oil-crash",
+      "2026-11-05-treasuries"
     ],
     "connection_notes": "Brent's -0.4% is one figure next to the yield, the dollar and gold, so move_pct is unset. The election, the Fed path and Iran are the linked items. An earlier note already had the 10-year at 4.92% on Monday."
   },
@@ -11050,7 +11130,7 @@
     "date_precision": "day",
     "status": "happened",
     "title": "About two dozen local data-center curbs appear to have passed",
-    "summary": "About two dozen of 41 local data-center ballot measures that would restrict or block development appear to have passed, Ballotpedia via Axios. Texas Governor-elect Gina Hinojosa ran on a data-center moratorium, and Texas is 41% of planned 2028 US data-center capacity, SemiAnalysis says. Premarket, CoreWeave was down about 7%, IREN 6% and Nebius 5%. The note calls it a direct risk to the AI buildout pace. The three premarket moves differ, so no single move_pct is set.",
+    "summary": "About two dozen of 41 local data-center ballot measures that would restrict or block development appear to have passed, Ballotpedia via Axios. Texas Governor-elect Gina Hinojosa ran on a data-center moratorium, and Texas is 41% of planned 2028 US data-center capacity, SemiAnalysis says. Premarket, CoreWeave was down about 7%, IREN 6% and Nebius 5%. The note calls it a direct risk to the AI buildout pace. The three premarket moves differ, so no single move_pct is set. The Nov 5 note says that of 41 local ballot measures across 10 states, voters backed restrictions in all but one. OpenAI then published a data-center power and community blueprint.",
     "tickers": [
       "CRWV",
       "IREN",
@@ -11067,10 +11147,10 @@
     ],
     "industry": "Policy",
     "event_type": "policy",
-    "key_number": "About two dozen of 41 measures appear to have passed; Texas is 41% of planned 2028 US capacity; CRWV about -7%",
+    "key_number": "41 local measures in 10 states; voters backed restrictions in all but one",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-11-03-midterms",
       "2026-11-04-texas-moratorium",
@@ -11079,9 +11159,11 @@
       "2026-11-11-crwv-earnings",
       "2026-11-05-iren-earnings",
       "2026-11-02-ai-infra-drop",
-      "2026-11-04-sector-rotation"
+      "2026-11-04-sector-rotation",
+      "2026-11-05-openai-dc-compact",
+      "2026-11-05-dc-selloff"
     ],
-    "connection_notes": "Election-night local results, with Wednesday premarket moves. The Texas moratorium plan is the linked developing item. The national grid-cost bill is a separate policy track."
+    "connection_notes": "Election-night local results, with Wednesday premarket moves. The Texas moratorium plan is the linked developing item. The national grid-cost bill is a separate policy track. Nov 5 digest replaces the preliminary about-two-dozen count with a firmer result: voters backed restrictions in all but one of the 41 measures. The earlier Axios wording stays above. OpenAI's blueprint is the linked response. Prior key number: About two dozen of 41 measures appear to have passed; Texas is 41% of planned 2028 US capacity; CRWV about -7%"
   },
   {
     "id": "2026-11-04-musk-stocks",
@@ -11174,7 +11256,7 @@
     "date_precision": "day",
     "status": "happened",
     "title": "AMD Q3 revenue $13.38B; data center nearly doubled",
-    "summary": "AMD's Q3 revenue was $13.38B, up 45%, versus $13.09B expected, and EPS was $2.09 versus $1.95. Data center revenue nearly doubled to $8.5B. It guided Q4 to about $17B versus about $16.3B expected and sees 2027 revenue growth above 80%. It was up about 7% premarket at 6 AM, though CNBC later showed it flat. The note calls it the strongest sign yet that AI chip demand is spreading beyond Nvidia. The premarket print and the later flat tape are not one move, so move_pct is unset.",
+    "summary": "AMD's Q3 revenue was $13.38B, up 45%, versus $13.09B expected, and EPS was $2.09 versus $1.95. Data center revenue nearly doubled to $8.5B. It guided Q4 to about $17B versus about $16.3B expected and sees 2027 revenue growth above 80%. It was up about 7% premarket at 6 AM, though CNBC later showed it flat. The note calls it the strongest sign yet that AI chip demand is spreading beyond Nvidia. The premarket print and the later flat tape are not one move, so move_pct is unset. The Nov 5 note still has the quarter driving the tape: revenue $13.377B, up 45% year over year; data-center revenue a record $8.546B, up 97% year over year; and a Q4 guide of about $17B, plus or minus 3%.",
     "tickers": [
       "AMD",
       "NVDA"
@@ -11185,19 +11267,20 @@
     ],
     "industry": "Semiconductors",
     "event_type": "earnings",
-    "key_number": "Q3 rev $13.38B (+45%) vs $13.09B; EPS $2.09 vs $1.95; data center $8.5B; Q4 about $17B vs about $16.3B; 2027 growth above 80%",
+    "key_number": "Revenue $13.377B (+45% YoY); data center $8.546B (+97% YoY); Q4 guide about $17B, plus or minus 3%",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-11-03-smci-earnings",
       "2026-11-03-anet-earnings",
       "2026-11-17-nvda-earnings",
       "2026-11-03-chips-premarket",
       "2026-11-04-uber-adp-arm-qcom-app-dash",
-      "2026-10-23-openai-raise"
+      "2026-10-23-openai-raise",
+      "2026-11-04-arm-earnings"
     ],
-    "connection_notes": "Tuesday night's report and Wednesday's premarket. The after-close slate had the Street at about $13.09B and $1.95. Nvidia's Nov 17 report is the next chip test. Lisa Su's CNBC spot is on the Wednesday slate."
+    "connection_notes": "Tuesday night's report and Wednesday's premarket. The after-close slate had the Street at about $13.09B and $1.95. Nvidia's Nov 17 report is the next chip test. Lisa Su's CNBC spot is on the Wednesday slate. Nov 5 digest gives the more precise revenue figures and the plus-or-minus 3% band on the about-$17B guide. The earlier EPS comparison and the 2027 growth line stay in the summary. Prior key number: Q3 rev $13.38B (+45%) vs $13.09B; EPS $2.09 vs $1.95; data center $8.5B; Q4 about $17B vs about $16.3B; 2027 growth above 80%"
   },
   {
     "id": "2026-11-04-meta-bonds",
@@ -11205,31 +11288,36 @@
     "date_precision": "day",
     "status": "happened",
     "title": "Meta sold $15B of dollar bonds and launched euro bonds",
-    "summary": "Meta sold $15B of US-dollar bonds Tuesday on $58B of orders and launched its first euro bonds today. The whole deal targets $20-25B. S&P cut Meta's ratings outlook to negative over capex of $135-145B and negative free cash flow. The note says hyperscaler borrowing is piling up: Microsoft sold $25B of bonds last week.",
+    "summary": "Meta sold $15B of US-dollar bonds Tuesday on $58B of orders and launched its first euro bonds today. The whole deal targets $20-25B. S&P cut Meta's ratings outlook to negative over capex of $135-145B and negative free cash flow. The note says hyperscaler borrowing is piling up: Microsoft sold $25B of bonds last week. The Nov 5 note says the hyperscaler AI-debt overhang is still live, including Meta's bond raise and Oracle's financing path, and that credit and politics are constraining the buildout. Alphabet and Microsoft are also named.",
     "tickers": [
       "META",
-      "MSFT"
+      "MSFT",
+      "GOOGL",
+      "ORCL"
     ],
     "companies": [
       "Meta",
       "S&P",
-      "Microsoft"
+      "Microsoft",
+      "Alphabet",
+      "Oracle"
     ],
     "industry": "AI/Cloud",
     "event_type": "deal",
     "key_number": "$15B dollar bonds on $58B of orders; deal targets $20-25B; capex $135-145B; MSFT sold $25B last week",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-26-meta-raise",
       "2027-01-01-meta-atm",
       "2026-10-28-msft-earnings",
       "2026-11-02-orcl-offering",
       "2026-11-03-orcl-funding",
-      "2026-10-23-openai-raise"
+      "2026-10-23-openai-raise",
+      "2026-11-05-orcl-tencent-lease"
     ],
-    "connection_notes": "Tuesday's dollar sale and Wednesday's euro launch are one deal, dated on the launch day. The equity raise and the ATM are the linked dilution items. Oracle's coupons are the other AI-debt print."
+    "connection_notes": "Tuesday's dollar sale and Wednesday's euro launch are one deal, dated on the launch day. The equity raise and the ATM are the linked dilution items. Oracle's coupons are the other AI-debt print. Nov 5 digest widens Tuesday's bond sale into the still-open hyperscaler financing story. Oracle's raise is the linked item."
   },
   {
     "id": "2026-11-03-anet-earnings",
@@ -11343,7 +11431,7 @@
     "date_precision": "day",
     "status": "happened",
     "title": "CVS will split by early 2028; adjusted EPS $2.09",
-    "summary": "CVS will split into two public companies by the first half of 2028, Aetna and Caremark versus about 9,000 retail pharmacies. It beat with $2.09 adjusted EPS and raised 2026 guidance to at least $8.20, but the stock was down about 2%. The split timeline is the linked developing item.",
+    "summary": "CVS will split into two public companies by the first half of 2028, Aetna and Caremark versus about 9,000 retail pharmacies. It beat with $2.09 adjusted EPS and raised 2026 guidance to at least $8.20, but the stock was down about 2%. The split timeline is the linked developing item. Wednesday sector color in the Nov 5 note puts CVS at -12.5%, with consumer discretionary up 4.2%, energy down 4.8%, and large gains in big healthcare names.",
     "tickers": [
       "CVS"
     ],
@@ -11357,12 +11445,13 @@
     "key_number": "Split by H1 2028; adjusted EPS $2.09; 2026 guide at least $8.20; stock about -2%",
     "price_mentioned": null,
     "move_pct": -2,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2028-01-01-cvs-split",
-      "2026-11-04-uber-adp-arm-qcom-app-dash"
+      "2026-11-04-uber-adp-arm-qcom-app-dash",
+      "2026-11-04-sector-color"
     ],
-    "connection_notes": "Before the open on Nov 4. The -2% is CVS. The open split, targeted for the first half of 2028, is the linked item."
+    "connection_notes": "Before the open on Nov 4. The -2% is CVS. The open split, targeted for the first half of 2028, is the linked item. Nov 5 digest: CVS -12.5% in the Wednesday sector color. The earlier about -2% stays the single-ticker move on this row because it was a separate print. The sector line names several groups, so it does not replace that move."
   },
   {
     "id": "2026-11-04-uber-earnings",
@@ -11492,7 +11581,7 @@
     "date_precision": "day",
     "status": "developing",
     "title": "Texas data-center moratorium waits on the legislature",
-    "summary": "Gina Hinojosa wants a pause until the legislature, whose session ends mid-2027, passes rules on water, power and cost-sharing. Axios says nearly two-thirds of 2028 US data-center capacity could face delays. Bernstein argues developers will just pay more for power, which would still be good for Vertiv, Eaton, GE Vernova and PWR. The names on the note also include Tesla, SpaceX, CoreWeave, Vistra and Constellation. No single start date was given, so this stays on the note date.",
+    "summary": "Gina Hinojosa wants a pause until the legislature, whose session ends mid-2027, passes rules on water, power and cost-sharing. Axios says nearly two-thirds of 2028 US data-center capacity could face delays. Bernstein argues developers will just pay more for power, which would still be good for Vertiv, Eaton, GE Vernova and PWR. The names on the note also include Tesla, SpaceX, CoreWeave, Vistra and Constellation. No single start date was given, so this stays on the note date. On Nov 5, governor-elect Gina Hinojosa proposed a statewide pause on new data-center permits, and existing builds are reportedly exempt. UBS says about 30% of expected 2028 U.S. data-center capacity additions could be at risk, while the 2027 pipeline is mostly already under construction. Trade press cites about 13 GW of Texas projects at risk. KeyBanc said Vistra is more exposed than Constellation.",
     "tickers": [
       "TSLA",
       "SPCX",
@@ -11502,7 +11591,10 @@
       "CEG",
       "ETN",
       "GEV",
-      "PWR"
+      "PWR",
+      "IREN",
+      "NBIS",
+      "RIOT"
     ],
     "companies": [
       "Gina Hinojosa",
@@ -11516,14 +11608,19 @@
       "Constellation Energy",
       "Eaton",
       "GE Vernova",
-      "PWR"
+      "PWR",
+      "IREN",
+      "Nebius",
+      "Riot Platforms",
+      "UBS",
+      "KeyBanc"
     ],
     "industry": "Policy",
     "event_type": "policy",
-    "key_number": "Pause until the legislature; session ends mid-2027; nearly two-thirds of 2028 capacity could face delays",
+    "key_number": "UBS: about 30% of 2028 U.S. additions at risk; about 13 GW of Texas projects cited; existing builds reportedly exempt",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-11-03-midterms",
       "2026-11-04-datacenter-ballots",
@@ -11537,9 +11634,14 @@
       "2026-11-03-etn-be",
       "2026-10-23-openai-raise",
       "2026-11-09-ceg-earnings",
-      "2026-11-06-jobs"
+      "2026-11-06-jobs",
+      "2026-11-05-openai-dc-compact",
+      "2026-11-05-dc-selloff",
+      "2026-11-04-vst-drop",
+      "2026-11-04-vrt-infineon",
+      "2026-11-05-riot-corsicana"
     ],
-    "connection_notes": "Open plan behind the ballot results. Bernstein's power-equipment names are VRT, ETN, GEV and PWR. Eaton is the name already used for ETN. Mid-2027 is the end of the session, not a vote date."
+    "connection_notes": "Open plan behind the ballot results. Bernstein's power-equipment names are VRT, ETN, GEV and PWR. Eaton is the name already used for ETN. Mid-2027 is the end of the session, not a vote date. Nov 5 digest: a proposed statewide pause on new permits, existing builds reportedly exempt, UBS about 30% of 2028 additions, and about 13 GW cited in trade press. The earlier Axios two-thirds figure stays in the prior summary. Prior key number: Pause until the legislature; session ends mid-2027; nearly two-thirds of 2028 capacity could face delays"
   },
   {
     "id": "2026-11-04-solar-credits",
@@ -11699,7 +11801,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "Starship Flight 15 double-catch, no earlier than Nov 12",
-    "summary": "Starship Flight 15 will try the first catch of both the ship and the booster. It is waiting on FAA approval, and FAA airspace materials say no earlier than Nov 12. Morgan Stanley calls it a key catalyst. The date is that earliest day, and the attempt still needs FAA approval.",
+    "summary": "Starship Flight 15 will try the first catch of both the ship and the booster. It is waiting on FAA approval, and FAA airspace materials say no earlier than Nov 12. Morgan Stanley calls it a key catalyst. The date is that earliest day, and the attempt still needs FAA approval. The Nov 5 calendar still has Starship Flight 15 as a double-catch no earlier than Nov 12, pending FAA approval, on the same day Nebius reports.",
     "tickers": [
       "SPCX"
     ],
@@ -11713,13 +11815,14 @@
     "key_number": "First catch of ship and booster; no earlier than Nov 12; waiting on FAA approval",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-23-spacex-tesla-merger",
       "2026-11-04-musk-stocks",
-      "2026-11-02-spcx-boost"
+      "2026-11-02-spcx-boost",
+      "2026-11-12-nbis-cbrs"
     ],
-    "connection_notes": "The in-the-works note and the Nov 12 coming-up line are the same attempt. Morgan Stanley's $300 target and 2027 revenue figure are on the merger item, not this one."
+    "connection_notes": "The in-the-works note and the Nov 12 coming-up line are the same attempt. Morgan Stanley's $300 target and 2027 revenue figure are on the merger item, not this one. Nov 5 digest restates the no-earlier-than Nov 12 double-catch and the FAA hold. Nebius's Nov 12 report is the linked same-day item."
   },
   {
     "id": "2026-11-09-ceg-earnings",
@@ -11727,26 +11830,1277 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "Constellation Energy reports before the open, call at 9 AM",
-    "summary": "Constellation Energy reports before the open on Nov 9, with a 9 AM ET call. The note calls it a nuclear power and AI power-deal read.",
+    "summary": "Constellation Energy reports before the open on Nov 9, with a 9 AM ET call. The note calls it a nuclear power and AI power-deal read. The Nov 5 note keeps the before-the-open report and the 9 AM ET call and calls it a nuclear and AI power-deal read. KeyBanc said Vistra is more exposed than Constellation to the Texas pause. Anthropic's roadshow can start as early as about Nov 9-10.",
     "tickers": [
       "CEG"
     ],
     "companies": [
-      "Constellation Energy"
+      "Constellation Energy",
+      "KeyBanc"
     ],
     "industry": "Energy",
     "event_type": "earnings",
-    "key_number": "Before the open Nov 9; call 9 AM ET",
+    "key_number": "Before the open Nov 9; call 9 AM ET; KeyBanc: Vistra more exposed than CEG",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-04",
+    "source_digest_date": "2026-11-05",
     "related_ids": [
       "2026-10-26-googl-ceg-nuclear",
       "2026-11-04-texas-moratorium",
       "2026-11-02-datacenter-power-bill",
       "2026-11-09-tgtx-earnings",
+      "2026-11-06-jobs",
+      "2026-11-05-dc-selloff",
+      "2026-11-04-vst-drop",
+      "2026-11-anthropic-ipo"
+    ],
+    "connection_notes": "The Google nuclear deals and the Texas data-center pause are the linked power items. TG Therapeutics reports the same morning. Nov 5 digest restates the 9 AM call and adds the KeyBanc comparison with Vistra. The Anthropic roadshow window is the linked IPO item. Prior key number: Before the open Nov 9; call 9 AM ET"
+  },
+  {
+    "id": "2026-11-04-market-rip",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Dow's best day since April 2025 after the Democratic sweep",
+    "summary": "Stocks ripped Wednesday after Democrats swept Congress and Trump accepted the results. The Dow rose 3.03% to 53,356.12, the S&P 500 rose 1.58% to 7,688.62, and the Nasdaq rose 1.44% to 25,736.51. Energy lagged as oil crashed.",
+    "tickers": [],
+    "companies": [
+      "Dow",
+      "S&P 500",
+      "Nasdaq"
+    ],
+    "industry": "Macro",
+    "event_type": "market_move",
+    "key_number": "Dow +3.03% to 53,356.12; S&P +1.58% to 7,688.62; Nasdaq +1.44% to 25,736.51",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-03-midterms",
+      "2026-11-04-oil-crash",
+      "2026-11-04-sector-color",
+      "2026-11-05-premarket",
+      "2026-11-04-gold",
+      "2026-11-05-treasuries",
+      "2026-11-05-z-earnings"
+    ],
+    "connection_notes": "Wednesday cash session. Three indexes, so no single move is set. The election, the oil crash, and Thursday's futures are the linked items."
+  },
+  {
+    "id": "2026-11-05-premarket",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Thursday futures mixed as semis and data centers stay soft",
+    "summary": "Premarket Thursday was mixed. Dow e-minis were about +0.6%, S&P futures about +0.2%, and Nasdaq 100 e-minis about -0.5% as semiconductors and data-center names stayed soft.",
+    "tickers": [],
+    "companies": [
+      "Dow",
+      "S&P 500",
+      "Nasdaq 100"
+    ],
+    "industry": "Macro",
+    "event_type": "market_move",
+    "key_number": "Dow e-minis about +0.6%; S&P about +0.2%; Nasdaq 100 e-minis about -0.5%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-market-rip",
+      "2026-11-05-dc-selloff",
+      "2026-11-05-treasuries"
+    ],
+    "connection_notes": "Thursday morning futures. Three contracts, so no single move is set. Wednesday's rip and the data-center tape are the linked items."
+  },
+  {
+    "id": "2026-11-04-oil-crash",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Oil crashes on de-escalation bets after the midterms",
+    "summary": "Oil plunged Wednesday on bets the midterms raise the odds of de-escalation and Iran deal talks. WTI fell 8.3% to $88.12 and Brent fell 8.7% to $94.62. Brent bounced more than 1% Thursday morning, and S&P energy fell 4.8% Wednesday. VP Vance said the reason the GOP lost is the war, which fed the risk-premium unwind.",
+    "tickers": [],
+    "companies": [
+      "WTI",
+      "Brent"
+    ],
+    "industry": "Energy",
+    "event_type": "market_move",
+    "key_number": "WTI -8.3% to $88.12; Brent -8.7% to $94.62; S&P energy -4.8%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-market-rip",
+      "2026-11-03-iran-strikes-plan",
+      "2026-11-03-midterms",
+      "2026-11-05-boe-hike",
+      "2026-11-04-sector-color",
+      "2026-11-04-bonds-dollar-oil",
+      "2026-11-02-oil-iran",
+      "2026-11-04-vance-war"
+    ],
+    "connection_notes": "Two benchmarks plus the energy sector, so no single price or move is set. Vance's comment is in this summary because it is the stated reason for the unwind. Iran talks and the Bank of England's Middle East caveat are linked."
+  },
+  {
+    "id": "2026-11-05-treasuries",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "10-year yield about 4.865% as Treasuries keep rallying",
+    "summary": "Treasuries kept rallying. The 10-year yield was about 4.865%, down 3 bp early Thursday, after falling about 6 bp Wednesday. Softer oil and political clarity supported bonds ahead of Friday's jobs report.",
+    "tickers": [],
+    "companies": [
+      "US Treasury"
+    ],
+    "industry": "Macro",
+    "event_type": "market_move",
+    "key_number": "10-year about 4.865% (-3 bp early Thursday, about -6 bp Wednesday)",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-market-rip",
+      "2026-11-05-premarket",
+      "2026-11-06-jobs",
+      "2026-11-10-cpi",
+      "2026-10-29-fed-hike-odds",
+      "2026-11-05-dollar-fedwatch",
+      "2026-11-04-bonds-dollar-oil",
+      "2026-11-04-gold"
+    ],
+    "connection_notes": "Thursday morning yield. Not a single-stock move. Wednesday's earlier 4.92% print is the linked morning snapshot. Jobs, CPI, and the December hike odds are the catalysts."
+  },
+  {
+    "id": "2026-11-05-dollar-fedwatch",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Dollar near 101.38; December hike odds about 80.7%",
+    "summary": "The dollar index was near 101.38, down 0.10%. CME FedWatch showed about an 80.7% chance of at least a 25 bp hike in December, up from 77.4%.",
+    "tickers": [],
+    "companies": [
+      "CME FedWatch",
+      "Federal Reserve"
+    ],
+    "industry": "Macro",
+    "event_type": "fed",
+    "key_number": "Dollar index about 101.38 (-0.10%); FedWatch about 80.7% for at least a 25 bp December hike, up from 77.4%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-treasuries",
+      "2026-10-29-fed-hike-odds",
+      "2026-12-09-fomc",
+      "2026-11-05-boe-hike",
+      "2026-11-06-jobs",
+      "2026-11-04-gold"
+    ],
+    "connection_notes": "Thursday morning. The dollar move is an index, not a single stock, so move_pct is unset. The continuing odds row and the Dec 9 meeting are linked."
+  },
+  {
+    "id": "2026-11-05-trade-deficit",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "September trade deficit narrows 0.7% to $105.0B",
+    "summary": "The September trade deficit narrowed 0.7% to $105.0B. Imports hit a record $426.6B, up 1.2%, led by computers and accessories, and AI and capex demand kept the deficit large.",
+    "tickers": [],
+    "companies": [
+      "US Census"
+    ],
+    "industry": "Macro",
+    "event_type": "macro_data",
+    "key_number": "Deficit $105.0B (-0.7%); imports a record $426.6B (+1.2%)",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-10-30-amzn-capex"
+    ],
+    "connection_notes": "The digest did not give a separate release clock, so this sits on the Thursday note date. Computer and accessory imports are the AI capex link."
+  },
+  {
+    "id": "2026-11-05-boe-hike",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Bank of England hikes 25 bp to 4.0%",
+    "summary": "The Bank of England raised Bank Rate 25 bp to 4.0%, its first hike in more than three years. Governor Bailey said more may come unless the Middle East conflict resolves. The Bank sees inflation peaking near about 4.8% in mid-2027.",
+    "tickers": [],
+    "companies": [
+      "Bank of England",
+      "Andrew Bailey"
+    ],
+    "industry": "Macro",
+    "event_type": "fed",
+    "key_number": "Bank Rate 4.0% (+25 bp); inflation seen peaking near about 4.8% mid-2027",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-oil-crash",
+      "2026-11-05-dollar-fedwatch",
+      "2026-10-29-fed-hike-odds",
+      "2026-12-09-fomc",
+      "2026-11-03-iran-strikes-plan",
       "2026-11-06-jobs"
     ],
-    "connection_notes": "The Google nuclear deals and the Texas data-center pause are the linked power items. TG Therapeutics reports the same morning."
+    "connection_notes": "Thursday decision. The 25 bp figure is a policy rate, not a stock move. December Fed odds, oil, and Iran are the linked items."
+  },
+  {
+    "id": "2026-11-04-gold",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Gold rises about 3.5% and is back above $4,000",
+    "summary": "Gold rose about 3.5% Wednesday and was back above $4,000 an ounce as the dollar and yields fell.",
+    "tickers": [],
+    "companies": [
+      "Gold"
+    ],
+    "industry": "Macro",
+    "event_type": "market_move",
+    "key_number": "Gold about +3.5% Wednesday, back above $4,000/oz",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-market-rip",
+      "2026-11-05-treasuries",
+      "2026-11-05-dollar-fedwatch"
+    ],
+    "connection_notes": "Wednesday. Gold is not a single equity ticker, so price and move are left null. The yield drop and the dollar are linked."
+  },
+  {
+    "id": "2026-11-05-challenger",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "October layoff announcements fall to 43,994",
+    "summary": "Challenger said October layoff announcements fell to 43,994, the lowest October since 2023, ahead of Friday's jobs report.",
+    "tickers": [],
+    "companies": [
+      "Challenger"
+    ],
+    "industry": "Macro",
+    "event_type": "macro_data",
+    "key_number": "43,994 October layoff announcements; lowest October since 2023",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-06-jobs"
+    ],
+    "connection_notes": "Thursday Challenger report, the day before the October employment report."
+  },
+  {
+    "id": "2026-11-05-section-301",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Tariff repeal looks blocked; Section 301 probe stays open",
+    "summary": "A near-term tariff repeal is unlikely, because a veto override needs 67 senators and 290 House votes. An open Section 301 probe on excess industrial capacity could still yield new duties on China, India, Vietnam, and others. The election does not stop that probe.",
+    "tickers": [],
+    "companies": [
+      "China",
+      "India",
+      "Vietnam"
+    ],
+    "industry": "Policy",
+    "event_type": "policy",
+    "key_number": "Veto override needs 67 senators and 290 House votes; Section 301 excess-capacity probe still open",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-03-midterms",
+      "2026-10-22-mexico-steel-tariffs"
+    ],
+    "connection_notes": "Developing because the probe is open and no new duty has been announced. The sweep is the linked election result."
+  },
+  {
+    "id": "2026-11-05-openai-dc-compact",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "OpenAI offers a data-center power and community compact",
+    "summary": "After the voter backlash, OpenAI published a policy blueprint: pay full data-center power costs, solicit community input, publish construction plans, and avoid NDAs with officials. Of 41 local ballot measures across 10 states, voters backed restrictions in all but one. OpenAI is still targeting $600B of total compute spend by 2030, and the blueprint urges lawmakers to codify ratepayer and power-pay rules.",
+    "tickers": [],
+    "companies": [
+      "OpenAI"
+    ],
+    "industry": "Policy",
+    "event_type": "policy",
+    "key_number": "$600B compute target by 2030; restrictions won in all but one of 41 local measures",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-datacenter-ballots",
+      "2026-11-04-texas-moratorium",
+      "2026-10-23-openai-raise",
+      "2026-11-05-dc-selloff",
+      "2026-11-03-midterms",
+      "2026-11-02-datacenter-power-bill"
+    ],
+    "connection_notes": "The publication is in, and any legislation is still ahead, so this stays developing. The ballot count and the Texas pause are the linked permitting items. The $600B figure was also in earlier OpenAI notes."
+  },
+  {
+    "id": "2026-11-05-nvda-h200",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "About 600,000 Nvidia H200 chips sit in Hong Kong",
+    "summary": "Reuters reported that about 600,000 H200 chips are stuck in Hong Kong awaiting mainland import approval. Some Chinese internet firms each received about 10,000 H200s recently, and Beijing is still blocking large volumes. An unofficial 8-card H200 server costs more than 6 million yuan, about $900,000, roughly three times the year-ago price. Nvidia closed about $200.13 on Nov 4, down 3.17%.",
+    "tickers": [
+      "NVDA"
+    ],
+    "companies": [
+      "Nvidia"
+    ],
+    "industry": "Semiconductors",
+    "event_type": "policy",
+    "key_number": "About 600,000 H200s in Hong Kong; unofficial server about $900,000, about 3x year ago",
+    "price_mentioned": {
+      "ticker": "NVDA",
+      "price": 200.13
+    },
+    "move_pct": -3.17,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-17-nvda-earnings",
+      "2026-11-03-china-ai-chips",
+      "2026-11-10-affiliates-rule",
+      "2026-10-28-chip-export-rules",
+      "2026-11-04-mu-close",
+      "2026-11-05-tencent-hy4"
+    ],
+    "connection_notes": "One ticker, so the Nov 4 close and the -3.17% move are recorded. The import drip is still unresolved. Nov 17 earnings and the older China-chip items are linked."
+  },
+  {
+    "id": "2026-11-05-dc-selloff",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Data-center names slide on midterm permitting risk",
+    "summary": "The AI and data-center trade sold off on midterm permitting risk. Premarket Thursday, CoreWeave and Nebius were each about -4%, and Applied Digital, Cipher, and IREN were about -4%. GE Vernova fell 1.2% and Constellation fell 0.7%. Hyperscalers Amazon, Alphabet, and Meta were about +1% premarket, Microsoft was flat, on a bet that a slower buildout reins in Big Tech capex. Wednesday, Microsoft and Amazon each rose more than 6% while CoreWeave was about -10%.",
+    "tickers": [
+      "CRWV",
+      "NBIS",
+      "APLD",
+      "CIFR",
+      "IREN",
+      "GEV",
+      "CEG",
+      "AMZN",
+      "GOOGL",
+      "META",
+      "MSFT"
+    ],
+    "companies": [
+      "CoreWeave",
+      "Nebius",
+      "Applied Digital",
+      "Cipher",
+      "IREN",
+      "GE Vernova",
+      "Constellation Energy",
+      "Amazon",
+      "Alphabet",
+      "Meta",
+      "Microsoft"
+    ],
+    "industry": "AI/Cloud",
+    "event_type": "market_move",
+    "key_number": "Thursday CRWV and NBIS about -4%; Wednesday CRWV about -10%; MSFT and AMZN each more than +6% Wednesday",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-premarket",
+      "2026-11-05-openai-dc-compact",
+      "2026-11-04-texas-moratorium",
+      "2026-11-03-midterms",
+      "2026-11-04-datacenter-ballots",
+      "2026-11-11-crwv-earnings",
+      "2026-11-04-vst-drop",
+      "2026-11-09-ceg-earnings",
+      "2026-10-26-neoclouds",
+      "2026-11-17-nvda-earnings",
+      "2026-11-04-vrt-infineon",
+      "2026-11-04-mu-close"
+    ],
+    "connection_notes": "Several names and several sessions, so no single move is set. Applied Digital and Cipher are APLD and CIFR. The Texas pause, the ballots, and CoreWeave's Nov 10 report are linked."
+  },
+  {
+    "id": "2026-11-04-qcom-earnings",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Qualcomm slides about 9% to 10% as handset revenue misses",
+    "summary": "Qualcomm was about 9% to 10% lower premarket after handset revenue fell 26% to $5.14B, missing about $5.25B. Fourth-quarter adjusted EPS was $2.17 versus $2.16 and revenue was $10.44B. The first-quarter guide is EPS of $2.15 to $2.35 and revenue of $10.4B to $11.2B. Data-center revenue was $650M this quarter, with a fiscal 2027 target of $5B, and auto rose 89% to $1.99B. SpaceX selected Qualcomm for Starlink Mobile nationwide terrestrial 5G, with rollout from 2027.",
+    "tickers": [
+      "QCOM",
+      "SPCX"
+    ],
+    "companies": [
+      "Qualcomm",
+      "SpaceX"
+    ],
+    "industry": "Semiconductors",
+    "event_type": "earnings",
+    "key_number": "Handset revenue $5.14B (-26%) vs about $5.25B; Q4 adj. EPS $2.17 vs $2.16; revenue $10.44B; premarket about -9% to -10%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-uber-adp-arm-qcom-app-dash",
+      "2026-11-04-arm-earnings",
+      "2026-10-23-spacex-cell-sites"
+    ],
+    "connection_notes": "The stock move is a range, so move_pct is unset. Wednesday night's report, Thursday's premarket. The Nov 4 slate and Arm's quarter are linked."
+  },
+  {
+    "id": "2026-11-04-arm-earnings",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Arm beats and guides Q3 to $1.54B; stock slips",
+    "summary": "Arm beat, with revenue of $1.44B and adjusted EPS of $0.52, and guided third-quarter revenue to $1.54B plus or minus $50M. The stock slipped about 2% to 5% because the AI and data-center outlook was not a blowout. Data-center royalties doubled year over year.",
+    "tickers": [
+      "ARM"
+    ],
+    "companies": [
+      "Arm"
+    ],
+    "industry": "Semiconductors",
+    "event_type": "earnings",
+    "key_number": "Revenue $1.44B; adj. EPS $0.52; Q3 guide $1.54B plus or minus $50M; stock about -2% to -5%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-qcom-earnings",
+      "2026-11-04-uber-adp-arm-qcom-app-dash",
+      "2026-11-03-amd-earnings"
+    ],
+    "connection_notes": "The slip is a range, so move_pct is unset. Data-center royalties doubled year over year. Qualcomm's night and AMD's quarter are linked."
+  },
+  {
+    "id": "2026-11-04-vst-drop",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Vistra falls 13.5%; KeyBanc cuts it to Sector Weight",
+    "summary": "Vistra fell 13.5% Wednesday after Gina Hinojosa's Texas win. KeyBanc cut the stock from Overweight to Sector Weight and said Vistra is more exposed than Constellation. Vistra reports Q3 on Nov 6.",
+    "tickers": [
+      "VST"
+    ],
+    "companies": [
+      "Vistra",
+      "Constellation Energy",
+      "KeyBanc",
+      "Gina Hinojosa"
+    ],
+    "industry": "Energy",
+    "event_type": "analyst",
+    "key_number": "VST -13.5% Wednesday; KeyBanc Overweight to Sector Weight; Q3 on Nov 6",
+    "price_mentioned": null,
+    "move_pct": -13.5,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-dc-selloff",
+      "2026-11-04-texas-moratorium",
+      "2026-11-06-jobs",
+      "2026-11-09-ceg-earnings",
+      "2026-11-03-midterms"
+    ],
+    "connection_notes": "One stated move, for Vistra. Constellation is the comparison, not a second move on this row. The Texas pause and Friday's report are linked."
+  },
+  {
+    "id": "2026-11-04-vrt-infineon",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Vertiv signs a 3-year Infineon pact and still falls about 13%",
+    "summary": "Vertiv and Infineon signed a three-year silicon and silicon-carbide supply pact covering Vertiv's portfolio, including 800 VDC AI power systems. Vertiv still sold off about 13% Wednesday with the data-center complex.",
+    "tickers": [
+      "VRT"
+    ],
+    "companies": [
+      "Vertiv",
+      "Infineon"
+    ],
+    "industry": "Industrials",
+    "event_type": "deal",
+    "key_number": "3-year Si/SiC pact, including 800 VDC; VRT about -13% Wednesday",
+    "price_mentioned": null,
+    "move_pct": -13,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-dc-selloff",
+      "2026-11-04-texas-moratorium",
+      "2026-10-28-vrt-earnings"
+    ],
+    "connection_notes": "The about -13% move is Vertiv alone. The Texas permitting selloff is the linked tape."
+  },
+  {
+    "id": "2026-11-05-riot-corsicana",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Riot leases 910 MW at Corsicana for about $28B",
+    "summary": "Riot Platforms signed a 15-year, 910 MW Corsicana lease with about $28B of total contract value with a leading Frontier AI lab. Some secondary reports name Anthropic, and the company release does not. Delivery is 400 MW in September 2027, 200 MW in January 2028, and 310 MW in July 2028. Total leased capacity is now 1,151 MW, about $38B, and the note puts total capex at $5.5B, or $6M per MW.",
+    "tickers": [
+      "RIOT"
+    ],
+    "companies": [
+      "Riot Platforms"
+    ],
+    "industry": "AI/Cloud",
+    "event_type": "deal",
+    "key_number": "$28B TCV; 910 MW; total leased 1,151 MW and about $38B; capex $5.5B at $6M/MW",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-texas-moratorium",
+      "2026-11-anthropic-ipo"
+    ],
+    "connection_notes": "Developing because delivery runs through mid-2028. Anthropic is not on the ticker list because the company release does not name the tenant. The Texas pause is the overlap."
+  },
+  {
+    "id": "2026-11-05-tencent-hy4",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Tencent launches Hunyuan Hy4; shares rise about 6%",
+    "summary": "Tencent launched Hunyuan Hy4. The shares rose about 6% to HK$425.40.",
+    "tickers": [
+      "TCEHY"
+    ],
+    "companies": [
+      "Tencent"
+    ],
+    "industry": "AI/Cloud",
+    "event_type": "other",
+    "key_number": "Hunyuan Hy4; shares about +6% to HK$425.40",
+    "price_mentioned": null,
+    "move_pct": 6,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-orcl-tencent-lease",
+      "2026-11-05-nvda-h200"
+    ],
+    "connection_notes": "The stated price is the Hong Kong listing, not the U.S. ADR, so price_mentioned is left null. The about +6% is the one stated move. The Oracle lease report is the other Tencent item."
+  },
+  {
+    "id": "2026-11-05-orcl-tencent-lease",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "FT says Oracle scrapped an about $7B Tencent chip lease",
+    "summary": "The Financial Times reported that Oracle scrapped an about $7B Tencent AI-chip lease, and Reuters could not independently verify it. The canceled deal was an about five-year lease giving Tencent access to about 100,000 advanced AI chips through Oracle data centers in Southeast Asia, after pressure from U.S. officials.",
+    "tickers": [
+      "ORCL"
+    ],
+    "companies": [
+      "Oracle",
+      "Tencent",
+      "Financial Times",
+      "Reuters"
+    ],
+    "industry": "AI/Cloud",
+    "event_type": "deal",
+    "key_number": "About $7B; about 100,000 chips; about 5 years; Reuters could not verify",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-tencent-hy4",
+      "2026-11-04-meta-bonds",
+      "2026-12-09-orcl-earnings",
+      "2026-11-03-orcl-funding"
+    ],
+    "connection_notes": "Developing and unverified. Tencent's Hong Kong move is a separate item. Oracle's financing path is the linked debt story."
+  },
+  {
+    "id": "2026-11-04-app-earnings",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "AppLovin rises about 20% after a Q3 beat",
+    "summary": "AppLovin rose about 20% overnight. Third-quarter revenue was $2.185B, up 55%, and EPS was $4.30 versus about $4.03. Fourth-quarter revenue guidance is $2.365B to $2.395B, and the buyback authorization went to $3.6B.",
+    "tickers": [
+      "APP"
+    ],
+    "companies": [
+      "AppLovin"
+    ],
+    "industry": "Software",
+    "event_type": "earnings",
+    "key_number": "Q3 revenue $2.185B (+55%); EPS $4.30 vs about $4.03; Q4 revenue $2.365B-$2.395B; buybacks to $3.6B",
+    "price_mentioned": null,
+    "move_pct": 20,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-uber-adp-arm-qcom-app-dash",
+      "2026-11-05-mntn-earnings"
+    ],
+    "connection_notes": "One ticker. Overnight move after the Wednesday report. The Nov 4 slate is the linked calendar row."
+  },
+  {
+    "id": "2026-11-05-unity-earnings",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Unity rises about 22% premarket on a wide earnings beat",
+    "summary": "Unity was about 22% higher premarket. Adjusted EPS was $0.44 versus about $0.03, and revenue was $622M, up 32%. Fourth-quarter guidance is $683M to $691M versus about $601M expected.",
+    "tickers": [
+      "U"
+    ],
+    "companies": [
+      "Unity"
+    ],
+    "industry": "Software",
+    "event_type": "earnings",
+    "key_number": "Adj. EPS $0.44 vs about $0.03; revenue $622M (+32%); Q4 guide $683M-$691M vs about $601M",
+    "price_mentioned": null,
+    "move_pct": 22,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-snap-earnings"
+    ],
+    "connection_notes": "Thursday premarket. One ticker."
+  },
+  {
+    "id": "2026-11-05-snap-earnings",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Snap falls about 10% after a slight revenue miss",
+    "summary": "Snap was about 10% lower after hours and premarket. Third-quarter revenue was $1.72B versus $1.73B, and daily active users were 495 million versus 499 million. Fourth-quarter revenue guidance is $1.95B to $1.99B.",
+    "tickers": [
+      "SNAP"
+    ],
+    "companies": [
+      "Snap"
+    ],
+    "industry": "Software",
+    "event_type": "earnings",
+    "key_number": "Q3 revenue $1.72B vs $1.73B; DAUs 495M vs 499M; Q4 revenue guide $1.95B-$1.99B",
+    "price_mentioned": null,
+    "move_pct": -10,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-unity-earnings"
+    ],
+    "connection_notes": "The digest said about -10% after hours and premarket. One ticker."
+  },
+  {
+    "id": "2026-11-05-cohr-earnings",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Coherent rises about 4% as data-center revenue jumps",
+    "summary": "Coherent was about 4% higher premarket. First-quarter fiscal 2027 revenue was $2.37B, up 49.9%, and datacenter and communications revenue rose 79% to $1.95B.",
+    "tickers": [
+      "COHR"
+    ],
+    "companies": [
+      "Coherent"
+    ],
+    "industry": "Semiconductors",
+    "event_type": "earnings",
+    "key_number": "Q1 FY2027 revenue $2.37B (+49.9%); datacenter and communications $1.95B (+79%)",
+    "price_mentioned": null,
+    "move_pct": 4,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-10-29-mrvl-lite-talks"
+    ],
+    "connection_notes": "Thursday premarket. One ticker. The Marvell-Lumentum deal is the neighboring optical transaction."
+  },
+  {
+    "id": "2026-11-04-mu-close",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Micron closes at $795.23, down 7%",
+    "summary": "Micron closed at $795.23 on Wednesday, down 7%, amplifying the chip weakness.",
+    "tickers": [
+      "MU"
+    ],
+    "companies": [
+      "Micron"
+    ],
+    "industry": "Semiconductors",
+    "event_type": "market_move",
+    "key_number": "Close $795.23, -7% Wednesday",
+    "price_mentioned": {
+      "ticker": "MU",
+      "price": 795.23
+    },
+    "move_pct": -7,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-nvda-h200",
+      "2026-11-17-nvda-earnings",
+      "2026-11-05-dc-selloff"
+    ],
+    "connection_notes": "One ticker. Wednesday close. Nvidia's H200 close and the data-center tape are the chip context."
+  },
+  {
+    "id": "2026-11-05-onc-brukinsa",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "FDA grants priority review to Brukinsa in first-line mantle cell",
+    "summary": "The FDA granted priority review to BeOne's Brukinsa plus rituximab in first-line mantle cell lymphoma. In the phase 3 MANGROVE study, the combination cut the risk of progression or death by 43%, a hazard ratio of 0.57. Full data are the ASH plenary on Dec 13.",
+    "tickers": [
+      "ONC"
+    ],
+    "companies": [
+      "BeOne"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "fda",
+    "key_number": "Priority review; MANGROVE HR 0.57; 43% reduction in progression or death",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-12-13-onc-ash",
+      "2026-10-21-oncology-landscape"
+    ],
+    "connection_notes": "The acceptance is the news. The Dec 13 plenary is the linked data date. No PDUFA date was stated."
+  },
+  {
+    "id": "2026-12-13-onc-ash",
+    "date": "2026-12-13",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "BeOne ASH plenary for the MANGROVE Brukinsa data",
+    "summary": "BeOne's full MANGROVE data for Brukinsa plus rituximab in first-line mantle cell lymphoma are the ASH plenary on Dec 13. The study cut the risk of progression or death by 43%, a hazard ratio of 0.57, and the FDA has granted priority review.",
+    "tickers": [
+      "ONC"
+    ],
+    "companies": [
+      "BeOne"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "trial",
+    "key_number": "ASH plenary Dec 13; HR 0.57",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-onc-brukinsa"
+    ],
+    "connection_notes": "The priority-review announcement is the linked happened item."
+  },
+  {
+    "id": "2027-05-01-qure-pdufa",
+    "date": "2027-05-01",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "uniQure AMT-130 PDUFA is May 1, 2027",
+    "summary": "The FDA accepted uniQure's BLA and granted priority review for the Huntington's gene therapy AMT-130. The PDUFA date is May 1, 2027, and an advisory committee is tentatively planned. Screening for an about 200-patient confirmatory study is expected by the end of 2026.",
+    "tickers": [
+      "QURE"
+    ],
+    "companies": [
+      "uniQure"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "fda",
+    "key_number": "PDUFA May 1, 2027; AdComm tentatively planned; about 200-patient confirmatory screening by year-end 2026",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [],
+    "connection_notes": "The acceptance is in. The calendar date is the PDUFA day. The confirmatory study and the tentative AdComm are still ahead."
+  },
+  {
+    "id": "2026-11-04-mrna-ebola",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Moderna rises about 13% on a WHO Ebola-vaccine step",
+    "summary": "Moderna rose about 13% to about $258.38 on Wednesday after the WHO recommended the mRNA-1469 Bundibugyo Ebola vaccine for the phase 2/3 Tumaini trial in the Democratic Republic of the Congo. Earnings are Nov 6.",
+    "tickers": [
+      "MRNA"
+    ],
+    "companies": [
+      "Moderna",
+      "WHO"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "trial",
+    "key_number": "About +13% to about $258.38; mRNA-1469 recommended for phase 2/3; earnings Nov 6",
+    "price_mentioned": {
+      "ticker": "MRNA",
+      "price": 258.38
+    },
+    "move_pct": 13,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-06-jobs",
+      "2026-10-28-mrna-filing"
+    ],
+    "connection_notes": "One ticker. The price was stated as about $258.38. Friday's report is on the jobs slate."
+  },
+  {
+    "id": "2026-11-04-mck-earnings",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "McKesson beats and raises its fiscal 2027 EPS guide",
+    "summary": "McKesson beat and raised its fiscal 2027 adjusted EPS guide. The note was the fiscal second quarter. No EPS, revenue, or stock move was stated.",
+    "tickers": [
+      "MCK"
+    ],
+    "companies": [
+      "McKesson"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "earnings",
+    "key_number": "Beat and raised FY2027 adjusted EPS guide",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-uber-adp-arm-qcom-app-dash"
+    ],
+    "connection_notes": "No figure beyond the raise was in the digest, so price and move stay null. The Nov 4 after-close slate is the linked row."
+  },
+  {
+    "id": "2026-11-05-anip-egetis",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "ANI offers about $560M for Egetis",
+    "summary": "ANI Pharmaceuticals offered to buy Egetis at about a $560M equity value, or SEK 11.25 a share, about a 27% premium. Emcitate's peak sales potential is above $300M. The acceptance window is about Nov 20 through Dec 18.",
+    "tickers": [
+      "ANIP",
+      "EGTX"
+    ],
+    "companies": [
+      "ANI Pharmaceuticals",
+      "Egetis"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "deal",
+    "key_number": "About $560M equity value; SEK 11.25 a share; about a 27% premium; Emcitate peak sales above $300M",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-09-28-egtx-emcitate"
+    ],
+    "connection_notes": "Developing because the window is still ahead and the offer is open. The SEK price is a bid, not a U.S. trading print, so price_mentioned is null. Egetis is EGTX, the symbol already used for the Emcitate approval. The window was given as about Nov 20 to Dec 18, so it is not pinned as its own day."
+  },
+  {
+    "id": "2026-11-05-aglt-ipo",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Agility Robotics starts trading via a SPAC",
+    "summary": "Agility Robotics begins Nasdaq trading today as AGLT, the first U.S. pure-play public humanoid-robotics company, through the Churchill Capital XI SPAC. Gross proceeds are about $465M.",
+    "tickers": [
+      "AGLT"
+    ],
+    "companies": [
+      "Agility Robotics",
+      "Churchill Capital XI"
+    ],
+    "industry": "Industrials",
+    "event_type": "ipo",
+    "key_number": "About $465M gross proceeds; Nasdaq listing today",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-10-28-robotics-232"
+    ],
+    "connection_notes": "Thursday's debut, from the morning note. The robotics trade case is the linked policy item."
+  },
+  {
+    "id": "2026-11-05-hele-offer",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Empower proposes $37 a share for Helen of Troy",
+    "summary": "Empower Brands, backed by Spectrum Brands and Oaktree, made a public proposal for Helen of Troy at $37 a share in cash, about a $1.6B enterprise value and about a 31% premium. The proposal is non-binding, and Empower says the Helen of Troy board has not engaged constructively.",
+    "tickers": [
+      "HELE"
+    ],
+    "companies": [
+      "Helen of Troy",
+      "Empower Brands",
+      "Spectrum Brands",
+      "Oaktree"
+    ],
+    "industry": "Consumer",
+    "event_type": "deal",
+    "key_number": "$37 a share cash; about $1.6B enterprise value; about a 31% premium",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [],
+    "connection_notes": "Developing because the bid is non-binding and the board has not engaged. The $37 figure is an offer price, not a trading print, so price_mentioned is null. The 31% figure is a premium, not a session move."
+  },
+  {
+    "id": "2026-11-05-abb-robotics",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "China blocks SoftBank's about $5.4B ABB Robotics deal",
+    "summary": "Reports say China blocked SoftBank's about $5.4B ABB Robotics deal. ABB says the parties are still in discussions.",
+    "tickers": [
+      "ABB"
+    ],
+    "companies": [
+      "ABB",
+      "SoftBank"
+    ],
+    "industry": "Industrials",
+    "event_type": "deal",
+    "key_number": "About $5.4B; China blocked the deal; talks continue",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-10-28-robotics-232"
+    ],
+    "connection_notes": "Developing because ABB says discussions continue. The digest attributed the block to reports and, in the in-the-works line, to the NDRC."
+  },
+  {
+    "id": "2026-11-05-openai-pierre",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "OpenAI to buy Pierre Computer, pending a regulatory close",
+    "summary": "OpenAI is acquiring Pierre Computer, also called Code Storage. The open-source project stays open. The deal needs a regulatory close.",
+    "tickers": [],
+    "companies": [
+      "OpenAI",
+      "Pierre Computer"
+    ],
+    "industry": "AI/Cloud",
+    "event_type": "deal",
+    "key_number": "Needs regulatory close; open source stays open",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-10-23-openai-raise"
+    ],
+    "connection_notes": "No price was stated. The raise and the 2027 IPO comment are the linked OpenAI item."
+  },
+  {
+    "id": "2026-11-05-z-earnings",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Zillow falls about 15% on a revenue and traffic miss",
+    "summary": "Zillow was about 15% lower premarket. Third-quarter revenue was $724M versus about $754M, and adjusted EPS was $0.55 versus $0.59. Traffic fell 3% to 215 million monthly active users. The company called it the toughest housing market in a generation.",
+    "tickers": [
+      "Z"
+    ],
+    "companies": [
+      "Zillow"
+    ],
+    "industry": "Consumer",
+    "event_type": "earnings",
+    "key_number": "Revenue $724M vs about $754M; adj. EPS $0.55 vs $0.59; traffic 215M MAU (-3%)",
+    "price_mentioned": null,
+    "move_pct": -15,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-market-rip",
+      "2026-11-05-bros-earnings"
+    ],
+    "connection_notes": "Thursday premarket. One ticker."
+  },
+  {
+    "id": "2026-11-04-meli-earnings",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "MercadoLibre falls about 7% to 9% as margins compress",
+    "summary": "MercadoLibre was about 7% to 9% lower after hours. Revenue was $10.75B, up 45%, but adjusted EPS of $8.83 missed, and the operating margin was about 6.3% on shipping and fulfillment costs.",
+    "tickers": [
+      "MELI"
+    ],
+    "companies": [
+      "MercadoLibre"
+    ],
+    "industry": "Consumer",
+    "event_type": "earnings",
+    "key_number": "Revenue $10.75B (+45%); adj. EPS $8.83 missed; operating margin about 6.3%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-uber-adp-arm-qcom-app-dash"
+    ],
+    "connection_notes": "The move is a range, so move_pct is unset. Wednesday after hours. The Nov 4 slate is linked."
+  },
+  {
+    "id": "2026-11-04-expe-earnings",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Expedia falls about 7% to 9% on a soft revenue outlook",
+    "summary": "Expedia was about 7% to 9% lower on a soft revenue outlook despite a third-quarter beat. No revenue, EPS, or outlook figure was stated.",
+    "tickers": [
+      "EXPE"
+    ],
+    "companies": [
+      "Expedia"
+    ],
+    "industry": "Consumer",
+    "event_type": "earnings",
+    "key_number": "About -7% to -9% on a soft revenue outlook; Q3 beat",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-uber-adp-arm-qcom-app-dash"
+    ],
+    "connection_notes": "The move is a range, and no dollar figure was given, so price and move stay null. The Nov 4 slate is linked."
+  },
+  {
+    "id": "2026-11-05-bros-earnings",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Dutch Bros falls about 13.7% on a light revenue guide",
+    "summary": "Dutch Bros was about 13.7% lower premarket. The fiscal 2026 revenue guide of $2.10B was below the about $2.13B expected.",
+    "tickers": [
+      "BROS"
+    ],
+    "companies": [
+      "Dutch Bros"
+    ],
+    "industry": "Consumer",
+    "event_type": "earnings",
+    "key_number": "FY2026 revenue guide $2.10B vs about $2.13B expected",
+    "price_mentioned": null,
+    "move_pct": -13.7,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-z-earnings"
+    ],
+    "connection_notes": "Thursday premarket. One ticker."
+  },
+  {
+    "id": "2026-11-05-mntn-earnings",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "MNTN falls about 45% after cutting its full-year outlook",
+    "summary": "MNTN was about 45% lower premarket after missing its own third-quarter guide and cutting full-year revenue to $311M-$314M from $347M-$357M.",
+    "tickers": [
+      "MNTN"
+    ],
+    "companies": [
+      "MNTN"
+    ],
+    "industry": "Software",
+    "event_type": "earnings",
+    "key_number": "FY revenue cut to $311M-$314M from $347M-$357M; missed its own Q3 guide",
+    "price_mentioned": null,
+    "move_pct": -45,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-app-earnings"
+    ],
+    "connection_notes": "Thursday premarket. One ticker."
+  },
+  {
+    "id": "2026-11-05-other-movers",
+    "date": "2026-11-05",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Warby Parker, Peloton, and EPAM rise; FICO falls",
+    "summary": "Premarket Thursday, Warby Parker was about 22% higher on a margin beat, Peloton was about 7.3% higher, and EPAM was about 13.6% higher. FICO was about 8.5% lower.",
+    "tickers": [
+      "WRBY",
+      "PTON",
+      "EPAM",
+      "FICO"
+    ],
+    "companies": [
+      "Warby Parker",
+      "Peloton",
+      "EPAM",
+      "Fair Isaac"
+    ],
+    "industry": "Consumer",
+    "event_type": "market_move",
+    "key_number": "WRBY about +22%; PTON about +7.3%; EPAM about +13.6%; FICO about -8.5%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-10-26-fico-downgrade"
+    ],
+    "connection_notes": "Four different moves, so move_pct is unset. Only Warby was given a reason, a margin beat. FICO's October downgrade is a separate earlier item."
+  },
+  {
+    "id": "2026-11-04-sector-color",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Wednesday sector tape: discretionary up, energy and CVS down",
+    "summary": "Wednesday sector color: consumer discretionary rose 4.2% and energy fell 4.8%. CVS fell 12.5%. Big healthcare names posted large gains.",
+    "tickers": [
+      "CVS"
+    ],
+    "companies": [
+      "CVS"
+    ],
+    "industry": "Macro",
+    "event_type": "market_move",
+    "key_number": "Consumer discretionary +4.2%; energy -4.8%; CVS -12.5%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-market-rip",
+      "2026-11-04-oil-crash",
+      "2026-11-04-cvs-earnings",
+      "2026-11-03-midterms"
+    ],
+    "connection_notes": "Several groups, so no single move is set. CVS's earnings row still carries the earlier about -2% print. The oil crash and the sweep are linked."
+  },
+  {
+    "id": "2026-11-13-ppi",
+    "date": "2026-11-13",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "October PPI at 8:30 AM",
+    "summary": "October PPI is released Friday, Nov 13, at 8:30 AM ET. The same day is the earliest pricing day bankers have discussed for the Anthropic IPO, and the note says bankers rarely use a Friday.",
+    "tickers": [],
+    "companies": [
+      "BLS"
+    ],
+    "industry": "Macro",
+    "event_type": "macro_data",
+    "key_number": "October PPI, 8:30 AM ET Nov 13",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-10-cpi",
+      "2026-11-anthropic-ipo",
+      "2026-11-06-jobs"
+    ],
+    "connection_notes": "No consensus figure was stated. Anthropic's pricing window is the linked IPO item."
+  },
+  {
+    "id": "2026-11-17-retail-sales",
+    "date": "2026-11-17",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "October retail sales at 8:30 AM",
+    "summary": "The advance monthly retail sales report for October is out Tuesday, Nov 17, at 8:30 AM ET, the same day Nvidia reports after the close.",
+    "tickers": [],
+    "companies": [
+      "US Census"
+    ],
+    "industry": "Macro",
+    "event_type": "macro_data",
+    "key_number": "October advance retail sales, 8:30 AM ET Nov 17",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-17-nvda-earnings",
+      "2026-11-10-cpi",
+      "2026-11-06-jobs"
+    ],
+    "connection_notes": "No consensus figure was stated. Nvidia's report is the linked same-day item."
+  },
+  {
+    "id": "2026-11-18-fomc-minutes",
+    "date": "2026-11-18",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "FOMC minutes from the Oct 27-28 meeting",
+    "summary": "Minutes of the Oct 27-28 FOMC meeting are due Wednesday, Nov 18, at 2:00 PM ET.",
+    "tickers": [],
+    "companies": [
+      "Federal Reserve"
+    ],
+    "industry": "Macro",
+    "event_type": "fed",
+    "key_number": "2:00 PM ET Nov 18",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-10-28-fed-decision",
+      "2026-10-29-fed-hike-odds",
+      "2026-12-09-fomc"
+    ],
+    "connection_notes": "The October decision and the December meeting are the linked Fed items."
+  },
+  {
+    "id": "2026-12-09-fomc",
+    "date": "2026-12-09",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "FOMC decision, with projections, on Dec 9",
+    "summary": "The FOMC meets Dec 8-9 with the Summary of Economic Projections. The decision is typically Wednesday, Dec 9, around 2 PM. FedWatch on Nov 5 showed about an 80.7% chance of at least a 25 bp hike, up from 77.4%. Friday's jobs report and Nov 10 CPI are the main inputs.",
+    "tickers": [],
+    "companies": [
+      "Federal Reserve"
+    ],
+    "industry": "Macro",
+    "event_type": "fed",
+    "key_number": "Decision typically Dec 9 around 2 PM; FedWatch about 80.7% for at least a 25 bp hike",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-05-dollar-fedwatch",
+      "2026-11-05-boe-hike",
+      "2026-11-18-fomc-minutes",
+      "2026-10-29-fed-hike-odds",
+      "2026-10-28-fed-decision",
+      "2026-11-06-jobs",
+      "2026-11-10-cpi",
+      "2026-11-25-pce-gdp"
+    ],
+    "connection_notes": "The meeting spans Dec 8-9. The date is the usual decision day. The odds row, the Bank of England hike, jobs, and CPI are linked."
+  },
+  {
+    "id": "2026-11-04-vance-war",
+    "date": "2026-11-04",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Vance says the GOP lost because of the war",
+    "summary": "VP Vance said the reason the GOP lost is the war, feeding the unwind in the oil risk premium. The Nov 5 note says oil priced de-escalation after the Vance and Trump comments, and there is no signed deal.",
+    "tickers": [],
+    "companies": [
+      "VP Vance"
+    ],
+    "industry": "Geopolitics",
+    "event_type": "geopolitics",
+    "key_number": "Vance: the reason we lost is the war",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-05",
+    "related_ids": [
+      "2026-11-04-oil-crash",
+      "2026-11-03-iran-strikes-plan",
+      "2026-11-03-midterms"
+    ],
+    "connection_notes": "Wednesday comment, recorded in the Thursday note. The oil prices are on the linked crash and on the Iran item. No stock move was stated."
   }
 ]

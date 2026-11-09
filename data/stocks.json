@@ -10,7 +10,7 @@
       "order": 10,
       "blurb": "Nvidia still sells the chips the AI buildout runs on. The pile-up is that buyers are borrowing to pay, China can close a door, and Google and AMD are now real second sources.",
       "peers": ["AMD", "AVGO", "TSM", "MU", "ARM"],
-      "pin_ids": ["2026-10-22-earnings-concentration", "2026-10-30-openai-shortfall", "2026-10-28-chip-export-rules", "2026-10-30-intc-us-stake", "2026-10-28-openai-tpu"],
+      "pin_ids": ["2026-10-22-earnings-concentration", "2026-10-30-openai-shortfall", "2026-10-28-chip-export-rules", "2026-10-30-intc-us-stake", "2026-10-28-openai-tpu", "2026-11-09-openai-tranche", "2026-11-09-dc-governors", "2026-11-09-dc-moratoriums", "2026-11-09-msft-orcl-gpus"],
       "skip_ids": ["2026-10-21-market-close", "2026-10-30-chip-premarket-sndk"],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
       "backfill": [
@@ -122,7 +122,7 @@
           "via": "OpenAI",
           "level": "high",
           "tickers": ["ORCL", "CRWV", "AMD", "MSFT"],
-          "news_ids": ["2026-10-30-openai-shortfall", "2026-10-23-openai-raise", "2026-10-08-openai-revenue-ft-ai-selloff"]
+          "news_ids": ["2026-10-30-openai-shortfall", "2026-10-23-openai-raise", "2026-10-08-openai-revenue-ft-ai-selloff", "2026-11-09-openai-tranche"]
         },
         {
           "id": "nvda-backstops",
@@ -131,16 +131,16 @@
           "via": "CoreWeave and OpenAI",
           "level": "high",
           "tickers": ["CRWV", "ORCL"],
-          "news_ids": ["2026-10-26-nvda-backstops", "2026-10-29-nvda-stargate-ohio", "2026-10-22-crwv-funding-need"]
+          "news_ids": ["2026-10-26-nvda-backstops", "2026-10-29-nvda-stargate-ohio", "2026-10-22-crwv-funding-need", "2026-11-09-nvda-spil"]
         },
         {
           "id": "nvda-china",
           "title": "China export rules can shut a door again",
-          "reason": "The H20 license already cost billions in 2025, and the guide in February 2026 assumed no China data-center compute sales. The Affiliates Rule comes back Nov 10. That rule also covers a company's foreign affiliates, not just direct sales to China.",
+          "reason": "The H20 license already cost billions in 2025, and the guide in February 2026 assumed no China data-center compute sales. The Affiliates Rule comes back Nov 10. The Nov 9 note says the U.S. cleared some Nvidia chip sales to China-linked firms, some with empty offices and troubling ties, while Nvidia tightens tracking in Southeast Asia.",
           "via": "US export rules",
           "level": "high",
           "tickers": ["AMD", "AVGO", "TSM"],
-          "news_ids": ["2026-11-10-affiliates-rule", "2026-10-28-chip-export-rules"]
+          "news_ids": ["2026-11-10-affiliates-rule", "2026-10-28-chip-export-rules", "2026-11-09-nvda-china-sales", "2026-11-09-nvda-huang-probe"]
         },
         {
           "id": "nvda-tpu",
@@ -177,6 +177,15 @@
           "level": "low",
           "tickers": ["MU"],
           "news_ids": ["2027-04-01-samsung-sk-hbm4", "2026-10-28-sk-hynix-return"]
+        },
+        {
+          "id": "nvda-huang",
+          "title": "The board is investigating Huang's ties",
+          "reason": "Nvidia's board opened an investigation into CEO Jensen Huang's ties to Alice Huang, whom U.S. intelligence suspects of spying for China. She is affiliated with Megaspeed, an Nvidia customer. Nvidia says Huang intends to stay CEO. The Nov 17 report is the first since that probe.",
+          "via": "Alice Huang and Megaspeed",
+          "level": "high",
+          "tickers": ["INTC", "MRVL", "QCOM"],
+          "news_ids": ["2026-11-09-nvda-huang-probe", "2026-11-17-nvda-earnings", "2026-11-09-nvda-china-sales"]
         }
       ]
     },
@@ -804,7 +813,7 @@
       "order": 110,
       "blurb": "Microsoft is the OpenAI partner with a real cloud profit. The caution is the size of the AI build, and that OpenAI is now also signing Oracle, AMD and Google.",
       "peers": ["GOOGL", "AMZN", "ORCL", "NVDA"],
-      "pin_ids": ["2026-10-30-openai-shortfall", "2026-10-23-openai-raise"],
+      "pin_ids": ["2026-10-30-openai-shortfall", "2026-10-23-openai-raise", "2026-11-09-openai-tranche", "2026-11-09-dc-governors"],
       "skip_ids": [],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
       "backfill": [
@@ -846,7 +855,7 @@
           "via": "OpenAI",
           "level": "high",
           "tickers": ["ORCL", "AMD", "GOOGL", "NVDA"],
-          "news_ids": ["2026-10-30-openai-shortfall", "2027-orcl-openai-payments", "2026-10-28-openai-tpu"]
+          "news_ids": ["2026-10-30-openai-shortfall", "2027-orcl-openai-payments", "2026-10-28-openai-tpu", "2026-11-09-openai-tranche"]
         },
         {
           "id": "msft-capex",
@@ -874,6 +883,15 @@
           "level": "low",
           "tickers": ["PLTR", "GOOGL"],
           "news_ids": ["2026-10-28-anthropic-gsa"]
+        },
+        {
+          "id": "msft-neocloud",
+          "title": "Microsoft is reviewing neocloud leases",
+          "reason": "Microsoft is phasing out older Nvidia GPU capacity it rented from Oracle and reviewing leases with neocloud providers. Cancellations would land on CoreWeave and Nebius.",
+          "via": "Neocloud leases",
+          "level": "medium",
+          "tickers": ["ORCL", "CRWV", "NVDA"],
+          "news_ids": ["2026-11-09-msft-orcl-gpus", "2026-11-09-msft-neocloud-review", "2026-11-11-crwv-earnings"]
         }
       ]
     },
@@ -1143,7 +1161,7 @@
       "order": 160,
       "blurb": "Oracle borrowed to build for OpenAI, and OpenAI is short of cash. The stock is down about half in a year and sits near junk. That is the whole story.",
       "peers": ["MSFT", "CRWV", "NVDA", "GOOGL"],
-      "pin_ids": [],
+      "pin_ids": ["2026-11-09-msft-orcl-gpus", "2026-11-09-openai-tranche", "2026-11-09-dc-governors"],
       "skip_ids": [],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
       "backfill": [
@@ -1167,11 +1185,11 @@
         {
           "id": "orcl-openai",
           "title": "The $300B customer cannot raise what it planned",
-          "reason": "About $11 billion is committed against a target that was cut from $30 billion to about $20 billion. Payments on the contract start in 2027. A weak close means Oracle built the data centers for revenue that slips.",
+          "reason": "About $11 billion is committed against a target that was cut from $30 billion to about $20 billion. The Nov 9 note says that first tranche has closed, at a $1.25 trillion valuation, and the rest is still due. Payments on the contract start in 2027. A weak close means Oracle built the data centers for revenue that slips.",
           "via": "OpenAI",
           "level": "high",
           "tickers": ["NVDA", "CRWV", "MSFT"],
-          "news_ids": ["2026-10-30-openai-shortfall", "2027-orcl-openai-payments", "2026-10-23-openai-raise"]
+          "news_ids": ["2026-10-30-openai-shortfall", "2027-orcl-openai-payments", "2026-10-23-openai-raise", "2026-11-09-openai-tranche"]
         },
         {
           "id": "orcl-debt",
@@ -1208,6 +1226,15 @@
           "level": "low",
           "tickers": ["MSFT"],
           "news_ids": ["2026-10-26-paxton-openai"]
+        },
+        {
+          "id": "orcl-msft-gpus",
+          "title": "Microsoft is phasing out older Nvidia capacity it rented",
+          "reason": "Bloomberg reports Microsoft is dropping a block of older Nvidia GPU capacity rented from Oracle and reviewing neocloud leases. Oracle says demand for AI infrastructure, including older GPUs, remains strong.",
+          "via": "Microsoft",
+          "level": "high",
+          "tickers": ["MSFT", "NVDA", "CRWV"],
+          "news_ids": ["2026-11-09-msft-orcl-gpus", "2026-11-09-msft-neocloud-review"]
         }
       ]
     },
@@ -1260,9 +1287,9 @@
       "industry": "AI/Cloud",
       "group": "AI and cloud",
       "order": 180,
-      "blurb": "CoreWeave rents Nvidia GPUs and borrowed to do it. The bonds yield about 15%, and the calendar's CDS price implies about a 63% chance of default within five years. OpenAI is both the customer and the problem.",
+      "blurb": "CoreWeave rents Nvidia GPUs and borrowed to do it. The 2032 bonds yield over 16%, default insurance is about 11.55% a year, and the stock has halved in a month. OpenAI is both the customer and the problem.",
       "peers": ["NVDA", "ORCL", "NBIS", "IREN"],
-      "pin_ids": ["2026-10-30-openai-shortfall"],
+      "pin_ids": ["2026-10-30-openai-shortfall", "2026-11-09-msft-orcl-gpus", "2026-11-09-msft-neocloud-review", "2026-11-09-openai-tranche", "2026-11-09-dc-moratoriums"],
       "skip_ids": ["2026-10-30-chip-premarket-sndk", "2026-10-08-openai-revenue-ft-ai-selloff"],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
       "backfill": [
@@ -1314,11 +1341,11 @@
         {
           "id": "crwv-debt",
           "title": "The debt market is pricing a default",
-          "reason": "Bonds yield about 15%. CDS above 11% was described as about a 63% chance of default within five years. Risky data-center debt is frozen until after the midterms. Baird says CoreWeave needs about $30 billion in 2027.",
+          "reason": "Bonds yield about 15%. The Nov 9 note puts the 2032 bonds over 16%, default insurance at about 11.55% a year versus 1.39% for Nvidia, and $10.6 billion of debt due by the end of 2027. The stock has halved in a month. CDS above 11% was described as about a 63% chance of default within five years. Baird says CoreWeave needs about $30 billion in 2027.",
           "via": "CoreWeave's lenders",
           "level": "high",
           "tickers": ["NVDA", "ORCL"],
-          "news_ids": ["2026-10-23-crwv-drop", "2026-10-26-neoclouds", "2026-10-22-dc-debt-frozen", "2026-10-22-crwv-funding-need"]
+          "news_ids": ["2026-10-23-crwv-drop", "2026-10-26-neoclouds", "2026-10-22-dc-debt-frozen", "2026-10-22-crwv-funding-need", "2026-11-09-crwv-bonds", "2026-11-11-crwv-earnings"]
         },
         {
           "id": "crwv-openai",
@@ -1336,7 +1363,7 @@
           "via": "Microsoft",
           "level": "medium",
           "tickers": ["MSFT", "NVDA"],
-          "news_ids": ["2026-10-28-msft-earnings"]
+          "news_ids": ["2026-10-28-msft-earnings", "2026-11-09-msft-orcl-gpus", "2026-11-09-msft-neocloud-review"]
         },
         {
           "id": "crwv-rates",
@@ -1346,6 +1373,15 @@
           "level": "medium",
           "tickers": [],
           "news_ids": ["2026-11-10-cpi", "2026-11-11-crwv-earnings", "2026-10-28-fed-decision"]
+        },
+        {
+          "id": "crwv-permits",
+          "title": "Incoming governors want data-center delays",
+          "reason": "After the sweep, 34 of 36 incoming governors back some data-center regulation and 12 want construction delays. Goldman estimates about 45% of planned U.S. expansion could be temporarily halted. Texas holds about 30% of the new capacity expected to come online, and CoreWeave has offered to work with the incoming governor on standards.",
+          "via": "State data-center rules",
+          "level": "high",
+          "tickers": ["NVDA", "VRT", "ORCL"],
+          "news_ids": ["2026-11-09-dc-governors", "2026-11-09-dc-moratoriums", "2026-11-09-crwv-texas", "2026-11-04-texas-moratorium"]
         }
       ]
     },
@@ -1459,9 +1495,9 @@
       "industry": "Energy",
       "group": "Power",
       "order": 210,
-      "blurb": "Vistra sells the power the AI data centers need, and it reports Friday. The demand is real. The cautions are unsigned deals, a grid-cost bill, and loans that are not final.",
+      "blurb": "Vistra sells the power the AI data centers need. On Nov 6 it raised 2026 EBITDA and free cash flow guidance and added $1.5 billion in buybacks. Twelve incoming governors want construction delays.",
       "peers": ["CEG", "NVDA", "AMZN"],
-      "pin_ids": ["2026-10-30-amzn-capex", "2026-10-28-doe-nuclear-loans"],
+      "pin_ids": ["2026-10-30-amzn-capex", "2026-10-28-doe-nuclear-loans", "2026-11-09-dc-governors", "2026-11-09-dc-moratoriums"],
       "skip_ids": ["2026-10-22-power-selloff"],
       "macro_ids": ["2026-11-10-cpi"],
       "backfill": [],
@@ -1483,7 +1519,7 @@
           "via": "US Senate",
           "level": "high",
           "tickers": ["CEG", "AMZN"],
-          "news_ids": ["2026-11-02-datacenter-power-bill", "2026-11-03-midterms"]
+          "news_ids": ["2026-11-02-datacenter-power-bill", "2026-11-03-midterms", "2026-11-09-dc-governors", "2026-11-09-dc-moratoriums", "2026-11-06-vst-earnings"]
         },
         {
           "id": "vst-loan",
@@ -1511,9 +1547,9 @@
       "industry": "Energy",
       "group": "Power",
       "order": 220,
-      "blurb": "Constellation is the nuclear name in the AI power trade, with Google on one side and a federal loan on the other. The loan is not final, and the grid politics are live.",
+      "blurb": "Constellation is the nuclear name in the AI power trade, with Google on one side and a federal loan on the other. Q3 adjusted EPS was $5.06 versus a $3.85 estimate, and 2026 guidance is $12.50 to $12.80. The loan is not final, and data-center politics are live.",
       "peers": ["VST", "GOOGL", "AMZN"],
-      "pin_ids": ["2026-10-26-googl-ceg-nuclear", "2026-10-30-amzn-capex", "2026-11-02-datacenter-power-bill"],
+      "pin_ids": ["2026-10-26-googl-ceg-nuclear", "2026-10-30-amzn-capex", "2026-11-02-datacenter-power-bill", "2026-11-09-dc-governors", "2026-11-09-dc-moratoriums"],
       "skip_ids": [],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
       "backfill": [],
@@ -1535,7 +1571,7 @@
           "via": "Congress",
           "level": "high",
           "tickers": ["VST", "AMZN", "GOOGL"],
-          "news_ids": ["2026-11-02-datacenter-power-bill", "2026-11-03-midterms"]
+          "news_ids": ["2026-11-02-datacenter-power-bill", "2026-11-03-midterms", "2026-11-09-dc-governors", "2026-11-09-dc-moratoriums", "2026-11-09-ceg-earnings"]
         },
         {
           "id": "ceg-google",

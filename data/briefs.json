@@ -1,6 +1,6 @@
 {
   "note": "Built from data/news.json and data/stocks.json. Each line repeats a title, key number, price, move, or caution already in those files.",
-  "asOf": "2026-11-09",
+  "asOf": "2026-11-10",
   "days": {
     "2026-09-28": {
       "ids": [
@@ -310,7 +310,7 @@
         "2026-10-29-spcx-open",
         "2026-10-29-syk-ilmn"
       ],
-      "lead": "22 happened, 10 still open. Calling out 5 of 32.",
+      "lead": "23 happened, 9 still open. Calling out 5 of 32.",
       "bullets": [
         "Happened. COUR: Coursera down about 6% after hours to about $4.39. About $4.39, about -6%; Q4 guide $358-366M; 2027 consumer rev down a low double-digit percent.",
         "Happened. SFM: Sprouts down about 23% on weaker comps.",
@@ -422,7 +422,6 @@
         "2026-11-03-duol-earnings",
         "2026-11-03-etn-be",
         "2026-11-03-fox-roku",
-        "2026-11-03-fox-roku-doj",
         "2026-11-03-futures",
         "2026-11-03-guidance-pops",
         "2026-11-03-incy-povorcitinib",
@@ -439,7 +438,7 @@
         "2026-11-03-shop-earnings",
         "2026-11-03-smci-earnings"
       ],
-      "lead": "20 happened, 6 still open, 3 coming up. Calling out 5 of 29.",
+      "lead": "20 happened, 5 still open, 3 coming up. Calling out 5 of 28.",
       "bullets": [
         "Happened. SHOP: Shopify falls 19% premarket as volume and subscriptions miss. Rev $3.74B (+32%); volume $119.15B vs $120.08B; subscriptions $836M vs $850M; premarket -19%.",
         "Happened. DUOL: Duolingo rises 18% as users hit 153 million. Revenue $309M vs $303M; monthly users 153M vs 149M; stock +18%.",
@@ -544,6 +543,7 @@
     },
     "2026-11-06": {
       "ids": [
+        "2026-11-03-fox-roku-doj",
         "2026-11-06-ai-bills",
         "2026-11-06-axon-skydio",
         "2026-11-06-azn-rytm",
@@ -557,7 +557,7 @@
         "2026-11-06-oil-below-100",
         "2026-11-06-vst-earnings"
       ],
-      "lead": "3 happened, 9 still open. Calling out 5 of 12.",
+      "lead": "4 happened, 9 still open. Calling out 5 of 13.",
       "bullets": [
         "Still open. AZN, RYTM: AstraZeneca reportedly offers about $10B for Rhythm. Non-binding offer about $10B; about $124 a share, up to about $134 with milestones; talks not closed.",
         "Still open. NVDA, VRT, VST: At least 46 U.S. AI data-center projects have stalled. At least 46 U.S. AI data-center projects, about $170B announced, blocked, withdrawn, or stalled from Jan 2024 through May 2026.",
@@ -580,14 +580,18 @@
         "2026-11-09-dc-moratoriums",
         "2026-11-09-dkng",
         "2026-11-09-earnings-watch",
+        "2026-11-09-fth-endometrial",
         "2026-11-09-futures",
         "2026-11-09-gmab-petosemtamab",
         "2026-11-09-googl-crusoe",
+        "2026-11-09-goolsbee-ai-capex",
         "2026-11-09-hk-ai",
+        "2026-11-09-imvt-ra",
         "2026-11-09-iran-war-funding",
         "2026-11-09-jsr",
         "2026-11-09-kkr",
         "2026-11-09-lly-kisunla",
+        "2026-11-09-monday-rally",
         "2026-11-09-mrk-sb27",
         "2026-11-09-mrk-sb27-review",
         "2026-11-09-msft-neocloud-review",
@@ -596,40 +600,70 @@
         "2026-11-09-nvcr-optune",
         "2026-11-09-nvda-apollo",
         "2026-11-09-nvda-china-sales",
+        "2026-11-09-nvda-close",
         "2026-11-09-nvda-huang-probe",
         "2026-11-09-nvda-spil",
         "2026-11-09-oil",
+        "2026-11-09-oil-below-90",
         "2026-11-09-openai-tranche",
+        "2026-11-09-pltr-rebound",
+        "2026-11-09-power-cooling",
         "2026-11-09-roche-gazyva",
         "2026-11-09-shield-echodyne",
         "2026-11-09-spcx",
+        "2026-11-09-spcx-tmus",
         "2026-11-09-tgtx-earnings",
         "2026-11-09-veradermics"
       ],
-      "lead": "24 happened, 10 still open, 3 coming up. Calling out 5 of 37.",
+      "lead": "33 happened, 10 still open, 3 coming up. Calling out 5 of 46.",
       "bullets": [
-        "Happened. CEG: Constellation Q3 adjusted EPS $5.06 vs $3.85, guidance $12.50 to $12.80. Adj. EPS $5.06 vs $3.85; revenue $9.55B; 2026 guidance $12.50 to $12.80; about +4% premarket.",
-        "Happened. KKR: KKR up 3.7% premarket ahead of results and joins a $2.2B Canopius deal.",
-        "Happened. AMD: Oppenheimer upgrades AMD to outperform with a $600 target.",
+        "Happened. NVDA: Nvidia falls 4.27% Monday to $178.67 and sits out the rally. Monday -4.27% to $178.67; premarket about +1.8% near $182.",
+        "Happened. PLTR: Palantir rises 4.2% to $167.16 as investors rethink the selloff.",
+        "Happened. FTH: Faeth rises about 18% on Phase 2 endometrial cancer data. 33% response rate; 7.4 months median progression-free survival; about +18% Monday.",
         "Ahead. CBRS: Cerebras's last lock-up ends at 6:00 AM.",
         "Ahead. KKR, TTWO, RKLB: Monday: Goolsbee at 10 AM, Barkin at 12:15 PM, then a long after-close slate. Goolsbee 10 AM; Barkin 12:15 PM; KKR reports; after the close TTWO, RKLB, ASTS, TTD, HIMS, OXY, SKYD, LCID, PLUG, MARA, ACHR."
       ]
     },
     "2026-11-10": {
       "ids": [
+        "2026-11-10-aaon-earnings",
         "2026-11-10-affiliates-rule",
+        "2026-11-10-baba-thead",
+        "2026-11-10-baba-thead-ipo",
+        "2026-11-10-basf-evonik",
+        "2026-11-10-bayry-sunharbo",
+        "2026-11-10-brsl-outlook",
+        "2026-11-10-ceg-rhode-island",
         "2026-11-10-cpi",
+        "2026-11-10-crmd-hrtx",
+        "2026-11-10-embj-outlook",
+        "2026-11-10-fth-fast-track",
+        "2026-11-10-futures",
+        "2026-11-10-googl-tpu-8",
+        "2026-11-10-hims-earnings",
+        "2026-11-10-imvt-fda",
+        "2026-11-10-nvda-probe",
+        "2026-11-10-nvda-trump-probe",
         "2026-11-10-other-earnings",
+        "2026-11-10-rklb-earnings",
+        "2026-11-10-rklb-neutron",
+        "2026-11-10-sanm-earnings",
+        "2026-11-10-spcx-5g",
+        "2026-11-10-tariffs-democrats",
+        "2026-11-10-tariffs-rollback",
+        "2026-11-10-ttwo-gta",
         "2026-11-10-ukraine-talks",
-        "2026-11-11-crwv-earnings"
+        "2026-11-10-wix-earnings",
+        "2026-11-11-crwv-earnings",
+        "2026-11-anthropic-ipo"
       ],
-      "lead": "5 coming up.",
+      "lead": "16 happened, 9 still open, 5 coming up. Calling out 5 of 30.",
       "bullets": [
-        "Ahead. CRWV: CoreWeave Q3 after the close Nov 10, the backlog and debt test.",
-        "Ahead. NVDA: China chip Affiliates Rule returns. NVDA China -44% H1.",
-        "Ahead. SPY: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year.",
-        "Ahead. SE, TDG, ONON: Sea, TransDigm and On before the open; Rigetti and Firefly after the close.",
-        "Ahead. Geopolitics: US-hosted Ukraine-Russia talks in Abu Dhabi."
+        "Happened. AAON: AAON up about 21.5% as data center cooling revenue jumps. Revenue $707.4M (+84%); BASX $397.2M (+218%); about +21.5% premarket.",
+        "Happened. SANM: Sanmina up about 21% premarket after a beat and a $17.5B to $19.5B guide. $4.43 EPS vs $3.27 expected; FY2027 revenue $17.5B to $19.5B; AI systems $7.5B to $9B; about +21% premarket.",
+        "Happened. BRSL: Brightstar Lottery down about 11% after cutting its revenue outlook. About -11% premarket after a full-year revenue outlook cut.",
+        "Ahead. CRWV: CoreWeave Q3 after the close Nov 10, the backlog and debt test. After the close Nov 10, call at 5 PM; 2031-2032 bonds over 16%; CDS above 1,240 bp, up 50% in a month; Wayve deal, no dollar value.",
+        "Ahead. NVDA: China chip Affiliates Rule returns. NVDA China -44% H1."
       ]
     },
     "2026-11-11": {
@@ -650,7 +684,7 @@
       "lead": "3 coming up.",
       "bullets": [
         "Ahead. AMAT, NVDA, CSCO: Applied Materials reports Q3 after the close. After the close Nov 12 with Cisco and Cerebras; read on AI networking and chip equipment.",
-        "Ahead. NBIS, CBRS, CSCO: Nebius before the open; Cisco, Applied Materials and Cerebras after the close. NBIS before the open; CSCO, AMAT and CBRS after the close; Hammack, Daly and Williams speak.",
+        "Ahead. NBIS, CBRS, CSCO: Nebius before the open; Cisco, Applied Materials and Cerebras after the close. NBIS before the open, a neocloud-demand read; CSCO, AMAT and CBRS after the close.",
         "Ahead. Macro: Jobless claims at 8:30 AM. 8:30 AM ET Nov 12."
       ]
     },
@@ -662,7 +696,7 @@
       "lead": "2 coming up.",
       "bullets": [
         "Ahead. SPCX: Starship Flight 15 window opens 5:45 PM ET Nov 13. Window opens 5:45 PM ET Nov 13, pending regulatory approval.",
-        "Ahead. Macro: October PPI at 8:30 AM. October PPI at 8:30 AM ET Nov 13; earliest Anthropic pricing date; Starship window 5:45 PM ET."
+        "Ahead. Macro: October PPI at 8:30 AM."
       ]
     },
     "2026-11-14": {
@@ -691,21 +725,27 @@
     },
     "2026-11-18": {
       "ids": [
+        "2026-11-18-ant-pricing",
         "2026-11-18-fomc-minutes",
         "2026-11-18-tencent-earnings"
       ],
-      "lead": "2 coming up.",
+      "lead": "3 coming up.",
       "bullets": [
+        "Ahead. ANT: Anthropic expected to price its IPO. Expected to price Nov 18; 825 million shares at $70 to $78.",
         "Ahead. Macro: FOMC minutes from the Oct 27-28 meeting. 2:00 PM ET Nov 18.",
         "Ahead. AI/Cloud: Tencent reports, a read on China AI spending."
       ]
     },
     "2026-11-19": {
       "ids": [
+        "2026-11-19-ant-trading",
+        "2026-11-19-gta-vi",
         "2026-11-19-wmt-earnings"
       ],
-      "lead": "1 coming up.",
+      "lead": "3 coming up.",
       "bullets": [
+        "Ahead. ANT, WMT, TTWO: Anthropic expected to start trading.",
+        "Ahead. TTWO: GTA VI release. Nov 19 release reaffirmed.",
         "Ahead. WMT: Walmart reports before the open."
       ]
     },
@@ -722,10 +762,12 @@
     },
     "2026-11-25": {
       "ids": [
-        "2026-11-25-pce-gdp"
+        "2026-11-25-pce-gdp",
+        "2026-11-25-sny-venglustat"
       ],
-      "lead": "1 coming up.",
+      "lead": "2 coming up.",
       "bullets": [
+        "Ahead. SNY: FDA decision date for Sanofi's venglustat.",
         "Ahead. Macro: October PCE and the second Q3 GDP estimate."
       ]
     },
@@ -756,7 +798,7 @@
       ],
       "lead": "2 coming up.",
       "bullets": [
-        "Ahead. SPY, QQQ: FOMC decision, with projections, on Dec 9. Dec 8-9; hike odds about 77%.",
+        "Ahead. SPY, QQQ: FOMC decision, with projections, on Dec 9. Dec 8-9; quarter-point hike odds better than 80%.",
         "Ahead. ORCL: Oracle earnings (~Dec 9)."
       ]
     },
@@ -857,11 +899,17 @@
         "2026-11-06-dc-permitting-stalls",
         "2026-11-06-nvda-naver",
         "2026-11-09-dc-governors",
+        "2026-11-09-dc-moratoriums",
         "2026-11-09-futures",
         "2026-11-09-msft-orcl-gpus",
+        "2026-11-09-nvda-apollo",
         "2026-11-09-nvda-china-sales",
+        "2026-11-09-nvda-close",
         "2026-11-09-nvda-huang-probe",
+        "2026-11-09-nvda-spil",
         "2026-11-09-openai-tranche",
+        "2026-11-10-futures",
+        "2026-11-10-nvda-trump-probe",
         "bf-nvda-deepseek",
         "bf-nvda-fy26q1",
         "bf-nvda-fy26q2",
@@ -871,11 +919,9 @@
         "bf-nvda-h20"
       ],
       "comingIds": [
-        "2026-11-09-dc-moratoriums",
-        "2026-11-09-nvda-apollo",
-        "2026-11-09-nvda-spil",
         "2026-11-10-affiliates-rule",
         "2026-11-10-cpi",
+        "2026-11-10-nvda-probe",
         "2026-11-17-nvda-earnings",
         "2027-04-01-samsung-sk-hbm4"
       ],
@@ -889,13 +935,13 @@
         "nvda-openai-cash",
         "nvda-tpu"
       ],
-      "lead": "NVDA: 33 dated events on file, 7 dated events ahead, 8 outside cautions.",
+      "lead": "NVDA: 39 dated events on file, 5 dated events ahead, 8 outside cautions.",
       "bullets": [
-        "Past, Nov 9: 34 of 36 incoming governors back some data-center regulation. 34 of 36 incoming governors; 12 want delays; Goldman about 45% of planned U.S. expansion could be halted.",
-        "Ahead, Nov 9: Moratorium bills would hit Vertiv, Vistra, Constellation and the neoclouds. 12 incoming governors call for construction delays.",
+        "Past, Nov 10: Trump says the FBI is looking into Huang; a San Jose class action is filed.",
+        "Ahead, Nov 10: China chip Affiliates Rule returns. NVDA China -44% H1.",
         "Risk, High: China export rules can shut a door again. The H20 license already cost billions in 2025, and the guide in February 2026 assumed no China data-center compute sales.",
-        "Past, Nov 9: Futures bounce at 6:39am after last week's AI selloff. 6:39am ET: Dow futures +545 points (1.06%); S&P 500 +0.66%; Nasdaq 100 +0.42%.",
-        "Ahead, Nov 9: Nvidia in talks with Apollo on data centers inside telecom buildings."
+        "Past, Nov 10: Tuesday futures mixed, Nasdaq 100 held back by Nvidia. Dow futures about +0.3%; S&P flat; Nasdaq 100 down about 0.3% to 0.4%.",
+        "Ahead, Nov 10: Nvidia's board probe and a possible FBI look at Huang are still open. Stephen Neal is lead independent director."
       ]
     },
     "AMD": {
@@ -921,7 +967,7 @@
       ],
       "lead": "AMD: 6 dated events on file, 3 dated events ahead, 5 outside cautions.",
       "bullets": [
-        "Past, Nov 9: Oppenheimer upgrades AMD to outperform with a $600 target.",
+        "Past, Nov 9: Oppenheimer upgrades AMD to outperform with a $600 target. About +13% Monday, best day in six months; Oppenheimer Outperform; Micron +6.25%.",
         "Ahead, Nov 3: AMD reports after the close. Guide about $13B; EPS $1.68.",
         "Risk, High: Intel's PC slump lands on AMD too. BofA flagged up to $750 million of PC-related headwind for AMD after Intel's weak guide.",
         "Past, Nov 3: AMD Q3 revenue $13.38B; data center nearly doubled. Revenue $13.377B (+45% YoY); data center $8.546B (+97% YoY); Q4 guide about $17B, plus or minus 3%.",
@@ -959,7 +1005,7 @@
         "Ahead, Nov 10: China chip Affiliates Rule returns. NVDA China -44% H1.",
         "Risk, High: The foundry still has no outside customer. Foundry means Intel making chips for other companies, not just itself.",
         "Past, Oct 30: BofA downgrades Intel to Neutral; Amazon targets cut. INTC target $100 from $145; AMD headwind up to $750M; AMZN targets $285, $300, $275.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year."
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%."
       ]
     },
     "AVGO": {
@@ -989,7 +1035,7 @@
         "Ahead, Nov 10: China chip Affiliates Rule returns. NVDA China -44% H1.",
         "Risk, High: Broadcom is lending Anthropic the money to buy Broadcom. A loan of up to $42 billion, plus a $63 billion vehicle to buy the chips and lease them back, is vendor financing.",
         "Past, Oct 28: OpenAI TPU order still has no terms. Chip revenue mostly 2027; no terms.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year."
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%."
       ]
     },
     "MRVL": {
@@ -1015,7 +1061,7 @@
         "Ahead, Nov 5: Genmab, Airbnb, Atlassian, IREN and others report; three Fed speakers. Genmab after about 11:00 AM ET; also ABNB, TEAM, IREN, IONQ, MCHP, SONY; Hammack, Barkin, Logan.",
         "Risk, High: The $115B Lumentum deal can still break. It is all stock, it needs shareholder and regulatory approval, and closing is aimed at the first half of 2028.",
         "Past, Nov 2: Marvell to buy Lumentum in a $115B all-stock deal. $115B; 4.5 MRVL shares; ~$1,132/share; 23.9% premium; MRVL +3% premarket; close 1H 2028.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year."
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%."
       ]
     },
     "MU": {
@@ -1043,7 +1089,7 @@
         "Ahead, Nov 10: China chip Affiliates Rule returns. NVDA China -44% H1.",
         "Risk, High: Memory is a boom until the orders stop. Micron and Nvidia are about 36% of S&P earnings growth this quarter.",
         "Past, Nov 2: AI memory and power names rebound premarket. MU, SanDisk, Western Digital about +2%; VRT +2.5% after -5% Fri; BE +2.3% after -8% Fri; SPCX about +2-3% after -6.4% Fri.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year."
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%."
       ]
     },
     "TSM": {
@@ -1064,11 +1110,11 @@
       ],
       "lead": "TSM: 2 dated events on file, 3 dated events ahead, 4 outside cautions.",
       "bullets": [
-        "Past, Oct 28: Congress and Commerce weigh tighter China chip rules. Congress is pushing tighter limits on chip-tool sales and servicing in China, and Commerce is reportedly drafting AI-chip export rules that would tie licenses to US investment.",
+        "Past, Oct 28: Congress and Commerce weigh tighter China chip rules. Possible NDAA limits on Chinese remote access to advanced AI chips and on lithography tooling.",
         "Ahead, Nov 10: China chip Affiliates Rule returns. NVDA China -44% H1.",
         "Risk, High: China rules hit TSMC's customers and its tools. Congress is pushing tighter limits on chip-tool sales into China, and the Affiliates Rule returns Nov 10.",
         "Past, Oct 16: Q3 2025 revenue about $33.1B, up 40.8%.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year."
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%."
       ]
     },
     "QCOM": {
@@ -1136,7 +1182,7 @@
       "lead": "SMCI: 2 dated events on file, 1 dated event ahead, 3 outside cautions.",
       "bullets": [
         "Past, Nov 3: Super Micro sales hit $19.9B; FY2027 outlook raised to $72-82B.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%.",
         "Risk, High: The pre-announcement still needs a clean report. Revenue was pre-announced at $18.5-19.5 billion against a prior guide of $14.5-15.5 billion.",
         "Past, Aug 5: Fiscal 2025 sales $22.0B, gross margin 9.5%.",
         "Risk, High: The servers only sell if Nvidia's chips do. A weak Nvidia guide, or a shift to Google TPUs that Supermicro does not build, hits the order book."
@@ -1150,13 +1196,13 @@
         "2026-10-28-msft-earnings",
         "2026-10-30-openai-shortfall",
         "2026-11-09-dc-governors",
+        "2026-11-09-msft-neocloud-review",
         "2026-11-09-msft-orcl-gpus",
         "2026-11-09-openai-tranche",
         "bf-msft-capex",
         "bf-msft-group-capex"
       ],
       "comingIds": [
-        "2026-11-09-msft-neocloud-review",
         "2026-11-10-cpi"
       ],
       "cautionIds": [
@@ -1166,13 +1212,13 @@
         "msft-openai",
         "msft-safety"
       ],
-      "lead": "MSFT: 10 dated events on file, 2 dated events ahead, 5 outside cautions.",
+      "lead": "MSFT: 11 dated events on file, 1 dated event ahead, 5 outside cautions.",
       "bullets": [
         "Past, Nov 9: 34 of 36 incoming governors back some data-center regulation. 34 of 36 incoming governors; 12 want delays; Goldman about 45% of planned U.S. expansion could be halted.",
-        "Ahead, Nov 9: Microsoft is reviewing neocloud lease contracts.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%.",
         "Risk, High: OpenAI is spreading the spend beyond Azure. The short round, the Oracle contract, the AMD deal and the Google TPU plan all dilute the idea that Microsoft owns OpenAI's demand.",
-        "Past, Nov 9: Microsoft phases out older Nvidia GPU capacity rented from Oracle. Bloomberg reports Microsoft is phasing out a block of older Nvidia GPU capacity it rented from Oracle and reviewing leases with neocloud providers.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year."
+        "Past, Nov 9: Microsoft is reviewing neocloud lease contracts. Tightening oversight of Nebius, IREN and Nscale; favoring its own sites.",
+        "Risk, High: The build is large enough to scare the multiple. A quarter at $34.9 billion, with more growth promised, only works if Azure keeps filling it."
       ]
     },
     "GOOGL": {
@@ -1186,6 +1232,7 @@
         "2026-10-30-big-tech-selloff",
         "2026-10-30-openai-shortfall",
         "2026-11-09-googl-crusoe",
+        "2026-11-10-googl-tpu-8",
         "bf-googl-capex",
         "bf-googl-tpu"
       ],
@@ -1198,12 +1245,12 @@
         "googl-search",
         "googl-tpu-terms"
       ],
-      "lead": "GOOGL: 11 dated events on file, 1 dated event ahead, 4 outside cautions.",
+      "lead": "GOOGL: 12 dated events on file, 1 dated event ahead, 4 outside cautions.",
       "bullets": [
-        "Past, Nov 9: Google buys the Wyoming data-center site Crusoe was developing. Crusoe said Google bought the Wyoming data center site Crusoe had been developing, a sign the biggest balance sheets are still buying capacity.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year.",
+        "Past, Nov 10: Alphabet launches TPU 8tx and TPU 8i Max.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%.",
         "Risk, High: The spending turned free cash flow negative. Thursday's close was the worst day ever, about $500 billion of value, after negative free cash flow and a search miss.",
-        "Past, Oct 30: Big Tech earnings set off the selloff. GOOGL -13% Thu, about $500B, FCF -$9.07B; AMZN -1.4% Fri; 2026 capex ~$220B.",
+        "Past, Nov 9: Google buys the Wyoming data-center site Crusoe was developing. Crusoe said Google bought the Wyoming data center site Crusoe had been developing, a sign the biggest balance sheets are still buying capacity.",
         "Risk, Medium: AI answers can tax the search profit. The ad engine funds the chips."
       ]
     },
@@ -1225,7 +1272,7 @@
       "lead": "AMZN: 3 dated events on file, 1 dated event ahead, 4 outside cautions.",
       "bullets": [
         "Past, Oct 30: Amazon holds 2026 capex at $220B; 2027 will be higher.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%.",
         "Risk, High: Free cash flow is the bill for the AI build. Trailing free cash flow was down $42.4 billion on the latest print, and 2027 capex was guided higher again.",
         "Past, Oct 29: Amazon down about 6-7% premarket; trailing free cash flow -$42.4B. EPS $1.89 vs $1.96; rev $201.94B vs $202.31B; FCF -$42.4B; AWS $46.0B (+39%).",
         "Risk, Medium: A hike makes $220B of capex look worse. Jobs Friday and CPI on Nov 10 feed the December Fed decision."
@@ -1254,7 +1301,7 @@
       "lead": "META: 6 dated events on file, 3 dated events ahead, 4 outside cautions.",
       "bullets": [
         "Past, Nov 4: Meta sold $15B of dollar bonds and launched euro bonds. About $15B U.S. sale done; targeting up to about $25B including euros; euro tranche still marketing.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%.",
         "Risk, High: Nvidia buying the stock is circular. Nvidia is investing $3 billion in Meta's offering while Meta buys Nvidia systems.",
         "Past, Oct 27: Nvidia to invest $3B in Meta's offering. $3B.",
         "Ahead, Jan 1: Meta ATM of up to $60B, no earlier than Q1 2027."
@@ -1276,7 +1323,7 @@
       "lead": "AAPL: 2 dated events on file, 1 dated event ahead, 3 outside cautions.",
       "bullets": [
         "Past, Nov 2: Apple beat, then fell 4% to 4.7% premarket on the margin guide. Rev $114.5B vs $113.4B; EPS $2.10 vs $1.99; Dec gross margin 45-46% vs 46.3%; premarket -4% to -4.7%.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%.",
         "Risk, High: Tonight is the first read on iPhone 18. The calendar puts consensus EPS at $1.98 and revenue near $113.4 billion.",
         "Past, Oct 8: FT cuts OpenAI revenue estimate; AI stocks sell off. OpenAI annualized revenue est. ~$70B -> ~$50B.",
         "Risk, Medium: China is both demand and a political risk. Phone sales there matter more to Apple than data-center rules do."
@@ -1325,7 +1372,7 @@
         "Ahead, Oct 28: Oracle Investor Day. Test of the debt-funded buildout.",
         "Risk, High: Microsoft is phasing out older Nvidia capacity it rented. Bloomberg reports Microsoft is dropping a block of older Nvidia GPU capacity rented from Oracle and reviewing neocloud leases.",
         "Past, Nov 9: Microsoft phases out older Nvidia GPU capacity rented from Oracle. Bloomberg reports Microsoft is phasing out a block of older Nvidia GPU capacity it rented from Oracle and reviewing leases with neocloud providers.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year."
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%."
       ]
     },
     "PLTR": {
@@ -1333,7 +1380,8 @@
         "2026-10-27-pltr-rosenblatt",
         "2026-10-28-anthropic-gsa",
         "2026-11-02-aapl-pltr-earnings",
-        "2026-11-02-pltr-earnings"
+        "2026-11-02-pltr-earnings",
+        "2026-11-09-pltr-rebound"
       ],
       "comingIds": [
         "2026-11-10-cpi"
@@ -1343,12 +1391,12 @@
         "pltr-budget",
         "pltr-multiple"
       ],
-      "lead": "PLTR: 4 dated events on file, 1 dated event ahead, 3 outside cautions.",
+      "lead": "PLTR: 5 dated events on file, 1 dated event ahead, 3 outside cautions.",
       "bullets": [
-        "Past, Nov 2: Apple beat, then fell 4% to 4.7% premarket on the margin guide. Rev $114.5B vs $113.4B; EPS $2.10 vs $1.99; Dec gross margin 45-46% vs 46.3%; premarket -4% to -4.7%.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year.",
+        "Past, Nov 9: Palantir rises 4.2% to $167.16 as investors rethink the selloff.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%.",
         "Risk, High: Anthropic is discounting the government. A 40% cut on Claude for US governments, and about 500 government users already, is direct pressure on Palantir's public-sector price.",
-        "Past, Nov 2: Palantir beat and raised, then fell 6.5% to 8% premarket. Rev $2.31B (+96%) vs $2.18B; Q4 guide about $2.65B; US commercial $984M; TCV growth 6% from 49%; premarket -6.5% to -8%.",
+        "Past, Nov 2: Apple beat, then fell 4% to 4.7% premarket on the margin guide. Rev $114.5B vs $113.4B; EPS $2.10 vs $1.99; Dec gross margin 45-46% vs 46.3%; premarket -4% to -4.7%.",
         "Risk, High: The guide leaves no room for a miss. The calendar guide is about $2.16 billion of revenue, up about 85%."
       ]
     },
@@ -1364,7 +1412,10 @@
         "2026-11-05-ai-cds-attrition",
         "2026-11-05-dc-selloff",
         "2026-11-09-crwv-bonds",
+        "2026-11-09-crwv-texas",
         "2026-11-09-dc-governors",
+        "2026-11-09-dc-moratoriums",
+        "2026-11-09-msft-neocloud-review",
         "2026-11-09-msft-orcl-gpus",
         "2026-11-09-openai-tranche",
         "bf-crwv-fy25",
@@ -1373,9 +1424,6 @@
       ],
       "comingIds": [
         "2026-10-22-crwv-funding-need",
-        "2026-11-09-crwv-texas",
-        "2026-11-09-dc-moratoriums",
-        "2026-11-09-msft-neocloud-review",
         "2026-11-10-cpi",
         "2026-11-11-crwv-earnings"
       ],
@@ -1386,13 +1434,13 @@
         "crwv-permits",
         "crwv-rates"
       ],
-      "lead": "CRWV: 16 dated events on file, 6 dated events ahead, 5 outside cautions.",
+      "lead": "CRWV: 19 dated events on file, 3 dated events ahead, 5 outside cautions.",
       "bullets": [
         "Past, Nov 9: 34 of 36 incoming governors back some data-center regulation. 34 of 36 incoming governors; 12 want delays; Goldman about 45% of planned U.S. expansion could be halted.",
-        "Ahead, Nov 9: CoreWeave wants to work with Texas's incoming governor on permits. Texas about 30% of new U.S. data center capacity expected online.",
+        "Ahead, Nov 10: CoreWeave Q3 after the close Nov 10, the backlog and debt test. After the close Nov 10, call at 5 PM; 2031-2032 bonds over 16%; CDS above 1,240 bp, up 50% in a month; Wayve deal, no dollar value.",
         "Risk, High: Incoming governors want data-center delays. After the sweep, 34 of 36 incoming governors back some data-center regulation and 12 want construction delays.",
-        "Past, Nov 9: CoreWeave 2032 bonds yield over 16% into Tuesday's report. 2032 bonds over 16%; default insurance about 11.55% a year vs 1.39% for Nvidia; $10.6B debt due by end-2027.",
-        "Ahead, Nov 9: Microsoft is reviewing neocloud lease contracts."
+        "Past, Nov 9: CoreWeave 2032 bonds yield over 16% into Tuesday's report. 2031-2032 bonds over 16%; CDS above 1,240 bp, up 50% in a month.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%."
       ]
     },
     "TSLA": {
@@ -1417,7 +1465,7 @@
       "lead": "TSLA: 6 dated events on file, 2 dated events ahead, 4 outside cautions.",
       "bullets": [
         "Past, Nov 5: SpaceX and Tesla lose over $420B of combined market cap.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%.",
         "Risk, High: The SpaceX merger has no terms. Both boards formed committees.",
         "Past, Nov 4: Tesla, SpaceX and DJT fall after the Democratic sweep. TSLA nearly -6%; SPCX more than -7%; DJT about -11%; Talarico beat Paxton.",
         "Ahead, Jun 15: Tesla Terafab first chip mid-2027."
@@ -1431,10 +1479,12 @@
         "2026-10-28-spcx-drop",
         "2026-10-29-spcx-open",
         "2026-11-02-spcx-boost",
-        "2026-11-09-spcx"
+        "2026-11-09-spcx",
+        "2026-11-09-spcx-tmus"
       ],
       "comingIds": [
         "2026-11-10-cpi",
+        "2026-11-10-spcx-5g",
         "2026-11-12-starship-flight-15"
       ],
       "cautionIds": [
@@ -1443,13 +1493,13 @@
         "spcx-merger",
         "spcx-openai"
       ],
-      "lead": "SPCX: 7 dated events on file, 2 dated events ahead, 4 outside cautions.",
+      "lead": "SPCX: 8 dated events on file, 3 dated events ahead, 4 outside cautions.",
       "bullets": [
         "Past, Nov 9: SpaceX bounces to about $134; Stifel stays Buy with a $190 target.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%.",
         "Risk, High: A Tesla merger is still just committees. No terms.",
-        "Past, Nov 2: SpaceX in talks for EchoStar's Boost Mobile. Boost Mobile 7.4M subscribers; SPCX +4% Monday; no deal yet.",
-        "Ahead, Nov 13: Starship Flight 15 window opens 5:45 PM ET Nov 13. Window opens 5:45 PM ET Nov 13, pending regulatory approval."
+        "Past, Nov 9: SpaceX rises 5.81% after Barclays flags T-Mobile as a fit. +5.81% Monday; Barclays flags T-Mobile for a planned 2027 5G network.",
+        "Ahead, Nov 10: SpaceX is planning a 2027 5G network; T-Mobile is flagged as a fit. Nationwide 5G network planned for 2027; not a deal."
       ]
     },
     "VST": {
@@ -1461,10 +1511,10 @@
         "2026-11-04-vst-drop",
         "2026-11-06-jobs",
         "2026-11-06-vst-earnings",
-        "2026-11-09-dc-governors"
+        "2026-11-09-dc-governors",
+        "2026-11-09-dc-moratoriums"
       ],
       "comingIds": [
-        "2026-11-09-dc-moratoriums",
         "2026-11-10-cpi",
         "2027-07-01-vst-new-era"
       ],
@@ -1474,13 +1524,13 @@
         "vst-loan",
         "vst-unsigned"
       ],
-      "lead": "VST: 8 dated events on file, 3 dated events ahead, 4 outside cautions.",
+      "lead": "VST: 9 dated events on file, 2 dated events ahead, 4 outside cautions.",
       "bullets": [
         "Past, Nov 9: 34 of 36 incoming governors back some data-center regulation. 34 of 36 incoming governors; 12 want delays; Goldman about 45% of planned U.S. expansion could be halted.",
-        "Ahead, Nov 9: Moratorium bills would hit Vertiv, Vistra, Constellation and the neoclouds. 12 incoming governors call for construction delays.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%.",
         "Risk, High: Congress may send the grid bill to the data centers. A House bill passed 417-3 to make big data centers pay upgrade costs.",
-        "Past, Nov 6: October payrolls rose 165,000 and unemployment fell to 4.1%. October payrolls +165,000; unemployment 4.1%; December hike odds roughly 77% to 80%.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year."
+        "Past, Nov 9: Moratorium bills would hit Vertiv, Vistra, Constellation and the neoclouds. 12 incoming governors call for construction delays.",
+        "Ahead, Jul 1: Vistra 207 MW data-center deal starts Q3 2027. 207 MW from Q3 2027; ~4.2 GW of deals."
       ]
     },
     "CEG": {
@@ -1492,10 +1542,11 @@
         "2026-10-30-amzn-capex",
         "2026-11-02-datacenter-power-bill",
         "2026-11-09-ceg-earnings",
-        "2026-11-09-dc-governors"
+        "2026-11-09-dc-governors",
+        "2026-11-09-dc-moratoriums"
       ],
       "comingIds": [
-        "2026-11-09-dc-moratoriums",
+        "2026-11-10-ceg-rhode-island",
         "2026-11-10-cpi"
       ],
       "cautionIds": [
@@ -1504,13 +1555,13 @@
         "ceg-loan",
         "ceg-rates"
       ],
-      "lead": "CEG: 8 dated events on file, 2 dated events ahead, 4 outside cautions.",
+      "lead": "CEG: 9 dated events on file, 2 dated events ahead, 4 outside cautions.",
       "bullets": [
         "Past, Nov 9: 34 of 36 incoming governors back some data-center regulation. 34 of 36 incoming governors; 12 want delays; Goldman about 45% of planned U.S. expansion could be halted.",
-        "Ahead, Nov 9: Moratorium bills would hit Vertiv, Vistra, Constellation and the neoclouds. 12 incoming governors call for construction delays.",
+        "Ahead, Nov 10: Constellation is buying a 609 MW Rhode Island plant for $715 million. 609 MW for $715M; conditional DOE loan guarantee up to $5B; first Google-backed uprate in 2028.",
         "Risk, High: Data centers may have to pay for the grid. The Senate stalled a bill that passed the House 417-3.",
-        "Past, Nov 9: Constellation Q3 adjusted EPS $5.06 vs $3.85, guidance $12.50 to $12.80. Adj. EPS $5.06 vs $3.85; revenue $9.55B; 2026 guidance $12.50 to $12.80; about +4% premarket.",
-        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; headline seen at 3.7% year over year."
+        "Past, Nov 9: Constellation Q3 adjusted EPS $5.06 vs $3.85, guidance $12.50 to $12.80. Adj. EPS $5.06 vs $3.85; 2026 guidance $12.50 to $12.80; Monday about +11%.",
+        "Ahead, Nov 10: October CPI and Real Earnings at 8:30 AM. October CPI at 8:30 AM ET; forecast +0.3% headline and +0.2% core month over month; no annual figure; hike odds better than 80%."
       ]
     },
     "LLY": {
@@ -1614,8 +1665,8 @@
     "2026-11-03-midterms": "Democrats won both the House and Senate in Tuesday's midterms, the AP reported.",
     "2026-11-03-iran-strikes-plan": "Trump told the FT he has no immediate plans to strike Iran and partly blamed the war, and gas prices, for the GOP losses.",
     "2026-11-06-jobs": "October payrolls rose 165,000 and unemployment fell to 4.1%, pushing odds of a December rate hike to roughly 77% to 80%.",
-    "2026-11-10-cpi": "October CPI at 8:30 AM ET is seen with a headline of 3.7% year over year, and a hot number cements a December hike.",
-    "2026-11-anthropic-ipo": "Anthropic's roadshow can start Nov 10 at the earliest, and the earliest trading date is Nov 16.",
+    "2026-11-10-cpi": "The Nov 10 digest, written before the 8:30 AM release, says October CPI is forecast at +0.3% headline and +0.2% core month over month, with no annual figure this time because of last year's shutdown.",
+    "2026-11-anthropic-ipo": "Anthropic set IPO terms this morning: 825 million shares at $70 to $78 under ticker ANT on Nasdaq, raising up to about $64.4 billion and valuing it at up to about $1.4 trillion fully diluted.",
     "2026-11-17-nvda-earnings": "Nvidia reports Q3 FY2027 earnings on Tuesday, Nov 17 after the close, with a 5 PM ET call.",
     "2026-11-30-roche-giredestrant-fda-early": "FDA decision on Roche's oral SERD giredestrant for early ER+ breast cancer; lidERA showed 30% lower recurrence risk vs standard hormone pills.",
     "2026-10-26-futures": "After back-to-back losing weeks, futures were modestly higher around 6-8 AM: Dow up 0.4% to 0.5%, S&P up 0.1% to 0.3%, Nasdaq flat to up 0.3%.",
@@ -1626,6 +1677,7 @@
     "2026-10-26-canada-tariffs": "The US lifted 50% tariffs on 22 Canadian categories and added 100 new ones, about $2.5B of goods in each case.",
     "2026-10-26-mrna-premarket": "Moderna fell about 8-9% premarket after dropping more than 18% Thursday and Friday.",
     "2026-10-26-cart-sale": "Instacart was exploring a sale and, as of the Oct 26 note, was in early talks with Uber and DoorDash at a possible value of $16-17B, according to The Information.",
+    "2026-10-26-googl-ceg-nuclear": "Alphabet and Constellation Energy have a 20-year deal for 890 MW of new nuclear and a 15-year deal for 2.7 GW, supporting $4.3B of upgrades.",
     "2026-10-26-canada-deal": "Trump says a US-Canada deal is close, and Carney says work remains.",
     "2026-10-26-tehran-talks": "Saudi, Turkish and Pakistani officials held talks in Tehran and agreed to keep talking.",
     "2026-10-28-gev-earnings": "GE Vernova's third-quarter revenue rose 27% to $12.6B.",
@@ -1657,6 +1709,7 @@
     "2026-10-28-bsx-gehc": "BSX FY26 EPS $3.16-$3.18; GEHC EPS $1.34",
     "2026-10-28-dash-cart-talks": "DoorDash is buying Instacart parent Maplebear for $65 a share, about $17B and an 11% premium, at least 75% in cash.",
     "2026-10-28-anthropic-ipo-terms": "The price range is expected about two weeks after the Oct 26 filing, with a reported target valuation of $1.5-2T.",
+    "2026-10-28-ceg-vst-loans": "The Energy Department loan commitments, up to $5B for Constellation and $4.2B for Vistra, are conditional on due diligence and final documents.",
     "2026-10-28-chip-export-rules": "Congress is pushing tighter limits on chip-tool sales and servicing in China, and Commerce is reportedly drafting AI-chip export rules that would tie licenses to US investment.",
     "2026-11-05-iren-earnings": "IREN is a key neocloud test after the data-center selloff.",
     "2026-11-11-crwv-earnings": "CoreWeave's Nov 10 report, at 5 PM ET, is its first print since the election hit to data centers.",
@@ -1733,6 +1786,7 @@
     "2026-11-03-chips-premarket": "Chips are bouncing premarket after Monday's drop.",
     "2026-11-03-oil": "Brent +1.3% to about $106; WTI +1.5% to about $98; both more than -7% Monday",
     "2026-11-03-asia-chips": "Korea's KOSPI and Taiwan's Taiex each fell 3.59%.",
+    "2026-11-03-fox-roku": "Fox's $22B Roku deal is set to clear the DOJ under a consent decree, Semafor reported, despite pressure from Newsmax's owner.",
     "2026-11-02-pltr-earnings": "Rev $2.31B (+96%) vs $2.18B; Q4 guide about $2.65B; US commercial $984M; TCV growth 6% from 49%; premarket -6.5% to -8%",
     "2026-11-02-orcl-offering": "$9.9B stock at $116 plus $10B bonds at 7.00%-8.65%; closes Nov 4; premarket about -1%",
     "2026-11-02-mrvl-lite-drop": "Marvell fell 12.7% and Lumentum fell 18.6% Monday as the $115B all-stock deal raised dilution worries.",
@@ -1743,6 +1797,7 @@
     "2026-11-03-incy-povorcitinib": "Incyte's povorcitinib hit its goal in two Phase 3 vitiligo trials, Nature Medicine reported. 18.9% of patients reached a large facial skin-color recovery, versus 6.8% and 3.1% on placebo.",
     "2026-11-03-shop-earnings": "Rev $3.74B (+32%); volume $119.15B vs $120.08B; subscriptions $836M vs $850M; premarket -19%",
     "2026-11-02-other-earnings": "Zebra is down 6% and Gartner is down 6% despite beats.",
+    "2026-11-03-fox-roku-doj": "The Nov 10 digest says Fox closed its $22 billion Roku deal Friday, months early, and is lining up about $8 billion of bonds to pay for it.",
     "2026-11-03-orcl-funding": "Oracle plans to use vendor financing, customer-supplied hardware and prepayments, and it expects capex to peak this fiscal year and next.",
     "2026-11-03-china-ai-chips": "DeepSeek plans to train its next model, V5, on Huawei Ascend 950 chips, possibly in 2027, TrendForce reported.",
     "2026-11-03-jolts": "JOLTS job openings are at 10:00 AM ET on Nov 3.",
@@ -1819,12 +1874,22 @@
     "2026-11-09-msft-orcl-gpus": "Bloomberg reports Microsoft is phasing out a block of older Nvidia GPU capacity it rented from Oracle and reviewing leases with neocloud providers.",
     "2026-11-09-crwv-bonds": "CoreWeave's 2032 bonds yield over 16%, and its default insurance costs about 11.55% a year versus 1.39% for Nvidia.",
     "2026-11-09-openai-tranche": "OpenAI closed about $11 billion as the first tranche of a round at a $1.25 trillion valuation, with up to $20 billion total, scaled back from a $30 billion-plus target at $1.4 trillion.",
+    "2026-11-09-amd-upgrade": "The Nov 10 digest says AMD jumped about 13% Monday, its best day in six months, after the Oppenheimer upgrade to Outperform.",
     "2026-11-09-nvcr-optune": "Novocure got an FDA \"not approvable\" letter for Optune Mya in lung cancer brain metastases over uncertain benefit, and the note says there were no safety concerns.",
     "2026-11-09-mrk-sb27": "Samsung Bioepis said its Keytruda biosimilar SB27 matched Keytruda in a 555-patient Phase 3 lung cancer trial.",
     "2026-11-09-veradermics": "Veradermics' oral minoxidil pill VDPHL01 showed positive 12-month Phase 3 hair-loss data, 43.9 more hairs per square centimeter on twice-daily dosing, with no new safety issues.",
     "2026-11-09-nvda-spil": "Nvidia is reportedly funding SPIL's CoWoS chip-packaging expansion with billions, part of a broader push to finance its own supply chain and customers.",
+    "2026-11-09-msft-neocloud-review": "Microsoft is reviewing lease contracts with neocloud providers.",
     "2026-11-10-other-earnings": "On Tuesday, Nov 10, Sea, TransDigm and On report before the open, and Rigetti and Firefly report after the close.",
-    "2026-11-11-veterans-ctva": "Stocks open; SEC closed",
-    "2026-11-12-claims": "Jobless claims are released Thursday, Nov 12, at 8:30 AM ET."
+    "2026-11-11-veterans-ctva": "Stocks open; bond market closed",
+    "2026-11-12-claims": "Jobless claims are released Thursday, Nov 12, at 8:30 AM ET.",
+    "2026-11-19-wmt-earnings": "Walmart reports before the open on Thursday, Nov 19, a consumer health check.",
+    "2026-11-09-monday-rally": "The Dow rose 1,104 points, or 2.15%, to 52,389.75 on Monday.",
+    "2026-11-10-tariffs-democrats": "Democrats now control Congress and plan to go after Trump's tariffs, especially the 50% duties on Canadian goods, but repeal hits a veto wall.",
+    "2026-11-09-nvda-close": "Nvidia fell 4.27% Monday to $178.67 and sat out the rally.",
+    "2026-11-10-aaon-earnings": "Revenue $707.4M (+84%); BASX $397.2M (+218%); about +21.5% premarket",
+    "2026-11-09-power-cooling": "VRT +9.7% to about $200.62; VST +7.2%; CEG about +11%; CEG 2026 guidance $12.50 to $12.80",
+    "2026-11-10-bayry-sunharbo": "The FDA approved Bayer's Sunharbo (asundexian), the first Factor XIa blood thinner, for preventing repeat strokes.",
+    "2026-11-10-nvda-probe": "Nvidia's board probe and a possible FBI look at Huang are still developing."
   }
 }

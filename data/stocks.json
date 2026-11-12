@@ -8,7 +8,7 @@
       "industry": "Semiconductors",
       "group": "Chips",
       "order": 10,
-      "blurb": "Nvidia still sells the chips the AI buildout runs on. The pile-up is that buyers are borrowing to pay, China can close a door, and Google and AMD are now real second sources.",
+      "blurb": "Nvidia still sells the chips the AI buildout runs on. The board is preparing to oust CEO Jensen Huang, with no decision announced, and the Nov 17 report sits under that risk. Buyers are still borrowing to pay, and China can still close a door.",
       "peers": ["AMD", "AVGO", "TSM", "MU", "ARM"],
       "pin_ids": ["2026-10-22-earnings-concentration", "2026-10-30-openai-shortfall", "2026-10-28-chip-export-rules", "2026-10-30-intc-us-stake", "2026-10-28-openai-tpu", "2026-11-09-openai-tranche", "2026-11-09-dc-governors", "2026-11-09-dc-moratoriums", "2026-11-09-msft-orcl-gpus"],
       "skip_ids": ["2026-10-21-market-close", "2026-10-30-chip-premarket-sndk"],
@@ -136,11 +136,11 @@
         {
           "id": "nvda-china",
           "title": "China export rules can shut a door again",
-          "reason": "The H20 license already cost billions in 2025, and the guide in February 2026 assumed no China data-center compute sales. The Affiliates Rule comes back Nov 10. The Nov 9 note says the U.S. cleared some Nvidia chip sales to China-linked firms, some with empty offices and troubling ties, while Nvidia tightens tracking in Southeast Asia.",
+          "reason": "The H20 license already cost billions in 2025, and the guide in February 2026 assumed no China data-center compute sales. The Affiliates Rule comes back Nov 10. The Nov 9 note says the U.S. cleared some Nvidia chip sales to China-linked firms, some with empty offices and troubling ties, while Nvidia tightens tracking in Southeast Asia. The Nov 12 note says Commerce is set to finalize rules, possibly this month, blocking Chinese AI firms from remotely using advanced chips in overseas data centers and expanding controls to 7 more countries, including Malaysia, Singapore and Thailand.",
           "via": "US export rules",
           "level": "high",
           "tickers": ["AMD", "AVGO", "TSM"],
-          "news_ids": ["2026-11-10-affiliates-rule", "2026-10-28-chip-export-rules", "2026-11-09-nvda-china-sales", "2026-11-09-nvda-huang-probe"]
+          "news_ids": ["2026-11-10-affiliates-rule", "2026-10-28-chip-export-rules", "2026-11-12-baba-hk", "2026-11-09-nvda-china-sales", "2026-11-09-nvda-huang-probe"]
         },
         {
           "id": "nvda-tpu",
@@ -180,12 +180,12 @@
         },
         {
           "id": "nvda-huang",
-          "title": "The board is investigating Huang's ties",
-          "reason": "Nvidia's board opened an investigation into CEO Jensen Huang's ties to Alice Huang, whom U.S. intelligence suspects of spying for China. She is affiliated with Megaspeed, an Nvidia customer. Nvidia says Huang intends to stay CEO. The Nov 17 report is the first since that probe.",
+          "title": "The board is preparing to oust Huang",
+          "reason": "The Nov 12 note says the board is preparing to oust CEO Jensen Huang after reports of two extramarital affairs, one allegedly involving a suspected Chinese intelligence asset and one with an Nvidia exec. The board met Wednesday night, an outside firm is searching for a successor, and Reuters names top engineer Ian Buck and the CFO as likely candidates. No decision has been announced. An earlier note said the board was investigating ties to Alice Huang, whom U.S. intelligence suspects of spying for China, and that Huang intended to stay. The Nov 17 report is the first since the ouster report.",
           "via": "Alice Huang and Megaspeed",
           "level": "high",
           "tickers": ["INTC", "MRVL", "QCOM"],
-          "news_ids": ["2026-11-09-nvda-huang-probe", "2026-11-17-nvda-earnings", "2026-11-09-nvda-china-sales"]
+          "news_ids": ["2026-11-09-nvda-huang-probe", "2026-11-10-nvda-probe", "2026-11-12-nvda-premarket", "2026-11-17-nvda-earnings", "2026-11-09-nvda-china-sales"]
         }
       ]
     },
@@ -302,7 +302,7 @@
       "order": 30,
       "blurb": "Intel is a turnaround with the US government on the shareholder list. The foundry still needs an outside customer, and the PC guide just broke.",
       "peers": ["AMD", "TSM", "NVDA", "QCOM"],
-      "pin_ids": [],
+      "pin_ids": ["2026-11-12-futures"],
       "skip_ids": [],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
       "backfill": [
@@ -387,7 +387,7 @@
       "order": 40,
       "blurb": "Broadcom sells the custom AI chips and the network switches around Nvidia. The risk is the same circular financing: it is lending to Anthropic so Anthropic can buy Broadcom.",
       "peers": ["NVDA", "AMD", "GOOGL", "MRVL", "TSM"],
-      "pin_ids": ["2026-10-28-openai-tpu-order", "2026-10-30-openai-shortfall"],
+      "pin_ids": ["2026-10-28-openai-tpu-order", "2026-10-30-openai-shortfall", "2026-11-11-close"],
       "skip_ids": [],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs", "2026-11-10-affiliates-rule"],
       "backfill": [
@@ -468,7 +468,7 @@
       "order": 50,
       "blurb": "Marvell bet the company on custom AI chips and, this week, on buying Lumentum. The deal is huge, and it is not closed.",
       "peers": ["AVGO", "NVDA", "AMD"],
-      "pin_ids": ["2026-11-05-lite-net-abnb"],
+      "pin_ids": ["2026-11-05-lite-net-abnb", "2026-11-12-futures"],
       "skip_ids": ["2026-10-28-sk-hynix-return"],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
       "backfill": [
@@ -813,7 +813,7 @@
       "order": 110,
       "blurb": "Microsoft is the OpenAI partner with a real cloud profit. The caution is the size of the AI build, and that OpenAI is now also signing Oracle, AMD and Google.",
       "peers": ["GOOGL", "AMZN", "ORCL", "NVDA"],
-      "pin_ids": ["2026-10-30-openai-shortfall", "2026-10-23-openai-raise", "2026-11-09-openai-tranche", "2026-11-09-dc-governors"],
+      "pin_ids": ["2026-10-30-openai-shortfall", "2026-10-23-openai-raise", "2026-11-09-openai-tranche", "2026-11-09-dc-governors", "2026-11-11-openai-q3"],
       "skip_ids": [],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
       "backfill": [
@@ -855,7 +855,7 @@
           "via": "OpenAI",
           "level": "high",
           "tickers": ["ORCL", "AMD", "GOOGL", "NVDA"],
-          "news_ids": ["2026-10-30-openai-shortfall", "2027-orcl-openai-payments", "2026-10-28-openai-tpu", "2026-11-09-openai-tranche"]
+          "news_ids": ["2026-10-30-openai-shortfall", "2027-orcl-openai-payments", "2026-10-28-openai-tpu", "2026-11-09-openai-tranche", "2026-11-11-openai-q3"]
         },
         {
           "id": "msft-capex",
@@ -903,7 +903,7 @@
       "order": 120,
       "blurb": "Alphabet just had its worst day on record after spending more than the ads could fund. The offset is the TPU: other companies may finally buy Google's chip.",
       "peers": ["MSFT", "AMZN", "META", "NVDA", "AVGO"],
-      "pin_ids": ["2026-10-30-openai-shortfall"],
+      "pin_ids": ["2026-10-30-openai-shortfall", "2026-11-12-wulf-anthropic"],
       "skip_ids": [],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
       "backfill": [
@@ -968,11 +968,11 @@
         {
           "id": "googl-power",
           "title": "The data centers need power deals that are not done",
-          "reason": "Nuclear agreements with Constellation help, but new power is slow. A grid-cost bill in Congress would push more of the upgrade bill onto the data centers.",
+          "reason": "Nuclear agreements with Constellation help, but new power is slow. A grid-cost bill in Congress would push more of the upgrade bill onto the data centers. The Nov 12 note adds a $17 billion Wyoming campus, partly powered by a 702MW AEP fuel cell plant, $15 billion for Malaysia in 2027-28, and a Google backstop on TeraWulf's Kentucky campus against about $19 billion of Anthropic leases.",
           "via": "Constellation and the grid",
           "level": "low",
           "tickers": ["CEG", "VST"],
-          "news_ids": ["2026-10-26-googl-ceg-nuclear", "2026-11-02-datacenter-power-bill"]
+          "news_ids": ["2026-10-26-googl-ceg-nuclear", "2026-11-02-datacenter-power-bill", "2026-11-11-googl-wyoming", "2026-11-12-wulf-anthropic"]
         }
       ]
     },
@@ -1185,11 +1185,11 @@
         {
           "id": "orcl-openai",
           "title": "The $300B customer cannot raise what it planned",
-          "reason": "About $11 billion is committed against a target that was cut from $30 billion to about $20 billion. The Nov 9 note says that first tranche has closed, at a $1.25 trillion valuation, and the rest is still due. Payments on the contract start in 2027. A weak close means Oracle built the data centers for revenue that slips.",
+          "reason": "About $11 billion is committed against a target that was cut from $30 billion to about $20 billion. The Nov 9 note says that first tranche has closed, at a $1.25 trillion valuation, and the rest is still due. Payments on the contract start in 2027. A weak close means Oracle built the data centers for revenue that slips. The Nov 12 note says Q3 revenue topped $10 billion for the first time, with a $50 billion run rate, and the adjusted operating margin is still -109%.",
           "via": "OpenAI",
           "level": "high",
           "tickers": ["NVDA", "CRWV", "MSFT"],
-          "news_ids": ["2026-10-30-openai-shortfall", "2027-orcl-openai-payments", "2026-10-23-openai-raise", "2026-11-09-openai-tranche"]
+          "news_ids": ["2026-10-30-openai-shortfall", "2027-orcl-openai-payments", "2026-10-23-openai-raise", "2026-11-09-openai-tranche", "2026-11-11-openai-q3", "2026-11-11-orcl-rally"]
         },
         {
           "id": "orcl-debt",
@@ -1289,7 +1289,7 @@
       "order": 180,
       "blurb": "CoreWeave rents Nvidia GPUs and borrowed to do it. The 2032 bonds yield over 16%, default insurance is about 11.55% a year, and the stock has halved in a month. OpenAI is both the customer and the problem.",
       "peers": ["NVDA", "ORCL", "NBIS", "IREN"],
-      "pin_ids": ["2026-10-30-openai-shortfall", "2026-11-09-msft-orcl-gpus", "2026-11-09-msft-neocloud-review", "2026-11-09-openai-tranche", "2026-11-09-dc-moratoriums"],
+      "pin_ids": ["2026-10-30-openai-shortfall", "2026-11-09-msft-orcl-gpus", "2026-11-09-msft-neocloud-review", "2026-11-09-openai-tranche", "2026-11-09-dc-moratoriums", "2026-11-11-openai-q3", "2026-11-11-close", "2026-11-11-orcl-rally", "2026-11-12-futures", "2026-11-12-nbis-earnings"],
       "skip_ids": ["2026-10-30-chip-premarket-sndk", "2026-10-08-openai-revenue-ft-ai-selloff"],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
       "backfill": [
@@ -1341,7 +1341,7 @@
         {
           "id": "crwv-debt",
           "title": "The debt market is pricing a default",
-          "reason": "Bonds yield about 15%. The Nov 9 note puts the 2032 bonds over 16%, default insurance at about 11.55% a year versus 1.39% for Nvidia, and $10.6 billion of debt due by the end of 2027. The stock has halved in a month. CDS above 11% was described as about a 63% chance of default within five years. Baird says CoreWeave needs about $30 billion in 2027.",
+          "reason": "Bonds yield about 15%. The Nov 9 note puts the 2032 bonds over 16%, default insurance at about 11.55% a year versus 1.39% for Nvidia, and $10.6 billion of debt due by the end of 2027. The stock has halved in a month. CDS above 11% was described as about a 63% chance of default within five years. Baird says CoreWeave needs about $30 billion in 2027. The Nov 12 note on the Q3 report says CoreWeave will not tap unsecured debt at current yields and needs under $5 billion more capital through 2027.",
           "via": "CoreWeave's lenders",
           "level": "high",
           "tickers": ["NVDA", "ORCL"],
@@ -1454,11 +1454,11 @@
         {
           "id": "spcx-gpu-debt",
           "title": "The $40B GPU loan is a new balance-sheet risk",
-          "reason": "SpaceX borrowed to buy GPUs, with deliveries in the first half of 2027. Musk also said lenders have shut off funding for AI-dependent clouds. SpaceX is now on both sides of that sentence.",
+          "reason": "SpaceX borrowed to buy GPUs, with deliveries in the first half of 2027. Musk also said lenders have shut off funding for AI-dependent clouds. SpaceX is now on both sides of that sentence. The Nov 12 note says SpaceX is planning a roughly $24 billion data center and gas plant at Starbase, with a hearing Dec 9, and filed for an Arizona campus of up to 6GW and up to $50 billion, with a zoning hearing the same day.",
           "via": "GPU lenders",
           "level": "high",
           "tickers": ["NVDA", "CRWV", "TSLA"],
-          "news_ids": ["2026-10-26-spcx-gpu-debt", "2026-10-29-spcx-open", "2026-10-26-neoclouds"]
+          "news_ids": ["2026-10-26-spcx-gpu-debt", "2026-10-29-spcx-open", "2026-10-26-neoclouds", "2026-11-11-spcx-power"]
         },
         {
           "id": "spcx-merger",
@@ -1497,7 +1497,7 @@
       "order": 210,
       "blurb": "Vistra sells the power the AI data centers need. On Nov 6 it raised 2026 EBITDA and free cash flow guidance and added $1.5 billion in buybacks. Twelve incoming governors want construction delays.",
       "peers": ["CEG", "NVDA", "AMZN"],
-      "pin_ids": ["2026-10-30-amzn-capex", "2026-10-28-doe-nuclear-loans", "2026-11-09-dc-governors", "2026-11-09-dc-moratoriums"],
+      "pin_ids": ["2026-10-30-amzn-capex", "2026-10-28-doe-nuclear-loans", "2026-11-09-dc-governors", "2026-11-09-dc-moratoriums", "2026-11-04-datacenter-ballots", "2026-11-04-texas-moratorium"],
       "skip_ids": ["2026-10-22-power-selloff"],
       "macro_ids": ["2026-11-10-cpi"],
       "backfill": [],
@@ -1549,7 +1549,7 @@
       "order": 220,
       "blurb": "Constellation is the nuclear name in the AI power trade, with Google on one side and a federal loan on the other. Q3 adjusted EPS was $5.06 versus a $3.85 estimate, and 2026 guidance is $12.50 to $12.80. The loan is not final, and data-center politics are live.",
       "peers": ["VST", "GOOGL", "AMZN"],
-      "pin_ids": ["2026-10-26-googl-ceg-nuclear", "2026-10-30-amzn-capex", "2026-11-02-datacenter-power-bill", "2026-11-09-dc-governors", "2026-11-09-dc-moratoriums"],
+      "pin_ids": ["2026-10-26-googl-ceg-nuclear", "2026-10-30-amzn-capex", "2026-11-02-datacenter-power-bill", "2026-11-09-dc-governors", "2026-11-09-dc-moratoriums", "2026-11-04-datacenter-ballots", "2026-11-04-texas-moratorium"],
       "skip_ids": [],
       "macro_ids": ["2026-11-10-cpi", "2026-11-06-jobs"],
       "backfill": [],
@@ -1700,11 +1700,11 @@
         {
           "id": "lly-novo",
           "title": "Novo already has the pill lead on the calendar",
-          "reason": "FDA approved Novo's Wegovy pill on Dec 22, 2025, months before Foundayo. Wegovy pill and injection are both on the Medicare bridge. Lilly's edge is the latest sales beat, not a monopoly.",
+          "reason": "FDA approved Novo's Wegovy pill on Dec 22, 2025, months before Foundayo. Wegovy pill and injection are both on the Medicare bridge. Lilly's edge is the latest sales beat, not a monopoly. The Nov 12 note says China approved Lilly's weight-loss pill orforglipron, a head start on Novo in the world's second-largest drug market.",
           "via": "Novo Nordisk",
           "level": "high",
           "tickers": ["NVO"],
-          "news_ids": ["2026-10-26-nvo-awiqli", "2026-10-29-lly-earnings"]
+          "news_ids": ["2026-10-26-nvo-awiqli", "2026-10-29-lly-earnings", "2026-11-12-lly-orforglipron", "2026-11-12-glp1-naion"]
         },
         {
           "id": "lly-serd",
@@ -1723,6 +1723,15 @@
           "level": "medium",
           "tickers": ["PFE", "NVO"],
           "news_ids": ["2026-11-03-midterms"]
+        },
+        {
+          "id": "lly-naion",
+          "title": "FDA ordered a vision-loss warning on GLP-1 labels",
+          "reason": "The FDA ordered a NAION warning on all GLP-1 labels after 15 probable cases in trials, 10 on the drug and 5 on placebo. Novo's labels are in the same order.",
+          "via": "FDA",
+          "level": "medium",
+          "tickers": ["NVO"],
+          "news_ids": ["2026-11-12-glp1-naion"]
         }
       ]
     },
@@ -1734,7 +1743,7 @@
       "order": 320,
       "blurb": "Novo got the first weight-loss pill, then Lilly got one too and kept beating on injections. Medicare now prices them side by side at $50.",
       "peers": ["LLY", "PFE"],
-      "pin_ids": ["2026-10-29-lly-earnings"],
+      "pin_ids": ["2026-10-29-lly-earnings", "2026-11-12-lly-orforglipron", "2026-11-12-glp1-naion"],
       "skip_ids": [],
       "macro_ids": [],
       "backfill": [
@@ -1787,11 +1796,11 @@
         {
           "id": "nvo-lilly",
           "title": "Lilly is taking the sales lead",
-          "reason": "Lilly just beat again on Mounjaro and Zepbound, with EPS of $7.48 on $24.4 billion of revenue. Novo's pill was first. Lilly's injectable franchise is the one still surprising on the upside.",
+          "reason": "Lilly just beat again on Mounjaro and Zepbound, with EPS of $7.48 on $24.4 billion of revenue. Novo's pill was first. Lilly's injectable franchise is the one still surprising on the upside. The Nov 12 note says China approved Lilly's orforglipron, a head start on Novo in the world's second-largest drug market.",
           "via": "Eli Lilly",
           "level": "high",
           "tickers": ["LLY"],
-          "news_ids": ["2026-10-29-lly-earnings"]
+          "news_ids": ["2026-10-29-lly-earnings", "2026-11-12-lly-orforglipron"]
         },
         {
           "id": "nvo-price",
@@ -1819,6 +1828,15 @@
           "level": "medium",
           "tickers": ["LLY", "PFE"],
           "news_ids": ["2026-11-03-midterms"]
+        },
+        {
+          "id": "nvo-naion",
+          "title": "FDA ordered a vision-loss warning on GLP-1 labels",
+          "reason": "The FDA ordered a NAION warning on all GLP-1 labels after 15 probable cases in trials, 10 on the drug and 5 on placebo. Lilly's labels are in the same order.",
+          "via": "FDA",
+          "level": "medium",
+          "tickers": ["LLY"],
+          "news_ids": ["2026-11-12-glp1-naion"]
         }
       ]
     },

@@ -196,6 +196,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, circle:focus-vi
 .theme,
 .filter-toggle,
 .eai-toggle,
+.binary-toggle,
 .graph-tools button,
 .month-switch button,
 .zoom button {
@@ -220,7 +221,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, circle:focus-vi
   color: var(--bg);
 }
 
-.theme, .filter-toggle, .eai-toggle, .text-btn, .month-switch button, .zoom button {
+.theme, .filter-toggle, .eai-toggle, .binary-toggle, .text-btn, .month-switch button, .zoom button {
   border: 1px solid var(--line);
   background: var(--bg-elev);
 }
@@ -812,6 +813,46 @@ main { min-width: 0; }
 [data-theme="dark"] .eai-toggle { color: #fdba74; }
 [data-theme="dark"] .eai-toggle[aria-pressed="true"] { color: #fff; }
 
+.binary-toggle {
+  display: inline-flex;
+  align-items: center;
+  border-color: #3730a3;
+  color: #312e81;
+}
+.binary-toggle[aria-pressed="true"] {
+  background: #3730a3;
+  color: #fff;
+  border-color: #3730a3;
+}
+[data-theme="dark"] .binary-toggle { color: #c4b5fd; }
+[data-theme="dark"] .binary-toggle[aria-pressed="true"] { color: #fff; }
+
+.pill.binary {
+  background: color-mix(in srgb, #3730a3 16%, var(--muted));
+  box-shadow: inset 3px 0 0 #3730a3;
+}
+.binary-mark {
+  display: block;
+  color: #3730a3;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.badge.binary {
+  color: #312e81;
+  border-color: #3730a3;
+  background: color-mix(in srgb, #3730a3 12%, transparent);
+}
+.badge.binary.expected,
+.badge.binary.reported { border-style: dashed; }
+.badge.binary.success { color: #166534; border-color: #15803d; }
+.badge.binary.miss { color: #991b1b; border-color: #b91c1c; }
+[data-theme="dark"] .badge.binary { color: #c4b5fd; }
+[data-theme="dark"] .badge.binary.success { color: #86efac; }
+[data-theme="dark"] .badge.binary.miss { color: #fca5a5; }
+[data-theme="dark"] .binary-mark { color: #c4b5fd; }
+
 .pill.eai {
   background: color-mix(in srgb, #c2410c 16%, var(--muted));
   box-shadow: inset 3px 0 0 #c2410c;
@@ -897,6 +938,36 @@ main { min-width: 0; }
 .eai-filters legend { font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
 .eai-card .eai-key { font-weight: 600; }
 .eai-swatch { background: #c2410c; }
+
+.binary-bets h2 { margin: 8px 0 0; font-size: 1.35rem; }
+.binary-list { display: flex; flex-direction: column; gap: 12px; }
+.binary-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-top: 3px solid #3730a3;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+.binary-head h3 { margin: 0; font-size: 1.35rem; }
+.binary-drug { margin: 4px 0 0; }
+.binary-drug span { color: var(--ink-soft); }
+.binary-facts {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 8px 12px;
+  margin: 12px 0 0;
+}
+.binary-facts dt { color: var(--ink-soft); font-size: 13px; }
+.binary-facts dd { margin: 0; }
+.binary-facts small { display: block; color: var(--ink-soft); margin-top: 4px; }
+.binary-sources { margin: 12px 0; padding-left: 18px; color: var(--ink-soft); font-size: 14px; }
+.binary-sources li { margin: 6px 0; }
+.binary-sources a, .binary-facts a { color: inherit; }
+@media (max-width: 640px) {
+  .binary-facts { grid-template-columns: 1fr; gap: 2px; }
+  .binary-facts dt { margin-top: 8px; }
+}
 .detail a { color: inherit; }
 
 @media (max-width: 980px) {

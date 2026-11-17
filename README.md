@@ -151,6 +151,87 @@ A company needs `id`, `name`, `ticker` (`""` if private), `sections`, `card_in` 
 }
 ```
 
+## Binary Bets
+
+Open [http://localhost:3000/binary-bets](http://localhost:3000/binary-bets). The same page is the Binary Bets tab. On the calendar, these rows use a Binary Bets badge and an indigo bar, separate from the amber Enterprise AI bar. The Binary Bets button in the top bar keeps only those rows. A month or quarter stays in the undated strip. Only a confirmed day is pinned to a cell.
+
+`data/binary-bets.json` is the file to edit. `npm run briefs` checks it and writes a count into `data/briefs.json`. It does not copy the rows into `data/news.json`. The site merges them at build time.
+
+One object in `items` is one catalyst.
+
+| Field | Meaning |
+| --- | --- |
+| `id` | Stable slug starting with `bb-`. Do not reuse an id from `news.json`. |
+| `ticker`, `company` | The stock and the company name. |
+| `drug`, `indication` | What is being tested and in whom. |
+| `catalyst_type` | `pdufa`, `phase3`, or `adcom`. |
+| `date`, `date_precision` | Same rules as the news file. A month or quarter uses the first day of that window. Only `day` is pinned to a calendar cell. |
+| `date_window` | Empty when the day is confirmed. For an expected window, the words the company used, such as `Q1 2027` or `December 2026`. |
+| `timing` | `confirmed` only with `date_precision` `day`. `expected` only with `month` or `quarter`. |
+| `status` | `upcoming` or `resolved`. A resolved row needs an `outcome`. An upcoming row keeps `outcome` null. |
+| `market_cap` | A sourced approximate market cap, or `""` when the sources used do not state one. If it is filled in, a fact whose label contains “market cap” must source it. |
+| `cash` | `null`, or the latest quarter: `on_hand`, `as_of` (`YYYY-MM-DD`), `scope` (what the cash line includes), `runway` (the company’s words, or `""`), `quarters` (only when that word can be restated without a burn-rate model, or `""`), `quarters_note` (required when `quarters` is set), `source`, `source_label`, `reported`. |
+| `success_means`, `miss_means` | What a positive result and a negative result likely mean for this company. Stay inside the sourced facts. |
+| `why_it_matters` | One short plain-English paragraph. |
+| `outcome` | `null` until the event is decided. Then `result` is `success` or `miss`, `move` is the stock move a source stated, plus `source`, `source_label`, and `reported`. If quotes disagree, say so in `move` and do not invent a close. |
+| `facts` | At least one. Each fact is `label`, `value`, `source` (https), `source_label`, and `reported` (`true` when the figure was not read from a company filing or company page). One fact label must name the date or the window. Cash and market cap, when present, need their own facts. |
+| `title`, `summary`, `key_number` | The calendar headline, one or two sentences, and the figure worth remembering. |
+| `related_ids` | Other ids in this file. |
+
+Do not invent a date, a price, a percent, or a dollar amount. Leave the field empty, or mark the fact `reported`, when the number is only in a news report.
+
+```json
+{
+  "id": "bb-2026-11-22-example",
+  "ticker": "EXMP",
+  "company": "Example Bio",
+  "drug": "Exampledrug",
+  "indication": "A rare disease",
+  "catalyst_type": "pdufa",
+  "date": "2026-11-22",
+  "date_precision": "day",
+  "date_window": "",
+  "timing": "confirmed",
+  "status": "upcoming",
+  "market_cap": "",
+  "cash": {
+    "on_hand": "$100 million",
+    "as_of": "2026-09-30",
+    "scope": "cash and cash equivalents",
+    "runway": "at least the next 12 months",
+    "quarters": "at least 4",
+    "quarters_note": "The company said 12 months. Twelve months is four quarters.",
+    "source": "https://example.com/filing",
+    "source_label": "Company 10-Q",
+    "reported": false
+  },
+  "success_means": "An approval would be the first product.",
+  "miss_means": "A rejection would leave the company with no approved drug.",
+  "why_it_matters": "This is the only late-stage program.",
+  "outcome": null,
+  "facts": [
+    {
+      "label": "PDUFA date",
+      "value": "November 22, 2026",
+      "source": "https://example.com/filing",
+      "source_label": "Company 10-Q",
+      "reported": false
+    },
+    {
+      "label": "Cash",
+      "value": "$100 million as of September 30, 2026",
+      "source": "https://example.com/filing",
+      "source_label": "Company 10-Q",
+      "reported": false
+    }
+  ],
+  "title": "Binary: Example Bio PDUFA",
+  "summary": "One sentence with only a figure the source stated.",
+  "key_number": "PDUFA Nov 22, 2026.",
+  "related_ids": []
+}
+```
+
 ## Summaries
 
 Day cards, stock pages, and long notes get a short summary made only from titles, key numbers, prices, moves, and cautions already in the files. A long note keeps its full text; the short version is the first sentence, or the key number when the note is one long sentence. `npm run briefs` writes `data/briefs.json`. The site uses that text when it still matches the items on screen, and rebuilds the same lines when a filter hides some of them. No model and no API key.

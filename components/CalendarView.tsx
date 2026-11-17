@@ -6,6 +6,24 @@ import { dayBriefFor } from "@/lib/saved-briefs";
 import { industryColor } from "@/lib/taxonomy";
 import type { NewsItem } from "@/lib/types";
 
+function pillClass(item: NewsItem): string {
+  if (item.binary_bet) return "pill binary";
+  if (item.enterprise_ai) return "pill eai";
+  return "pill";
+}
+
+function pillLabel(item: NewsItem): string {
+  if (item.binary_bet) return `Binary Bets: ${item.title}`;
+  if (item.enterprise_ai) return `Enterprise AI: ${item.title}`;
+  return item.title;
+}
+
+function pinRank(item: NewsItem): number {
+  if (item.binary_bet) return 2;
+  if (item.enterprise_ai) return 1;
+  return 0;
+}
+
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function CalendarView({
@@ -98,9 +116,10 @@ export function CalendarView({
           <ul>
             {undated.map((item) => (
               <li key={item.id}>
-                <button type="button" className={item.enterprise_ai ? "pill eai" : "pill"} onClick={() => onOpen(item.id)}>
+                <button type="button" className={pillClass(item)} onClick={() => onOpen(item.id)}>
                   <i style={{ background: industryColor(item.industry) }} aria-hidden="true" />
                   <span>
+                    {item.binary_bet ? <small className="binary-mark">Binary Bets</small> : null}
                     {item.enterprise_ai ? <small className="eai-mark">Enterprise AI</small> : null}
                     {item.title}
                     <small>{precisionLabel(item)}</small>
@@ -124,7 +143,7 @@ export function CalendarView({
               const iso = toISODate(date);
               const dayItems = pinned.get(iso) ?? [];
               const outside = date.getMonth() !== month;
-              const ranked = [...dayItems].sort((a, b) => Number(Boolean(b.enterprise_ai)) - Number(Boolean(a.enterprise_ai)));
+              const ranked = [...dayItems].sort((a, b) => pinRank(b) - pinRank(a) || a.title.localeCompare(b.title));
               const shown = ranked.length > 3 ? ranked.slice(0, 2) : ranked;
               const hidden = dayItems.length - shown.length;
               const counts = new Map<string, number>();
@@ -169,8 +188,8 @@ export function CalendarView({
                       <button
                         key={item.id}
                         type="button"
-                        className={item.enterprise_ai ? "pill eai" : "pill"}
-                        aria-label={item.enterprise_ai ? `Enterprise AI: ${item.title}` : item.title}
+                        className={pillClass(item)}
+                        aria-label={pillLabel(item)}
                         onClick={() => onOpen(item.id)}
                       >
                         <i style={{ background: industryColor(item.industry) }} aria-hidden="true" />

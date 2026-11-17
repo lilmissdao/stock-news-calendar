@@ -16,6 +16,7 @@ export const INDUSTRY_COLORS: Record<string, string> = {
   Space: "#7a6adf",
   Geopolitics: "#c44b4b",
   "Enterprise AI": "#c2410c",
+  "Binary Bets": "#3730a3",
 };
 
 const FALLBACK = ["#0f8f86", "#5b6cff", "#d4537e", "#e07a3d", "#3d7ec9", "#8b6cc4", "#2f9e6b", "#c4922a"];
@@ -41,6 +42,7 @@ const EVENT_LABELS: Record<string, string> = {
   market_move: "Market move",
   geopolitics: "Geopolitics",
   other: "Other",
+  phase3: "Phase 3",
   capacity: "Capacity",
   financing: "Financing",
   power: "Power",

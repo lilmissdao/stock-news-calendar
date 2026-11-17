@@ -50,6 +50,15 @@ export type NewsItem = {
   source_url?: string;
   source_label?: string;
   unconfirmed?: boolean;
+  binary_bet?: boolean;
+  binary_timing?: "confirmed" | "expected";
+  binary_type?: string;
+  drug?: string;
+  indication?: string;
+  success_means?: string;
+  miss_means?: string;
+  cash_line?: string;
+  outcome_line?: string;
 };
 
 export type MoveDir = "any" | "up" | "down";
@@ -64,9 +73,10 @@ export type FilterState = {
   moveDir: MoveDir;
   moveMin: string;
   enterpriseOnly: boolean;
+  binaryOnly: boolean;
 };
 
-export type ViewId = "calendar" | "list" | "ticker" | "stocks" | "connections" | "enterprise";
+export type ViewId = "calendar" | "list" | "ticker" | "stocks" | "connections" | "enterprise" | "binary";
 
 export type CautionLevel = "high" | "medium" | "low";
 

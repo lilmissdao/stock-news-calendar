@@ -47,9 +47,29 @@ export function Filters({
             type="button"
             className="chip"
             aria-pressed={value.enterpriseOnly}
-            onClick={() => onChange({ ...value, enterpriseOnly: !value.enterpriseOnly })}
+            onClick={() =>
+              onChange({
+                ...value,
+                enterpriseOnly: !value.enterpriseOnly,
+                binaryOnly: value.enterpriseOnly ? value.binaryOnly : false,
+              })
+            }
           >
             Enterprise AI
+          </button>
+          <button
+            type="button"
+            className="chip"
+            aria-pressed={value.binaryOnly}
+            onClick={() =>
+              onChange({
+                ...value,
+                binaryOnly: !value.binaryOnly,
+                enterpriseOnly: value.binaryOnly ? value.enterpriseOnly : false,
+              })
+            }
+          >
+            Binary Bets
           </button>
         </div>
       </fieldset>

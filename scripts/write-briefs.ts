@@ -1,8 +1,10 @@
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import binaryRaw from "../data/binary-bets.json";
 import news from "../data/news.json";
 import trackerRaw from "../data/enterprise-ai.json";
+import { loadBinary } from "../lib/binary";
 import { dayBrief, itemBrief, stockBrief } from "../lib/brief";
 import { loadTracker } from "../lib/enterprise";
 import { todayInNewYork } from "../lib/format";
@@ -82,9 +84,11 @@ const bySection = { deal: 0, neocloud: 0, datacenter: 0 };
 for (const item of tracker.items) {
   for (const section of item.tracker_sections ?? []) bySection[section] += 1;
 }
+const binary = loadBinary(binaryRaw);
+const binaryUpcoming = binary.items.filter((item) => item.status === "upcoming");
 
 const payload = {
-  note: "Built from data/news.json and data/stocks.json. Each line repeats a title, key number, price, move, or caution already in those files. The enterprise block only counts data/enterprise-ai.json.",
+  note: "Built from data/news.json and data/stocks.json. Each line repeats a title, key number, price, move, or caution already in those files. The enterprise block only counts data/enterprise-ai.json. The binary block only counts data/binary-bets.json.",
   asOf,
   days,
   stocks,
@@ -95,10 +99,27 @@ const payload = {
     bySection,
     unconfirmed: tracker.items.filter((item) => item.unconfirmed).length,
   },
+  binary: {
+    items: binary.items.length,
+    upcoming: binaryUpcoming.length,
+    resolved: binary.items.filter((item) => item.status === "resolved").length,
+    expected: binary.items.filter((item) => item.timing === "expected").length,
+    confirmed: binary.items.filter((item) => item.timing === "confirmed").length,
+    next: [...binaryUpcoming]
+      .sort((a, b) => a.date.localeCompare(b.date) || a.ticker.localeCompare(b.ticker))
+      .slice(0, 5)
+      .map((item) => ({
+        id: item.id,
+        ticker: item.ticker,
+        date: item.date,
+        window: item.date_window,
+        title: item.title,
+      })),
+  },
 };
 
 const path = join(root, "../data/briefs.json");
 writeFileSync(path, `${JSON.stringify(payload, null, 2)}\n`);
 console.log(
-  `Wrote ${path} as of ${asOf}: ${Object.keys(days).length} days, ${Object.keys(stocks).length} stocks, ${Object.keys(briefs).length} long items, ${tracker.items.length} enterprise items.`,
+  `Wrote ${path} as of ${asOf}: ${Object.keys(days).length} days, ${Object.keys(stocks).length} stocks, ${Object.keys(briefs).length} long items, ${tracker.items.length} enterprise items, ${binary.items.length} binary catalysts.`,
 );

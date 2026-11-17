@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { BinaryView } from "@/components/BinaryView";
 import { CalendarView } from "@/components/CalendarView";
 import { ConnectionsView } from "@/components/ConnectionsView";
 import { DetailDialog } from "@/components/DetailDialog";
@@ -12,6 +13,7 @@ import { StocksView } from "@/components/StocksView";
 import { TickerSearch } from "@/components/TickerSearch";
 import { TickerView } from "@/components/TickerView";
 import { UpcomingPanel } from "@/components/UpcomingPanel";
+import type { BinaryItem } from "@/lib/binary";
 import { sectionPath, type TrackerCompany } from "@/lib/enterprise";
 import { EMPTY_FILTERS, applyFilters, filtersActive } from "@/lib/filter";
 import { monthOfISO, parseISODate, todayInNewYork } from "@/lib/format";
@@ -26,18 +28,21 @@ const VIEWS: { id: ViewId; label: string }[] = [
   { id: "stocks", label: "Stocks" },
   { id: "connections", label: "Connections" },
   { id: "enterprise", label: "Enterprise AI" },
+  { id: "binary", label: "Binary Bets" },
 ];
 
 export function App({
   items,
   today: initialToday,
   companies,
+  binaryItems,
   initialView = "calendar",
   initialSection = "deal",
 }: {
   items: NewsItem[];
   today: string;
   companies: TrackerCompany[];
+  binaryItems: BinaryItem[];
   initialView?: ViewId;
   initialSection?: TrackerSection;
 }) {
@@ -175,15 +180,18 @@ export function App({
           <div className="view-switch" role="tablist" aria-label="Views">
             {VIEWS.map((entry) => {
               const selected = view === entry.id;
+              const onTracker = pathname.startsWith("/enterprise-ai") || pathname.startsWith("/binary-bets");
               const href =
                 entry.id === "enterprise"
                   ? sectionPath(initialSection)
-                  : pathname.startsWith("/enterprise-ai")
-                    ? entry.id === "calendar"
-                      ? "/"
-                      : `/?view=${entry.id}`
-                    : null;
-              if (href && !(selected && entry.id !== "enterprise")) {
+                  : entry.id === "binary"
+                    ? "/binary-bets"
+                    : onTracker
+                      ? entry.id === "calendar"
+                        ? "/"
+                        : `/?view=${entry.id}`
+                      : null;
+              if (href && !(selected && entry.id !== "enterprise" && entry.id !== "binary")) {
                 return (
                   <a key={entry.id} href={href} role="tab" id={`tab-${entry.id}`} aria-selected={selected} aria-controls="view-panel">
                     {entry.label}
@@ -209,9 +217,29 @@ export function App({
             type="button"
             className="eai-toggle"
             aria-pressed={filters.enterpriseOnly}
-            onClick={() => setFilters((current) => ({ ...current, enterpriseOnly: !current.enterpriseOnly }))}
+            onClick={() =>
+              setFilters((current) => ({
+                ...current,
+                enterpriseOnly: !current.enterpriseOnly,
+                binaryOnly: current.enterpriseOnly ? current.binaryOnly : false,
+              }))
+            }
           >
             Enterprise AI{filters.enterpriseOnly ? " · on" : ""}
+          </button>
+          <button
+            type="button"
+            className="binary-toggle"
+            aria-pressed={filters.binaryOnly}
+            onClick={() =>
+              setFilters((current) => ({
+                ...current,
+                binaryOnly: !current.binaryOnly,
+                enterpriseOnly: current.binaryOnly ? current.enterpriseOnly : false,
+              }))
+            }
+          >
+            Binary Bets{filters.binaryOnly ? " · on" : ""}
           </button>
           <button type="button" className="filter-toggle" aria-expanded={filtersOpen} onClick={() => setFiltersOpen((open) => !open)}>
             Filters{filtersActive(filters) ? " · on" : ""}
@@ -284,6 +312,7 @@ export function App({
               onOpen={openItem}
             />
           ) : null}
+          {view === "binary" ? <BinaryView items={filtered} records={binaryItems} onOpen={openItem} /> : null}
         </main>
         <UpcomingPanel
           items={filtered}

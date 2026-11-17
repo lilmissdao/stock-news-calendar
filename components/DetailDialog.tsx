@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { formatMarketCap, formatMove, formatPretty, formatPrice, precisionLabel } from "@/lib/format";
 import { itemBriefFor } from "@/lib/saved-briefs";
+import { CATALYST_LABELS, TIMING_LABELS } from "@/lib/binary";
 import { DEAL_STATUS_LABELS, DEAL_TYPE_LABELS } from "@/lib/enterprise";
 import { eventLabel, industryColor, LINK_LABELS, RELIANCE_LABELS, STATUS_LABELS } from "@/lib/taxonomy";
 import type { NewsItem } from "@/lib/types";
@@ -64,6 +65,7 @@ export function DetailDialog({
           <div className="detail-body">
             <p className="meta">
               <span>{formatPretty(item.date)}</span>
+              {item.binary_bet ? <span className="badge binary">Binary Bets</span> : null}
               {item.enterprise_ai ? <span className="badge enterprise">Enterprise AI</span> : null}
               {item.deal_status ? <span className={`badge enterprise ${item.deal_status}`}>{DEAL_STATUS_LABELS[item.deal_status]}</span> : null}
               {item.unconfirmed ? <span className="badge enterprise reported">Reported</span> : null}
@@ -84,10 +86,51 @@ export function DetailDialog({
                 <p>{item.key_number}</p>
               </figure>
             ) : null}
+            {item.drug ? (
+              <section>
+                <h3>Drug</h3>
+                <p>
+                  {item.drug}
+                  {item.indication ? ` for ${item.indication}` : ""}
+                </p>
+              </section>
+            ) : null}
+            {item.binary_timing ? (
+              <p className="meta">
+                <span className={`badge binary ${item.binary_timing}`}>{TIMING_LABELS[item.binary_timing]}</span>
+                {item.binary_type && item.binary_type in CATALYST_LABELS ? (
+                  <span className="badge binary">{CATALYST_LABELS[item.binary_type as keyof typeof CATALYST_LABELS]}</span>
+                ) : null}
+              </p>
+            ) : null}
             {item.why_it_matters ? (
               <section>
                 <h3>Why it matters</h3>
                 <p>{item.why_it_matters}</p>
+              </section>
+            ) : null}
+            {item.success_means ? (
+              <section>
+                <h3>If it works</h3>
+                <p>{item.success_means}</p>
+              </section>
+            ) : null}
+            {item.miss_means ? (
+              <section>
+                <h3>If it misses</h3>
+                <p>{item.miss_means}</p>
+              </section>
+            ) : null}
+            {item.cash_line ? (
+              <section>
+                <h3>Cash</h3>
+                <p>{item.cash_line}</p>
+              </section>
+            ) : null}
+            {item.outcome_line ? (
+              <section>
+                <h3>Stock move</h3>
+                <p>{item.outcome_line}</p>
               </section>
             ) : null}
             {item.source_url ? (

@@ -6,19 +6,21 @@ import { loadBinary, mergeBinary } from "@/lib/binary";
 import { loadTracker, mergeTracker } from "@/lib/enterprise";
 import { todayInNewYork } from "@/lib/format";
 import { normalizeNews } from "@/lib/news";
-import type { TrackerSection, ViewId } from "@/lib/types";
+import type { PharmaSection, TrackerSection, ViewId } from "@/lib/types";
 
 export function CalendarApp({
   initialView = "calendar",
   initialSection = "deal",
+  initialPharma = "news",
 }: {
   initialView?: ViewId;
   initialSection?: TrackerSection;
+  initialPharma?: PharmaSection;
 }) {
   const today = todayInNewYork();
   const tracker = loadTracker(rawTracker, today);
   const binary = loadBinary(rawBinary);
-  const items = mergeBinary(mergeTracker(normalizeNews(rawNews), tracker), binary);
+  const items = mergeBinary(mergeTracker(normalizeNews(rawNews), tracker), binary, today);
   return (
     <App
       items={items}
@@ -27,6 +29,7 @@ export function CalendarApp({
       binaryItems={binary.items}
       initialView={initialView}
       initialSection={initialSection}
+      initialPharma={initialPharma}
     />
   );
 }

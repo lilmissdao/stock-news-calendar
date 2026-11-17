@@ -30,6 +30,8 @@ export function ItemCard({
           <span className="meta">
             {showDate ? <span>{formatPretty(item.date)}</span> : null}
             {item.binary_bet ? <span className="badge binary">Binary Bets</span> : null}
+            {item.early_warning ? <span className="badge warn">Early warning</span> : null}
+            {item.tags?.includes("rare disease") ? <span className="badge rare">Rare disease</span> : null}
             {item.binary_timing ? (
               <span className={`badge binary ${item.binary_timing}`}>
                 {item.binary_timing === "expected" ? "Expected" : "Confirmed"}

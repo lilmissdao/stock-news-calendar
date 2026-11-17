@@ -11,6 +11,7 @@ export const EMPTY_FILTERS: FilterState = {
   moveMin: "",
   enterpriseOnly: false,
   binaryOnly: false,
+  earlyWarningOnly: false,
 };
 
 function parseBound(value: string): number | null {
@@ -31,7 +32,8 @@ export function filtersActive(filters: FilterState): boolean {
     filters.moveDir !== "any" ||
     filters.moveMin.trim() !== "" ||
     filters.enterpriseOnly ||
-    filters.binaryOnly
+    filters.binaryOnly ||
+    filters.earlyWarningOnly
   );
 }
 
@@ -48,6 +50,7 @@ export function applyFilters(items: NewsItem[], filters: FilterState): NewsItem[
     if (filters.eventType && item.event_type !== filters.eventType) return false;
     if (filters.enterpriseOnly && !item.enterprise_ai) return false;
     if (filters.binaryOnly && !item.binary_bet) return false;
+    if (filters.earlyWarningOnly && !item.early_warning) return false;
     if (filters.statuses.length > 0 && !filters.statuses.includes(item.status)) return false;
     if (query) {
       const tickerHit = item.tickers.some((ticker) => ticker.toLowerCase().includes(query));

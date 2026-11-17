@@ -2164,7 +2164,7 @@
       "Inovio",
       "Precigen"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "PGEN as much as -27% after hours",
     "price_mentioned": null,
@@ -2176,7 +2176,10 @@
       "2027-01-01-ino-voceryq-launch",
       "2026-11-02-ino-premarket"
     ],
-    "connection_notes": "The Oct 23 note expected an FDA decision on INO-3107. Oct 31: Voceryq was approved, and Precigen sold off after hours. Nov 2 digest: the study result, the plasmid-DNA description, and Monday's 230% premarket move. Precigen's after-hours drop stays on this row."
+    "connection_notes": "The Oct 23 note expected an FDA decision on INO-3107. Oct 31: Voceryq was approved, and Precigen sold off after hours. Nov 2 digest: the study result, the plasmid-DNA description, and Monday's 230% premarket move. Precigen's after-hours drop stays on this row.",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-11-01-fda-agio",
@@ -8357,7 +8360,7 @@
     "companies": [
       "Precigen"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "H1 sales $74.7M of $78.2M revenue",
     "price_mentioned": null,
@@ -8381,7 +8384,10 @@
     "graph_only": true,
     "link_kinds": {
       "node-ino-voceryq": "rival"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-ino-voceryq",
@@ -8396,7 +8402,7 @@
     "companies": [
       "Inovio"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Accelerated approval Oct 30, 2026",
     "price_mentioned": null,
@@ -8417,7 +8423,10 @@
       "cluster": "rrp",
       "order": 2
     },
-    "graph_only": true
+    "graph_only": true,
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-srpt-exondys51",
@@ -8432,7 +8441,7 @@
     "companies": [
       "Sarepta"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Exon-skipping family Q2 revenue $230.6M",
     "price_mentioned": {
@@ -8458,7 +8467,10 @@
     "graph_only": true,
     "link_kinds": {
       "node-dyn-dyne251": "rival"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-dyn-dyne251",
@@ -8473,7 +8485,7 @@
     "companies": [
       "Dyne"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "PDUFA Jan 21, 2027; dosed every 4 weeks",
     "price_mentioned": null,
@@ -8493,7 +8505,10 @@
       "cluster": "dmd",
       "order": 2
     },
-    "graph_only": true
+    "graph_only": true,
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-zvra-miplyffa",
@@ -8508,7 +8523,7 @@
     "companies": [
       "Zevra"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Q2 US sales $30.2M of $39.7M revenue",
     "price_mentioned": {
@@ -8535,7 +8550,10 @@
     "link_kinds": {
       "node-beren-adrabetadex": "rival",
       "node-intrabio-aqneursa": "unverified"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-beren-adrabetadex",
@@ -8548,7 +8566,7 @@
     "companies": [
       "Beren Therapeutics"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "PDUFA Nov 17, 2026; infantile-onset NPC only",
     "price_mentioned": null,
@@ -8571,7 +8589,10 @@
     "graph_only": true,
     "link_kinds": {
       "node-intrabio-aqneursa": "unverified"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-intrabio-aqneursa",
@@ -8584,7 +8605,7 @@
     "companies": [
       "IntraBio"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Approval for NPC not verified",
     "price_mentioned": null,
@@ -8605,7 +8626,10 @@
       "order": 3,
       "unverified": true
     },
-    "graph_only": true
+    "graph_only": true,
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-cprx-firdapse",
@@ -8620,7 +8644,7 @@
     "companies": [
       "Catalyst"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "2025 sales $358M; 2026 guide $435-450M",
     "price_mentioned": null,
@@ -8641,7 +8665,10 @@
     "graph_only": true,
     "link_kinds": {
       "node-firdapse-generics": "generic_threat"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-firdapse-generics",
@@ -8656,7 +8683,7 @@
       "Lupin",
       "Hetero"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Teva/Lupin entry 2035; Hetero patent case",
     "price_mentioned": null,
@@ -8675,7 +8702,10 @@
       "order": 2,
       "generic": true
     },
-    "graph_only": true
+    "graph_only": true,
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-boehringer-spevigo",
@@ -8688,7 +8718,7 @@
     "companies": [
       "Boehringer Ingelheim"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Only approved IL-36 drug for generalized pustular psoriasis",
     "price_mentioned": null,
@@ -8710,7 +8740,10 @@
     "graph_only": true,
     "link_kinds": {
       "node-vnda-quimilza": "rival"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-vnda-quimilza",
@@ -8725,7 +8758,7 @@
     "companies": [
       "Vanda"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "PDUFA Dec 12, 2026",
     "price_mentioned": null,
@@ -8744,7 +8777,10 @@
       "cluster": "gpp",
       "order": 2
     },
-    "graph_only": true
+    "graph_only": true,
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-clinuvel-scenesse",
@@ -8757,7 +8793,7 @@
     "companies": [
       "Clinuvel"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Only approved EPP treatment",
     "price_mentioned": null,
@@ -8780,7 +8816,10 @@
     "graph_only": true,
     "link_kinds": {
       "node-iron-bitopertin": "rival"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-iron-bitopertin",
@@ -8795,7 +8834,7 @@
     "companies": [
       "Disc Medicine"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Phase 3 APOLLO hit all endpoints; resubmission by end-2026",
     "price_mentioned": null,
@@ -8815,7 +8854,10 @@
       "cluster": "epp",
       "order": 2
     },
-    "graph_only": true
+    "graph_only": true,
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-roche-giredestrant",
@@ -8830,7 +8872,7 @@
     "companies": [
       "Roche"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "FDA decision pending; date unverified",
     "price_mentioned": null,
@@ -8860,7 +8902,10 @@
       "node-lly-inluriyo": "rival",
       "node-azn-camizestrant": "rival",
       "node-menarini-orserdu": "rival"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-rigl-veppanu",
@@ -8875,7 +8920,7 @@
     "companies": [
       "Rigel"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "$51.31, near a one-year high; Q3 earnings Nov 3",
     "price_mentioned": {
@@ -8906,7 +8951,10 @@
       "node-lly-inluriyo": "rival",
       "node-azn-camizestrant": "rival",
       "node-menarini-orserdu": "rival"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-lly-inluriyo",
@@ -8921,7 +8969,7 @@
     "companies": [
       "Eli Lilly"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Oral SERD imlunestrant",
     "price_mentioned": null,
@@ -8947,7 +8995,10 @@
     "link_kinds": {
       "node-azn-camizestrant": "rival",
       "node-menarini-orserdu": "rival"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-azn-camizestrant",
@@ -8962,7 +9013,7 @@
     "companies": [
       "AstraZeneca"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Oral SERD camizestrant",
     "price_mentioned": null,
@@ -8986,7 +9037,10 @@
     "graph_only": true,
     "link_kinds": {
       "node-menarini-orserdu": "rival"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-menarini-orserdu",
@@ -9000,7 +9054,7 @@
       "Menarini",
       "Stemline"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Oral SERD Orserdu",
     "price_mentioned": null,
@@ -9021,7 +9075,10 @@
       "cluster": "serd",
       "order": 5
     },
-    "graph_only": true
+    "graph_only": true,
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-arvn-veppanu",
@@ -9036,7 +9093,7 @@
     "companies": [
       "Arvinas"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "$7.30; Q3 earnings Nov 3",
     "price_mentioned": {
@@ -9062,7 +9119,10 @@
     "graph_only": true,
     "link_kinds": {
       "node-rigl-veppanu": "royalty"
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-xfor-xolremdi",
@@ -9077,7 +9137,7 @@
     "companies": [
       "X4 Pharmaceuticals"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Q2 sales $2.4M",
     "price_mentioned": null,
@@ -9093,7 +9153,10 @@
       "cluster": "monopoly",
       "order": 1
     },
-    "graph_only": true
+    "graph_only": true,
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-mirm-ctexli",
@@ -9108,7 +9171,7 @@
     "companies": [
       "Mirum"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "CTX; reliance low",
     "price_mentioned": null,
@@ -9124,7 +9187,10 @@
       "cluster": "monopoly",
       "order": 2
     },
-    "graph_only": true
+    "graph_only": true,
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "node-rytm-imcivree",
@@ -9139,7 +9205,7 @@
     "companies": [
       "Rhythm"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Q2 sales $71.3M",
     "price_mentioned": null,
@@ -9157,7 +9223,10 @@
       "cluster": "monopoly",
       "order": 3
     },
-    "graph_only": true
+    "graph_only": true,
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2027-01-01-ino-voceryq-launch",
@@ -9172,7 +9241,7 @@
     "companies": [
       "Inovio"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "other",
     "key_number": "Launch in about 60 days and full launch Q1 2027; protocol due Dec 30; completion by Dec 2031",
     "price_mentioned": null,
@@ -9184,7 +9253,10 @@
       "node-ino-voceryq",
       "2026-11-02-ino-premarket"
     ],
-    "connection_notes": "Follows the Oct 30, 2026 approval. Rivals Precigen's Papzimeos. Nov 2 digest: the launch window, the Dec 30 protocol and the Dec 2031 completion requirement. The quarter still is not a single day, so the date stays unpinned inside Q1 2027."
+    "connection_notes": "Follows the Oct 30, 2026 approval. Rivals Precigen's Papzimeos. Nov 2 digest: the launch window, the Dec 30 protocol and the Dec 2031 completion requirement. The quarter still is not a single day, so the date stays unpinned inside Q1 2027.",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-11-05-srpt-earnings",
@@ -9199,7 +9271,7 @@
     "companies": [
       "Sarepta"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "earnings",
     "key_number": "Q3 earnings Nov 5; exon-skipping family Q2 revenue $230.6M",
     "price_mentioned": null,
@@ -9210,7 +9282,10 @@
       "node-dyn-dyne251",
       "2027-01-21-dyn-pdufa"
     ],
-    "connection_notes": "The $18.62 price is the Oct 31 snapshot, not a Nov 5 print, so it is stored on the Sarepta bubble rather than this row."
+    "connection_notes": "The $18.62 price is the Oct 31 snapshot, not a Nov 5 print, so it is stored on the Sarepta bubble rather than this row.",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2027-01-21-dyn-pdufa",
@@ -9226,7 +9301,7 @@
       "Dyne",
       "Sarepta"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "PDUFA Jan 21, 2027",
     "price_mentioned": null,
@@ -9237,7 +9312,10 @@
       "node-srpt-exondys51",
       "node-dyn-dyne251"
     ],
-    "connection_notes": ""
+    "connection_notes": "",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-11-17-beren-adrabetadex-pdufa",
@@ -9253,7 +9331,7 @@
       "Beren Therapeutics",
       "Zevra"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "PDUFA Nov 17, 2026",
     "price_mentioned": null,
@@ -9264,7 +9342,10 @@
       "node-beren-adrabetadex",
       "node-intrabio-aqneursa"
     ],
-    "connection_notes": ""
+    "connection_notes": "",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-12-12-vnda-quimilza-pdufa",
@@ -9280,7 +9361,7 @@
       "Vanda",
       "Boehringer Ingelheim"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "PDUFA Dec 12, 2026",
     "price_mentioned": null,
@@ -9290,7 +9371,10 @@
       "node-vnda-quimilza",
       "node-boehringer-spevigo"
     ],
-    "connection_notes": ""
+    "connection_notes": "",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-12-01-iron-bitopertin-resubmission",
@@ -9306,7 +9390,7 @@
       "Disc Medicine",
       "Clinuvel"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "Resubmission planned by end-2026",
     "price_mentioned": null,
@@ -9317,7 +9401,10 @@
       "node-iron-bitopertin",
       "2027-06-01-iron-bitopertin-decision"
     ],
-    "connection_notes": "Month precision. The end-2026 window was stated as approximate."
+    "connection_notes": "Month precision. The end-2026 window was stated as approximate.",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2027-06-01-iron-bitopertin-decision",
@@ -9333,7 +9420,7 @@
       "Disc Medicine",
       "Clinuvel"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "Decision about mid-2027",
     "price_mentioned": null,
@@ -9344,7 +9431,10 @@
       "node-clinuvel-scenesse",
       "node-iron-bitopertin"
     ],
-    "connection_notes": "Month precision. Mid-2027 was stated as approximate, so June is only the middle of the year."
+    "connection_notes": "Month precision. Mid-2027 was stated as approximate, so June is only the middle of the year.",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-10-31-roche-giredestrant-pending",
@@ -9367,7 +9457,7 @@
       "Menarini",
       "Stemline"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "Advanced disease approved; early-disease date not in the Nov 17 note",
     "price_mentioned": null,
@@ -9378,7 +9468,10 @@
       "2026-11-30-roche-giredestrant-fda-early",
       "2026-12-18-roche-giredestrant-fda-advanced"
     ],
-    "connection_notes": "Left off a single day because the Oct 31 note says the date is unverified. Nov 17 digest. The advanced-disease use is no longer pending. This row stays developing because the note did not clear the early-disease decision. Prior key number: Decision date unverified."
+    "connection_notes": "Left off a single day because the Oct 31 note says the date is unverified. Nov 17 digest. The advanced-disease use is no longer pending. This row stays developing because the note did not clear the early-disease decision. Prior key number: Decision date unverified.",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-11-03-rigl-earnings",
@@ -9393,7 +9486,7 @@
     "companies": [
       "Rigel"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "earnings",
     "key_number": "Q3 earnings Nov 3; shares were $51.31",
     "price_mentioned": null,
@@ -9404,7 +9497,10 @@
       "node-arvn-veppanu",
       "2026-11-03-arvn-earnings"
     ],
-    "connection_notes": "The $51.31 price is the Oct 31 snapshot, stored on the Rigel bubble."
+    "connection_notes": "The $51.31 price is the Oct 31 snapshot, stored on the Rigel bubble.",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-11-03-arvn-earnings",
@@ -9419,7 +9515,7 @@
     "companies": [
       "Arvinas"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "earnings",
     "key_number": "Q3 earnings Nov 3; shares were $7.30",
     "price_mentioned": null,
@@ -9429,7 +9525,10 @@
       "2026-11-03-rigl-earnings",
       "node-arvn-veppanu"
     ],
-    "connection_notes": "The $7.30 price is the Oct 31 snapshot, stored on the Arvinas bubble."
+    "connection_notes": "The $7.30 price is the Oct 31 snapshot, stored on the Arvinas bubble.",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-09-28-egtx-emcitate",
@@ -9444,7 +9543,7 @@
     "companies": [
       "Egetis"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "FDA approval Sep 28, 2026",
     "price_mentioned": null,
@@ -9461,7 +9560,10 @@
       "market_cap_b": null,
       "cluster": "monopoly",
       "order": 4
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-11-22-savara-molgramostim",
@@ -9476,7 +9578,7 @@
     "companies": [
       "Savara"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "Nov 22 FDA goal date: Savara's Molbreevi",
     "price_mentioned": null,
@@ -9494,7 +9596,10 @@
       "market_cap_b": null,
       "cluster": "pdufa",
       "order": 1
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-11-22-capricor-deramiocel",
@@ -9509,7 +9614,7 @@
     "companies": [
       "Capricor"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "Nov 22 FDA decision on deramiocel; contested review",
     "price_mentioned": null,
@@ -9528,7 +9633,10 @@
       "market_cap_b": null,
       "cluster": "pdufa",
       "order": 2
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-11-27-bridgebio-bbp418",
@@ -9543,7 +9651,7 @@
     "companies": [
       "BridgeBio"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "FDA decision Nov 27 on BridgeBio BBP-418 (BBIO)",
     "price_mentioned": null,
@@ -9561,7 +9669,10 @@
       "market_cap_b": null,
       "cluster": "pdufa",
       "order": 3
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-12-30-saol-sl1009",
@@ -9574,7 +9685,7 @@
     "companies": [
       "Saol"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "First-ever-treatment PDUFA Dec 30, 2026",
     "price_mentioned": null,
@@ -9589,7 +9700,10 @@
       "market_cap_b": null,
       "cluster": "pdufa",
       "order": 4
-    }
+    },
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-11-02-futures",
@@ -10115,7 +10229,7 @@
     "companies": [
       "Inovio"
     ],
-    "industry": "Biotech / rare disease",
+    "industry": "Pharma/Biotech",
     "event_type": "fda",
     "key_number": "+230% premarket; 7 of 26 needed no surgery for 12 months; full launch Q1 2027",
     "price_mentioned": null,
@@ -10127,7 +10241,10 @@
       "node-pgen-papzimeos",
       "2027-01-01-ino-voceryq-launch"
     ],
-    "connection_notes": "Monday premarket reaction to Friday's approval. The approval, the rival Papzimeos reaction, and the launch timing are the linked items."
+    "connection_notes": "Monday premarket reaction to Friday's approval. The approval, the rival Papzimeos reaction, and the launch timing are the linked items.",
+    "tags": [
+      "rare disease"
+    ]
   },
   {
     "id": "2026-11-02-vrtx-earnings",
@@ -20178,8 +20295,8 @@
     "date": "2026-11-17",
     "date_precision": "day",
     "status": "happened",
-    "title": "Sellas up 7% after its AML vaccine hits the survival goal",
-    "summary": "Sellas is up 7% premarket. Its Phase 3 AML vaccine galinpepimut-S met its overall survival goal, with a 41% lower risk of death.",
+    "title": "Sellas up roughly 216% to 240% premarket after its AML vaccine hits the survival goal",
+    "summary": "Sellas was roughly 216% to 240% higher premarket, not 7%. Its Phase 3 AML vaccine galinpepimut-S met its overall survival goal, with a 41% lower risk of death. Yahoo Finance showed the stock opened at $24.00 after a $7.47 prior close and was about 173% higher midday.",
     "tickers": [
       "SLS"
     ],
@@ -20188,12 +20305,15 @@
     ],
     "industry": "Pharma/Biotech",
     "event_type": "trial",
-    "key_number": "Premarket +7%; overall survival goal met; 41% lower risk of death",
-    "price_mentioned": null,
-    "move_pct": 7,
+    "key_number": "Premarket roughly +216% to +240%; opened $24.00 from a $7.47 close; overall survival goal met",
+    "price_mentioned": {
+      "ticker": "SLS",
+      "price": 24
+    },
+    "move_pct": null,
     "source_digest_date": "2026-11-17",
     "related_ids": [],
-    "connection_notes": "move_pct is the +7% premarket move."
+    "connection_notes": "The earlier note said +7% premarket. Premarket quotes the same morning were roughly +216% to +240% and did not agree on one print, so move_pct stays unset. Yahoo Finance showed an open of $24.00 and a midday gain of about 173%."
   },
   {
     "id": "2026-11-17-nvo-cagrisema",

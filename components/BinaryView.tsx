@@ -6,9 +6,15 @@ import {
   CATALYST_LABELS,
   OUTCOME_LABELS,
   TIMING_LABELS,
+  cashRunway,
+  guidanceWasMissed,
+  isEarlyWarning,
+  type AnalystMove,
   type BinaryItem,
   type BinaryTiming,
   type CatalystType,
+  type EventCounter,
+  type GuidanceEntry,
 } from "@/lib/binary";
 import { formatPretty } from "@/lib/format";
 import type { NewsItem } from "@/lib/types";
@@ -25,23 +31,27 @@ function when(item: BinaryItem): string {
 export function BinaryView({
   items,
   records,
+  today,
   onOpen,
 }: {
   items: NewsItem[];
   records: BinaryItem[];
+  today: string;
   onOpen: (id: string) => void;
 }) {
   const [typesOn, setTypesOn] = useState<CatalystType[]>([]);
   const [timingOn, setTimingOn] = useState<BinaryTiming[]>([]);
+  const [warnOnly, setWarnOnly] = useState(false);
   const visible = useMemo(() => new Set(items.filter((item) => item.binary_bet).map((item) => item.id)), [items]);
   const rows = useMemo(() => {
     return records.filter((item) => {
       if (!visible.has(item.id)) return false;
       if (typesOn.length > 0 && !typesOn.includes(item.catalyst_type)) return false;
       if (timingOn.length > 0 && !timingOn.includes(item.timing)) return false;
+      if (warnOnly && !isEarlyWarning(item, today)) return false;
       return true;
     });
-  }, [records, visible, typesOn, timingOn]);
+  }, [records, visible, typesOn, timingOn, warnOnly, today]);
   const upcoming = rows
     .filter((item) => item.status === "upcoming")
     .sort((a, b) => a.date.localeCompare(b.date) || a.ticker.localeCompare(b.ticker));
@@ -95,6 +105,14 @@ export function BinaryView({
             ))}
           </div>
         </fieldset>
+        <fieldset>
+          <legend>Signal</legend>
+          <div className="chips">
+            <button type="button" className="chip" aria-pressed={warnOnly} onClick={() => setWarnOnly((on) => !on)}>
+              Early warning
+            </button>
+          </div>
+        </fieldset>
       </div>
       <section aria-labelledby="binary-upcoming">
         <h2 id="binary-upcoming">Upcoming</h2>
@@ -104,7 +122,7 @@ export function BinaryView({
         {upcoming.length === 0 ? <p className="empty">Nothing upcoming matches these filters.</p> : null}
         <div className="binary-list">
           {upcoming.map((item) => (
-            <BinaryCard key={item.id} item={item} onOpen={onOpen} />
+            <BinaryCard key={item.id} item={item} today={today} onOpen={onOpen} />
           ))}
         </div>
       </section>
@@ -117,7 +135,7 @@ export function BinaryView({
         {resolved.length === 0 ? <p className="empty">No resolved catalysts match these filters.</p> : null}
         <div className="binary-list">
           {resolved.map((item) => (
-            <BinaryCard key={item.id} item={item} onOpen={onOpen} />
+            <BinaryCard key={item.id} item={item} today={today} onOpen={onOpen} />
           ))}
         </div>
       </section>
@@ -125,8 +143,11 @@ export function BinaryView({
   );
 }
 
-function BinaryCard({ item, onOpen }: { item: BinaryItem; onOpen: (id: string) => void }) {
+function BinaryCard({ item, today, onOpen }: { item: BinaryItem; today: string; onOpen: (id: string) => void }) {
   const reported = item.facts.some((fact) => fact.reported) || item.cash?.reported === true || item.outcome?.reported === true;
+  const warning = isEarlyWarning(item, today);
+  const missed = guidanceWasMissed(item);
+  const guidance = [...item.guidance_history].sort((a, b) => a.date.localeCompare(b.date));
   return (
     <article className="binary-card">
       <header className="binary-head">
@@ -143,6 +164,8 @@ function BinaryCard({ item, onOpen }: { item: BinaryItem; onOpen: (id: string) =
             {BINARY_STATUS_LABELS[item.status]}
           </span>
           {reported ? <span className="badge binary reported">Reported</span> : null}
+          {warning ? <span className="badge warn">Early warning</span> : null}
+          {missed ? <span className="badge warn">Guidance missed</span> : null}
           {item.outcome ? (
             <span className={`badge binary ${item.outcome.result}`}>{OUTCOME_LABELS[item.outcome.result]}</span>
           ) : null}
@@ -169,9 +192,7 @@ function BinaryCard({ item, onOpen }: { item: BinaryItem; onOpen: (id: string) =
         </dd>
         <dt>Runway</dt>
         <dd>
-          {item.cash?.runway || "Not stated"}
-          {item.cash?.quarters ? ` Quarters: ${item.cash.quarters}.` : ""}
-          {item.cash?.quarters_note ? <small>{item.cash.quarters_note}</small> : null}
+          <RunwayLine item={item} />
         </dd>
         <dt>If it works</dt>
         <dd>{item.success_means}</dd>
@@ -179,6 +200,60 @@ function BinaryCard({ item, onOpen }: { item: BinaryItem; onOpen: (id: string) =
         <dd>{item.miss_means}</dd>
         <dt>Why it matters</dt>
         <dd>{item.why_it_matters}</dd>
+        {item.event_counter ? (
+          <>
+            <dt>Events</dt>
+            <dd>
+              <EventMeter counter={item.event_counter} />
+            </dd>
+          </>
+        ) : null}
+        {guidance.length > 0 ? (
+          <>
+            <dt>Guidance</dt>
+            <dd>
+              <GuidanceList entries={guidance} />
+            </dd>
+          </>
+        ) : null}
+        {item.short_interest ? (
+          <>
+            <dt>Short interest</dt>
+            <dd>
+              {item.short_interest.pct_float}% of float
+              {item.short_interest.days_to_cover != null ? `, ${item.short_interest.days_to_cover} days to cover` : ""} as of{" "}
+              {formatPretty(item.short_interest.as_of)}.{" "}
+              <a href={item.short_interest.source} target="_blank" rel="noreferrer">
+                {item.short_interest.source_label}
+              </a>
+            </dd>
+          </>
+        ) : null}
+        {item.analyst_moves.length > 0 ? (
+          <>
+            <dt>Analysts</dt>
+            <dd>
+              <AnalystList moves={item.analyst_moves} />
+            </dd>
+          </>
+        ) : null}
+        {item.prior_phase_data ? (
+          <>
+            <dt>Earlier phase</dt>
+            <dd>{item.prior_phase_data}</dd>
+          </>
+        ) : null}
+        {item.dilution ? (
+          <>
+            <dt>Dilution</dt>
+            <dd>
+              {item.dilution.summary}{" "}
+              <a href={item.dilution.source} target="_blank" rel="noreferrer">
+                {item.dilution.source_label}
+              </a>
+            </dd>
+          </>
+        ) : null}
         {item.outcome ? (
           <>
             <dt>Stock move</dt>
@@ -206,5 +281,83 @@ function BinaryCard({ item, onOpen }: { item: BinaryItem; onOpen: (id: string) =
         Open this catalyst
       </button>
     </article>
+  );
+}
+
+function RunwayLine({ item }: { item: BinaryItem }) {
+  const runway = cashRunway(item);
+  return (
+    <>
+      <span className={runway.tone ? `runway ${runway.tone}` : "runway"}>{runway.line}</span>
+      {runway.company ? <small>Company: {runway.company}</small> : null}
+      {runway.spendMore ? <span className="badge warn">Company plans to spend more</span> : null}
+      {item.quarterly_burn ? (
+        <small>
+          {item.quarterly_burn.basis === "net loss / quarters" ? "Net loss" : "Operating cash used"},{" "}
+          {item.quarterly_burn.period}, about ${Math.round(item.quarterly_burn.amount_usd / 1_000_000)} million a quarter.{" "}
+          <a href={item.quarterly_burn.source} target="_blank" rel="noreferrer">
+            {item.quarterly_burn.source_label}
+          </a>
+        </small>
+      ) : null}
+      {item.cash?.quarters ? <small>Company quarter count: {item.cash.quarters}.</small> : null}
+      {item.cash?.quarters_note ? <small>{item.cash.quarters_note}</small> : null}
+    </>
+  );
+}
+
+function EventMeter({ counter }: { counter: EventCounter }) {
+  const pct = Math.max(0, Math.min(100, (counter.current / counter.target) * 100));
+  return (
+    <>
+      <div
+        className="event-meter"
+        role="progressbar"
+        aria-valuenow={counter.current}
+        aria-valuemin={0}
+        aria-valuemax={counter.target}
+        aria-label={`${counter.current} of ${counter.target} events`}
+      >
+        <span style={{ width: `${pct}%` }} />
+      </div>
+      <small>
+        {counter.current} of {counter.target} as of {formatPretty(counter.as_of)}.{" "}
+        <a href={counter.source} target="_blank" rel="noreferrer">
+          {counter.source_label}
+        </a>
+      </small>
+    </>
+  );
+}
+
+function GuidanceList({ entries }: { entries: GuidanceEntry[] }) {
+  return (
+    <ol className="guidance-list">
+      {entries.map((entry) => (
+        <li key={`${entry.date}-${entry.wording}`}>
+          {formatPretty(entry.date)}: {entry.wording}
+          {entry.missed ? <span className="badge warn">Missed</span> : null}{" "}
+          <a href={entry.source} target="_blank" rel="noreferrer">
+            {entry.source_label}
+          </a>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function AnalystList({ moves }: { moves: AnalystMove[] }) {
+  const ordered = [...moves].sort((a, b) => a.date.localeCompare(b.date));
+  return (
+    <ol className="guidance-list">
+      {ordered.map((move) => (
+        <li key={`${move.date}-${move.firm}-${move.target}`}>
+          {formatPretty(move.date)}: {move.firm} {move.action}, target {move.target}.{" "}
+          <a href={move.source} target="_blank" rel="noreferrer">
+            {move.source_label}
+          </a>
+        </li>
+      ))}
+    </ol>
   );
 }

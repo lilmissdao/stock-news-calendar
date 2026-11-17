@@ -120,6 +120,7 @@ export function CalendarView({
                   <i style={{ background: industryColor(item.industry) }} aria-hidden="true" />
                   <span>
                     {item.binary_bet ? <small className="binary-mark">Binary Bets</small> : null}
+                    {item.early_warning ? <small className="warn-mark">Early warning</small> : null}
                     {item.enterprise_ai ? <small className="eai-mark">Enterprise AI</small> : null}
                     {item.title}
                     <small>{precisionLabel(item)}</small>
@@ -193,7 +194,10 @@ export function CalendarView({
                         onClick={() => onOpen(item.id)}
                       >
                         <i style={{ background: industryColor(item.industry) }} aria-hidden="true" />
-                        <span>{item.title}</span>
+                        <span>
+                          {item.early_warning ? <small className="warn-mark">Early warning</small> : null}
+                          {item.title}
+                        </span>
                       </button>
                     ))}
                     {hidden > 0 ? (

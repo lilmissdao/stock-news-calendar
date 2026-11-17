@@ -860,8 +860,8 @@
       "lead": "23 happened, 7 still open, 4 coming up. Calling out 5 of 34.",
       "bullets": [
         "Happened. RCAT: Red Cat about -26% after a Q3 miss and a pulled target. Q3 revenue $11.8M vs $39.5M; FY26 revenue target pulled; about -26% premarket.",
-        "Happened. SLS: Sellas up 7% after its AML vaccine hits the survival goal. Premarket +7%; overall survival goal met; 41% lower risk of death.",
         "Happened. JD: JD.com misses Q3 estimates. Revenue 309.6B yuan vs 311.5B; adjusted profit 8.3B yuan vs 8.59B; about -3.4% premarket.",
+        "Happened. DIS: Disney beats with $1.77 adjusted EPS and $25.95B revenue. $1.77 adjusted EPS vs $1.67; revenue $25.95B vs $25.18B; $3B of cost cuts by fiscal 2029; about +2%.",
         "Ahead. ANT: Anthropic IPO order book closes at 4pm.",
         "Ahead. NVDA: Nvidia reports Q3 Nov 17, the first print after Huang resigned. About 4:20 pm, call 5 pm; consensus about $2.48 to $2.49 EPS on about $109B revenue; Monday -4.1%; premarket roughly flat to +1%."
       ]
@@ -1064,7 +1064,7 @@
       ],
       "lead": "1 coming up.",
       "bullets": [
-        "Ahead. Biotech / rare disease: PDUFA: Saol SL1009. First-ever-treatment PDUFA Dec 30, 2026."
+        "Ahead. Pharma/Biotech: PDUFA: Saol SL1009. First-ever-treatment PDUFA Dec 30, 2026."
       ]
     },
     "2027-01-19": {
@@ -2218,6 +2218,7 @@
     "2026-11-16-orcl-drop": "Oracle fell about 5% Monday to around $120.",
     "2026-11-17-orcl-leases": "Developers are demanding multibillion-dollar financial guarantees from Oracle before signing new data center leases.",
     "2026-11-17-china-ai": "Alibaba fell as much as 5.6% and Baidu fell as much as 6.6% in Hong Kong on the US chip curbs.",
+    "2026-11-17-sls": "Sellas was roughly 216% to 240% higher premarket, not 7%.",
     "2026-11-17-rcat": "Q3 revenue $11.8M vs $39.5M; FY26 revenue target pulled; about -26% premarket",
     "2026-11-17-anthropic-compute": "Anthropic's compute deals with Alphabet and Amazon are still in focus."
   },
@@ -2237,6 +2238,17 @@
     "resolved": 2,
     "expected": 5,
     "confirmed": 22,
+    "earlyWarning": [
+      "bb-2026-11-22-capr",
+      "bb-2026-11-22-svra",
+      "bb-2026-11-27-bbio-bbp418",
+      "bb-2026-11-28-pypd",
+      "bb-2026-11-30-cogt-gist",
+      "bb-2026-12-12-vnda",
+      "bb-2026-12-kod-peak",
+      "bb-2026-q4-annx",
+      "bb-2026-q4-help"
+    ],
     "next": [
       {
         "id": "bb-2026-11-22-capr",

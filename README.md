@@ -21,7 +21,8 @@ The search box in the top bar matches a ticker or a company name as you type. `n
 - **List** is the same filtered set as a timeline.
 - **Ticker** picks one symbol and shows its items in order. A price line is drawn only from `price_mentioned` rows whose ticker is the one you picked. Percent moves are markers from `move_pct`. Filled markers are items that name only that ticker. Open markers name several tickers, so the percent may describe the group or the tape rather than that symbol alone. Linked items from `related_ids` can be shown on the same timeline, including reactions that land on a later date. If that symbol has a story page, a Story button opens it.
 - **Stocks** is one page per major ticker: a short summary of what happened, what’s coming, and the outside risks, then the dated history, upcoming catalysts, cautions, and links to related stocks and calendar items. The list of tickers lives in `data/stocks.json`. Recent items come from `data/news.json`. Older rows in that file are a researched backfill. A figure is included only when a source states it.
-- **Connections** is a graph of `related_ids`. Drag to pan, drag a node to move it, and click a node for the write-up. Two reading paths are laid out from links already in the file: Meta capex → Nvidia → CoreWeave debt → rates, and Iran / oil → airlines and defense. **Biotech drug rivalries** draws company/drug bubbles. Size is reliance on that drug (very high means the only product), nudged by a stated market cap. A solid line is a rival drug, a dashed line is a generic threat, a dotted line is a royalty, and a faint dashed line was not verified.
+- **Connections** is a graph of `related_ids`. Drag to pan, drag a node to move it, and click a node for the write-up. Two reading paths are laid out from links already in the file: Meta capex → Nvidia → CoreWeave debt → rates, and Iran / oil → airlines and defense. **Biotech drug rivalries** draws a bubble for every row that has a `graph_node`. Size is reliance on that drug (very high means the only product), nudged by a stated market cap. A solid line is a rival drug, a dashed line is a generic threat, a dotted line is a royalty, and a faint dashed line was not verified. Those rows are Pharma/Biotech, so the Pharma/Biotech industry filter keeps the set on screen.
+- **Pharma/Biotech** is one area with three sections: the Pharma/Biotech news, the drug-rivalry graph, and Binary Bets. Open [http://localhost:3000/pharma](http://localhost:3000/pharma). `/pharma/rivalries` is the graph. `/pharma/binary-bets` is the catalyst list. `/binary-bets` redirects there. Binary Bets is not its own top-level tab.
 - **Upcoming**, in the side column, is the next 14 days of items whose status is `upcoming`. It follows the filters.
 
 Filters (industry, ticker or company or headline, event type, status, stated price range, and move direction plus a minimum size) apply to every view. Prices and moves are never filled in when the file leaves them null.
@@ -42,7 +43,8 @@ Light and dark follow the system preference until you toggle them. The choice is
 | `summary` | One or two plain sentences. |
 | `tickers` | Symbols, or `[]`. |
 | `companies` | Names, or `[]`. |
-| `industry` | Free text. Known industries get a stable color; a new one still gets a color. |
+| `industry` | Free text. Known industries get a stable color; a new one still gets a color. Rare-disease rows use `Pharma/Biotech`, not a separate industry. |
+| `tags` | Optional list of strings. `rare disease` marks a row that used to be filed under Biotech / rare disease. Use `[]` or omit the field when there is no tag. |
 | `event_type` | `earnings`, `fda`, `trial`, `fed`, `macro_data`, `policy`, `deal`, `ipo`, `lockup`, `analyst`, `market_move`, `geopolitics`, or `other`. |
 | `key_number` | The figure worth remembering, or `""`. |
 | `price_mentioned` | `{ "ticker": "ORCL", "price": 136 }` or `null`. Do not invent a price. |
@@ -50,7 +52,7 @@ Light and dark follow the system preference until you toggle them. The choice is
 | `source_digest_date` | `YYYY-MM-DD` the note was written down. |
 | `related_ids` | Ids of connected items. Use `[]` when nothing connects. |
 | `connection_notes` | Why the links exist, or `""`. |
-| `graph_node` | Optional. Present when the row is a bubble on Biotech drug rivalries: `label`, `drug`, `reliance` (`very_high`, `high`, `medium`, `low`, or null), `market_cap_b` (billions, or null), `cluster`, `order`. |
+| `graph_node` | Optional. Present when the row is a bubble on Biotech drug rivalries. The graph uses this field, not the industry name. Fields: `label`, `drug`, `reliance` (`very_high`, `high`, `medium`, `low`, or null), `market_cap_b` (billions, or null), `cluster`, `order`. |
 | `graph_only` | Optional `true`. Hides the row from the calendar. Use it for a company bubble that is not itself a dated event. |
 | `link_kinds` | Optional map of a related id to `rival`, `generic_threat`, `royalty`, or `unverified`. |
 
@@ -153,7 +155,7 @@ A company needs `id`, `name`, `ticker` (`""` if private), `sections`, `card_in` 
 
 ## Binary Bets
 
-Open [http://localhost:3000/binary-bets](http://localhost:3000/binary-bets). The same page is the Binary Bets tab. On the calendar, these rows use a Binary Bets badge and an indigo bar, separate from the amber Enterprise AI bar. The Binary Bets button in the top bar keeps only those rows. A month or quarter stays in the undated strip. Only a confirmed day is pinned to a cell.
+Open [http://localhost:3000/pharma/binary-bets](http://localhost:3000/pharma/binary-bets). That page is the Binary Bets section inside Pharma/Biotech. [http://localhost:3000/binary-bets](http://localhost:3000/binary-bets) redirects there. On the calendar, these rows use industry Pharma/Biotech, a Binary Bets badge, and an indigo bar, separate from the amber Enterprise AI bar. The Binary Bets button in the top bar keeps only those rows. The Early warning button, and the same chip in Filters and on the Binary Bets page, keeps only catalysts the code has flagged. A month or quarter stays in the undated strip. Only a confirmed day is pinned to a cell.
 
 `data/binary-bets.json` is the file to edit. `npm run briefs` checks it and writes a count into `data/briefs.json`. It does not copy the rows into `data/news.json`. The site merges them at build time.
 
@@ -177,6 +179,14 @@ One object in `items` is one catalyst.
 | `facts` | At least one. Each fact is `label`, `value`, `source` (https), `source_label`, and `reported` (`true` when the figure was not read from a company filing or company page). One fact label must name the date or the window. Cash and market cap, when present, need their own facts. |
 | `title`, `summary`, `key_number` | The calendar headline, one or two sentences, and the figure worth remembering. |
 | `related_ids` | Other ids in this file. |
+| `event_counter` | Optional. `{ "current", "target", "as_of", "source", "source_label" }` for an event-driven trial, such as 78 of 80 deaths. The card draws a progress bar. Omit it, or use `null`, when there is no count. |
+| `guidance_history` | Optional list of `{ "date", "wording", "source", "source_label", "missed" }`. `wording` is the company's timing language. `missed` is true when that guided date passed without the event. The card shows a Guidance missed badge if any row is missed. |
+| `short_interest` | Optional. `{ "pct_float", "days_to_cover", "as_of", "source", "source_label" }`. `days_to_cover` may be `null` when a source states the percent and not the days. |
+| `analyst_moves` | Optional list of `{ "date", "firm", "action", "target", "source", "source_label" }`. |
+| `prior_phase_data` | Optional plain-English line comparing an earlier-phase result with standard of care, or `""`. |
+| `dilution` | Optional. `{ "summary", "source", "source_label" }`. The summary is the share-count trend and recent offerings, warrants, or at-the-market use. |
+| `early_warning` | Do not put this in the file. `npm run briefs` and the site compute it. An upcoming catalyst is flagged when any of these is true: the event counter is at least 90% of its target, the latest guidance wording is this quarter or sooner (including a named month or quarter that is the current one), or the catalyst `date` is today or within the next 30 days. For an expected month or quarter, that date is the first day of the window. A resolved catalyst is not flagged. The flag is a red Early warning badge on the card, on the calendar item, and in the filters. |
+| `quarterly_burn` | Optional. `{ "amount_usd", "basis", "period", "source", "source_label" }`. `amount_usd` is one quarter of burn in dollars, the year-to-date figure divided by the number of quarters in `period`, rounded to the nearest dollar. `basis` is `net cash used in operating activities, YTD / quarters`, or `net loss / quarters` when the cash-flow line was not in the filing. The card does not store the runway. It computes `runway months = cash / (quarterly burn / 3)` from the first dollar amount in `cash.on_hand`, rounds to the nearest month, and shows that as quarters and years. The color follows the rounded quarter count: fewer than 4 quarters (under 12 months) is red, 4 to 8 quarters (12 to 24 months) is amber, and 9 or more (over 24 months) is green. The company’s own `cash.runway` words sit beside it. If those words name an end such as “into 2028” and that end is at least 12 months shorter than the computed runway, the card says the company plans to spend more. “At least 12 months” is not treated as an end date. If cash is not a dollar figure, or burn was not read, the card says `Runway: not computed` and why. |
 
 Do not invent a date, a price, a percent, or a dollar amount. Leave the field empty, or mark the fact `reported`, when the number is only in a news report.
 

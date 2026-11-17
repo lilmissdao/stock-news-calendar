@@ -66,6 +66,8 @@ export function DetailDialog({
             <p className="meta">
               <span>{formatPretty(item.date)}</span>
               {item.binary_bet ? <span className="badge binary">Binary Bets</span> : null}
+              {item.early_warning ? <span className="badge warn">Early warning</span> : null}
+              {item.tags?.includes("rare disease") ? <span className="badge rare">Rare disease</span> : null}
               {item.enterprise_ai ? <span className="badge enterprise">Enterprise AI</span> : null}
               {item.deal_status ? <span className={`badge enterprise ${item.deal_status}`}>{DEAL_STATUS_LABELS[item.deal_status]}</span> : null}
               {item.unconfirmed ? <span className="badge enterprise reported">Reported</span> : null}

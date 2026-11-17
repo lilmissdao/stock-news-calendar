@@ -71,6 +71,14 @@ export function Filters({
           >
             Binary Bets
           </button>
+          <button
+            type="button"
+            className="chip"
+            aria-pressed={value.earlyWarningOnly}
+            onClick={() => onChange({ ...value, earlyWarningOnly: !value.earlyWarningOnly })}
+          >
+            Early warning
+          </button>
         </div>
       </fieldset>
       <label className="field grow">

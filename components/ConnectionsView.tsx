@@ -15,13 +15,16 @@ export function ConnectionsView({
   byId,
   selectedId,
   onOpen,
+  story,
 }: {
   items: NewsItem[];
   byId: Map<string, NewsItem>;
   selectedId: string | null;
   onOpen: (id: string) => void;
+  story?: string;
 }) {
-  const [storyId, setStoryId] = useState<string>("capex");
+  const [storyId, setStoryId] = useState<string>(story ?? "capex");
+  const activeStory = story ?? storyId;
   const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
   const linkItems = useMemo(() => items.filter((item) => !item.graph_only), [items]);
   const edges = useMemo(() => undirectedEdges(linkItems), [linkItems]);
@@ -34,25 +37,27 @@ export function ConnectionsView({
     return [...ids];
   }, [edges]);
   const isolates = linkItems.filter((item) => !linkedIds.includes(item.id));
-  const story = STORIES.find((entry) => entry.id === storyId) ?? null;
+  const active = STORIES.find((entry) => entry.id === activeStory) ?? null;
   const rivalryCount = items.filter((item) => item.graph_node).length;
 
   return (
     <div className="graph-view">
+      {story ? null : (
       <div className="graph-tools">
-        <button type="button" aria-pressed={storyId === "all"} onClick={() => setStoryId("all")}>
+        <button type="button" aria-pressed={activeStory === "all"} onClick={() => setStoryId("all")}>
           All links
         </button>
         {STORIES.map((entry) => (
-          <button key={entry.id} type="button" aria-pressed={storyId === entry.id} onClick={() => setStoryId(entry.id)}>
+          <button key={entry.id} type="button" aria-pressed={activeStory === entry.id} onClick={() => setStoryId(entry.id)}>
             {entry.title}
           </button>
         ))}
       </div>
-      {story?.id === "drug-rivalries" ? (
+      )}
+      {active?.id === "drug-rivalries" ? (
         <RivalryGraph items={items} byId={byId} selectedId={selectedId} hover={hover} onHover={setHover} onOpen={onOpen} />
-      ) : story ? (
-        <StoryGraph storyId={story.id} items={items} byId={byId} selectedId={selectedId} onOpen={onOpen} />
+      ) : active ? (
+        <StoryGraph storyId={active.id} items={items} byId={byId} selectedId={selectedId} onOpen={onOpen} />
       ) : (
         <ForceGraph
           ids={linkedIds}
@@ -64,11 +69,11 @@ export function ConnectionsView({
           onOpen={onOpen}
         />
       )}
-      {story?.id === "drug-rivalries" ? null : <Legend items={linkItems} />}
-      {storyId === "all" && rivalryCount > 0 ? (
+      {active?.id === "drug-rivalries" ? null : <Legend items={linkItems} />}
+      {activeStory === "all" && rivalryCount > 0 ? (
         <p className="chart-note">Sized drug-rivalry bubbles are on Biotech drug rivalries. Bubble size is reliance on that drug.</p>
       ) : null}
-      {storyId === "all" && isolates.length > 0 ? (
+      {activeStory === "all" && isolates.length > 0 ? (
         <section className="isolates">
           <h3>No links to other visible items</h3>
           <ul>
@@ -527,7 +532,7 @@ function RivalryLegend() {
             return (
               <li key={entry.label}>
                 <svg width={radius * 2 + 4} height={radius * 2 + 4} aria-hidden="true">
-                  <circle cx={radius + 2} cy={radius + 2} r={radius} fill={industryColor("Biotech / rare disease")} />
+                  <circle cx={radius + 2} cy={radius + 2} r={radius} fill={industryColor("Pharma/Biotech")} />
                 </svg>
                 {entry.label}
               </li>
@@ -548,8 +553,8 @@ function RivalryLegend() {
             </li>
           ))}
           <li>
-            <i style={{ background: industryColor("Biotech / rare disease") }} />
-            Biotech / rare disease
+            <i style={{ background: industryColor("Pharma/Biotech") }} />
+            Pharma/Biotech
           </li>
         </ul>
       </div>

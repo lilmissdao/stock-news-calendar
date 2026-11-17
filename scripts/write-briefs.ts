@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import binaryRaw from "../data/binary-bets.json";
 import news from "../data/news.json";
 import trackerRaw from "../data/enterprise-ai.json";
-import { loadBinary } from "../lib/binary";
+import { isEarlyWarning, loadBinary } from "../lib/binary";
 import { dayBrief, itemBrief, stockBrief } from "../lib/brief";
 import { loadTracker } from "../lib/enterprise";
 import { todayInNewYork } from "../lib/format";
@@ -105,6 +105,7 @@ const payload = {
     resolved: binary.items.filter((item) => item.status === "resolved").length,
     expected: binary.items.filter((item) => item.timing === "expected").length,
     confirmed: binary.items.filter((item) => item.timing === "confirmed").length,
+    earlyWarning: binary.items.filter((item) => isEarlyWarning(item, asOf)).map((item) => item.id),
     next: [...binaryUpcoming]
       .sort((a, b) => a.date.localeCompare(b.date) || a.ticker.localeCompare(b.ticker))
       .slice(0, 5)

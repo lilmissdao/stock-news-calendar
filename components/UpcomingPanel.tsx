@@ -46,7 +46,10 @@ export function UpcomingPanel({
                 <i style={{ background: industryColor(item.industry) }} aria-hidden="true" />
                 <span>
                   <span className="up-date">{formatPretty(item.date)}</span>
-                  <span className="up-title">{item.title}</span>
+                  <span className="up-title">
+                    {item.early_warning ? <span className="badge warn">Early warning</span> : null}
+                    {item.title}
+                  </span>
                   {item.key_number ? <span className="up-key">{item.key_number}</span> : null}
                 </span>
               </button>

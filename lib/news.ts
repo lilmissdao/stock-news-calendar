@@ -85,6 +85,7 @@ export function normalizeNews(raw: unknown): NewsItem[] {
         : date,
       related_ids: asStringList(record.related_ids),
       connection_notes: asString(record.connection_notes),
+      tags: asStringList(record.tags),
       graph_node: asGraphNode(record.graph_node),
       graph_only: record.graph_only === true,
       link_kinds: asLinkKinds(record.link_kinds),

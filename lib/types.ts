@@ -59,6 +59,8 @@ export type NewsItem = {
   miss_means?: string;
   cash_line?: string;
   outcome_line?: string;
+  tags?: string[];
+  early_warning?: boolean;
 };
 
 export type MoveDir = "any" | "up" | "down";
@@ -74,9 +76,12 @@ export type FilterState = {
   moveMin: string;
   enterpriseOnly: boolean;
   binaryOnly: boolean;
+  earlyWarningOnly: boolean;
 };
 
-export type ViewId = "calendar" | "list" | "ticker" | "stocks" | "connections" | "enterprise" | "binary";
+export type PharmaSection = "news" | "rivalries" | "binary";
+
+export type ViewId = "calendar" | "list" | "ticker" | "stocks" | "connections" | "enterprise" | "pharma";
 
 export type CautionLevel = "high" | "medium" | "low";
 

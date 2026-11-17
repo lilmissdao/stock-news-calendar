@@ -1,5 +1,5 @@
 {
-  "note": "Binary bets: one object in items is one catalyst that can reprice a small or mid-cap biotech. timing confirmed means a company filing or release states the day. timing expected means the company stated a month or quarter, and date is the first day of that window so the row stays off a guessed day. status upcoming is still ahead. status resolved is already decided and needs an outcome. market_cap stays empty when the sources used do not state one. cash is null when no cash figure was read. quarters is empty when the company did not give a count that can be restated; do not invent a burn-rate runway. reported true means the figure was read from a news report rather than a company filing or company page. Every number in facts needs a source. Do not invent a date, a price, a percent, or a dollar amount. After editing, run npm run briefs.",
+  "note": "Binary bets: one object in items is one catalyst that can reprice a small or mid-cap biotech. timing confirmed means a company filing or release states the day. timing expected means the company stated a month or quarter, and date is the first day of that window so the row stays off a guessed day. status upcoming is still ahead. status resolved is already decided and needs an outcome. market_cap stays empty when the sources used do not state one. cash is null when no cash figure was read. quarters is empty when the company did not give a count that can be restated; do not invent a burn-rate runway. reported true means the figure was read from a news report rather than a company filing or company page. Optional fields, each omitted or null when unsourced: event_counter, guidance_history, short_interest, analyst_moves, prior_phase_data, and dilution. guidance_history.missed is true when that guided date passed without the event. Do not set early_warning; the site computes it. Every number in facts needs a source. Do not invent a date, a price, a percent, or a dollar amount. After editing, run npm run briefs.",
   "items": [
     {
       "id": "bb-2026-11-22-capr",
@@ -55,7 +55,21 @@
       "title": "Binary: Capricor deramiocel PDUFA",
       "summary": "The FDA's target date for Capricor's Deramiocel, a cell therapy for Duchenne, is November 22, 2026. Cash was $198.5 million on September 30, which the company says funds at least the next 12 months.",
       "key_number": "PDUFA Nov 22, 2026. Cash $198.5 million on Sep 30, at least 12 months.",
-      "related_ids": []
+      "related_ids": [],
+      "short_interest": {
+        "pct_float": 35.6,
+        "days_to_cover": 7.4,
+        "as_of": "2026-10-30",
+        "source": "https://tradeainews.com/stocks/capr",
+        "source_label": "TradeAI News, FINRA settlement Oct 30, 2026"
+      },
+      "quarterly_burn": {
+        "amount_usd": 32142737,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1133869/000110465926125355/capr-20260930x10q.htm",
+        "source_label": "Capricor 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-11-22-svra",
@@ -111,7 +125,14 @@
       "title": "Binary: Savara MOLBREEVI PDUFA",
       "summary": "Savara's only drug, inhaled MOLBREEVI for autoimmune pulmonary alveolar proteinosis, has an FDA target date of November 22, 2026. Cash and short-term investments were $129.6 million on September 30.",
       "key_number": "PDUFA Nov 22, 2026. Cash plus short-term investments $129.6 million.",
-      "related_ids": []
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 35085667,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1160308/000119312526453535/svra-20260930.htm",
+        "source_label": "Savara 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-11-27-bbio-bbp418",
@@ -167,7 +188,17 @@
       "title": "Binary: BridgeBio BBP-418 PDUFA",
       "summary": "BridgeBio's BBP-418 for limb-girdle muscular dystrophy type 2I/R9 has an FDA target date of November 27, 2026. The company already sells Attruby and says its $1.5 billion cash balance funds three launches.",
       "key_number": "PDUFA Nov 27, 2026. Cash $1.5 billion on Sep 30.",
-      "related_ids": ["bb-2027-02-04-bbio-infigratinib", "bb-2027-05-08-bbio-encaleret"]
+      "related_ids": [
+        "bb-2027-02-04-bbio-infigratinib",
+        "bb-2027-05-08-bbio-encaleret"
+      ],
+      "quarterly_burn": {
+        "amount_usd": 104183333,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1743881/000174388126000034/bbio-20260930.htm",
+        "source_label": "BridgeBio 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-11-28-pypd",
@@ -223,7 +254,21 @@
       "title": "Binary: PolyPid D-PLEX100 PDUFA",
       "summary": "PolyPid's D-PLEX100, a local antibiotic for preventing infection after colorectal surgery, has an FDA goal date of November 28, 2026. September 30 cash was $15.5 million, before a $15 million partner payment in October.",
       "key_number": "PDUFA Nov 28, 2026. Cash $15.5 million on Sep 30, plus $15 million received in October.",
-      "related_ids": []
+      "related_ids": [],
+      "short_interest": {
+        "pct_float": 5.02,
+        "days_to_cover": 3.5,
+        "as_of": "2026-10-30",
+        "source": "https://stocknear.com/stocks/PYPD/statistics/short-interest",
+        "source_label": "Stocknear, FINRA settlement Oct 30, 2026"
+      },
+      "quarterly_burn": {
+        "amount_usd": 7100000,
+        "basis": "net loss / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1611842/000121390026118486/ea031183401ex99-1.htm",
+        "source_label": "PolyPid Q3 2026 exhibit, Nov 11, 2026"
+      }
     },
     {
       "id": "bb-2026-11-30-cogt-gist",
@@ -279,7 +324,16 @@
       "title": "Binary: Cogent bezuclastinib GIST PDUFA",
       "summary": "Cogent's first FDA decision on bezuclastinib, combined with sunitinib for gastrointestinal stromal tumor after imatinib, is November 30, 2026. Cash was $791.1 million on September 30.",
       "key_number": "PDUFA Nov 30, 2026. Cash $791.1 million, guided into late 2028.",
-      "related_ids": ["bb-2026-12-30-cogt-nonadvsm"]
+      "related_ids": [
+        "bb-2026-12-30-cogt-nonadvsm"
+      ],
+      "quarterly_burn": {
+        "amount_usd": 81647000,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1622229/000119312526449963/cogt-20260930.htm",
+        "source_label": "Cogent 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-12-12-vnda",
@@ -335,7 +389,21 @@
       "title": "Binary: Vanda Quimilza PDUFA",
       "summary": "Vanda's Quimilza for generalized pustular psoriasis has an FDA target date of December 12, 2026. The company already sells other drugs, and cash was $140.5 million on September 30.",
       "key_number": "PDUFA Dec 12, 2026. Cash $140.5 million. A quarter count was not stated.",
-      "related_ids": []
+      "related_ids": [],
+      "short_interest": {
+        "pct_float": 14.12,
+        "days_to_cover": 5.9,
+        "as_of": "2026-10-30",
+        "source": "https://www.marketbeat.com/stocks/NASDAQ/VNDA/short-interest/",
+        "source_label": "MarketBeat, settlement Oct 30, 2026"
+      },
+      "quarterly_burn": {
+        "amount_usd": 36574333,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1347178/000134717826000002/vnda-20260930.htm",
+        "source_label": "Vanda 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-12-22-mlys",
@@ -391,7 +459,14 @@
       "title": "Binary: Mineralys lorundrostat PDUFA",
       "summary": "Mineralys's lorundrostat for hard-to-control hypertension has an FDA target date of December 22, 2026. Cash and investments were $624.7 million on September 30, and the company has no product sales.",
       "key_number": "PDUFA Dec 22, 2026. Cash $624.7 million, release says into 2028.",
-      "related_ids": []
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 38374333,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1933414/000193341426000144/mlys-20260930.htm",
+        "source_label": "Mineralys 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-12-27-prax-relutrigine",
@@ -440,7 +515,16 @@
       "title": "Binary: Praxis relutrigine PDUFA",
       "summary": "Praxis's relutrigine for two rare developmental epilepsies now has an FDA target date of December 27, 2026, three months later than first assigned. Cash was $1.3 billion on September 30.",
       "key_number": "PDUFA Dec 27, 2026, extended from Sep 27. Cash $1.3 billion into 2028.",
-      "related_ids": ["bb-2027-01-29-prax-ulixacaltamide"]
+      "related_ids": [
+        "bb-2027-01-29-prax-ulixacaltamide"
+      ],
+      "quarterly_burn": {
+        "amount_usd": 81810667,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1689548/000168954826000089/prax-20260930.htm",
+        "source_label": "Praxis 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-12-30-cogt-nonadvsm",
@@ -489,7 +573,16 @@
       "title": "Binary: Cogent bezuclastinib mastocytosis PDUFA",
       "summary": "Cogent's bezuclastinib application for non-advanced systemic mastocytosis has an FDA target date of December 30, 2026. It is a separate decision from the November 30 GIST date. Cash was $791.1 million on September 30.",
       "key_number": "PDUFA Dec 30, 2026. Same $791.1 million cash balance as the GIST date.",
-      "related_ids": ["bb-2026-11-30-cogt-gist"]
+      "related_ids": [
+        "bb-2026-11-30-cogt-gist"
+      ],
+      "quarterly_burn": {
+        "amount_usd": 81647000,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1622229/000119312526449963/cogt-20260930.htm",
+        "source_label": "Cogent 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-12-kod-peak",
@@ -538,7 +631,16 @@
       "title": "Binary: Kodiak KSI-101 PEAK readout",
       "summary": "Kodiak expects the first Phase 3 KSI-101 topline, from the PEAK trial in macular edema caused by inflammation, in December 2026. It did not name a day. Cash was $88.7 million and was guided into 2027.",
       "key_number": "Expected December 2026. Cash $88.7 million, into 2027. No day was stated.",
-      "related_ids": ["bb-2027-q2-kod-pinnacle"]
+      "related_ids": [
+        "bb-2027-q2-kod-pinnacle"
+      ],
+      "quarterly_burn": {
+        "amount_usd": 43370667,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1468748/000119312526458399/kod-20260930.htm",
+        "source_label": "Kodiak 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-q4-annx",
@@ -587,7 +689,23 @@
       "title": "Binary: Annexon ARCHER II vision check",
       "summary": "Annexon expects an independent committee to judge the Month 15 vision endpoint of the Phase 3 ARCHER II geographic-atrophy trial in the fourth quarter of 2026. A win leads to more analyses. A miss keeps the trial masked until 2027. Cash was $213.4 million.",
       "key_number": "Expected Q4 2026. Cash $213.4 million into 2028. No day was stated.",
-      "related_ids": []
+      "related_ids": [],
+      "guidance_history": [
+        {
+          "date": "2026-11-09",
+          "wording": "fourth quarter of 2026",
+          "source": "https://annexonbiosciences.gcs-web.com/news-releases/news-release-details/annexon-reports-third-quarter-2026-financial-results-business/",
+          "source_label": "Annexon Q3 2026 release, Nov 9, 2026",
+          "missed": false
+        }
+      ],
+      "quarterly_burn": {
+        "amount_usd": 47827667,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1528115/000119312526453585/annx-20260930.htm",
+        "source_label": "Annexon 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-q4-help",
@@ -636,7 +754,14 @@
       "title": "Binary: Helus HLP003 APPROACH readout",
       "summary": "Helus expects topline efficacy from APPROACH, the first Phase 3 study of HLP003 in major depression, in the fourth quarter of 2026. It did not name a day. Cash was about $171.1 million on September 30.",
       "key_number": "Expected Q4 2026. Cash about $171.1 million. No runway quarter count was stated.",
-      "related_ids": []
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 36186500,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "six months ended 2026-09-30",
+        "source": "https://ir.helus.com/static-files/09b6d1db-ea92-463c-9666-60c8e408f840",
+        "source_label": "Helus 6-K filed Nov 13, 2026"
+      }
     },
     {
       "id": "bb-2027-01-21-dyn",
@@ -685,7 +810,14 @@
       "title": "Binary: Dyne z-rostudirsen PDUFA",
       "summary": "Dyne's z-rostudirsen for exon-51 Duchenne has an FDA target date of January 21, 2027. Cash was $1.134 billion on September 30 and was guided into the second quarter of 2028.",
       "key_number": "PDUFA Jan 21, 2027. Cash $1.134 billion into Q2 2028.",
-      "related_ids": []
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 150899000,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1818794/000181879426000012/dyn-20260930.htm",
+        "source_label": "Dyne 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2027-01-29-prax-ulixacaltamide",
@@ -734,7 +866,16 @@
       "title": "Binary: Praxis ulixacaltamide PDUFA",
       "summary": "Praxis's ulixacaltamide for essential tremor has an FDA target date of January 29, 2027. It is the second Praxis decision, after relutrigine on December 27. Cash was $1.3 billion on September 30.",
       "key_number": "PDUFA Jan 29, 2027. Cash $1.3 billion into 2028.",
-      "related_ids": ["bb-2026-12-27-prax-relutrigine"]
+      "related_ids": [
+        "bb-2026-12-27-prax-relutrigine"
+      ],
+      "quarterly_burn": {
+        "amount_usd": 81810667,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1689548/000168954826000089/prax-20260930.htm",
+        "source_label": "Praxis 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2027-02-04-bbio-infigratinib",
@@ -783,7 +924,17 @@
       "title": "Binary: BridgeBio infigratinib PDUFA",
       "summary": "BridgeBio's oral infigratinib for achondroplasia has an FDA target date of February 4, 2027. The company already sells Attruby. Cash was $1.5 billion on September 30.",
       "key_number": "PDUFA Feb 4, 2027. Cash $1.5 billion on Sep 30.",
-      "related_ids": ["bb-2026-11-27-bbio-bbp418", "bb-2027-05-08-bbio-encaleret"]
+      "related_ids": [
+        "bb-2026-11-27-bbio-bbp418",
+        "bb-2027-05-08-bbio-encaleret"
+      ],
+      "quarterly_burn": {
+        "amount_usd": 104183333,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1743881/000174388126000034/bbio-20260930.htm",
+        "source_label": "BridgeBio 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2027-02-12-blte",
@@ -798,10 +949,20 @@
       "timing": "confirmed",
       "status": "upcoming",
       "market_cap": "",
-      "cash": null,
+      "cash": {
+        "on_hand": "$774.0 million",
+        "as_of": "2026-09-30",
+        "scope": "cash and cash equivalents of $271.3 million plus U.S. Treasury bills and notes of $502.7 million",
+        "runway": "",
+        "quarters": "",
+        "quarters_note": "The Q3 2026 results state the two balances separately. $271.3 million plus $502.7 million is $774.0 million. The runway uses that sum. A quarter count was not stated.",
+        "source": "https://www.stocktitan.net/sec-filings/BLTE/6-k-belite-bio-inc-current-report-foreign-issuer-9918b406e947.html",
+        "source_label": "StockTitan summary of Belite's Q3 2026 6-K",
+        "reported": true
+      },
       "success_means": "Belite says an approval would be the first treatment for Stargardt disease type 1. The filing rests on the Phase 3 DRAGON trial, which the company says showed a 35.7% reduction in the growth rate of atrophic retinal lesions versus placebo.",
-      "miss_means": "A rejection would leave that first-treatment claim unmet. A cash balance from the latest quarter was not in the sources used for this card, so runway is left blank rather than guessed.",
-      "why_it_matters": "Stargardt has no approved drug, and this FDA date is the decision Belite is waiting on. The cash line is blank on purpose.",
+      "miss_means": "A rejection would leave that first-treatment claim unmet. The Q3 results state $271.3 million of cash and $502.7 million of Treasuries, and they do not state a runway in quarters.",
+      "why_it_matters": "Stargardt has no approved drug, and this FDA date is the decision Belite is waiting on. The cash line adds the cash and Treasury balances the Q3 results state separately.",
       "outcome": null,
       "facts": [
         {
@@ -817,12 +978,26 @@
           "source": "https://www.sec.gov/Archives/edgar/data/1889109/000110465926094040/tm2622827d1_ex99-1.htm",
           "source_label": "Belite exhibit 99.1, Aug 11, 2026",
           "reported": false
+        },
+        {
+          "label": "Cash",
+          "value": "Cash and cash equivalents were $271.3 million on September 30, 2026, and U.S. Treasury bills and notes were $502.7 million. A quarter count was not stated. Nine-month net loss was $85.6 million. An operating-cash line was not in this summary.",
+          "source": "https://www.stocktitan.net/sec-filings/BLTE/6-k-belite-bio-inc-current-report-foreign-issuer-9918b406e947.html",
+          "source_label": "StockTitan summary of Belite's Q3 2026 6-K",
+          "reported": true
         }
       ],
       "title": "Binary: Belite tinlarebant PDUFA",
-      "summary": "Belite's tinlarebant for Stargardt disease type 1 has an FDA target date of February 12, 2027. The company says it would be the first approved treatment for that disease. A current cash figure was not in the sources used here.",
-      "key_number": "PDUFA Feb 12, 2027. Cash was not in the sources used.",
-      "related_ids": []
+      "summary": "Belite's tinlarebant for Stargardt disease type 1 has an FDA target date of February 12, 2027. The company says it would be the first approved treatment for that disease. The Q3 2026 results state $271.3 million of cash and $502.7 million of Treasuries.",
+      "key_number": "PDUFA Feb 12, 2027. Cash $271.3 million plus Treasuries $502.7 million on Sep 30.",
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 28533333,
+        "basis": "net loss / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.stocktitan.net/sec-filings/BLTE/6-k-belite-bio-inc-current-report-foreign-issuer-9918b406e947.html",
+        "source_label": "StockTitan summary of Belite's Q3 2026 6-K"
+      }
     },
     {
       "id": "bb-2027-02-28-pvla",
@@ -871,7 +1046,14 @@
       "title": "Binary: Palvella QTORIN rapamycin PDUFA",
       "summary": "Palvella's QTORIN rapamycin for microcystic lymphatic malformations has an FDA target date of February 28, 2027. Cash was $236.7 million on September 30. The release does not state a quarter count for runway.",
       "key_number": "PDUFA Feb 28, 2027. Cash $236.7 million. Quarters of runway were not stated.",
-      "related_ids": []
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 12712333,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1583648/000119312526448638/pvla-20260930.htm",
+        "source_label": "Palvella 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2027-03-10-ntla",
@@ -920,7 +1102,14 @@
       "title": "Binary: Intellia lonvo-z PDUFA",
       "summary": "Intellia's one-time CRISPR therapy for hereditary angioedema, lonvo-z, has an FDA target date of March 10, 2027. Cash was $614.8 million on September 30 and was guided at least into 2028.",
       "key_number": "PDUFA Mar 10, 2027. Cash $614.8 million, at least into 2028.",
-      "related_ids": []
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 95296333,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1652130/000119312526449862/ntla-20260930.htm",
+        "source_label": "Intellia 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2027-03-16-aqst",
@@ -969,7 +1158,14 @@
       "title": "Binary: Aquestive Anaphylm PDUFA",
       "summary": "Aquestive's resubmitted Anaphylm film, an oral epinephrine for severe allergic reactions, has an FDA goal date of March 16, 2027. A conference-presentation summary reported $90.3 million of cash on September 30. That cash figure is marked reported.",
       "key_number": "PDUFA Mar 16, 2027. Cash $90.3 million is reported, not taken from the 10-Q here.",
-      "related_ids": []
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 10431000,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1398733/000139873326000074/aqst-20260930.htm",
+        "source_label": "Aquestive 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2027-04-23-phvs",
@@ -1018,7 +1214,9 @@
       "title": "Binary: Pharvaris deucrictibant PDUFA",
       "summary": "Pharvaris's oral deucrictibant for on-demand treatment of hereditary angioedema attacks has an FDA date of April 23, 2027. Cash was €283 million on September 30. The release does not convert that to a quarter count.",
       "key_number": "PDUFA Apr 23, 2027. Cash €283 million. Quarters of runway were not stated.",
-      "related_ids": ["bb-2027-q1-phvs-creaate"]
+      "related_ids": [
+        "bb-2027-q1-phvs-creaate"
+      ]
     },
     {
       "id": "bb-2027-q1-phvs-creaate",
@@ -1067,7 +1265,9 @@
       "title": "Binary: Pharvaris CREAATE part 1 readout",
       "summary": "Pharvaris expects topline data in the first quarter of 2027 from part 1 of CREAATE, a pivotal study of deucrictibant for preventing attacks in acquired angioedema. It did not name a day. Cash was €283 million.",
       "key_number": "Expected Q1 2027. 24 participants in part 1. Cash €283 million.",
-      "related_ids": ["bb-2027-04-23-phvs"]
+      "related_ids": [
+        "bb-2027-04-23-phvs"
+      ]
     },
     {
       "id": "bb-2027-04-28-imnm",
@@ -1116,7 +1316,14 @@
       "title": "Binary: Immunome varegacestat PDUFA",
       "summary": "Immunome's varegacestat for desmoid tumors has an FDA target date of April 28, 2027. Cash was $461.6 million on September 30 and was guided into 2028.",
       "key_number": "PDUFA Apr 28, 2027. Cash $461.6 million into 2028.",
-      "related_ids": []
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 60360333,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1472012/000119312526453597/imnm-20260930.htm",
+        "source_label": "Immunome 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2027-05-01-qure",
@@ -1165,7 +1372,14 @@
       "title": "Binary: uniQure AMT-130 PDUFA",
       "summary": "uniQure's Huntington's gene therapy AMT-130 has an FDA target date of May 1, 2027. The agency is tentatively planning an advisory committee and has not set that date. Cash was $768.4 million and was guided into 2030.",
       "key_number": "PDUFA May 1, 2027. AdComm tentatively planned, date not set. Cash $768.4 million into 2030.",
-      "related_ids": []
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 38215333,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1590560/000110465926122367/qure-20260930x10q.htm",
+        "source_label": "uniQure 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2027-05-08-bbio-encaleret",
@@ -1214,7 +1428,17 @@
       "title": "Binary: BridgeBio encaleret PDUFA",
       "summary": "BridgeBio's encaleret for autosomal dominant hypocalcemia type 1 has an FDA target date of May 8, 2027. The company says no advisory committee is planned. Cash was $1.5 billion on September 30.",
       "key_number": "PDUFA May 8, 2027. Cash $1.5 billion on Sep 30.",
-      "related_ids": ["bb-2026-11-27-bbio-bbp418", "bb-2027-02-04-bbio-infigratinib"]
+      "related_ids": [
+        "bb-2026-11-27-bbio-bbp418",
+        "bb-2027-02-04-bbio-infigratinib"
+      ],
+      "quarterly_burn": {
+        "amount_usd": 104183333,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1743881/000174388126000034/bbio-20260930.htm",
+        "source_label": "BridgeBio 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2027-q2-kod-pinnacle",
@@ -1263,7 +1487,16 @@
       "title": "Binary: Kodiak KSI-101 second readout",
       "summary": "Kodiak expects the second KSI-101 pivotal topline, from PEAK and PINNACLE together, in the second quarter of 2027. It did not name a day. The cash guidance of $88.7 million only runs into 2027.",
       "key_number": "Expected Q2 2027. Cash $88.7 million into 2027. No day was stated.",
-      "related_ids": ["bb-2026-12-kod-peak"]
+      "related_ids": [
+        "bb-2026-12-kod-peak"
+      ],
+      "quarterly_burn": {
+        "amount_usd": 43370667,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1468748/000119312526458399/kod-20260930.htm",
+        "source_label": "Kodiak 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-11-17-sls",
@@ -1278,15 +1511,25 @@
       "timing": "confirmed",
       "status": "resolved",
       "market_cap": "",
-      "cash": null,
+      "cash": {
+        "on_hand": "$134.7 million",
+        "as_of": "2026-09-30",
+        "scope": "cash and cash equivalents",
+        "runway": "at least the next twelve months from the date the financials were issued",
+        "quarters": "at least 4",
+        "quarters_note": "The Sept. 30, 2026 10-Q says this cash funds planned operations for at least the next twelve months from issuance. Twelve months is four quarters. That is the company's outlook, not a burn-rate model.",
+        "source": "https://www.sec.gov/Archives/edgar/data/1390478/000139047826000020/sls-20260930.htm",
+        "source_label": "Sellas 10-Q for the quarter ended Sep 30, 2026",
+        "reported": false
+      },
       "success_means": "The Phase 3 REGAL trial met its overall-survival goal. GPS cut the risk of death by 41% versus the investigator's choice of best available treatment, hazard ratio 0.59, p=0.035. Median survival was 24.0 months versus 14.7 months. Sellas plans an FDA meeting and a BLA in the first half of 2027.",
       "miss_means": "A miss would have been a failed survival trial for the lead vaccine, in a company whose filing plan depends on this study. That is not what happened. The stock move below is a set of premarket quotes, not a closing print.",
-      "why_it_matters": "This is the template for the list: one pivotal survival result, and the stock repriced before the open. The regular-session close was not in the sources used here, and the premarket quotes do not match each other.",
+      "why_it_matters": "This is the template for the list: one pivotal survival result, and the stock repriced before the open. The company had guided the 80th death by year-end 2025 on August 7 and November 12, 2025. That date was missed. The 80th death landed on October 28, 2026, with topline results guided to this quarter and then to this month.",
       "outcome": {
         "result": "success",
-        "move": "Reported premarket, not a close. Kalkine: +239.22% to $25.34 from a $7.47 prior close. RTTNews: up over 255% at $26.45. Investing.com: +245.1% pre-open. Seeking Alpha: more than 200% premarket.",
-        "source": "https://kalkine.com/news/healthcare/sellas-life-sciences-nasdaqsls-soars-239-pre-market-after-phase-3-regal-trial-meets-primary-endpoint",
-        "source_label": "Kalkine premarket quote, Nov 17, 2026",
+        "move": "Premarket quotes were roughly +216% to +240% and did not match: Kalkine +239.22% to $25.34 from a $7.47 prior close. Yahoo Finance: opened at $24.00 on Nov 17, 2026 and was about +172.69% at $20.37 midday. A single closing print is not used.",
+        "source": "https://finance.yahoo.com/quote/SLS/history/",
+        "source_label": "Yahoo Finance SLS history, with Kalkine for one premarket quote",
         "reported": true
       },
       "facts": [
@@ -1299,16 +1542,170 @@
         },
         {
           "label": "Stock move",
-          "value": "Premarket quotes the same morning did not match: Kalkine +239.22% to $25.34 from $7.47; RTTNews up over 255% at $26.45; Investing.com +245.1% pre-open. A regular-session close was not used.",
-          "source": "https://kalkine.com/news/healthcare/sellas-life-sciences-nasdaqsls-soars-239-pre-market-after-phase-3-regal-trial-meets-primary-endpoint",
-          "source_label": "Kalkine, with RTTNews and Investing.com the same morning",
+          "value": "Premarket quotes the same morning were roughly +216% to +240%, not +7%. Kalkine: +239.22% to $25.34 from $7.47. Yahoo Finance: opened at $24.00 and was about +172.69% at $20.37 midday. A regular-session close was not used.",
+          "source": "https://finance.yahoo.com/quote/SLS/history/",
+          "source_label": "Yahoo Finance SLS history, Nov 17, 2026, with Kalkine for one premarket quote",
+          "reported": true
+        },
+        {
+          "label": "Interim date",
+          "value": "January 23, 2025. The independent committee finished the pre-specified interim analysis at 60 deaths and said the trial should continue without changes. The same release says the Phase 2 median overall survival was 21 months on GPS versus 5.4 months on standard of care, and that 80 events were anticipated this year.",
+          "source": "https://ir.sellaslifesciences.com/news/News-Details/2025/SELLAS-Life-Sciences-Announces-Positive-Outcome-of-Interim-Analysis-for-its-Pivotal-Phase-3-REGAL-Trial-of-GPS-in-Acute-Myeloid-Leukemia/default.aspx",
+          "source_label": "Sellas release, Jan 23, 2025",
+          "reported": false
+        },
+        {
+          "label": "Event count",
+          "value": "72 of 80 deaths as of December 26, 2025, announced December 29, 2025. The company stayed blinded.",
+          "source": "https://ir.sellaslifesciences.com/news/News-Details/2025/SELLAS-Life-Sciences-Provides-Update-on-Pivotal-Phase-3-REGAL-Trial-of-Galinpepimut-S-GPS-in-Acute-Myeloid-Leukemia-AML/",
+          "source_label": "Sellas release, Dec 29, 2025",
+          "reported": false
+        },
+        {
+          "label": "Stock move on the 72-event update",
+          "value": "Benzinga reported the shares up 16.72% at $3.35 on December 29, 2025.",
+          "source": "https://www.benzinga.com/trading-ideas/movers/25/12/49619904/sellas-life-sciences-stock-is-surging-higher-whats-going-on",
+          "source_label": "Benzinga, Dec 29, 2025",
+          "reported": true
+        },
+        {
+          "label": "Event count update",
+          "value": "78 of 80 deaths as of May 11, 2026, announced May 12, 2026. The company stayed blinded.",
+          "source": "https://ir.sellaslifesciences.com/news/News-Details/2026/SELLAS-Life-Sciences-Reports-First-Quarter-2026-Financial-Results-and-Provides-Corporate-Update/default.aspx",
+          "source_label": "Sellas Q1 2026 release, May 12, 2026",
+          "reported": false
+        },
+        {
+          "label": "Stock move on the 78-event update",
+          "value": "Kalkine reported the shares up 25.10% to $6.53 on May 13, 2026.",
+          "source": "https://kalkine.com/news/healthcare/sellas-life-sciences-group-sls-stock-climbs-25-as-oncology-biotech-momentum-builds",
+          "source_label": "Kalkine, May 13, 2026",
+          "reported": true
+        },
+        {
+          "label": "Final event",
+          "value": "The 80th death was announced October 28, 2026, and the company said topline results would come this quarter.",
+          "source": "https://ir.sellaslifesciences.com/news/News-Details/2026/SELLAS-Life-Sciences-Reaches-80th-Event-in-Phase-3-REGAL-Trial-of-Galinpepimut-S-GPS-in-Acute-Myeloid-Leukemia/default.aspx",
+          "source_label": "Sellas release, Oct 28, 2026",
+          "reported": false
+        },
+        {
+          "label": "Stock move on the 80th event",
+          "value": "Yahoo Finance history shows a close of $10.38 on October 28, 2026, from $12.17 the prior session, about -14.7%.",
+          "source": "https://finance.yahoo.com/quote/SLS/history/",
+          "source_label": "Yahoo Finance SLS history",
+          "reported": true
+        },
+        {
+          "label": "Cash",
+          "value": "$134.7 million of cash and cash equivalents on September 30, 2026. The 10-Q says this funds planned operations for at least the next twelve months from issuance.",
+          "source": "https://www.sec.gov/Archives/edgar/data/1390478/000139047826000020/sls-20260930.htm",
+          "source_label": "Sellas 10-Q for the quarter ended Sep 30, 2026",
+          "reported": false
+        },
+        {
+          "label": "Short interest",
+          "value": "FINRA settlement October 30, 2026: 28.61% of float and 6.70 days to cover. October 15, 2026: 26.92% of float and 11.95 days to cover (53,759,252 shares short against 201,945,709 shares outstanding, about 26.6% of shares outstanding). June 30, 2026: 34.45% of float and 4.75 days to cover. A 35.3% June figure was not on this reprint.",
+          "source": "https://chartexchange.com/symbol/nasdaq-sls/short-interest/",
+          "source_label": "ChartExchange FINRA short-interest table",
           "reported": true
         }
       ],
       "title": "Binary outcome: Sellas GPS hits survival goal",
-      "summary": "On November 17, 2026, Sellas said its Phase 3 AML vaccine galinpepimut-S met the overall-survival goal, with a 41% lower risk of death. Premarket quotes showed a gain of more than 200%. They did not agree on the exact percent, and a closing print is not used here.",
-      "key_number": "Success Nov 17, 2026. OS hazard ratio 0.59. Premarket gain reported above 200%; exact percent differs by source.",
-      "related_ids": []
+      "summary": "On November 17, 2026, Sellas said its Phase 3 AML vaccine galinpepimut-S met the overall-survival goal, with a 41% lower risk of death. The trial had reached 80 of 80 deaths on October 28. Premarket quotes were roughly +216% to +240%. Yahoo Finance showed an open of $24.00 from a $7.47 prior close and a midday gain of about 173%.",
+      "key_number": "Success Nov 17, 2026. OS hazard ratio 0.59. 80 of 80 events. Premarket roughly +216% to +240%; opened $24.00.",
+      "related_ids": [],
+      "event_counter": {
+        "current": 80,
+        "target": 80,
+        "as_of": "2026-10-28",
+        "source": "https://ir.sellaslifesciences.com/news/News-Details/2026/SELLAS-Life-Sciences-Reaches-80th-Event-in-Phase-3-REGAL-Trial-of-Galinpepimut-S-GPS-in-Acute-Myeloid-Leukemia/default.aspx",
+        "source_label": "Sellas release, Oct 28, 2026"
+      },
+      "guidance_history": [
+        {
+          "date": "2025-08-07",
+          "wording": "anticipated by year-end",
+          "source": "https://ir.sellaslifesciences.com/news/News-Details/2025/SELLAS-Life-Sciences-Reports-Second-Quarter-2025-Financial-Results-and-Provides-Corporate-Update/default.aspx",
+          "source_label": "Sellas Q2 2025 release, restating the Aug 7, 2025 guidance",
+          "missed": true
+        },
+        {
+          "date": "2025-11-12",
+          "wording": "anticipated by year-end 2025",
+          "source": "https://ir.sellaslifesciences.com/news/News-Details/2025/SELLAS-Life-Sciences-Reports-Third-Quarter-2025-Financial-Results-and-Provides-Corporate-Update/default.aspx",
+          "source_label": "Sellas Q3 2025 release, Nov 12, 2025",
+          "missed": true
+        },
+        {
+          "date": "2026-10-28",
+          "wording": "this quarter",
+          "source": "https://ir.sellaslifesciences.com/news/News-Details/2026/SELLAS-Life-Sciences-Reaches-80th-Event-in-Phase-3-REGAL-Trial-of-Galinpepimut-S-GPS-in-Acute-Myeloid-Leukemia/default.aspx",
+          "source_label": "Sellas release, Oct 28, 2026",
+          "missed": false
+        },
+        {
+          "date": "2026-11-12",
+          "wording": "this month",
+          "source": "https://ir.sellaslifesciences.com/news/News-Details/2026/SELLAS-Life-Sciences-Reports-Third-Quarter-2026-Financial-Results-and-Provides-Corporate-Update/default.aspx",
+          "source_label": "Sellas Q3 2026 release, Nov 12, 2026",
+          "missed": false
+        }
+      ],
+      "short_interest": {
+        "pct_float": 28.61,
+        "days_to_cover": 6.7,
+        "as_of": "2026-10-30",
+        "source": "https://chartexchange.com/symbol/nasdaq-sls/short-interest/",
+        "source_label": "ChartExchange FINRA short interest, settlement Oct 30, 2026"
+      },
+      "analyst_moves": [
+        {
+          "date": "2025-05-15",
+          "firm": "Alliance Global Partners",
+          "action": "reiterated Buy",
+          "target": "$7.50",
+          "source": "https://www.theglobeandmail.com/investing/markets/stocks/SLS/pressreleases/32421890/alliance-global-partners-remains-a-buy-on-sellas-life-sciences-group-sls/",
+          "source_label": "Globe and Mail, May 15, 2025"
+        },
+        {
+          "date": "2026-03-20",
+          "firm": "Alliance Global Partners",
+          "action": "raised the target to $10 from $7.50 and kept Buy",
+          "target": "$10",
+          "source": "https://stocktwits.com/news-articles/markets/equity/sls-stock-in-focus-as-alliance-global-sees-upside-following-aml-trial-updates/cZ3Xu2ORILo",
+          "source_label": "Stocktwits, Mar 20, 2026"
+        },
+        {
+          "date": "2026-07-06",
+          "firm": "Alliance Global Partners",
+          "action": "raised the target to $25 from $10",
+          "target": "$25",
+          "source": "https://tradytics.com/research/SLS/analysts",
+          "source_label": "Tradytics analyst table, Jul 6, 2026"
+        },
+        {
+          "date": "2026-08-12",
+          "firm": "Alliance Global Partners",
+          "action": "raised the target to $35 from $25 and kept Buy",
+          "target": "$35",
+          "source": "https://stocktwits.com/news-articles/markets/equity/sellas-sls-009-appears-to-be-leading-the-cdk-9-race-says-alliance-global-analyst-sees-about-200-upside-potential/cZo8JOmRJWQ",
+          "source_label": "Stocktwits, Aug 12, 2026"
+        }
+      ],
+      "prior_phase_data": "In the Phase 2 study of AML patients in second complete remission, median overall survival was 21 months on GPS versus 5.4 months on standard of care.",
+      "dilution": {
+        "summary": "Common shares outstanding were 73,977,459 at December 31, 2024 and 203,527,833 at September 30, 2026. In the first nine months of 2026, exercises of 50.4 million warrants at a weighted average $1.69 raised about $85.1 million. A March 2026 at-the-market program with TD Cowen allows up to $150 million of stock and had not been used as of that 10-Q.",
+        "source": "https://www.sec.gov/Archives/edgar/data/1390478/000139047826000020/sls-20260930.htm",
+        "source_label": "Sellas 10-Q for the quarter ended Sep 30, 2026"
+      },
+      "quarterly_burn": {
+        "amount_usd": 7458000,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1390478/000139047826000020/sls-20260930.htm",
+        "source_label": "Sellas 10-Q for the quarter ended Sep 30, 2026"
+      }
     },
     {
       "id": "bb-2026-11-16-smmt",
@@ -1323,7 +1720,17 @@
       "timing": "confirmed",
       "status": "resolved",
       "market_cap": "",
-      "cash": null,
+      "cash": {
+        "on_hand": "$629.787 million",
+        "as_of": "2026-09-30",
+        "scope": "cash and cash equivalents of $150.811 million plus short-term investments of $478.976 million",
+        "runway": "",
+        "quarters": "",
+        "quarters_note": "The 10-Q states the two balances separately, in thousands: 150,811 and 478,976. Added, that is $629.787 million. The runway uses that sum. A quarter count was not stated.",
+        "source": "https://www.sec.gov/Archives/edgar/data/1599298/000159929826000090/smmt-20260930.htm",
+        "source_label": "Summit 10-Q for the quarter ended Sep 30, 2026",
+        "reported": false
+      },
       "success_means": "An approval would have been the first U.S. yes for ivonescimab in this lung-cancer setting. That is not what the FDA did. Summit has said it still has other Phase 3 studies of the same drug.",
       "miss_means": "The FDA issued a complete response letter on November 15, 2026. The letter says the application cannot be approved as filed because overall survival was not statistically significant, and progression-free survival alone did not support approval. The next trading session, November 16, is the day the reported close below is from.",
       "why_it_matters": "This was the binary the market had circled for mid-November. The FDA said no, and the stock's reported close the next session was down 16.47%. An afternoon report the same day described a 17.5% drop, so the intraday figure and the close are both cited and not blended.",
@@ -1348,12 +1755,26 @@
           "source": "https://www.insidermonkey.com/news/summit-therapeutics-smmt-hits-52-week-low-after-fda-setback-1866366/",
           "source_label": "Insider Monkey on the Nov 16 close; Morningstar for the afternoon print",
           "reported": true
+        },
+        {
+          "label": "Cash",
+          "value": "Cash and cash equivalents were $150.811 million and short-term investments were $478.976 million on September 30, 2026. Net cash used in operating activities was $423.229 million for the nine months. A quarter count was not stated.",
+          "source": "https://www.sec.gov/Archives/edgar/data/1599298/000159929826000090/smmt-20260930.htm",
+          "source_label": "Summit 10-Q for the quarter ended Sep 30, 2026",
+          "reported": false
         }
       ],
       "title": "Binary outcome: FDA rejects Summit ivonescimab",
       "summary": "The FDA refused Summit's ivonescimab application on November 15, 2026, because overall survival was not statistically significant. Insider Monkey reported the November 16 close down 16.47% at $11.82. A same-day afternoon report said 17.5%.",
       "key_number": "CRL Nov 15, 2026. Reported Nov 16 close: -16.47% at $11.82.",
-      "related_ids": []
+      "related_ids": [],
+      "quarterly_burn": {
+        "amount_usd": 141076333,
+        "basis": "net cash used in operating activities, YTD / quarters",
+        "period": "nine months ended 2026-09-30",
+        "source": "https://www.sec.gov/Archives/edgar/data/1599298/000159929826000090/smmt-20260930.htm",
+        "source_label": "Summit 10-Q for the quarter ended Sep 30, 2026"
+      }
     }
   ]
 }

@@ -2,7 +2,9 @@ import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import news from "../data/news.json";
+import trackerRaw from "../data/enterprise-ai.json";
 import { dayBrief, itemBrief, stockBrief } from "../lib/brief";
+import { loadTracker } from "../lib/enterprise";
 import { todayInNewYork } from "../lib/format";
 import { normalizeNews } from "../lib/news";
 import { STOCKS, assembleStock } from "../lib/stocks";
@@ -75,16 +77,28 @@ for (const item of items) {
   briefs[item.id] = brief;
 }
 
+const tracker = loadTracker(trackerRaw, asOf);
+const bySection = { deal: 0, neocloud: 0, datacenter: 0 };
+for (const item of tracker.items) {
+  for (const section of item.tracker_sections ?? []) bySection[section] += 1;
+}
+
 const payload = {
-  note: "Built from data/news.json and data/stocks.json. Each line repeats a title, key number, price, move, or caution already in those files.",
+  note: "Built from data/news.json and data/stocks.json. Each line repeats a title, key number, price, move, or caution already in those files. The enterprise block only counts data/enterprise-ai.json.",
   asOf,
   days,
   stocks,
   items: briefs,
+  enterprise: {
+    companies: tracker.companies.length,
+    items: tracker.items.length,
+    bySection,
+    unconfirmed: tracker.items.filter((item) => item.unconfirmed).length,
+  },
 };
 
 const path = join(root, "../data/briefs.json");
 writeFileSync(path, `${JSON.stringify(payload, null, 2)}\n`);
 console.log(
-  `Wrote ${path} as of ${asOf}: ${Object.keys(days).length} days, ${Object.keys(stocks).length} stocks, ${Object.keys(briefs).length} long items.`,
+  `Wrote ${path} as of ${asOf}: ${Object.keys(days).length} days, ${Object.keys(stocks).length} stocks, ${Object.keys(briefs).length} long items, ${tracker.items.length} enterprise items.`,
 );

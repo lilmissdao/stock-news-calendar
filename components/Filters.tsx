@@ -40,6 +40,19 @@ export function Filters({
           </button>
         </div>
       </div>
+      <fieldset className="field">
+        <legend>Tracker</legend>
+        <div className="chips">
+          <button
+            type="button"
+            className="chip"
+            aria-pressed={value.enterpriseOnly}
+            onClick={() => onChange({ ...value, enterpriseOnly: !value.enterpriseOnly })}
+          >
+            Enterprise AI
+          </button>
+        </div>
+      </fieldset>
       <label className="field grow">
         <span>Ticker, company, or headline</span>
         <input

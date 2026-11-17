@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { formatMarketCap, formatMove, formatPretty, formatPrice, precisionLabel } from "@/lib/format";
 import { itemBriefFor } from "@/lib/saved-briefs";
+import { DEAL_STATUS_LABELS, DEAL_TYPE_LABELS } from "@/lib/enterprise";
 import { eventLabel, industryColor, LINK_LABELS, RELIANCE_LABELS, STATUS_LABELS } from "@/lib/taxonomy";
 import type { NewsItem } from "@/lib/types";
 
@@ -63,8 +64,11 @@ export function DetailDialog({
           <div className="detail-body">
             <p className="meta">
               <span>{formatPretty(item.date)}</span>
+              {item.enterprise_ai ? <span className="badge enterprise">Enterprise AI</span> : null}
+              {item.deal_status ? <span className={`badge enterprise ${item.deal_status}`}>{DEAL_STATUS_LABELS[item.deal_status]}</span> : null}
+              {item.unconfirmed ? <span className="badge enterprise reported">Reported</span> : null}
               <span className={`badge ${item.status}`}>{STATUS_LABELS[item.status]}</span>
-              <span>{eventLabel(item.event_type)}</span>
+              <span>{item.deal_type ? DEAL_TYPE_LABELS[item.deal_type] ?? eventLabel(item.deal_type) : eventLabel(item.event_type)}</span>
               {precision ? <span>{precision}</span> : null}
             </p>
             {brief ? (
@@ -79,6 +83,19 @@ export function DetailDialog({
                 <figcaption>Key number</figcaption>
                 <p>{item.key_number}</p>
               </figure>
+            ) : null}
+            {item.why_it_matters ? (
+              <section>
+                <h3>Why it matters</h3>
+                <p>{item.why_it_matters}</p>
+              </section>
+            ) : null}
+            {item.source_url ? (
+              <p>
+                <a href={item.source_url} target="_blank" rel="noreferrer">
+                  {item.source_label || "Source"}
+                </a>
+              </p>
             ) : null}
             <dl className="facts">
               {item.price_mentioned ? (
@@ -130,7 +147,7 @@ export function DetailDialog({
               </div>
             ) : null}
             {item.companies.length > 0 ? <p className="companies">{item.companies.join(" · ")}</p> : null}
-            {item.connection_notes ? (
+            {item.connection_notes && item.connection_notes !== item.why_it_matters ? (
               <section>
                 <h3>Why it’s linked</h3>
                 <p>{item.connection_notes}</p>

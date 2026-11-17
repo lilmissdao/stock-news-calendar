@@ -1,6 +1,6 @@
 {
-  "note": "Built from data/news.json and data/stocks.json. Each line repeats a title, key number, price, move, or caution already in those files.",
-  "asOf": "2026-11-13",
+  "note": "Built from data/news.json and data/stocks.json. Each line repeats a title, key number, price, move, or caution already in those files. The enterprise block only counts data/enterprise-ai.json.",
+  "asOf": "2026-11-16",
   "days": {
     "2026-09-28": {
       "ids": [
@@ -1086,6 +1086,8 @@
         "2026-11-12-nvda-huang-resigns",
         "2026-11-12-nvda-premarket",
         "2026-11-13-h200-probe",
+        "2026-11-13-nvda-commitments",
+        "2026-11-13-remote-access-act",
         "bf-nvda-deepseek",
         "bf-nvda-fy26q1",
         "bf-nvda-fy26q2",
@@ -1096,8 +1098,6 @@
       ],
       "comingIds": [
         "2026-11-10-affiliates-rule",
-        "2026-11-13-nvda-commitments",
-        "2026-11-13-remote-access-act",
         "2026-11-17-nvda-earnings",
         "2027-04-01-samsung-sk-hbm4"
       ],
@@ -1111,13 +1111,13 @@
         "nvda-openai-cash",
         "nvda-tpu"
       ],
-      "lead": "NVDA: 46 dated events on file, 5 dated events ahead, 8 outside cautions.",
+      "lead": "NVDA: 48 dated events on file, 3 dated events ahead, 8 outside cautions.",
       "bullets": [
         "Past, Nov 13: Neal and Wyden probe the H200 China sales deal.",
         "Ahead, Nov 10: China chip Affiliates Rule returns. NVDA China -44% H1.",
         "Risk, High: China export rules can shut a door again. The H20 license already cost billions in 2025, and the guide in February 2026 assumed no China data-center compute sales.",
-        "Past, Nov 12: Bernstein and Oppenheimer downgrade Nvidia. Bernstein to market perform; Oppenheimer to perform, target removed.",
-        "Ahead, Nov 13: Nvidia filing lists about $530B of commitments and guarantees. About $530B of commitments; about $65B CoreWeave rent-backs; up to $105B on OpenAI Ohio leases; up to $100B more in OpenAI."
+        "Past, Nov 13: Nvidia filing lists about $530B of commitments and guarantees. About $530B of commitments; about $65B CoreWeave rent-backs; up to $105B on OpenAI Ohio leases; up to $100B more in OpenAI.",
+        "Ahead, Nov 17: Nvidia reports Q3 Nov 17, the first print after Huang resigned. About 4:20 PM ET Nov 17; EPS est. $2.49; first report after Huang resigned."
       ]
     },
     "AMD": {
@@ -1128,12 +1128,12 @@
         "2026-11-09-amd-upgrade",
         "2026-11-10-amd-anthropic",
         "2026-11-12-amd-blair",
+        "2026-11-13-amd-psiquantum",
         "bf-amd-deepseek",
         "bf-amd-openai"
       ],
       "comingIds": [
         "2026-11-10-affiliates-rule",
-        "2026-11-13-amd-psiquantum",
         "cat-amd-q3"
       ],
       "cautionIds": [
@@ -1143,12 +1143,12 @@
         "amd-pc",
         "amd-rates"
       ],
-      "lead": "AMD: 8 dated events on file, 3 dated events ahead, 5 outside cautions.",
+      "lead": "AMD: 9 dated events on file, 2 dated events ahead, 5 outside cautions.",
       "bullets": [
-        "Past, Nov 12: William Blair upgrades AMD and the stock rises 2.8% premarket.",
+        "Past, Nov 13: AMD plans an equity investment in PsiQuantum. Planned PsiQuantum equity investment; co-designed quantum systems.",
         "Ahead, Nov 3: AMD reports after the close. Guide about $13B; EPS $1.68.",
         "Risk, High: Intel's PC slump lands on AMD too. BofA flagged up to $750 million of PC-related headwind for AMD after Intel's weak guide.",
-        "Past, Nov 10: AMD rises 1.3% and will invest $2.5B in Anthropic. +1.3% to $515.21; $2.5B investment; up to $5B tied to chip deliveries.",
+        "Past, Nov 12: William Blair upgrades AMD and the stock rises 2.8% premarket.",
         "Ahead, Nov 10: China chip Affiliates Rule returns. NVDA China -44% H1."
       ]
     },
@@ -1595,13 +1595,13 @@
         "2026-11-12-futures",
         "2026-11-12-nbis-earnings",
         "2026-11-13-crwv-bond",
+        "2026-11-13-crwv-bond-launch",
         "bf-crwv-fy25",
         "bf-crwv-ipo",
         "bf-crwv-openai"
       ],
       "comingIds": [
-        "2026-10-22-crwv-funding-need",
-        "2026-11-13-crwv-bond-launch"
+        "2026-10-22-crwv-funding-need"
       ],
       "cautionIds": [
         "crwv-debt",
@@ -1610,13 +1610,13 @@
         "crwv-permits",
         "crwv-rates"
       ],
-      "lead": "CRWV: 27 dated events on file, 2 dated events ahead, 5 outside cautions.",
+      "lead": "CRWV: 28 dated events on file, 1 dated event ahead, 5 outside cautions.",
       "bullets": [
         "Past, Nov 13: CoreWeave plans at least a $4B investment-grade bond. At least $4B at about 7-7.5%; CEO cancelled a stock-sale plan.",
-        "Ahead, Nov 13: CoreWeave's investment-grade bond could launch next week.",
+        "Ahead, Jan 1: CoreWeave needs ~$30B in 2027. ~$30B need.",
         "Risk, High: Incoming governors want data-center delays. After the sweep, 34 of 36 incoming governors back some data-center regulation and 12 want construction delays.",
-        "Past, Nov 12: Nebius falls 16.8% after narrowing its 2026 revenue guide. NBIS -16.8%; 2026 revenue guide $3.0-3.2B from $3.0-3.4B; CRWV -6.9%; IREN -6.5%; APLD -5.4%; IONQ -9.4%.",
-        "Ahead, Jan 1: CoreWeave needs ~$30B in 2027. ~$30B need."
+        "Past, Nov 13: CoreWeave's investment-grade bond could launch next week.",
+        "Risk, High: OpenAI's shortfall is CoreWeave's demand. The 2025 contract made OpenAI a pillar customer."
       ]
     },
     "TSLA": {
@@ -1723,23 +1723,21 @@
         "2026-11-09-ceg-earnings",
         "2026-11-09-dc-governors",
         "2026-11-09-dc-moratoriums",
-        "2026-11-10-ceg-rhode-island"
-      ],
-      "comingIds": [
+        "2026-11-10-ceg-rhode-island",
         "2026-11-13-ceg-peak"
       ],
+      "comingIds": [],
       "cautionIds": [
         "ceg-google",
         "ceg-grid",
         "ceg-loan",
         "ceg-rates"
       ],
-      "lead": "CEG: 12 dated events on file, 1 dated event ahead, 4 outside cautions.",
+      "lead": "CEG: 13 dated events on file, 0 dated events ahead, 4 outside cautions.",
       "bullets": [
-        "Past, Nov 10: Constellation is buying a 609 MW Rhode Island plant for $715 million. 609 MW for $715M; conditional DOE loan guarantee up to $5B; first Google-backed uprate in 2028.",
-        "Ahead, Nov 13: Constellation pitches Peak+ nuclear-and-battery contracts. Peak+ nuclear plus batteries.",
+        "Past, Nov 13: Constellation pitches Peak+ nuclear-and-battery contracts. Peak+ nuclear plus batteries.",
         "Risk, High: Data centers may have to pay for the grid. The Senate stalled a bill that passed the House 417-3.",
-        "Past, Nov 9: 34 of 36 incoming governors back some data-center regulation. 34 of 36 incoming governors; 12 want delays; Goldman about 45% of planned U.S. expansion could be halted.",
+        "Past, Nov 10: Constellation is buying a 609 MW Rhode Island plant for $715 million. 609 MW for $715M; conditional DOE loan guarantee up to $5B; first Google-backed uprate in 2028.",
         "Risk, High: Up to $5B from the DOE is still a commitment. The loan for nuclear uprates is conditional on due diligence."
       ]
     },
@@ -2127,5 +2125,15 @@
     "2026-11-13-cbrs-earnings": "Cerebras was up 17% premarket after Q3 revenue of $230.9 million versus $214.7 million expected, and it raised 2026 revenue to $940 million to $960 million and named Microsoft as a customer.",
     "2026-11-13-nu-nmax-flo": "Nu Holdings was up 3% premarket after record Q3 net income of $1.1 billion and 143 million customers, with EPS of $0.22 just missing $0.23.",
     "2026-11-13-nvda-commitments": "Nvidia's latest filing lists about $530 billion of commitments and guarantees, including about $65 billion of cloud capacity rent-backs with CoreWeave, up to a $105 billion guarantee on OpenAI's Ohio data center leases, and a preliminary deal to invest up to $100 billion more in OpenAI."
+  },
+  "enterprise": {
+    "companies": 31,
+    "items": 45,
+    "bySection": {
+      "deal": 33,
+      "neocloud": 10,
+      "datacenter": 8
+    },
+    "unconfirmed": 5
   }
 }

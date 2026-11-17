@@ -98,9 +98,10 @@ export function CalendarView({
           <ul>
             {undated.map((item) => (
               <li key={item.id}>
-                <button type="button" className="pill" onClick={() => onOpen(item.id)}>
+                <button type="button" className={item.enterprise_ai ? "pill eai" : "pill"} onClick={() => onOpen(item.id)}>
                   <i style={{ background: industryColor(item.industry) }} aria-hidden="true" />
                   <span>
+                    {item.enterprise_ai ? <small className="eai-mark">Enterprise AI</small> : null}
                     {item.title}
                     <small>{precisionLabel(item)}</small>
                   </span>
@@ -123,7 +124,8 @@ export function CalendarView({
               const iso = toISODate(date);
               const dayItems = pinned.get(iso) ?? [];
               const outside = date.getMonth() !== month;
-              const shown = dayItems.length > 3 ? dayItems.slice(0, 2) : dayItems;
+              const ranked = [...dayItems].sort((a, b) => Number(Boolean(b.enterprise_ai)) - Number(Boolean(a.enterprise_ai)));
+              const shown = ranked.length > 3 ? ranked.slice(0, 2) : ranked;
               const hidden = dayItems.length - shown.length;
               const counts = new Map<string, number>();
               for (const item of dayItems) counts.set(item.industry, (counts.get(item.industry) ?? 0) + 1);
@@ -164,7 +166,13 @@ export function CalendarView({
                   ) : null}
                   <div className="day-pills">
                     {shown.map((item) => (
-                      <button key={item.id} type="button" className="pill" onClick={() => onOpen(item.id)}>
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={item.enterprise_ai ? "pill eai" : "pill"}
+                        aria-label={item.enterprise_ai ? `Enterprise AI: ${item.title}` : item.title}
+                        onClick={() => onOpen(item.id)}
+                      >
                         <i style={{ background: industryColor(item.industry) }} aria-hidden="true" />
                         <span>{item.title}</span>
                       </button>

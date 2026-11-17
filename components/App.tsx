@@ -1,20 +1,23 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { CalendarView } from "@/components/CalendarView";
 import { ConnectionsView } from "@/components/ConnectionsView";
 import { DetailDialog } from "@/components/DetailDialog";
+import { EnterpriseView } from "@/components/EnterpriseView";
 import { Filters } from "@/components/Filters";
 import { ListView } from "@/components/ListView";
 import { StocksView } from "@/components/StocksView";
 import { TickerSearch } from "@/components/TickerSearch";
 import { TickerView } from "@/components/TickerView";
 import { UpcomingPanel } from "@/components/UpcomingPanel";
+import { sectionPath, type TrackerCompany } from "@/lib/enterprise";
 import { EMPTY_FILTERS, applyFilters, filtersActive } from "@/lib/filter";
 import { monthOfISO, parseISODate, todayInNewYork } from "@/lib/format";
 import { indexById } from "@/lib/news";
 import { STOCK_BY_TICKER } from "@/lib/stocks";
-import type { FilterState, NewsItem, ViewId } from "@/lib/types";
+import type { FilterState, NewsItem, TrackerSection, ViewId } from "@/lib/types";
 
 const VIEWS: { id: ViewId; label: string }[] = [
   { id: "calendar", label: "Calendar" },
@@ -22,10 +25,24 @@ const VIEWS: { id: ViewId; label: string }[] = [
   { id: "ticker", label: "Ticker" },
   { id: "stocks", label: "Stocks" },
   { id: "connections", label: "Connections" },
+  { id: "enterprise", label: "Enterprise AI" },
 ];
 
-export function App({ items, today: initialToday }: { items: NewsItem[]; today: string }) {
-  const [view, setView] = useState<ViewId>("calendar");
+export function App({
+  items,
+  today: initialToday,
+  companies,
+  initialView = "calendar",
+  initialSection = "deal",
+}: {
+  items: NewsItem[];
+  today: string;
+  companies: TrackerCompany[];
+  initialView?: ViewId;
+  initialSection?: TrackerSection;
+}) {
+  const pathname = usePathname();
+  const [view, setView] = useState<ViewId>(initialView);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [month, setMonth] = useState(() => monthOfISO(initialToday));
@@ -156,20 +173,46 @@ export function App({ items, today: initialToday }: { items: NewsItem[]; today: 
         <TickerSearch items={items} onPick={openStock} />
         <div className="top-actions">
           <div className="view-switch" role="tablist" aria-label="Views">
-            {VIEWS.map((entry) => (
-              <button
-                key={entry.id}
-                type="button"
-                role="tab"
-                id={`tab-${entry.id}`}
-                aria-selected={view === entry.id}
-                aria-controls="view-panel"
-                onClick={() => setView(entry.id)}
-              >
-                {entry.label}
-              </button>
-            ))}
+            {VIEWS.map((entry) => {
+              const selected = view === entry.id;
+              const href =
+                entry.id === "enterprise"
+                  ? sectionPath(initialSection)
+                  : pathname.startsWith("/enterprise-ai")
+                    ? entry.id === "calendar"
+                      ? "/"
+                      : `/?view=${entry.id}`
+                    : null;
+              if (href && !(selected && entry.id !== "enterprise")) {
+                return (
+                  <a key={entry.id} href={href} role="tab" id={`tab-${entry.id}`} aria-selected={selected} aria-controls="view-panel">
+                    {entry.label}
+                  </a>
+                );
+              }
+              return (
+                <button
+                  key={entry.id}
+                  type="button"
+                  role="tab"
+                  id={`tab-${entry.id}`}
+                  aria-selected={selected}
+                  aria-controls="view-panel"
+                  onClick={() => setView(entry.id)}
+                >
+                  {entry.label}
+                </button>
+              );
+            })}
           </div>
+          <button
+            type="button"
+            className="eai-toggle"
+            aria-pressed={filters.enterpriseOnly}
+            onClick={() => setFilters((current) => ({ ...current, enterpriseOnly: !current.enterpriseOnly }))}
+          >
+            Enterprise AI{filters.enterpriseOnly ? " · on" : ""}
+          </button>
           <button type="button" className="filter-toggle" aria-expanded={filtersOpen} onClick={() => setFiltersOpen((open) => !open)}>
             Filters{filtersActive(filters) ? " · on" : ""}
           </button>
@@ -231,6 +274,15 @@ export function App({ items, today: initialToday }: { items: NewsItem[]; today: 
           ) : null}
           {view === "connections" ? (
             <ConnectionsView items={filtered} byId={byId} selectedId={selectedId} onOpen={openItem} />
+          ) : null}
+          {view === "enterprise" ? (
+            <EnterpriseView
+              items={filtered}
+              companies={companies}
+              section={initialSection}
+              today={today}
+              onOpen={openItem}
+            />
           ) : null}
         </main>
         <UpcomingPanel

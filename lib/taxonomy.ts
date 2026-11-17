@@ -15,6 +15,7 @@ export const INDUSTRY_COLORS: Record<string, string> = {
   Autos: "#d35a48",
   Space: "#7a6adf",
   Geopolitics: "#c44b4b",
+  "Enterprise AI": "#c2410c",
 };
 
 const FALLBACK = ["#0f8f86", "#5b6cff", "#d4537e", "#e07a3d", "#3d7ec9", "#8b6cc4", "#2f9e6b", "#c4922a"];
@@ -40,6 +41,9 @@ const EVENT_LABELS: Record<string, string> = {
   market_move: "Market move",
   geopolitics: "Geopolitics",
   other: "Other",
+  capacity: "Capacity",
+  financing: "Financing",
+  power: "Power",
 };
 
 const EVENT_ORDER = Object.keys(EVENT_LABELS);

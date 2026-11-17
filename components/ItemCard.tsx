@@ -29,6 +29,8 @@ export function ItemCard({
           <span className="card-title">{item.title}</span>
           <span className="meta">
             {showDate ? <span>{formatPretty(item.date)}</span> : null}
+            {item.enterprise_ai ? <span className="badge enterprise">Enterprise AI</span> : null}
+            {item.unconfirmed ? <span className="badge enterprise reported">Reported</span> : null}
             <span className={`badge ${item.status}`}>{STATUS_LABELS[item.status]}</span>
             <span>{item.industry}</span>
             <span>{eventLabel(item.event_type)}</span>

@@ -1,5 +1,7 @@
 export type DatePrecision = "day" | "month" | "quarter" | "unknown";
 export type Status = "happened" | "upcoming" | "developing";
+export type TrackerSection = "deal" | "neocloud" | "datacenter";
+export type DealStatus = "done" | "in_the_works" | "rumored";
 export type Reliance = "very_high" | "high" | "medium" | "low";
 export type LinkKind = "rival" | "generic_threat" | "royalty" | "unverified";
 
@@ -39,6 +41,15 @@ export type NewsItem = {
   graph_node: GraphNode | null;
   graph_only: boolean;
   link_kinds: Partial<Record<string, LinkKind>>;
+  enterprise_ai?: boolean;
+  tracker_sections?: TrackerSection[];
+  tracker_companies?: string[];
+  deal_type?: string;
+  deal_status?: DealStatus;
+  why_it_matters?: string;
+  source_url?: string;
+  source_label?: string;
+  unconfirmed?: boolean;
 };
 
 export type MoveDir = "any" | "up" | "down";
@@ -52,9 +63,10 @@ export type FilterState = {
   priceMax: string;
   moveDir: MoveDir;
   moveMin: string;
+  enterpriseOnly: boolean;
 };
 
-export type ViewId = "calendar" | "list" | "ticker" | "stocks" | "connections";
+export type ViewId = "calendar" | "list" | "ticker" | "stocks" | "connections" | "enterprise";
 
 export type CautionLevel = "high" | "medium" | "low";
 

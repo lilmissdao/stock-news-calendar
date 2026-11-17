@@ -103,6 +103,54 @@ The caution count on each chip is the number of cautions in that object. The bar
 }
 ```
 
+## Enterprise AI tracker
+
+Open [http://localhost:3000/enterprise-ai](http://localhost:3000/enterprise-ai). Two more sections live at `/enterprise-ai/neoclouds` and `/enterprise-ai/datacenters`. The same pages are linked from the Enterprise AI tab. On the calendar, these rows use an Enterprise AI badge and an amber bar. The Enterprise AI button in the top bar keeps only those rows.
+
+`data/enterprise-ai.json` is the file the daily update edits. `npm run briefs` checks it and writes a count into `data/briefs.json`. It does not copy the rows into `data/news.json`. The site merges them at build time.
+
+`companies` is the card and filter list. `items` is the timeline.
+
+| Field | Meaning |
+| --- | --- |
+| `id` | Stable slug. Other rows in this file point at it. Do not reuse an id from `news.json`. |
+| `date`, `date_precision` | Same rules as the news file. Only `day` is pinned to a calendar cell. |
+| `sections` | One or more of `deal`, `neocloud`, `datacenter`. The row shows in each section. |
+| `status` | `done`, `in_the_works`, or `rumored`. |
+| `deal_type` | `partnership`, `contract`, `reseller`, `infrastructure`, `datacenter`, `sovereign`, `customer_win`, `pricing`, `product_launch`, `ipo`, `earnings`, `capacity`, `financing`, or `power`. |
+| `title`, `summary` | Short headline and one plain-English summary. |
+| `company_ids` | Ids from `companies`. A CoreWeave contract that also names Meta is listed under both, and shows on both cards. |
+| `tickers`, `companies` | Symbols and names for the calendar search. Put the company the row is mainly about first. |
+| `key_number` | The figure worth remembering, or `""`. Do not invent one. |
+| `why_it_matters` | One sentence on the stocks. |
+| `source`, `source_label` | Link and a short description of where the figure came from. |
+| `unconfirmed` | `true` when a date or figure is only reported and was not read from a company page or filing. `false` when it was. |
+| `related_ids` | Other ids in this file. |
+
+A company needs `id`, `name`, `ticker` (`""` if private), `sections`, `card_in` (sections that show a card; `[]` if it is only a filter), `watch` (the four cards at the top of Deals), `order`, `blurb`, `facts` (label/value pairs already in a source), `next_event` or `null`, `links`, and the project fields `location`, `size`, `cost`, `power`, `partners`, `project_status`. `next_event.item_id` must be an item id. `next_event.unconfirmed` follows the same rule as an item.
+
+```json
+{
+  "id": "eai-2026-11-16-example",
+  "date": "2026-11-16",
+  "date_precision": "day",
+  "sections": ["deal", "neocloud"],
+  "status": "done",
+  "deal_type": "contract",
+  "title": "Short headline",
+  "summary": "One sentence with only a figure the source stated.",
+  "company_ids": ["crwv", "meta"],
+  "tickers": ["CRWV", "META"],
+  "companies": ["CoreWeave", "Meta"],
+  "key_number": "",
+  "why_it_matters": "Why a holder of either stock would care.",
+  "source": "https://example.com/source",
+  "source_label": "Company release, Nov 16, 2026",
+  "unconfirmed": false,
+  "related_ids": []
+}
+```
+
 ## Summaries
 
 Day cards, stock pages, and long notes get a short summary made only from titles, key numbers, prices, moves, and cautions already in the files. A long note keeps its full text; the short version is the first sentence, or the key number when the note is one long sentence. `npm run briefs` writes `data/briefs.json`. The site uses that text when it still matches the items on screen, and rebuilds the same lines when a filter hides some of them. No model and no API key.

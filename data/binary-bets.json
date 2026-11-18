@@ -13,7 +13,7 @@
       "date_window": "",
       "timing": "confirmed",
       "status": "upcoming",
-      "market_cap": "",
+      "market_cap": "about $522 million",
       "cash": {
         "on_hand": "$198.5 million",
         "as_of": "2026-09-30",
@@ -27,7 +27,7 @@
       },
       "success_means": "An approval would be Capricor's first product. The company reported no revenue in the first three quarters of 2026 and said the San Diego plant is ready for an initial launch if the FDA says yes. A rare-pediatric designation could also qualify it for a priority-review voucher, which the cash outlook does not include.",
       "miss_means": "A complete response letter would leave Capricor with no approved product. The same release says the 12-month cash outlook excludes product sales. A distribution fight with NS Pharma is already in arbitration, with a hearing expected in mid-2027.",
-      "why_it_matters": "Deramiocel is the company. The FDA already extended this review by three months after a major amendment, and the stock is waiting on a yes or no for its only late-stage drug.",
+      "why_it_matters": "Deramiocel is the company. The Nov 18 digest says the review was extended after a major amendment that narrowed the label to arm impairment in patients over 9, that an inspection left one Form 483 observation, and that short interest is about 36% of float with the stock up 5% premarket. It calls that a squeeze-or-crater setup. The FDA date is still ahead.",
       "outcome": null,
       "facts": [
         {
@@ -50,12 +50,42 @@
           "source": "https://www.capricor.com/investors/news-events/press-releases/detail/359/capricor-therapeutics-reports-third-quarter-2026-financial",
           "source_label": "Capricor Q3 2026 release, Nov 10, 2026",
           "reported": false
+        },
+        {
+          "label": "Market cap",
+          "value": "The Nov 18, 2026 morning digest says the market cap is about $522 million.",
+          "source": "https://www.capricor.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
+        },
+        {
+          "label": "Label and inspection",
+          "value": "The Nov 18, 2026 morning digest says the review was extended after a major amendment that narrowed the label to arm impairment in patients over 9, and that an FDA trial inspection left one Form 483 observation.",
+          "source": "https://www.capricor.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
+        },
+        {
+          "label": "Cash in the Nov 18 digest",
+          "value": "The Nov 18, 2026 morning digest says cash is about $199 million, or roughly 4 to 5 quarters at a $44.7 million quarterly operating loss. The filing cash on this card is the separate $198.5 million figure.",
+          "source": "https://www.capricor.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
+        },
+        {
+          "label": "Premarket and short interest in the Nov 18 digest",
+          "value": "The Nov 18, 2026 morning digest says short interest is about 36% of float and the stock is up 5% premarket. The FINRA figure already on this card is 35.6% of float as of October 30, 2026.",
+          "source": "https://www.capricor.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
         }
       ],
       "title": "Binary: Capricor deramiocel PDUFA",
-      "summary": "The FDA's target date for Capricor's Deramiocel, a cell therapy for Duchenne, is November 22, 2026. Cash was $198.5 million on September 30, which the company says funds at least the next 12 months.",
-      "key_number": "PDUFA Nov 22, 2026. Cash $198.5 million on Sep 30, at least 12 months.",
-      "related_ids": [],
+      "summary": "The Nov 18 digest flags Capricor's deramiocel FDA decision on November 22, 2026 and calls the setup a squeeze or a crater. It says a major amendment narrowed the label to arm impairment in patients over 9, an FDA trial inspection left one Form 483 observation, cash is about $199 million, or roughly 4 to 5 quarters at a $44.7 million quarterly operating loss, short interest is about 36% of float, and the stock is up 5% premarket. The filing figure on this card is still $198.5 million of cash on September 30.",
+      "key_number": "PDUFA Nov 22, 2026. Digest: market cap about $522 million; cash about $199 million; one Form 483; short interest about 36%; premarket +5%.",
+      "related_ids": [
+        "bb-2026-11-22-svra"
+      ],
       "short_interest": {
         "pct_float": 35.6,
         "days_to_cover": 7.4,
@@ -96,8 +126,8 @@
         "reported": false
       },
       "success_means": "An approval would be Savara's first product. The 10-Q calls MOLBREEVI its sole program, and the company has had no product revenue from inception through September 30, 2026.",
-      "miss_means": "A rejection would leave the sole program unapproved. Savara would still have the cash and short-term investments above, and $30.2 million of long-term debt on that balance sheet.",
-      "why_it_matters": "There is no second drug behind this decision. The FDA already added three months because it treated Savara's answers during the review as a major amendment.",
+      "miss_means": "A rejection would leave the sole program unapproved. The Nov 18 digest says a rejection likely forces a raise. The September 30 balance sheet still shows the cash and short-term investments above, and $30.2 million of long-term debt.",
+      "why_it_matters": "There is no second drug behind this decision. The Nov 18 digest says the review was extended three months for a major amendment, that the launch team is already built, and that a rejection likely forces a raise.",
       "outcome": null,
       "facts": [
         {
@@ -120,12 +150,21 @@
           "source": "https://www.sec.gov/Archives/edgar/data/1160308/000119312526453535/svra-20260930.htm",
           "source_label": "Savara 10-Q for the quarter ended Sep 30, 2026",
           "reported": false
+        },
+        {
+          "label": "Cash in the Nov 18 digest",
+          "value": "The Nov 18, 2026 morning digest says cash is about $130 million against a $43 million quarterly loss, roughly 3 quarters, and that Savara has already built its launch team. A rejection, the digest says, likely forces a raise. The filing total on this card is the separate $129.6 million figure.",
+          "source": "https://www.savarapharma.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
         }
       ],
       "title": "Binary: Savara MOLBREEVI PDUFA",
-      "summary": "Savara's only drug, inhaled MOLBREEVI for autoimmune pulmonary alveolar proteinosis, has an FDA target date of November 22, 2026. Cash and short-term investments were $129.6 million on September 30.",
-      "key_number": "PDUFA Nov 22, 2026. Cash plus short-term investments $129.6 million.",
-      "related_ids": [],
+      "summary": "The Nov 18 digest flags Savara's Molbreevi FDA decision on November 22, 2026, after a 3-month extension for a major amendment. It says cash is about $130 million against a $43 million quarterly loss, roughly 3 quarters, that Savara has already built its launch team, and that a rejection likely forces a raise. The filing figure on this card is still $129.6 million of cash and short-term investments on September 30.",
+      "key_number": "PDUFA Nov 22, 2026. Digest: cash about $130 million; about $43 million quarterly loss, roughly 3 quarters.",
+      "related_ids": [
+        "bb-2026-11-22-capr"
+      ],
       "quarterly_burn": {
         "amount_usd": 35085667,
         "basis": "net cash used in operating activities, YTD / quarters",
@@ -226,7 +265,7 @@
       },
       "success_means": "An approval would let partner Azurity launch in the U.S. in early 2027. PolyPid would supply the product at a pre-negotiated transfer price and collect tiered royalties from the mid-teens to the mid-twenties on U.S. and Canada sales, plus further milestones. The company says it remains eligible for over $290 million more in milestones.",
       "miss_means": "A rejection would block that U.S. launch. PolyPid's own September 30 cash was $15.5 million. The runway statement into 2028 counts expected Azurity proceeds, not cash sitting on the balance sheet alone.",
-      "why_it_matters": "D-PLEX100 is the first product, and the U.S. rights are partnered. The stock still hinges on this FDA date because the launch, the royalties, and the later milestones all start with a yes.",
+      "why_it_matters": "D-PLEX100 is the first product, and the U.S. rights are partnered. The Nov 18 digest says the review is priority review and that launch prep is underway. The stock still hinges on this FDA date.",
       "outcome": null,
       "facts": [
         {
@@ -249,11 +288,18 @@
           "source": "https://www.globenewswire.com/news-release/2026/11/11/3400615/0/en/poly-pid-provides-corporate-update-and-reports-third-quarter-2026-financial-results.html",
           "source_label": "PolyPid Q3 2026 release, Nov 11, 2026",
           "reported": false
+        },
+        {
+          "label": "Launch prep",
+          "value": "The Nov 18, 2026 morning digest says the November 28, 2026 decision is under priority review and that launch prep is underway.",
+          "source": "https://www.polypid.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
         }
       ],
       "title": "Binary: PolyPid D-PLEX100 PDUFA",
-      "summary": "PolyPid's D-PLEX100, a local antibiotic for preventing infection after colorectal surgery, has an FDA goal date of November 28, 2026. September 30 cash was $15.5 million, before a $15 million partner payment in October.",
-      "key_number": "PDUFA Nov 28, 2026. Cash $15.5 million on Sep 30, plus $15 million received in October.",
+      "summary": "The Nov 18 digest says PolyPid's D-PLEX100 FDA decision is November 28, 2026, under priority review, and that launch prep is underway. September 30 cash was $15.5 million, before a $15 million partner payment in October.",
+      "key_number": "PDUFA Nov 28, 2026, priority review. Launch prep underway. Cash $15.5 million on Sep 30, plus $15 million received in October.",
       "related_ids": [],
       "short_interest": {
         "pct_float": 5.02,
@@ -668,7 +714,7 @@
       },
       "success_means": "If the independent monitoring committee says the Month 15 vision endpoint was met, Annexon says that opens a European filing path and, after two pre-specified sub-studies, a possible U.S. path. The company said those sub-study results would be expected in the first quarter of 2027 only if the first analysis wins.",
       "miss_means": "If the committee says the endpoint was not met, the trial stays masked and continues to the Month 24 analysis. Annexon expects that full readout, including Month 24, in the third quarter of 2027. Investors would not get a full unmasked dataset this quarter. Cash was guided into 2028, without a quarter count.",
-      "why_it_matters": "This is the pivotal vision test for vonaprument, and geographic atrophy is the lead program. A 'continue' is not the same as a failed drug, but it does push the public data out.",
+      "why_it_matters": "This is the pivotal vision test for vonaprument, and geographic atrophy is the lead program. The Nov 18 digest says the readout is within about 6 weeks and that runway into 2028 means dilution risk is lower. A continue is not the same as a failed drug, but it does push the public data out.",
       "outcome": null,
       "facts": [
         {
@@ -687,8 +733,8 @@
         }
       ],
       "title": "Binary: Annexon ARCHER II vision check",
-      "summary": "Annexon expects an independent committee to judge the Month 15 vision endpoint of the Phase 3 ARCHER II geographic-atrophy trial in the fourth quarter of 2026. A win leads to more analyses. A miss keeps the trial masked until 2027. Cash was $213.4 million.",
-      "key_number": "Expected Q4 2026. Cash $213.4 million into 2028. No day was stated.",
+      "summary": "The Nov 18 digest says the ARCHER II Phase 3 primary readout in geographic atrophy is guided to the fourth quarter of 2026, within about 6 weeks, and that cash runway lasts into 2028, so dilution risk is lower. Annexon's own guide is a fourth-quarter 2026 assessment of the Month 15 vision endpoint, with no day named. Cash was $213.4 million on September 30.",
+      "key_number": "Guided to Q4 2026, within about 6 weeks per the Nov 18 digest. Cash runway into 2028. Cash $213.4 million.",
       "related_ids": [],
       "guidance_history": [
         {
@@ -696,6 +742,13 @@
           "wording": "fourth quarter of 2026",
           "source": "https://annexonbiosciences.gcs-web.com/news-releases/news-release-details/annexon-reports-third-quarter-2026-financial-results-business/",
           "source_label": "Annexon Q3 2026 release, Nov 9, 2026",
+          "missed": false
+        },
+        {
+          "date": "2026-11-18",
+          "wording": "Q4 2026",
+          "source": "https://annexonbio.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
           "missed": false
         }
       ],
@@ -1524,12 +1577,12 @@
       },
       "success_means": "The Phase 3 REGAL trial met its overall-survival goal. GPS cut the risk of death by 41% versus the investigator's choice of best available treatment, hazard ratio 0.59, p=0.035. Median survival was 24.0 months versus 14.7 months. Sellas plans an FDA meeting and a BLA in the first half of 2027.",
       "miss_means": "A miss would have been a failed survival trial for the lead vaccine, in a company whose filing plan depends on this study. That is not what happened. The stock move below is a set of premarket quotes, not a closing print.",
-      "why_it_matters": "This is the template for the list: one pivotal survival result, and the stock repriced before the open. The company had guided the 80th death by year-end 2025 on August 7 and November 12, 2025. That date was missed. The 80th death landed on October 28, 2026, with topline results guided to this quarter and then to this month.",
+      "why_it_matters": "This was one pivotal survival result, and the stock repriced. The Nov 18 digest puts the Tuesday move at +156% to $19.15 and the next premarket at -4.5%. It says to watch for an equity raise into the strength and marks that as unconfirmed opinion. The company had guided the 80th death by year-end 2025. That date was missed. The 80th death landed on October 28, 2026.",
       "outcome": {
         "result": "success",
-        "move": "Premarket quotes were roughly +216% to +240% and did not match: Kalkine +239.22% to $25.34 from a $7.47 prior close. Yahoo Finance: opened at $24.00 on Nov 17, 2026 and was about +172.69% at $20.37 midday. A single closing print is not used.",
+        "move": "The Nov 18, 2026 morning digest says the shares rose 156% on Nov 17 to $19.15, then were down 4.5% premarket on Nov 18. Earlier quotes the same morning did not match: premarket roughly +216% to +240%, Kalkine +239.22% to $25.34 from a $7.47 prior close, and Yahoo Finance showed an open of $24.00 and about +172.69% at $20.37 midday. The digest says shares are fading after the pop and to watch for an equity raise into the strength, which it marks as unconfirmed opinion.",
         "source": "https://finance.yahoo.com/quote/SLS/history/",
-        "source_label": "Yahoo Finance SLS history, with Kalkine for one premarket quote",
+        "source_label": "Nov 18, 2026 morning stock digest; earlier session quotes from Yahoo Finance and Kalkine",
         "reported": true
       },
       "facts": [
@@ -1609,11 +1662,18 @@
           "source": "https://chartexchange.com/symbol/nasdaq-sls/short-interest/",
           "source_label": "ChartExchange FINRA short-interest table",
           "reported": true
+        },
+        {
+          "label": "Stock move in the Nov 18 digest",
+          "value": "The Nov 18, 2026 morning digest says Sellas rose 156% on November 17 to $19.15, then was down 4.5% premarket on November 18. It says shares are fading after the pop and to watch for an equity raise into the strength, which it marks as unconfirmed opinion. Earlier quotes the same morning did not match.",
+          "source": "https://finance.yahoo.com/quote/SLS/history/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
         }
       ],
       "title": "Binary outcome: Sellas GPS hits survival goal",
-      "summary": "On November 17, 2026, Sellas said its Phase 3 AML vaccine galinpepimut-S met the overall-survival goal, with a 41% lower risk of death. The trial had reached 80 of 80 deaths on October 28. Premarket quotes were roughly +216% to +240%. Yahoo Finance showed an open of $24.00 from a $7.47 prior close and a midday gain of about 173%.",
-      "key_number": "Success Nov 17, 2026. OS hazard ratio 0.59. 80 of 80 events. Premarket roughly +216% to +240%; opened $24.00.",
+      "summary": "On November 17, 2026, Sellas said its Phase 3 REGAL trial of galinpepimut-S met the overall-survival goal. The Nov 18 digest says the shares rose 156% that day to $19.15 and were down 4.5% premarket on November 18. Earlier quotes the same morning were roughly +216% to +240% and did not match. The digest says shares are fading and to watch for an equity raise into the strength, and it marks that raise as unconfirmed opinion.",
+      "key_number": "Success Nov 17, 2026. Digest: +156% to $19.15, then -4.5% premarket Nov 18.",
       "related_ids": [],
       "event_counter": {
         "current": 80,
@@ -1775,6 +1835,145 @@
         "source": "https://www.sec.gov/Archives/edgar/data/1599298/000159929826000090/smmt-20260930.htm",
         "source_label": "Summit 10-Q for the quarter ended Sep 30, 2026"
       }
+    },
+    {
+      "id": "bb-2026-12-imux",
+      "ticker": "IMUX",
+      "company": "Immunic",
+      "drug": "vidofludimus",
+      "indication": "Relapsing multiple sclerosis",
+      "catalyst_type": "phase3",
+      "date": "2026-12-01",
+      "date_precision": "month",
+      "date_window": "December",
+      "timing": "expected",
+      "status": "upcoming",
+      "market_cap": "",
+      "cash": {
+        "on_hand": "about $132 million",
+        "as_of": "2026-11-18",
+        "scope": "as stated in the Nov 18, 2026 morning digest; a balance-sheet date was not given",
+        "runway": "",
+        "quarters": "roughly 3",
+        "quarters_note": "The Nov 18 digest says about $132 million of cash against about $43 million of quarterly spending is roughly 3 quarters. That is the digest's wording, not a burn figure read from a filing.",
+        "source": "https://finance.yahoo.com/quote/IMUX/",
+        "source_label": "Nov 18, 2026 morning stock digest",
+        "reported": true
+      },
+      "success_means": "The Nov 18 digest calls the twin ENSURE-1 and ENSURE-2 readouts of vidofludimus make-or-break, and says they are on track for December per the Nov 13 update.",
+      "miss_means": "The digest says the readouts are make-or-break for the company. It states about $132 million of cash against about $43 million of quarterly spending, roughly 3 quarters.",
+      "why_it_matters": "Two Phase 3 trials in relapsing MS read out in December. The Nov 18 digest says they are on track per the Nov 13 update and that the result is make-or-break. No day inside December was stated.",
+      "outcome": null,
+      "facts": [
+        {
+          "label": "Readout window",
+          "value": "The Nov 18, 2026 morning digest says the twin Phase 3 ENSURE-1 and ENSURE-2 trials of vidofludimus in relapsing MS read out in December and are on track per the Nov 13 update. No day was stated.",
+          "source": "https://finance.yahoo.com/quote/IMUX/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
+        },
+        {
+          "label": "Cash",
+          "value": "The Nov 18, 2026 morning digest says cash is $132 million against about $43 million of quarterly spending, roughly 3 quarters. A balance-sheet date was not stated.",
+          "source": "https://finance.yahoo.com/quote/IMUX/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
+        }
+      ],
+      "title": "Binary: Immunic ENSURE Phase 3 readouts",
+      "summary": "The Nov 18 digest says Immunic's twin Phase 3 ENSURE-1 and ENSURE-2 trials of vidofludimus in relapsing MS read out in December and are on track per the Nov 13 update. Cash is $132 million against about $43 million of quarterly spending, roughly 3 quarters. The note calls it make-or-break.",
+      "key_number": "December readout, on track per the Nov 13 update. Cash $132 million; about $43 million quarterly spending, roughly 3 quarters.",
+      "related_ids": [],
+      "guidance_history": [
+        {
+          "date": "2026-11-13",
+          "wording": "in December",
+          "source": "https://finance.yahoo.com/quote/IMUX/",
+          "source_label": "Nov 18, 2026 morning stock digest, citing the Nov 13 update",
+          "missed": false
+        }
+      ]
+    },
+    {
+      "id": "bb-2026-11-kpti",
+      "ticker": "KPTI",
+      "company": "Karyopharm",
+      "drug": "XPORT-MM-031",
+      "indication": "Myeloma",
+      "catalyst_type": "phase3",
+      "date": "2027-01-01",
+      "date_precision": "month",
+      "date_window": "still pending; no date was stated",
+      "timing": "expected",
+      "status": "upcoming",
+      "market_cap": "",
+      "cash": null,
+      "success_means": "The Nov 18 digest does not say a positive XPORT-MM-031 topline would rescue the stock. It says analysts think equity value could be minimal, so even good data may not save shareholders.",
+      "miss_means": "A miss would leave the pending myeloma topline failed on top of the Chapter 11 case and the planned Ayrmid merger. The digest says equity value could be minimal even if the data are good.",
+      "why_it_matters": "Karyopharm has been in Chapter 11 since Nov 2, with a planned Ayrmid merger. The event-driven myeloma topline is still pending, and the Nov 18 digest gives no date. No event count was stated.",
+      "outcome": null,
+      "facts": [
+        {
+          "label": "Readout window",
+          "value": "The Nov 18, 2026 morning digest says the event-driven XPORT-MM-031 myeloma topline is still pending and does not give a date. Karyopharm has been in Chapter 11 since Nov 2, with a planned Ayrmid merger. Analysts say equity value could be minimal.",
+          "source": "https://www.karyopharm.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
+        }
+      ],
+      "title": "Binary: Karyopharm XPORT-MM-031 topline still pending",
+      "summary": "The Nov 18 digest says Karyopharm has been in Chapter 11 since Nov 2, with a planned Ayrmid merger, and that the event-driven XPORT-MM-031 myeloma topline is still pending. Analysts say equity value could be minimal, so even good data may not save shareholders. No date, cash figure, or event count was stated.",
+      "key_number": "Topline still pending; no date stated. Chapter 11 since Nov 2; planned Ayrmid merger.",
+      "related_ids": []
+    },
+    {
+      "id": "bb-2026-12-rzlt",
+      "ticker": "RZLT",
+      "company": "Rezolute",
+      "drug": "upLIFT",
+      "indication": "Not named in the Nov 18 digest",
+      "catalyst_type": "phase3",
+      "date": "2026-12-01",
+      "date_precision": "month",
+      "date_window": "by mid-December",
+      "timing": "expected",
+      "status": "upcoming",
+      "market_cap": "",
+      "cash": null,
+      "success_means": "The Nov 18 digest says preliminary upLIFT data were positive, with 13 of 16 responders. The full topline, with statistics, is still due by mid-December.",
+      "miss_means": "The digest does not say what a miss on the full topline would mean. It says only that the preliminary data were positive and that the statistical topline is due by mid-December.",
+      "why_it_matters": "The remaining catalyst is the full topline with statistics. The Nov 18 digest says it is due by mid-December and that 13 of 16 patients responded in the preliminary look. No indication, cash figure, or event-count target was stated.",
+      "outcome": null,
+      "facts": [
+        {
+          "label": "Readout window",
+          "value": "The Nov 18, 2026 morning digest says full upLIFT topline results, with statistics, are due by mid-December. No day was stated.",
+          "source": "https://rezolutebio.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
+        },
+        {
+          "label": "Preliminary responders",
+          "value": "The Nov 18, 2026 morning digest says preliminary upLIFT data were positive, with 13 of 16 responders.",
+          "source": "https://rezolutebio.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "reported": true
+        }
+      ],
+      "title": "Binary: Rezolute upLIFT full topline by mid-December",
+      "summary": "The Nov 18 digest says Rezolute's preliminary upLIFT data were positive, with 13 of 16 responders, and that the full topline with statistics is due by mid-December. No day, indication, or cash figure was stated.",
+      "key_number": "Preliminary 13 of 16 responders. Full topline with statistics due by mid-December.",
+      "related_ids": [],
+      "prior_phase_data": "Preliminary upLIFT data were positive, with 13 of 16 responders.",
+      "guidance_history": [
+        {
+          "date": "2026-11-18",
+          "wording": "by mid-December",
+          "source": "https://rezolutebio.com/",
+          "source_label": "Nov 18, 2026 morning stock digest",
+          "missed": false
+        }
+      ]
     }
   ]
 }

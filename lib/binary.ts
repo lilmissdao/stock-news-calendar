@@ -430,7 +430,7 @@ const SOON_GUIDANCE = [
   /\bcoming weeks\b/i,
   /\bcoming days\b/i,
   /\bwithin (?:a |the )?(?:month|weeks|days)\b/i,
-  /\bimminent\b/i,
+  /\bimminent(?:ly)?\b/i,
   /\bany day\b/i,
   /\bshortly\b/i,
 ];

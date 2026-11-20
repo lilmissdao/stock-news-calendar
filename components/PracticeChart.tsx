@@ -15,6 +15,26 @@ function toBar(bar: ChartCandle) {
   return { time: bar.t as UTCTimestamp, open: bar.o, high: bar.h, low: bar.l, close: bar.c };
 }
 
+function applyMarkers(
+  marks: ISeriesMarkersPluginApi<Time> | null,
+  markerData: { time: UTCTimestamp; position: "belowBar" | "aboveBar"; shape: "arrowUp" | "arrowDown"; color: string; text: string }[],
+  markerSig: { current: string },
+  sig: string,
+) {
+  if (!marks || markerSig.current === sig) return;
+  try {
+    marks.setMarkers(markerData);
+    markerSig.current = sig;
+  } catch {
+    try {
+      marks.setMarkers([]);
+    } catch {
+      /* The candle series is still updated when a marker is rejected. */
+    }
+    markerSig.current = "";
+  }
+}
+
 function publish(chart: IChartApi, candles: ChartCandle[], host: HTMLElement | null, manual: boolean) {
   if (!host) return;
   const price = chart.priceScale("right").getVisibleRange();
@@ -69,6 +89,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
   const lineRef = useRef<IPriceLine | null>(null);
   const barsRef = useRef<ChartCandle[] | null>(null);
   const seriesIdRef = useRef<string | null>(null);
+  const markerSig = useRef("");
   const manual = useRef(false);
   const applying = useRef(false);
   const latest = useRef({ candles, markers, priorClose, seriesId });
@@ -177,8 +198,9 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       marksRef.current = createSeriesMarkers(series, []);
       barsRef.current = null;
       seriesIdRef.current = null;
+      markerSig.current = "";
       manual.current = false;
-      paint(series, marksRef.current, chart, lineRef, latest.current, host.current, true, barsRef, seriesIdRef, manual, applying);
+      paint(series, marksRef.current, chart, lineRef, latest.current, host.current, true, barsRef, seriesIdRef, markerSig, manual, applying);
     });
     return () => {
       dead = true;
@@ -189,6 +211,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       lineRef.current = null;
       barsRef.current = null;
       seriesIdRef.current = null;
+      markerSig.current = "";
     };
   }, [theme]);
 
@@ -226,7 +249,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
         raf = window.requestAnimationFrame(draw);
         return;
       }
-      paint(live, marksRef.current, box, lineRef, latest.current, host.current, switched, barsRef, seriesIdRef, manual, applying);
+      paint(live, marksRef.current, box, lineRef, latest.current, host.current, switched, barsRef, seriesIdRef, markerSig, manual, applying);
     };
     draw();
     return () => {
@@ -248,11 +271,13 @@ function paint(
   switched: boolean,
   previous: { current: ChartCandle[] | null },
   previousId: { current: string | null },
+  markerSig: { current: string },
   manual: { current: boolean },
   applying: { current: boolean },
 ) {
   const { candles, markers, priorClose, seriesId } = latest;
   const replace = seriesNeedsReset(previousId.current, seriesId, previous.current, candles) || !candles.length;
+  const sig = markers.map((mark) => `${mark.time}:${mark.side}`).join("|");
   const savedTime: LogicalRange | null = manual.current ? chart.timeScale().getVisibleLogicalRange() : null;
   const savedPrice = manual.current ? chart.priceScale("right").getVisibleRange() : null;
   const markerData = markers.map((mark) => ({
@@ -264,16 +289,13 @@ function paint(
   }));
   if (replace) {
     marks?.setMarkers([]);
+    markerSig.current = "";
     if (line.current) {
       series.removePriceLine(line.current);
       line.current = null;
     }
     series.setData(candles.map(toBar));
-    try {
-      marks?.setMarkers(markerData);
-    } catch {
-      marks?.setMarkers([]);
-    }
+    applyMarkers(marks, markerData, markerSig, sig);
     const window = priceWindow(candles, priorClose);
     if (priorClose !== null && window && priorClose >= window.from && priorClose <= window.to) {
       const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink-soft").trim();
@@ -297,13 +319,21 @@ function paint(
       publish(chart, candles, host, true);
     }
   } else if (candles.length) {
-    series.update(toBar(candles[candles.length - 1]));
+    const bar = toBar(candles[candles.length - 1]);
     try {
-      marks?.setMarkers(markerData);
+      series.update(bar);
     } catch {
-      marks?.setMarkers([]);
+      series.setData(candles.map(toBar));
     }
-    if (!manual.current) chart.priceScale("right").setAutoScale(true);
+    applyMarkers(marks, markerData, markerSig, sig);
+    if (!manual.current) {
+      chart.priceScale("right").setAutoScale(true);
+      const range = chart.timeScale().getVisibleLogicalRange();
+      const last = candles.length - 1;
+      if (!range || last > range.to - 1 || last < range.from) {
+        holdApply(applying, () => chart.timeScale().setVisibleLogicalRange({ from: last - 14, to: last + 5 }));
+      }
+    }
     publish(chart, candles, host, manual.current);
   }
   previous.current = candles;

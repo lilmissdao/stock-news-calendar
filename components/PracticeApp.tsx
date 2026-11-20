@@ -297,18 +297,23 @@ export function PracticeApp() {
     }
   }, [history]);
 
-  const clockRef = useRef<{ at: number; applied: number } | null>(null);
+  const pace = useRef({ playing: false, speed: 1 as Speed, phase: "play" as GameState["phase"] });
+  const clockRef = useRef<{ at: number; applied: number; speed: Speed } | null>(null);
+  pace.current = {
+    playing: !!game?.playing,
+    speed: game?.speed ?? 1,
+    phase: game?.phase ?? "play",
+  };
   useEffect(() => {
-    if (!game?.playing || game.phase !== "play") {
-      clockRef.current = null;
-      return;
-    }
-    const speed = game.speed;
-    clockRef.current = { at: Date.now(), applied: 0 };
     let frame = 0;
     const pump = () => {
+      const { playing, speed, phase } = pace.current;
+      if (!playing || phase !== "play") {
+        clockRef.current = null;
+        return;
+      }
+      if (!clockRef.current || clockRef.current.speed !== speed) clockRef.current = { at: Date.now(), applied: 0, speed };
       const clock = clockRef.current;
-      if (!clock) return;
       const due = ticksDue(Date.now() - clock.at, speed);
       const add = due - clock.applied;
       if (add > 0) {
@@ -321,20 +326,19 @@ export function PracticeApp() {
       frame = window.requestAnimationFrame(loop);
     };
     frame = window.requestAnimationFrame(loop);
-    const timer = window.setInterval(pump, Math.min(250, tickMs(speed)));
+    const timer = window.setInterval(pump, 200);
     const wake = () => pump();
     document.addEventListener("visibilitychange", wake);
     window.addEventListener("focus", wake);
     window.addEventListener("pageshow", wake);
     return () => {
-      clockRef.current = null;
       window.cancelAnimationFrame(frame);
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", wake);
       window.removeEventListener("focus", wake);
       window.removeEventListener("pageshow", wake);
     };
-  }, [game?.playing, game?.speed, game?.phase, game?.day, game?.session]);
+  }, []);
 
   const pathKey = game ? `${game.session}:${game.day}:${game.seeds[game.day] ?? 0}` : "";
   const session = useMemo(() => {
@@ -723,7 +727,7 @@ export function PracticeApp() {
                     type="button"
                     className="text-btn"
                     onClick={() => {
-                      clockRef.current = { at: Date.now(), applied: 0 };
+                      clockRef.current = { at: Date.now(), applied: 0, speed: game.speed };
                       setGame((current) => (current ? run(current, stepMinute) : current));
                     }}
                   >

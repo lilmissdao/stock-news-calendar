@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cycle";
-import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, ticksDue, trade, type GameState } from "./practice-engine";
+import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
 import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
@@ -284,6 +284,57 @@ function dealtSessionAdvancesTheBatch() {
   const label = clock(book.days[0].start);
   assert.match(label, /\d{1,2}:\d{2}/);
   assert.equal(/\d{4}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Mon|Tue|Wed|Thu|Fri|Sat|Sun/.test(label), false);
+}
+
+function skipUntouchedDayDoesNotScore() {
+  const bars = flatBars();
+  let game: GameState = { ...fresh(), cursor: 4, tick: 10 };
+  const cash = game.cash;
+  const day = game.day;
+  game = skipDay(game, 10, 4, bars, bars, "2026-09-01", 31_000);
+  assert.equal(game.phase, "play");
+  assert.equal(game.day, day);
+  assert.equal(game.session, 4);
+  assert.equal(game.batchDays.length, 0);
+  assert.equal(game.cash, cash);
+  assert.equal(game.cursor, 0);
+}
+
+function skipSellsAndCountsTheDay() {
+  const bars = flatBars();
+  let game = trade(fresh(), "TQQQ", "buy", 0.25, 50, "2026-09-01");
+  assert.ok(game.positions.TQQQ.shares > 0);
+  game = skipDay(game, 10, 6, bars, bars, "2026-09-01", 31_000);
+  assert.equal(game.positions.TQQQ.shares, 0);
+  assert.equal(game.batchDays.length, 1);
+  assert.equal(game.batchDays[0].date, "2026-09-01");
+  assert.ok(game.batchDays[0].fees > 0);
+  assert.equal(game.day, 1);
+  assert.equal(game.session, 6);
+  assert.equal(game.phase, "play");
+}
+
+function skipAfterARoundTripStillCounts() {
+  const bars = flatBars();
+  let game = trade(fresh(), "TQQQ", "buy", 1, 50, "2026-09-15");
+  game = trade(game, "TQQQ", "sell", 1, 50, "2026-09-15");
+  assert.equal(game.positions.TQQQ.shares, 0);
+  game = skipDay(game, 10, 2, bars, bars, "2026-09-15", 31_000);
+  assert.equal(game.batchDays.length, 1);
+  assert.equal(game.day, 1);
+  assert.equal(game.phase, "play");
+}
+
+function skipAfterTheCloseDoesNotDoubleCount() {
+  const bars = flatBars();
+  let game = playDay(fresh(), "2026-09-01");
+  assert.equal(game.phase, "day");
+  assert.equal(game.batchDays.length, 1);
+  game = skipDay(game, 10, 3, bars, bars, "2026-09-01", 31_000);
+  assert.equal(game.batchDays.length, 1);
+  assert.equal(game.day, 1);
+  assert.equal(game.session, 3);
+  assert.equal(game.phase, "play");
 }
 
 regulatoryFeesOnly();

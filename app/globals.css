@@ -1422,6 +1422,17 @@ main { min-width: 0; }
 .pr-price { display: block; margin: 0; font-size: 1.45rem; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .pr-left { margin: 2px 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
 .pr-book { margin: 0; color: var(--ink-soft); font-size: 14px; font-variant-numeric: tabular-nums; }
+.pr-skiprow { display: flex; justify-content: flex-end; }
+.pr-skip {
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-elev);
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.pr-fullskip { position: absolute; z-index: 5; top: 8px; right: 8px; }
 .pr-play {
   min-height: 52px;
   min-width: 112px;

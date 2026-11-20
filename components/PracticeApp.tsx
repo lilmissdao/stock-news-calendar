@@ -13,6 +13,8 @@ import {
   newGame,
   nextDay,
   openBatchReview,
+  sharesHeld,
+  skipDay,
   sessionHoldValue,
   SPEEDS,
   stepMinute,
@@ -198,6 +200,7 @@ export function PracticeApp() {
   const [theme, setTheme] = useState("light");
   const [tab, setTab] = useState<"play" | "history">("play");
   const [confirm, setConfirm] = useState(false);
+  const [skipAsk, setSkipAsk] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [cycle, setCycle] = useState<CycleFile | null>(null);
   const [chartH, setChartH] = useState<number | null>(null);
@@ -357,7 +360,39 @@ export function PracticeApp() {
 
   function askNew() {
     setGame((current) => (current ? { ...current, playing: false } : current));
+    setSkipAsk(false);
     setConfirm(true);
+  }
+
+  function skipNow() {
+    if (!active || !cycle) return;
+    setSkipAsk(false);
+    setFull(false);
+    const dealt = deal(playedDates(saved, active), cycle, bookDay(active)?.date ?? "");
+    setCycle(dealt.cycle);
+    const day = bookDay(active);
+    const paths = buildSession(day, active.seeds[active.day] || 1);
+    setGame(
+      skipDay(
+        { ...active, playing: false },
+        BOOK.days.length,
+        dealt.index,
+        paths.TQQQ.slice(0, SESSION_MINUTES),
+        paths.SQQQ.slice(0, SESSION_MINUTES),
+        day?.date ?? "",
+        holdSoFar(active),
+      ),
+    );
+  }
+
+  function askSkip() {
+    if (!active) return;
+    setGame((current) => (current ? { ...current, playing: false } : current));
+    if (active.phase === "play" && sharesHeld(active) > 0) {
+      setSkipAsk(true);
+      return;
+    }
+    skipNow();
   }
 
   function goNext() {
@@ -504,6 +539,27 @@ export function PracticeApp() {
                 </button>
               ) : null}
             </div>
+            {game.phase === "play" || game.phase === "day" ? (
+              <div className="pr-skiprow">
+                <button type="button" className="pr-skip" onClick={askSkip}>
+                  Skip day
+                </button>
+              </div>
+            ) : null}
+            {skipAsk ? (
+              <section className="pr-confirm">
+                <h2>Sell and skip this day?</h2>
+                <p className="pr-lead">The open position sells at the current price.</p>
+                <div className="pr-actions">
+                  <button type="button" className="text-btn" onClick={() => setSkipAsk(false)}>
+                    Keep playing
+                  </button>
+                  <button type="button" className="pr-skip" onClick={skipNow}>
+                    Sell and skip
+                  </button>
+                </div>
+              </section>
+            ) : null}
             {cycle && game.phase === "play" && !dayStarted(game) ? (
               <p className="pr-fresh">Fresh days left: {freshLeft(SESSION_DATES, playedDates(history, game), cycle, session.day.date)} of {BOOK.days.length}</p>
             ) : null}
@@ -526,6 +582,11 @@ export function PracticeApp() {
                   priorClose={prior}
                   seriesId={`${game.ticker}-${game.timeframe}`}
                 />
+                {full ? (
+                  <button type="button" className="pr-skip pr-fullskip" onClick={askSkip}>
+                    Skip day
+                  </button>
+                ) : null}
                 <div className="pr-chart-tools">
                   <button type="button" aria-label="Zoom in" onClick={() => chartRef.current?.zoom(0.75)}>
                     +

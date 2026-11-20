@@ -374,6 +374,37 @@ function sessionIndex(dayCount: number, session: number): number {
   return Math.max(0, Math.min(dayCount - 1, Math.floor(session)));
 }
 
+export function sharesHeld(state: GameState): number {
+  return state.positions.TQQQ.shares + state.positions.SQQQ.shares;
+}
+
+/** A buy or a sell happened. Watching the clock does not count. */
+export function sessionTraded(state: GameState): boolean {
+  return state.markers.length > 0 || sharesHeld(state) > 0 || state.dayFees > 0;
+}
+
+/**
+ * Jump to another session.
+ * An untouched day is only marked used. A day she traded is closed at the current price and counts toward the five.
+ */
+export function skipDay(
+  state: GameState,
+  dayCount: number,
+  nextSession: number,
+  tqqq: MinuteBar[],
+  sqqq: MinuteBar[],
+  date: string,
+  hold: number,
+): GameState {
+  if (state.phase === "batch") return nextBatch(state, dayCount, nextSession);
+  if (state.phase === "day") return nextDay(state, dayCount, nextSession);
+  if (state.phase !== "play") return state;
+  const index = sessionIndex(dayCount, nextSession);
+  if (!sessionTraded(state)) return resetDay(state, index, state.day);
+  const finished = finishDay({ ...state, playing: false }, tqqq, sqqq, date, hold);
+  return nextDay(finished, dayCount, index);
+}
+
 /** Leave the day review for the session she was dealt. The fifth day records the batch, then continues. */
 export function nextDay(state: GameState, dayCount: number, session = 0): GameState {
   const index = sessionIndex(dayCount, session);

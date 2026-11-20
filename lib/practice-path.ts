@@ -110,6 +110,17 @@ export function minuteSeed(daySeed: number, minute: number): number {
   return (daySeed + minute * 997) >>> 0;
 }
 
+/** True when the chart must call setData. A ticker switch keeps the same timestamps, so it is not an in-place update of the last bar. */
+export function seriesNeedsReset(previousId: string | null, nextId: string, previous: MinuteBar[] | null, next: MinuteBar[]): boolean {
+  if (previousId !== nextId || !previous || previous.length !== next.length || next.length === 0) return true;
+  for (let i = 0; i < previous.length - 1; i += 1) {
+    const before = previous[i];
+    const after = next[i];
+    if (before.t !== after.t || before.o !== after.o || before.h !== after.h || before.l !== after.l || before.c !== after.c) return true;
+  }
+  return previous[previous.length - 1].t !== next[next.length - 1].t;
+}
+
 /** Completed minutes in the 9:30–10:00 window, plus the candle that is still forming. */
 export function chartBars(minutes: MinuteBar[], cursor: number, tick: number, daySeed: number, sign: number, timeframe: Timeframe): MinuteBar[] {
   if (minutes.length === 0) return [];

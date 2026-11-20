@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { fastForward, minuteLeft, newGame, ticksDue, trade } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
-import { sharedTape, subpath } from "./practice-path";
+import market from "../data/practice-market.json";
+import { buildSession, chartBars, minuteSeed, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
+import type { PracticeMarket } from "./practice-market";
 import { sellShares } from "./practice-trade";
 
 const price = 50;
@@ -113,11 +115,51 @@ function historyDeleteLeavesTheRest() {
   assert.equal(deleteAllHistory().games.length, 0);
 }
 
+function switchKeepsTheLiveCandle() {
+  const book = market as PracticeMarket;
+  const session = buildSession(book.days[4], 99);
+  const tqqq = session.TQQQ.slice(0, 30);
+  const sqqq = session.SQQQ.slice(0, 30);
+  const frames: Timeframe[] = ["1m", "5m", "15m", "30m", "1D"];
+  const spots = [
+    { cursor: 0, tick: 0 },
+    { cursor: 0, tick: 10 },
+    { cursor: 6, tick: 3 },
+    { cursor: 12, tick: 40 },
+    { cursor: 29, tick: 15 },
+  ];
+  for (const frame of frames) {
+    for (const spot of spots) {
+      const up = chartBars(tqqq, spot.cursor, spot.tick, 99, 1, frame);
+      const down = chartBars(sqqq, spot.cursor, spot.tick, 99, -1, frame);
+      for (const [bars, minutes, sign] of [
+        [up, tqqq, 1],
+        [down, sqqq, -1],
+      ] as const) {
+        assert.ok(bars.length >= 1, `${frame} ${spot.cursor}:${spot.tick} missing the live candle`);
+        for (let i = 1; i < bars.length; i += 1) assert.ok(bars[i].t > bars[i - 1].t, "candle times must increase");
+        const last = bars[bars.length - 1];
+        const path = subpath(minutes[spot.cursor], minuteSeed(99, spot.cursor), sign);
+        assert.equal(last.c, path[spot.tick], `${frame} live close`);
+        assert.ok(last.h >= Math.max(last.o, last.c) - 1e-9);
+        assert.ok(last.l <= Math.min(last.o, last.c) + 1e-9);
+        assert.ok([last.o, last.h, last.l, last.c].every((value) => Number.isFinite(value)));
+      }
+      assert.equal(up[up.length - 1].t, down[down.length - 1].t);
+      assert.equal(seriesNeedsReset(`TQQQ-${frame}`, `SQQQ-${frame}`, up, down), true);
+    }
+  }
+  const before = chartBars(tqqq, 0, 10, 99, 1, "1m");
+  const after = chartBars(tqqq, 0, 11, 99, 1, "1m");
+  assert.equal(seriesNeedsReset("TQQQ-1m", "TQQQ-1m", before, after), false, "the same ticker keeps updating the live candle");
+}
+
 buyThenSellAll();
 partialSellsThenAll();
 sellWithNoCash();
 switchTickerThenSell();
 tapeMovesAndMirrors();
+switchKeepsTheLiveCandle();
 clockAndCatchUp();
 historyDeleteLeavesTheRest();
 console.log("practice behavior ok");

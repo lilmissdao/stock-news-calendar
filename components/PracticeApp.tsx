@@ -452,7 +452,9 @@ export function PracticeApp() {
                 </button>
               ))}
             </div>
-            {game.phase !== "batch" ? <PracticeChart candles={candles as ChartCandle[]} markers={marks} theme={theme} priorClose={prior} /> : null}
+            {game.phase !== "batch" ? (
+              <PracticeChart candles={candles as ChartCandle[]} markers={marks} theme={theme} priorClose={prior} seriesId={`${game.ticker}-${game.timeframe}`} />
+            ) : null}
             {game.phase === "play" ? (
               <>
                 <dl className="pr-stats">

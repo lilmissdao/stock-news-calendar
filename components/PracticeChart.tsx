@@ -2,23 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import type { IChartApi, IPriceLine, ISeriesApi, ISeriesMarkersPluginApi, LineStyle, Time, UTCTimestamp } from "lightweight-charts";
-import { clock } from "@/lib/practice-path";
+import { clock, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
 export type ChartMark = { time: number; side: "buy" | "sell" };
 
 function toBar(bar: ChartCandle) {
   return { time: bar.t as UTCTimestamp, open: bar.o, high: bar.h, low: bar.l, close: bar.c };
-}
-
-function onlyLastChanged(prev: ChartCandle[] | null, next: ChartCandle[]): boolean {
-  if (!prev || prev.length !== next.length || next.length === 0) return false;
-  for (let i = 0; i < prev.length - 1; i += 1) {
-    const before = prev[i];
-    const after = next[i];
-    if (before.t !== after.t || before.o !== after.o || before.h !== after.h || before.l !== after.l || before.c !== after.c) return false;
-  }
-  return prev[prev.length - 1].t === next[next.length - 1].t;
 }
 
 function paint(
@@ -32,13 +22,17 @@ function paint(
   fit: boolean,
   refreshLine: boolean,
   previous: { current: ChartCandle[] | null },
+  previousId: { current: string | null },
+  seriesId: string,
 ) {
-  if (onlyLastChanged(previous.current, candles)) {
+  const replace = seriesNeedsReset(previousId.current, seriesId, previous.current, candles);
+  if (!replace && candles.length) {
     series.update(toBar(candles[candles.length - 1]));
   } else {
     series.setData(candles.map(toBar));
   }
   previous.current = candles;
+  previousId.current = seriesId;
   const up = getComputedStyle(document.documentElement).getPropertyValue("--up").trim();
   const down = getComputedStyle(document.documentElement).getPropertyValue("--down").trim();
   marks?.setMarkers(
@@ -70,7 +64,7 @@ function paint(
   if (fit && candles.length) chart.timeScale().fitContent();
 }
 
-export function PracticeChart({ candles, markers, theme, priorClose }: { candles: ChartCandle[]; markers: ChartMark[]; theme: string; priorClose: number | null }) {
+export function PracticeChart({ candles, markers, theme, priorClose, seriesId }: { candles: ChartCandle[]; markers: ChartMark[]; theme: string; priorClose: number | null; seriesId: string }) {
   const host = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -79,8 +73,9 @@ export function PracticeChart({ candles, markers, theme, priorClose }: { candles
   const countRef = useRef(0);
   const priorSeen = useRef<number | null | undefined>(undefined);
   const barsRef = useRef<ChartCandle[] | null>(null);
-  const latest = useRef({ candles, markers, priorClose });
-  latest.current = { candles, markers, priorClose };
+  const seriesIdRef = useRef<string | null>(null);
+  const latest = useRef({ candles, markers, priorClose, seriesId });
+  latest.current = { candles, markers, priorClose, seriesId };
 
   useEffect(() => {
     const el = host.current;
@@ -134,7 +129,8 @@ export function PracticeChart({ candles, markers, theme, priorClose }: { candles
       countRef.current = latest.current.candles.length;
       priorSeen.current = latest.current.priorClose;
       barsRef.current = null;
-      paint(series, marksRef.current, chart, lineRef, latest.current.candles, latest.current.markers, latest.current.priorClose, true, true, barsRef);
+      seriesIdRef.current = null;
+      paint(series, marksRef.current, chart, lineRef, latest.current.candles, latest.current.markers, latest.current.priorClose, true, true, barsRef, seriesIdRef, latest.current.seriesId);
     });
     return () => {
       dead = true;
@@ -146,6 +142,7 @@ export function PracticeChart({ candles, markers, theme, priorClose }: { candles
       countRef.current = 0;
       priorSeen.current = undefined;
       barsRef.current = null;
+      seriesIdRef.current = null;
     };
   }, [theme]);
 
@@ -153,12 +150,13 @@ export function PracticeChart({ candles, markers, theme, priorClose }: { candles
     const series = seriesRef.current;
     const chart = chartRef.current;
     if (!series || !chart) return;
-    const fit = candles.length !== countRef.current;
+    const switched = seriesIdRef.current !== seriesId;
+    const fit = switched || candles.length !== countRef.current;
     countRef.current = candles.length;
-    const refreshLine = priorSeen.current !== priorClose;
+    const refreshLine = switched || priorSeen.current !== priorClose;
     priorSeen.current = priorClose;
-    paint(series, marksRef.current, chart, lineRef, candles, markers, priorClose, fit, refreshLine, barsRef);
-  }, [candles, markers, priorClose]);
+    paint(series, marksRef.current, chart, lineRef, candles, markers, priorClose, fit, refreshLine, barsRef, seriesIdRef, seriesId);
+  }, [candles, markers, priorClose, seriesId]);
 
   return <div ref={host} className="pr-chart" />;
 }

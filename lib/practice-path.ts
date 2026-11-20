@@ -238,6 +238,21 @@ export function formingBar(bar: MinuteBar, path: number[], tick: number): Minute
   return { t: bar.t, o: bar.o, c: path[index], h: Math.max(...seen), l: Math.min(...seen) };
 }
 
+export type ChartMarker = {
+  position: "belowBar" | "aboveBar";
+  shape: "arrowUp" | "arrowDown" | "square";
+  text: string;
+};
+
+/** TQQQ fills use arrows. SQQQ fills are squares on the same TQQQ bar, so they are not read as TQQQ prices. */
+export function chartMarker(mark: { ticker: "TQQQ" | "SQQQ"; side: "buy" | "sell" }): ChartMarker {
+  const below = mark.side === "buy";
+  if (mark.ticker === "SQQQ") {
+    return { position: below ? "belowBar" : "aboveBar", shape: "square", text: below ? "SQ B" : "SQ S" };
+  }
+  return { position: below ? "belowBar" : "aboveBar", shape: below ? "arrowUp" : "arrowDown", text: below ? "B" : "S" };
+}
+
 export function clock(unix: number): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",

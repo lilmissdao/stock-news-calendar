@@ -2,10 +2,10 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import type { IChartApi, IPriceLine, ISeriesApi, ISeriesMarkersPluginApi, LineStyle, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
-import { clock, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
+import { chartMarker, clock, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
-export type ChartMark = { time: number; side: "buy" | "sell" };
+export type ChartMark = { time: number; side: "buy" | "sell"; ticker: "TQQQ" | "SQQQ" };
 export type PracticeChartHandle = {
   zoom: (factor: number) => void;
   auto: () => void;
@@ -17,7 +17,7 @@ function toBar(bar: ChartCandle) {
 
 function applyMarkers(
   marks: ISeriesMarkersPluginApi<Time> | null,
-  markerData: { time: UTCTimestamp; position: "belowBar" | "aboveBar"; shape: "arrowUp" | "arrowDown"; color: string; text: string }[],
+  markerData: { time: UTCTimestamp; position: "belowBar" | "aboveBar"; shape: "arrowUp" | "arrowDown" | "square"; color: string; text: string }[],
   markerSig: { current: string },
   sig: string,
 ) {
@@ -277,16 +277,24 @@ function paint(
 ) {
   const { candles, markers, priorClose, seriesId } = latest;
   const replace = seriesNeedsReset(previousId.current, seriesId, previous.current, candles) || !candles.length;
-  const sig = markers.map((mark) => `${mark.time}:${mark.side}`).join("|");
+  const sig = markers.map((mark) => `${mark.time}:${mark.ticker}:${mark.side}`).join("|");
   const savedTime: LogicalRange | null = manual.current ? chart.timeScale().getVisibleLogicalRange() : null;
   const savedPrice = manual.current ? chart.priceScale("right").getVisibleRange() : null;
-  const markerData = markers.map((mark) => ({
-    time: mark.time as UTCTimestamp,
-    position: mark.side === "buy" ? ("belowBar" as const) : ("aboveBar" as const),
-    shape: mark.side === "buy" ? ("arrowUp" as const) : ("arrowDown" as const),
-    color: mark.side === "buy" ? getComputedStyle(document.documentElement).getPropertyValue("--up").trim() : getComputedStyle(document.documentElement).getPropertyValue("--down").trim(),
-    text: mark.side === "buy" ? "B" : "S",
-  }));
+  const style = getComputedStyle(document.documentElement);
+  const up = style.getPropertyValue("--up").trim();
+  const down = style.getPropertyValue("--down").trim();
+  const accent = style.getPropertyValue("--accent").trim();
+  const markerData = markers.map((mark) => {
+    const view = chartMarker(mark);
+    const sqqq = mark.ticker === "SQQQ";
+    return {
+      time: mark.time as UTCTimestamp,
+      position: view.position,
+      shape: view.shape,
+      color: sqqq ? accent || "#8f3d32" : mark.side === "buy" ? up : down,
+      text: view.text,
+    };
+  });
   if (replace) {
     marks?.setMarkers([]);
     markerSig.current = "";

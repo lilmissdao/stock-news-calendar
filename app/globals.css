@@ -1320,6 +1320,23 @@ main { min-width: 0; }
 .pr-chart { height: 520px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg-elev); overflow: hidden; }
 .pr-stage .pr-chart, .pr-stage-set .pr-chart { height: 100%; min-height: 0; }
 .pr-stage-set { min-height: 0; }
+.pr-chart-label {
+  position: absolute;
+  z-index: 3;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.pr-which { margin: 0; font-size: 13px; font-weight: 700; }
 .pr-chart-tools { position: absolute; z-index: 3; top: 8px; left: 8px; display: flex; gap: 4px; }
 .pr-chart-tools button {
   min-width: 44px;

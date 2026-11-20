@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
+import { buildSession, candleInView, chartBars, chartMarker, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { rowSlippage } from "./practice-history";
@@ -154,6 +154,17 @@ function switchKeepsTheLiveCandle() {
   const before = chartBars(tqqq, 0, 10, 99, 1, "1m");
   const after = chartBars(tqqq, 0, 11, 99, 1, "1m");
   assert.equal(seriesNeedsReset("TQQQ-1m", "TQQQ-1m", before, after), false, "the same ticker keeps updating the live candle");
+  assert.equal(seriesNeedsReset("1m", "1m", before, before), false, "a TQQQ chart with a stable series id does not reset when the traded ticker changes");
+  assert.equal(chartMarker({ ticker: "TQQQ", side: "buy" }).text, "B");
+  assert.equal(chartMarker({ ticker: "TQQQ", side: "buy" }).shape, "arrowUp");
+  const sqqqBuy = chartMarker({ ticker: "SQQQ", side: "buy" });
+  const sqqqSell = chartMarker({ ticker: "SQQQ", side: "sell" });
+  assert.equal(sqqqBuy.shape, "square");
+  assert.equal(sqqqSell.shape, "square");
+  assert.notEqual(sqqqBuy.text, "B");
+  assert.notEqual(sqqqSell.text, "S");
+  assert.equal(sqqqBuy.position, "belowBar");
+  assert.equal(sqqqSell.position, "aboveBar");
 }
 
 function scaleStaysOnTheTicker() {

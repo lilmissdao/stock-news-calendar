@@ -363,13 +363,13 @@ export function PracticeApp() {
   const position = game.positions[game.ticker];
   const other = game.ticker === "TQQQ" ? "SQQQ" : "TQQQ";
   const today = game.dayStartEquity > 0 ? value / game.dayStartEquity - 1 : 0;
-  const candles = chartBars(session[game.ticker], game.cursor, game.tick, game.seeds[game.day] || 1, game.ticker === "TQQQ" ? 1 : -1, game.timeframe);
+  const candles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, game.timeframe);
   const marks: ChartMark[] = game.markers
-    .filter((mark) => mark.ticker === game.ticker && mark.minute <= game.cursor)
-    .map((mark) => ({ time: snap(session.day.start, mark.minute, game.timeframe), side: mark.side }));
+    .filter((mark) => mark.minute <= game.cursor)
+    .map((mark) => ({ time: snap(session.day.start, mark.minute, game.timeframe), side: mark.side, ticker: mark.ticker }));
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
-  const prior = priorClose(game.session, game.ticker);
+  const prior = priorClose(game.session, "TQQQ");
   const rows = historyRows(game, history, value);
   const active = game;
   const tape = session;
@@ -573,12 +573,14 @@ export function PracticeApp() {
           <>
             <div className="pr-bar">
               <div className="pr-now">
-                <strong className="pr-price">{formatCents(price)}</strong>
+                <strong className="pr-price">
+                  {game.ticker} {formatCents(price)}
+                </strong>
                 <p className="pr-left">{game.phase === "play" ? minuteLeft(game.tick, game.speed) : "9:30–10:00"}</p>
                 <p className="pr-day">
                   {game.phase === "play" ? `Day ${game.day + 1} of ${game.batchDaysTotal}` : prettyDate(session.day.date)}
                   <span>{game.phase === "play" ? asOf : `Day ${game.day + 1} of ${game.batchDaysTotal}${asOf ? ` · ${asOf}` : ""}`}</span>
-                  <span>9:30–10:00{prior !== null ? ` · Prior ${formatCents(prior)}` : ""}</span>
+                  <span>9:30–10:00{prior !== null ? ` · TQQQ prior ${formatCents(prior)}` : ""}</span>
                 </p>
               </div>
               <strong className={today >= 0 ? "up" : "down"}>
@@ -631,8 +633,9 @@ export function PracticeApp() {
                   markers={marks}
                   theme={theme}
                   priorClose={prior}
-                  seriesId={`${game.ticker}-${game.timeframe}`}
+                  seriesId={game.timeframe}
                 />
+                <p className="pr-chart-label">Chart: TQQQ</p>
                 {full ? (
                   <button type="button" className="pr-skip pr-fullskip" onClick={askSkip}>
                     Skip day
@@ -692,9 +695,7 @@ export function PracticeApp() {
                         </button>
                       ))}
                     </div>
-                    <p className="pr-book">
-                      TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
-                    </p>
+                    <TradeCue ticker={game.ticker} tqqq={quote.TQQQ} sqqq={quote.SQQQ} tqqqShares={game.positions.TQQQ.shares} sqqqShares={game.positions.SQQQ.shares} />
                     {filling ? <p className="pr-note">Filling…</p> : null}
                     <OrderPad filling={filling} shares={position.shares} onAct={act} />
                   </div>
@@ -711,9 +712,7 @@ export function PracticeApp() {
                     </button>
                   ))}
                 </div>
-                <p className="pr-book">
-                  TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
-                </p>
+                <TradeCue ticker={game.ticker} tqqq={quote.TQQQ} sqqq={quote.SQQQ} tqqqShares={game.positions.TQQQ.shares} sqqqShares={game.positions.SQQQ.shares} />
                 {filling ? <p className="pr-note">Filling…</p> : null}
                 <OrderPad filling={filling} shares={position.shares} onAct={act} />
                 </div>
@@ -811,6 +810,39 @@ function toggle(setTheme: (theme: string) => void) {
 
 function slippageText(value: number | undefined): string {
   return typeof value === "number" && Number.isFinite(value) ? formatCents(value) : "—";
+}
+
+function TradeCue({
+  ticker,
+  tqqq,
+  sqqq,
+  tqqqShares,
+  sqqqShares,
+}: {
+  ticker: Ticker;
+  tqqq: number;
+  sqqq: number;
+  tqqqShares: number;
+  sqqqShares: number;
+}) {
+  const trading = ticker === "SQQQ" ? sqqq : tqqq;
+  return (
+    <>
+      <p className="pr-which">
+        Chart: TQQQ · Trading: {ticker}
+      </p>
+      <p className="pr-book">
+        <strong>
+          {ticker} {formatCents(trading)}
+        </strong>
+        {ticker === "TQQQ" ? <span> · SQQQ {formatCents(sqqq)}</span> : <span> · chart stays on TQQQ</span>}
+        <span>
+          {" "}
+          · {tqqqShares} TQQQ sh | {sqqqShares} SQQQ sh
+        </span>
+      </p>
+    </>
+  );
 }
 
 function OrderPad({ filling, shares, onAct }: { filling: boolean; shares: number; onAct: (side: "buy" | "sell", fraction: number) => void }) {

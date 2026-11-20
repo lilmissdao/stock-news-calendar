@@ -151,13 +151,21 @@ export function formatWholeDollars(value: number): string {
   return `${sign}$${Math.abs(rounded).toLocaleString("en-US")}`;
 }
 
-/** Axis and tooltip money. Whole dollars, with cents only when the range is under $10. */
+function compactUnit(value: number): string {
+  const digits = value >= 100 ? 0 : 1;
+  return value.toFixed(digits).replace(/\.0$/, "");
+}
+
+/** Axis ticks. Commas under $1M, compact units above that ($1.2M). Cents only for a tiny range. */
 export function formatAxisMoney(value: number, span: number): string {
   if (!Number.isFinite(value) || Math.abs(value) >= 1e21) return "—";
-  if (span < 10) {
-    const sign = value < 0 ? "-" : "";
-    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const sign = value < 0 ? "-" : "";
+  const abs = Math.abs(value);
+  if (span < 10 && abs < 1000) {
+    return `${sign}$${abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
+  if (abs >= 1_000_000_000) return `${sign}$${compactUnit(abs / 1_000_000_000)}B`;
+  if (abs >= 1_000_000) return `${sign}$${compactUnit(abs / 1_000_000)}M`;
   return formatWholeDollars(value);
 }
 

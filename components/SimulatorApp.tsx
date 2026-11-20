@@ -33,8 +33,7 @@ const NAV = [
   { href: "/simulator", label: "Simulator", current: true },
 ];
 
-const CHART_WIDTH = 760;
-const CHART_HEIGHT = 300;
+const CHART_HEIGHT = 400;
 
 function useTheme(): ["light" | "dark", () => void] {
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -180,9 +179,21 @@ function axisTicks(min: number, max: number): number[] {
 
 function BalanceChart({ name, result }: { name: string; result: Simulation }) {
   const [hover, setHover] = useState<number | null>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [viewWidth, setViewWidth] = useState(960);
   const { points, years } = result;
   const finite = points.length > 1 && points.every((point) => Number.isFinite(point.balance));
   const label = `${name.trim() || "Scenario"} balance over ${years} ${years === 1 ? "year" : "years"}`;
+
+  useLayoutEffect(() => {
+    const node = frameRef.current;
+    if (!node) return;
+    const measure = () => setViewWidth(Math.max(320, Math.round(node.clientWidth)));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   const geometry = useMemo(() => {
     if (!finite) return null;
@@ -202,17 +213,17 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
     const ticks = axisTicks(min, max);
     const tickLabels = ticks.map((tick) => formatAxisMoney(tick, span));
     const longest = tickLabels.reduce((best, text) => Math.max(best, text.length), 0);
-    const left = Math.max(78, Math.min(196, longest * 6.6 + 18));
-    const top = 16;
-    const right = 14;
+    const left = Math.max(84, Math.min(168, longest * 8.4 + 22));
+    const top = 18;
+    const right = 18;
     const bottom = 36;
-    const plotWidth = CHART_WIDTH - left - right;
+    const plotWidth = viewWidth - left - right;
     const plotHeight = CHART_HEIGHT - top - bottom;
     const xOf = (index: number) => left + (index / (points.length - 1)) * plotWidth;
     const yOf = (value: number) => top + ((max - value) / span) * plotHeight;
     const labels = chartLabelMonths(years * 12);
-    return { min, max, span, ticks, tickLabels, left, top, right, bottom, plotHeight, xOf, yOf, labels };
-  }, [finite, points, years]);
+    return { span, ticks, tickLabels, left, top, right, plotWidth, plotHeight, xOf, yOf, labels };
+  }, [finite, points, years, viewWidth]);
 
   if (!geometry) {
     return (
@@ -223,16 +234,17 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
     );
   }
 
-  const { span, ticks, tickLabels, left, top, plotHeight, xOf, yOf, labels } = geometry;
+  const { ticks, tickLabels, left, top, plotWidth, plotHeight, xOf, yOf, labels } = geometry;
   const line = points.map((point, index) => `${xOf(index).toFixed(1)},${yOf(point.balance).toFixed(1)}`).join(" ");
   const hoverPoint: MonthPoint | null = hover === null ? null : points[hover] ?? null;
-  const hoverText = hoverPoint ? `${formatMonthLabel(hoverPoint.month)} ${formatAxisMoney(hoverPoint.balance, span)}` : "";
+  const hoverText = hoverPoint ? `${formatMonthLabel(hoverPoint.month)} ${formatWholeDollars(hoverPoint.balance)}` : "";
   const tipX = hover === null ? 0 : xOf(hover);
   const tipY = hoverPoint ? yOf(hoverPoint.balance) : 0;
+  const plotRight = left + plotWidth;
 
   function nearest(event: ReactPointerEvent<SVGSVGElement>): number {
     const rect = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * CHART_WIDTH;
+    const x = ((event.clientX - rect.left) / rect.width) * viewWidth;
     let best = 0;
     let bestDistance = Infinity;
     for (let index = 0; index < points.length; index += 1) {
@@ -247,9 +259,9 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
 
   return (
     <figure className="chart sim-chart">
-      <figcaption>Balance</figcaption>
+      <div ref={frameRef}>
       <svg
-        viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
+        viewBox={`0 0 ${viewWidth} ${CHART_HEIGHT}`}
         role="img"
         aria-label={`${label}, from ${formatWholeDollars(points[0].balance)} to ${formatWholeDollars(points[points.length - 1].balance)}. Drawdowns are included.`}
         tabIndex={0}
@@ -266,10 +278,16 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
           });
         }}
       >
-        <line className="axis" x1={left} y1={top} x2={left} y2={top + plotHeight} />
-        <line className="axis" x1={left} y1={top + plotHeight} x2={CHART_WIDTH - 14} y2={top + plotHeight} />
         {ticks.map((tick, index) => (
-          <text key={`${index}-${tick}`} className="tick" x={left - 8} y={yOf(tick) + 4} textAnchor="end">
+          <line key={`h-${index}-${tick}`} className="sim-grid" x1={left} y1={yOf(tick)} x2={plotRight} y2={yOf(tick)} />
+        ))}
+        {labels.map((month) => (
+          <line key={`v-${month}`} className="sim-grid" x1={xOf(month)} y1={top} x2={xOf(month)} y2={top + plotHeight} />
+        ))}
+        <line className="axis" x1={left} y1={top} x2={left} y2={top + plotHeight} />
+        <line className="axis" x1={left} y1={top + plotHeight} x2={plotRight} y2={top + plotHeight} />
+        {ticks.map((tick, index) => (
+          <text key={`${index}-${tick}`} className="tick" x={left - 10} y={yOf(tick) + 5} textAnchor="end">
             {tickLabels[index]}
           </text>
         ))}
@@ -286,26 +304,27 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
         {hoverPoint ? (
           <g>
             <line className="sim-guide" x1={tipX} y1={top} x2={tipX} y2={top + plotHeight} />
-            <circle className="point" cx={tipX} cy={tipY} r="4.5" />
+            <circle className="point" cx={tipX} cy={tipY} r="5" />
           </g>
         ) : null}
       </svg>
+      </div>
       {hoverPoint ? (
         <div
           className="sim-tip"
           style={{
-            left: `${(tipX / CHART_WIDTH) * 100}%`,
+            left: `${(tipX / viewWidth) * 100}%`,
             top: `${(tipY / CHART_HEIGHT) * 100}%`,
             transform:
-              (tipX / CHART_WIDTH) * 100 > 74
+              (tipX / viewWidth) * 100 > 74
                 ? "translate(-100%, calc(-100% - 10px))"
-                : (tipX / CHART_WIDTH) * 100 < 26
+                : (tipX / viewWidth) * 100 < 26
                   ? "translate(0, calc(-100% - 10px))"
                   : "translate(-50%, calc(-100% - 10px))",
           }}
         >
           <span>{formatMonthLabel(hoverPoint.month)}</span>
-          <strong>{formatAxisMoney(hoverPoint.balance, span)}</strong>
+          <strong>{formatWholeDollars(hoverPoint.balance)}</strong>
         </div>
       ) : null}
       <p className="sr" aria-live="polite">
@@ -317,32 +336,95 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
 
 function ScenarioCard({
   scenario,
+  index,
+  total,
   canRemove,
+  dragging,
   onChange,
   onDuplicate,
   onRemove,
+  onMove,
+  onDragStart,
+  onDragEnd,
+  onDrop,
 }: {
   scenario: Scenario;
+  index: number;
+  total: number;
   canRemove: boolean;
+  dragging: boolean;
   onChange: (id: string, patch: Partial<Omit<Scenario, "id">>) => void;
   onDuplicate: (id: string) => void;
   onRemove: (id: string) => void;
+  onMove: (id: string, delta: number) => void;
+  onDragStart: (id: string) => void;
+  onDragEnd: () => void;
+  onDrop: (targetId: string, sourceId: string) => void;
 }) {
   const titleId = useId();
   const result = useMemo(() => simulate(scenario), [scenario]);
   const depositNote = scenario.monthlyDeposit !== 0;
+  const number = index + 1;
 
   return (
-    <article className="sim-card" id={`scenario-${scenario.id}`} aria-labelledby={titleId}>
+    <article
+      className={dragging ? "sim-card is-dragging" : "sim-card"}
+      id={`scenario-${scenario.id}`}
+      aria-labelledby={titleId}
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={(event) => {
+        event.preventDefault();
+        const sourceId = event.dataTransfer.getData("text/plain");
+        if (sourceId) onDrop(scenario.id, sourceId);
+      }}
+    >
       <div className="sim-card-head">
-        <label className="field sim-name">
-          <span>Name</span>
+        <div className="sim-reorder">
+          <button
+            type="button"
+            className="sim-move"
+            aria-label={`Move scenario ${number} up`}
+            disabled={index === 0}
+            onClick={() => onMove(scenario.id, -1)}
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            className="sim-move"
+            aria-label={`Move scenario ${number} down`}
+            disabled={index === total - 1}
+            onClick={() => onMove(scenario.id, 1)}
+          >
+            ↓
+          </button>
+          <button
+            type="button"
+            className="sim-drag"
+            draggable
+            aria-label={`Drag scenario ${number} to reorder`}
+            title="Drag to reorder"
+            onDragStart={(event) => {
+              event.dataTransfer.setData("text/plain", scenario.id);
+              event.dataTransfer.effectAllowed = "move";
+              onDragStart(scenario.id);
+            }}
+            onDragEnd={onDragEnd}
+          >
+            <span aria-hidden="true">⋮⋮</span>
+          </button>
+        </div>
+        <label className="sim-title">
+          <span className="sim-index" aria-hidden="true">
+            #{number}
+          </span>
           <input
             id={titleId}
             type="text"
             value={scenario.name}
             maxLength={80}
             autoComplete="off"
+            aria-label={`Scenario ${number} name`}
             onChange={(event) => onChange(scenario.id, { name: event.target.value })}
           />
         </label>
@@ -427,6 +509,13 @@ function ScenarioCard({
           <dd>{formatTimeToMillion(result.millionDay, result.years, scenario.startingCapital)}</dd>
         </div>
       </dl>
+      <div className="sim-chart-head">
+        <p className="kicker">Balance</p>
+        <p className="sim-ending">
+          <span>Ending balance</span>
+          <strong>{formatWholeDollars(result.ending)}</strong>
+        </p>
+      </div>
       <BalanceChart name={scenario.name} result={result} />
     </article>
   );
@@ -437,6 +526,8 @@ export function SimulatorApp() {
   const [scenarios, setScenarios] = useState<Scenario[] | null>(null);
   const [saveError, setSaveError] = useState(false);
   const [notice, setNotice] = useState("");
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const draggingRef = useRef<string | null>(null);
   const scrollNew = useRef(false);
 
   useEffect(() => {
@@ -500,6 +591,45 @@ export function SimulatorApp() {
     setScenarios((current) => {
       if (!current || current.length <= 1) return current;
       return current.filter((scenario) => scenario.id !== id);
+    });
+  }
+
+  function moveScenario(id: string, delta: number) {
+    setScenarios((current) => {
+      if (!current) return current;
+      const from = current.findIndex((scenario) => scenario.id === id);
+      const to = from + delta;
+      if (from < 0 || to < 0 || to >= current.length) return current;
+      const next = current.slice();
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
+  }
+
+  function beginDrag(id: string) {
+    draggingRef.current = id;
+    setDraggingId(id);
+  }
+
+  function endDrag() {
+    draggingRef.current = null;
+    setDraggingId(null);
+  }
+
+  function dropScenario(targetId: string, sourceId: string) {
+    const source = sourceId || draggingRef.current;
+    endDrag();
+    if (!source) return;
+    setScenarios((current) => {
+      if (!current || source === targetId) return current;
+      const from = current.findIndex((scenario) => scenario.id === source);
+      const to = current.findIndex((scenario) => scenario.id === targetId);
+      if (from < 0 || to < 0) return current;
+      const next = current.slice();
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
     });
   }
 
@@ -575,14 +705,21 @@ export function SimulatorApp() {
           <p className="sim-loading">Loading saved scenarios…</p>
         ) : (
           <ul className="sim-list">
-            {scenarios.map((scenario) => (
+            {scenarios.map((scenario, index) => (
               <li key={scenario.id}>
                 <ScenarioCard
                   scenario={scenario}
+                  index={index}
+                  total={scenarios.length}
                   canRemove={scenarios.length > 1}
+                  dragging={draggingId === scenario.id}
                   onChange={updateScenario}
                   onDuplicate={duplicate}
                   onRemove={remove}
+                  onMove={moveScenario}
+                  onDragStart={beginDrag}
+                  onDragEnd={endDrag}
+                  onDrop={dropScenario}
                 />
               </li>
             ))}

@@ -122,27 +122,41 @@ function DecimalField({
   value,
   onChange,
   allowNegative = false,
+  integer = false,
+  min,
+  max,
 }: {
   label: string;
   value: number;
   onChange: (value: number) => void;
   allowNegative?: boolean;
+  integer?: boolean;
+  min?: number;
+  max?: number;
 }) {
   const [text, setText] = useState<string | null>(null);
-  const pattern = allowNegative ? /^-?\d*\.?\d*$/ : /^\d*\.?\d*$/;
+  const pattern = integer ? /^\d*$/ : allowNegative ? /^-?\d*\.?\d*$/ : /^\d*\.?\d*$/;
+
+  function commit(raw: string) {
+    let parsed = Number(raw);
+    if (!Number.isFinite(parsed)) parsed = min ?? 0;
+    if (integer) parsed = Math.round(parsed);
+    if (min !== undefined) parsed = Math.max(min, parsed);
+    if (max !== undefined) parsed = Math.min(max, parsed);
+    onChange(parsed);
+  }
 
   return (
     <label className="field">
       <span>{label}</span>
       <input
         type="text"
-        inputMode="decimal"
+        inputMode={integer ? "numeric" : "decimal"}
         autoComplete="off"
         spellCheck={false}
         value={text ?? String(value)}
         onBlur={(event) => {
-          const parsed = Number(event.currentTarget.value);
-          onChange(Number.isFinite(parsed) ? parsed : 0);
+          commit(event.currentTarget.value);
           setText(null);
         }}
         onChange={(event) => {
@@ -152,7 +166,13 @@ function DecimalField({
           setText(next);
           if (next === "" || next === "-" || next === "." || next === "-.") return;
           const parsed = Number(next);
-          if (Number.isFinite(parsed)) onChange(parsed);
+          if (!Number.isFinite(parsed)) return;
+          if (max !== undefined && parsed > max) {
+            commit(next);
+            setText(null);
+            return;
+          }
+          onChange(integer ? Math.round(parsed) : parsed);
         }}
       />
     </label>
@@ -465,6 +485,14 @@ function ScenarioCard({
           value={scenario.drawdownsPerMonth}
           onChange={(drawdownsPerMonth) => onChange(scenario.id, { drawdownsPerMonth: Math.max(0, drawdownsPerMonth) })}
         />
+        <DecimalField
+          label="No-trade days / month"
+          value={scenario.noTradeDaysPerMonth}
+          integer
+          min={0}
+          max={21}
+          onChange={(noTradeDaysPerMonth) => onChange(scenario.id, { noTradeDaysPerMonth })}
+        />
         <DollarField
           label="Monthly deposit"
           value={scenario.monthlyDeposit}
@@ -497,6 +525,12 @@ function ScenarioCard({
           <dt>Drawdown days</dt>
           <dd>
             {result.drawdownDays} of {result.tradingDays}
+          </dd>
+        </div>
+        <div className="sim-stat">
+          <dt>Trade days</dt>
+          <dd>
+            {result.tradeDays} of {result.tradingDays}
           </dd>
         </div>
         <div className="sim-stat">

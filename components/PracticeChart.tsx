@@ -1,11 +1,11 @@
 "use client";
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
-import type { IChartApi, IPriceLine, ISeriesApi, ISeriesMarkersPluginApi, LineStyle, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
-import { chartMarker, clock, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
+import type { IChartApi, IPriceLine, ISeriesApi, LineStyle, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
+import { clock, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
-export type ChartMark = { time: number; side: "buy" | "sell"; ticker: "TQQQ" | "SQQQ" };
+export type CostLine = { key: string; price: number; title: string };
 export type PracticeChartHandle = {
   zoom: (factor: number) => void;
   auto: () => void;
@@ -15,24 +15,36 @@ function toBar(bar: ChartCandle) {
   return { time: bar.t as UTCTimestamp, open: bar.o, high: bar.h, low: bar.l, close: bar.c };
 }
 
-function applyMarkers(
-  marks: ISeriesMarkersPluginApi<Time> | null,
-  markerData: { time: UTCTimestamp; position: "belowBar" | "aboveBar"; shape: "arrowUp" | "arrowDown" | "square"; color: string; text: string }[],
-  markerSig: { current: string },
-  sig: string,
+function applyCostLines(
+  series: ISeriesApi<"Candlestick">,
+  bag: { current: { sig: string; lines: IPriceLine[] } },
+  lines: CostLine[],
+  host: HTMLElement | null,
 ) {
-  if (!marks || markerSig.current === sig) return;
-  try {
-    marks.setMarkers(markerData);
-    markerSig.current = sig;
-  } catch {
+  const sig = lines.map((line) => `${line.key}:${line.price}:${line.title}`).join("|");
+  if (host) host.dataset.costs = sig;
+  if (bag.current.sig === sig) return;
+  for (const line of bag.current.lines) {
     try {
-      marks.setMarkers([]);
+      series.removePriceLine(line);
     } catch {
-      /* The candle series is still updated when a marker is rejected. */
+      /* A replaced series has already dropped its lines. */
     }
-    markerSig.current = "";
   }
+  const style = getComputedStyle(document.documentElement);
+  const ink = style.getPropertyValue("--ink").trim() || "#241f1a";
+  const accent = style.getPropertyValue("--accent").trim() || "#8f3d32";
+  bag.current.lines = lines.map((line) =>
+    series.createPriceLine({
+      price: line.price,
+      color: line.key === "sqqq" ? accent : ink,
+      lineWidth: 1,
+      lineStyle: 2 as LineStyle,
+      axisLabelVisible: true,
+      title: line.title,
+    }),
+  );
+  bag.current.sig = sig;
 }
 
 function publish(chart: IChartApi, candles: ChartCandle[], host: HTMLElement | null, manual: boolean) {
@@ -77,23 +89,22 @@ function fitNow(chart: IChartApi, candles: ChartCandle[], priorClose: number | n
 
 export const PracticeChart = forwardRef<PracticeChartHandle, {
   candles: ChartCandle[];
-  markers: ChartMark[];
+  costLines: CostLine[];
   theme: string;
   priorClose: number | null;
   seriesId: string;
-}>(function PracticeChart({ candles, markers, theme, priorClose, seriesId }, ref) {
+}>(function PracticeChart({ candles, costLines, theme, priorClose, seriesId }, ref) {
   const host = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
-  const marksRef = useRef<ISeriesMarkersPluginApi<Time> | null>(null);
   const lineRef = useRef<IPriceLine | null>(null);
+  const costRef = useRef<{ sig: string; lines: IPriceLine[] }>({ sig: "", lines: [] });
   const barsRef = useRef<ChartCandle[] | null>(null);
   const seriesIdRef = useRef<string | null>(null);
-  const markerSig = useRef("");
   const manual = useRef(false);
   const applying = useRef(false);
-  const latest = useRef({ candles, markers, priorClose, seriesId });
-  latest.current = { candles, markers, priorClose, seriesId };
+  const latest = useRef({ candles, costLines, priorClose, seriesId });
+  latest.current = { candles, costLines, priorClose, seriesId };
 
   useImperativeHandle(ref, () => ({
     zoom(factor: number) {
@@ -127,7 +138,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
     if (!el) return;
     let dead = false;
     let chart: IChartApi | null = null;
-    void import("lightweight-charts").then(({ CandlestickSeries, ColorType, createChart, createSeriesMarkers }) => {
+      void import("lightweight-charts").then(({ CandlestickSeries, ColorType, createChart }) => {
       if (dead || !host.current) return;
       const style = getComputedStyle(document.documentElement);
       const pick = (name: string) => style.getPropertyValue(name).trim();
@@ -195,23 +206,21 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       });
       chartRef.current = chart;
       seriesRef.current = series;
-      marksRef.current = createSeriesMarkers(series, []);
       barsRef.current = null;
       seriesIdRef.current = null;
-      markerSig.current = "";
+      costRef.current = { sig: "", lines: [] };
       manual.current = false;
-      paint(series, marksRef.current, chart, lineRef, latest.current, host.current, true, barsRef, seriesIdRef, markerSig, manual, applying);
+      paint(series, chart, lineRef, costRef, latest.current, host.current, true, barsRef, seriesIdRef, manual, applying);
     });
     return () => {
       dead = true;
       chart?.remove();
       chartRef.current = null;
       seriesRef.current = null;
-      marksRef.current = null;
       lineRef.current = null;
+      costRef.current = { sig: "", lines: [] };
       barsRef.current = null;
       seriesIdRef.current = null;
-      markerSig.current = "";
     };
   }, [theme]);
 
@@ -249,61 +258,41 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
         raf = window.requestAnimationFrame(draw);
         return;
       }
-      paint(live, marksRef.current, box, lineRef, latest.current, host.current, switched, barsRef, seriesIdRef, markerSig, manual, applying);
+      paint(live, box, lineRef, costRef, latest.current, host.current, switched, barsRef, seriesIdRef, manual, applying);
     };
     draw();
     return () => {
       cancelled = true;
       window.cancelAnimationFrame(raf);
     };
-  }, [candles, markers, priorClose, seriesId]);
+  }, [candles, costLines, priorClose, seriesId]);
 
   return <div ref={host} className="pr-chart" />;
 });
 
 function paint(
   series: ISeriesApi<"Candlestick">,
-  marks: ISeriesMarkersPluginApi<Time> | null,
   chart: IChartApi,
   line: { current: IPriceLine | null },
-  latest: { candles: ChartCandle[]; markers: ChartMark[]; priorClose: number | null; seriesId: string },
+  costs: { current: { sig: string; lines: IPriceLine[] } },
+  latest: { candles: ChartCandle[]; costLines: CostLine[]; priorClose: number | null; seriesId: string },
   host: HTMLElement | null,
   switched: boolean,
   previous: { current: ChartCandle[] | null },
   previousId: { current: string | null },
-  markerSig: { current: string },
   manual: { current: boolean },
   applying: { current: boolean },
 ) {
-  const { candles, markers, priorClose, seriesId } = latest;
+  const { candles, costLines, priorClose, seriesId } = latest;
   const replace = seriesNeedsReset(previousId.current, seriesId, previous.current, candles) || !candles.length;
-  const sig = markers.map((mark) => `${mark.time}:${mark.ticker}:${mark.side}`).join("|");
   const savedTime: LogicalRange | null = manual.current ? chart.timeScale().getVisibleLogicalRange() : null;
   const savedPrice = manual.current ? chart.priceScale("right").getVisibleRange() : null;
-  const style = getComputedStyle(document.documentElement);
-  const up = style.getPropertyValue("--up").trim();
-  const down = style.getPropertyValue("--down").trim();
-  const accent = style.getPropertyValue("--accent").trim();
-  const markerData = markers.map((mark) => {
-    const view = chartMarker(mark);
-    const sqqq = mark.ticker === "SQQQ";
-    return {
-      time: mark.time as UTCTimestamp,
-      position: view.position,
-      shape: view.shape,
-      color: sqqq ? accent || "#8f3d32" : mark.side === "buy" ? up : down,
-      text: view.text,
-    };
-  });
   if (replace) {
-    marks?.setMarkers([]);
-    markerSig.current = "";
     if (line.current) {
       series.removePriceLine(line.current);
       line.current = null;
     }
     series.setData(candles.map(toBar));
-    applyMarkers(marks, markerData, markerSig, sig);
     const window = priceWindow(candles, priorClose);
     if (priorClose !== null && window && priorClose >= window.from && priorClose <= window.to) {
       const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink-soft").trim();
@@ -316,6 +305,7 @@ function paint(
         title: "Prior",
       });
     }
+    applyCostLines(series, costs, costLines, host);
     if (!manual.current || switched) {
       manual.current = false;
       fitNow(chart, candles, priorClose, host, applying);
@@ -333,7 +323,7 @@ function paint(
     } catch {
       series.setData(candles.map(toBar));
     }
-    applyMarkers(marks, markerData, markerSig, sig);
+    applyCostLines(series, costs, costLines, host);
     if (!manual.current) {
       chart.priceScale("right").setAutoScale(true);
       const range = chart.timeScale().getVisibleLogicalRange();

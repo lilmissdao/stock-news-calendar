@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { buildSession, candleInView, chartBars, chartMarker, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
+import { avgCostLabel, buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { rowSlippage } from "./practice-history";
@@ -155,16 +155,6 @@ function switchKeepsTheLiveCandle() {
   const after = chartBars(tqqq, 0, 11, 99, 1, "1m");
   assert.equal(seriesNeedsReset("TQQQ-1m", "TQQQ-1m", before, after), false, "the same ticker keeps updating the live candle");
   assert.equal(seriesNeedsReset("1m", "1m", before, before), false, "a TQQQ chart with a stable series id does not reset when the traded ticker changes");
-  assert.equal(chartMarker({ ticker: "TQQQ", side: "buy" }).text, "B");
-  assert.equal(chartMarker({ ticker: "TQQQ", side: "buy" }).shape, "arrowUp");
-  const sqqqBuy = chartMarker({ ticker: "SQQQ", side: "buy" });
-  const sqqqSell = chartMarker({ ticker: "SQQQ", side: "sell" });
-  assert.equal(sqqqBuy.shape, "square");
-  assert.equal(sqqqSell.shape, "square");
-  assert.notEqual(sqqqBuy.text, "B");
-  assert.notEqual(sqqqSell.text, "S");
-  assert.equal(sqqqBuy.position, "belowBar");
-  assert.equal(sqqqSell.position, "aboveBar");
 }
 
 function scaleStaysOnTheTicker() {
@@ -349,6 +339,34 @@ function skipAfterTheCloseDoesNotDoubleCount() {
   assert.equal(game.phase, "play");
 }
 
+function sqqqAverageOnTheTqqqChart() {
+  assert.equal(avgCostLabel("tqqq", 54.1), "Avg 54.10");
+  assert.equal(avgCostLabel("sqqq", 21.4), "SQQQ avg 21.40");
+  assert.equal(sqqqBreakevenTqqq(80, 20, 20), 80);
+  assert.equal(sqqqBreakevenTqqq(80, 20, 22), 72);
+  assert.equal(sqqqBreakevenTqqq(80, 20, 10), null, "a breakeven far from the TQQQ price is not drawn as a line");
+  let game = trade(fresh(), "SQQQ", "buy", 1, 20, "2026-09-01", 0, { TQQQ: 80, SQQQ: 20 });
+  assert.equal(game.sqqqGuide?.level, 80);
+  assert.equal(game.sqqqGuide?.avg, game.positions.SQQQ.avgCost);
+  const level = game.sqqqGuide?.level;
+  game = trade(game, "SQQQ", "sell", 0.25, 21, "2026-09-01", 0, { TQQQ: 70, SQQQ: 21 });
+  assert.ok(game.positions.SQQQ.shares > 0);
+  assert.equal(game.sqqqGuide?.level, level, "a partial sell keeps the line when the average is unchanged");
+  const before = game.positions.SQQQ.avgCost;
+  game = trade(game, "SQQQ", "buy", 1, 18, "2026-09-01", 0, { TQQQ: 82, SQQQ: 18 });
+  assert.notEqual(game.positions.SQQQ.avgCost, before);
+  assert.equal(game.sqqqGuide?.level, sqqqBreakevenTqqq(82, 18, game.positions.SQQQ.avgCost));
+  const off = trade(fresh(), "SQQQ", "buy", 1, 40, "2026-09-01", 0, { TQQQ: 80, SQQQ: 10 });
+  assert.equal(off.sqqqGuide?.level, null);
+  assert.equal(off.sqqqGuide?.avg, 40);
+  game = trade(game, "SQQQ", "sell", 1, 18, "2026-09-01");
+  assert.equal(game.positions.SQQQ.shares, 0);
+  assert.equal(game.sqqqGuide, null);
+  const tqqq = trade(fresh(), "TQQQ", "buy", 0.25, 54.12, "2026-09-01", 0, { TQQQ: 54.12, SQQQ: 20 });
+  assert.equal(tqqq.sqqqGuide, null);
+  assert.equal(tqqq.positions.TQQQ.avgCost, 54.12);
+}
+
 function realisticFillMath() {
   assert.equal(slipPerShare(0, () => 0), 0.02);
   assert.equal(slipPerShare(4, () => 0.999), 0.03);
@@ -382,5 +400,6 @@ tapeMovesAndMirrors();
 switchKeepsTheLiveCandle();
 scaleStaysOnTheTicker();
 clockAndCatchUp();
+sqqqAverageOnTheTqqqChart();
 historyDeleteLeavesTheRest();
 console.log("practice behavior ok");

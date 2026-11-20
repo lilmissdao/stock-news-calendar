@@ -1,4 +1,4 @@
-import { minuteSeed, SESSION_MINUTES, SUBTICKS, subpath, type MinuteBar, type Timeframe } from "./practice-path";
+import { minuteSeed, SESSION_MINUTES, sqqqBreakevenTqqq, SUBTICKS, subpath, type MinuteBar, type Timeframe } from "./practice-path";
 import {
   STARTING_CASH,
   accountValue,
@@ -59,6 +59,11 @@ export type BatchSummary = {
 };
 export type EquityPoint = { label: string; value: number };
 
+/** SQQQ average, plus the TQQQ chart level where that average is breakeven. `level` is null when the mapping is not usable. */
+export type SqqqGuide = { avg: number; level: number | null };
+
+export type QuotePair = { TQQQ: number; SQQQ: number };
+
 export type GameState = {
   cash: number;
   positions: Record<Ticker, Position>;
@@ -82,6 +87,8 @@ export type GameState = {
   dayPeak: number;
   dayDrawdown: number;
   markers: Marker[];
+  /** Frozen at the fill that last changed the SQQQ average. Null when that position is closed. */
+  sqqqGuide: SqqqGuide | null;
   fills: FillNote[];
   batchTrades: ClosedTrade[];
   batchDays: DayResult[];
@@ -137,6 +144,7 @@ function fresh(batchStart: number, cash: number, history: GameState["history"], 
     dayPeak: cash,
     dayDrawdown: 0,
     markers: [],
+    sqqqGuide: null,
     fills: [],
     batchTrades: [],
     batchDays: [],
@@ -181,12 +189,27 @@ export function loadGame(raw: string | null, dayCount: number): GameState | null
       batchDaysTotal,
       batchHold: Number.isFinite(parsed.batchHold) ? parsed.batchHold : 0,
       fills: Array.isArray(parsed.fills) ? parsed.fills : [],
+      sqqqGuide: readSqqqGuide(parsed.sqqqGuide, parsed.positions.SQQQ),
       daySlippage: Number.isFinite(parsed.daySlippage) ? parsed.daySlippage : 0,
       batchSlippage: Number.isFinite(parsed.batchSlippage) ? parsed.batchSlippage : 0,
     };
   } catch {
     return null;
   }
+}
+
+function readSqqqGuide(value: unknown, position: Position): SqqqGuide | null {
+  if (!(position?.shares > 0) || !(position.avgCost > 0)) return null;
+  const row = value && typeof value === "object" ? (value as SqqqGuide) : null;
+  const level = row && typeof row.level === "number" && row.level > 0 && Number.isFinite(row.level) ? row.level : null;
+  const same = row && typeof row.avg === "number" && Math.abs(row.avg - position.avgCost) < 1e-6;
+  return { avg: position.avgCost, level: same ? level : null };
+}
+
+function sqqqGuideAfter(previous: SqqqGuide | null | undefined, position: Position, quotes?: QuotePair): SqqqGuide | null {
+  if (!(position.shares > 0) || !(position.avgCost > 0)) return null;
+  if (previous && Math.abs(previous.avg - position.avgCost) < 1e-8) return previous;
+  return { avg: position.avgCost, level: quotes ? sqqqBreakevenTqqq(quotes.TQQQ, quotes.SQQQ, position.avgCost) : null };
 }
 
 function livePrices(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[]): { t: number; s: number } {
@@ -226,19 +249,30 @@ function noteFill(state: GameState, ticker: Ticker, side: "buy" | "sell", shares
   };
 }
 
-export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fraction: number, price: number, date = "", slipPerShare = 0): GameState {
+export function trade(
+  state: GameState,
+  ticker: Ticker,
+  side: "buy" | "sell",
+  fraction: number,
+  price: number,
+  date = "",
+  slipPerShare = 0,
+  quotes?: QuotePair,
+): GameState {
   if (state.phase !== "play" || !(price > 0)) return state;
   if (side === "buy") {
     const fill = buyShares(state.cash, price, fraction);
     if (fill.shares <= 0) return state;
+    const position = addLots(state.positions[ticker], fill.shares, price, state.cursor);
     return {
       ...state,
       cash: fill.cash,
       dayFees: state.dayFees + fill.fee,
       batchFees: state.batchFees + fill.fee,
       ...noteFill(state, ticker, "buy", fill.shares, price, slipPerShare),
-      positions: { ...state.positions, [ticker]: addLots(state.positions[ticker], fill.shares, price, state.cursor) },
+      positions: { ...state.positions, [ticker]: position },
       markers: [...state.markers, { minute: state.cursor, ticker, side: "buy" }],
+      sqqqGuide: ticker === "SQQQ" ? sqqqGuideAfter(state.sqqqGuide, position, quotes) : (state.sqqqGuide ?? null),
     };
   }
   const held = state.positions[ticker].shares;
@@ -254,6 +288,7 @@ export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fr
     positions: { ...state.positions, [ticker]: closed.position },
     batchTrades: [...state.batchTrades, ...closed.trades],
     markers: [...state.markers, { minute: state.cursor, ticker, side: "sell" }],
+    sqqqGuide: ticker === "SQQQ" ? sqqqGuideAfter(state.sqqqGuide, closed.position, quotes) : (state.sqqqGuide ?? null),
   };
 }
 

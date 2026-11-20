@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import market from "@/data/practice-market.json";
-import { PracticeChart, type ChartCandle, type ChartMark, type PracticeChartHandle } from "@/components/PracticeChart";
+import { PracticeChart, type ChartCandle, type CostLine, type PracticeChartHandle } from "@/components/PracticeChart";
 import { PracticeHistory } from "@/components/PracticeHistory";
 import {
   equityNow,
@@ -45,7 +45,7 @@ import {
 } from "@/lib/practice-history";
 import { CYCLE_KEY, drawSession, freshLeft, parseCycle, type CycleFile } from "@/lib/practice-cycle";
 import type { PracticeMarket } from "@/lib/practice-market";
-import { chartBars, clock, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
+import { avgCostLabel, chartBars, clock, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
 import { fillDelayMs, slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
 
@@ -55,7 +55,6 @@ const CHART_KEY = "snc-practice-chart-h";
 const BOOK = market as PracticeMarket;
 const SESSION_DATES = BOOK.days.map((day) => day.date);
 const FRAMES: Timeframe[] = ["1m", "5m", "15m", "30m", "1D"];
-const SIZES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 30 };
 
 function pct(value: number): string {
   const text = `${Math.abs(value * 100).toFixed(2)}%`;
@@ -81,11 +80,6 @@ function holdLabel(minutes: number | null): string {
   const rounded = Math.max(0, Math.round(minutes));
   if (rounded < 60) return `${rounded}m`;
   return `${Math.floor(rounded / 60)}h ${rounded % 60}m`;
-}
-
-function snap(start: number, minute: number, timeframe: Timeframe): number {
-  const size = SIZES[timeframe];
-  return start + Math.floor(minute / size) * size * 60;
 }
 
 function dayStarted(state: GameState): boolean {
@@ -148,9 +142,11 @@ function applyFill(state: GameState, side: "buy" | "sell", fraction: number, tic
   if (state.phase !== "play") return state;
   const day = bookDay(state);
   const paths = buildSession(day, state.seeds[state.day] || 1);
-  const quote = liveQuote(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES))[ticker];
+  const live = liveQuote(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES));
+  const quote = live[ticker];
   const price = slip > 0 ? slippedPrice(quote, side, slip) : quote;
-  return trade(state, ticker, side, fraction, price, day?.date ?? "", slip);
+  const quotes = { TQQQ: ticker === "TQQQ" ? price : live.TQQQ, SQQQ: ticker === "SQQQ" ? price : live.SQQQ };
+  return trade(state, ticker, side, fraction, price, day?.date ?? "", slip, quotes);
 }
 
 function priorClose(index: number, ticker: Ticker): number | null {
@@ -364,9 +360,20 @@ export function PracticeApp() {
   const other = game.ticker === "TQQQ" ? "SQQQ" : "TQQQ";
   const today = game.dayStartEquity > 0 ? value / game.dayStartEquity - 1 : 0;
   const candles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, game.timeframe);
-  const marks: ChartMark[] = game.markers
-    .filter((mark) => mark.minute <= game.cursor)
-    .map((mark) => ({ time: snap(session.day.start, mark.minute, game.timeframe), side: mark.side, ticker: mark.ticker }));
+  const costLines: CostLine[] = [];
+  let sqqqNote: string | null = null;
+  if (game.positions.TQQQ.shares > 0 && game.positions.TQQQ.avgCost > 0) {
+    costLines.push({ key: "tqqq", price: game.positions.TQQQ.avgCost, title: avgCostLabel("tqqq", game.positions.TQQQ.avgCost) });
+  }
+  if (game.positions.SQQQ.shares > 0 && game.positions.SQQQ.avgCost > 0) {
+    const title = avgCostLabel("sqqq", game.positions.SQQQ.avgCost);
+    const guide = game.sqqqGuide;
+    if (guide && guide.level !== null && Math.abs(guide.avg - game.positions.SQQQ.avgCost) < 1e-6) {
+      costLines.push({ key: "sqqq", price: guide.level, title });
+    } else {
+      sqqqNote = title;
+    }
+  }
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
   const prior = priorClose(game.session, "TQQQ");
@@ -630,12 +637,13 @@ export function PracticeApp() {
                 <PracticeChart
                   ref={chartRef}
                   candles={candles as ChartCandle[]}
-                  markers={marks}
+                  costLines={costLines}
                   theme={theme}
                   priorClose={prior}
                   seriesId={game.timeframe}
                 />
                 <p className="pr-chart-label">Chart: TQQQ</p>
+                {sqqqNote ? <p className="pr-sqqq-avg">{sqqqNote}</p> : null}
                 {full ? (
                   <button type="button" className="pr-skip pr-fullskip" onClick={askSkip}>
                     Skip day

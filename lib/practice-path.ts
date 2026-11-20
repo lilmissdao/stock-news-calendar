@@ -238,19 +238,22 @@ export function formingBar(bar: MinuteBar, path: number[], tick: number): Minute
   return { t: bar.t, o: bar.o, c: path[index], h: Math.max(...seen), l: Math.min(...seen) };
 }
 
-export type ChartMarker = {
-  position: "belowBar" | "aboveBar";
-  shape: "arrowUp" | "arrowDown" | "square";
-  text: string;
-};
+export function avgCostLabel(kind: "tqqq" | "sqqq", avg: number): string {
+  const text = avg.toFixed(2);
+  return kind === "sqqq" ? `SQQQ avg ${text}` : `Avg ${text}`;
+}
 
-/** TQQQ fills use arrows. SQQQ fills are squares on the same TQQQ bar, so they are not read as TQQQ prices. */
-export function chartMarker(mark: { ticker: "TQQQ" | "SQQQ"; side: "buy" | "sell" }): ChartMarker {
-  const below = mark.side === "buy";
-  if (mark.ticker === "SQQQ") {
-    return { position: below ? "belowBar" : "aboveBar", shape: "square", text: below ? "SQ B" : "SQ S" };
-  }
-  return { position: below ? "belowBar" : "aboveBar", shape: below ? "arrowUp" : "arrowDown", text: below ? "B" : "S" };
+/**
+ * TQQQ price at which SQQQ would be back at `sqqqAvg`.
+ * Percent moves are treated as opposite, measured from the two prices at this fill.
+ * A level more than 20% from that TQQQ price would sit off the candle window, so it is left for an overlay.
+ */
+export function sqqqBreakevenTqqq(tqqqNow: number, sqqqNow: number, sqqqAvg: number): number | null {
+  if (!(tqqqNow > 0) || !(sqqqNow > 0) || !(sqqqAvg > 0)) return null;
+  const level = tqqqNow * (2 - sqqqAvg / sqqqNow);
+  if (!Number.isFinite(level) || level <= 0) return null;
+  if (Math.abs(level - tqqqNow) / tqqqNow > 0.2) return null;
+  return level;
 }
 
 export function clock(unix: number): string {

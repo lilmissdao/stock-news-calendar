@@ -6,7 +6,7 @@ import {
   buyShares,
   closeLots,
   emptyPosition,
-  secFee,
+  sellFees,
   sellShares,
   type ClosedTrade,
   type Position,
@@ -80,14 +80,26 @@ export type GameState = {
   batchDays: DayResult[];
   batchFees: number;
   batchStartEquity: number;
+  /** How many sessions are in this batch. Five, or fewer at the end of the book. */
+  batchDaysTotal: number;
+  /** Hold-TQQQ value for the whole batch, filled in when a day ends. */
+  batchHold: number;
   history: { batches: BatchSummary[]; equity: EquityPoint[] };
 };
 
 const LAST_MINUTE = SESSION_MINUTES - 1;
+export const BATCH_LENGTH = 5;
 
-export function newGame(dayCount: number, random: () => number = Math.random, speed: Speed = 1): GameState {
-  const start = Math.max(0, dayCount - 5);
-  return fresh(Math.floor(random() * (start + 1)), STARTING_CASH, { batches: [], equity: [{ label: "Start", value: STARTING_CASH }] }, random, speed);
+export function batchLength(dayCount: number, batchStart: number): number {
+  if (dayCount <= 0) return 1;
+  const start = Math.max(0, Math.min(dayCount - 1, Math.floor(batchStart)));
+  return Math.max(1, Math.min(BATCH_LENGTH, dayCount - start));
+}
+
+export function newGame(dayCount: number, random: () => number = Math.random, speed: Speed = 1, startIndex?: number): GameState {
+  const span = Math.max(0, dayCount - BATCH_LENGTH);
+  const index = startIndex == null ? Math.floor(random() * (span + 1)) : Math.max(0, Math.min(Math.max(0, dayCount - 1), Math.floor(startIndex)));
+  return fresh(index, STARTING_CASH, { batches: [], equity: [{ label: "Start", value: STARTING_CASH }] }, random, speed, dayCount);
 }
 
 export function coerceSpeed(value: unknown): Speed {
@@ -96,7 +108,7 @@ export function coerceSpeed(value: unknown): Speed {
   return (SPEEDS as number[]).includes(speed) ? (speed as Speed) : 1;
 }
 
-function fresh(batchStart: number, cash: number, history: GameState["history"], random: () => number, speed: Speed = 1): GameState {
+function fresh(batchStart: number, cash: number, history: GameState["history"], random: () => number, speed: Speed, dayCount: number): GameState {
   return {
     cash,
     positions: { TQQQ: emptyPosition(), SQQQ: emptyPosition() },
@@ -120,6 +132,8 @@ function fresh(batchStart: number, cash: number, history: GameState["history"], 
     batchDays: [],
     batchFees: 0,
     batchStartEquity: cash,
+    batchDaysTotal: batchLength(dayCount, batchStart),
+    batchHold: 0,
     history,
   };
 }
@@ -129,7 +143,7 @@ export function loadGame(raw: string | null, dayCount: number): GameState | null
   try {
     const parsed = JSON.parse(raw) as GameState;
     if (!parsed?.positions?.TQQQ || !parsed.positions.SQQQ || parsed.seeds?.length !== 5) return null;
-    if (parsed.batchStart < 0 || parsed.batchStart + 4 >= dayCount) return null;
+    if (parsed.batchStart < 0 || parsed.batchStart >= dayCount) return null;
     if (parsed.cursor < 0) return null;
     // Older saves have no sub-tick, or a cursor from the full 6.5-hour day.
     // Those playheads sit on a finished candle or past 10:00, so Play appears to do nothing.
@@ -138,7 +152,19 @@ export function loadGame(raw: string | null, dayCount: number): GameState | null
     let tick = legacy ? 0 : parsed.tick;
     tick = Math.max(0, Math.min(SUBTICKS, Math.round(tick)));
     const startedAt = parsed.startedAt || parsed.history?.batches?.[0]?.startDate || new Date().toISOString();
-    return { ...parsed, cursor, tick, speed: coerceSpeed(parsed.speed), startedAt, playing: false };
+    const room = batchLength(dayCount, parsed.batchStart);
+    const savedLength = Number(parsed.batchDaysTotal);
+    const batchDaysTotal = savedLength >= 1 && savedLength <= room ? savedLength : room;
+    return {
+      ...parsed,
+      cursor,
+      tick,
+      speed: coerceSpeed(parsed.speed),
+      startedAt,
+      playing: false,
+      batchDaysTotal,
+      batchHold: Number.isFinite(parsed.batchHold) ? parsed.batchHold : 0,
+    };
   } catch {
     return null;
   }
@@ -172,7 +198,7 @@ function track(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[]): GameStat
   return { ...state, dayPeak: peak, dayDrawdown: Math.max(state.dayDrawdown, drop) };
 }
 
-export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fraction: number, price: number): GameState {
+export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fraction: number, price: number, date = ""): GameState {
   if (state.phase !== "play" || !(price > 0)) return state;
   if (side === "buy") {
     const fill = buyShares(state.cash, price, fraction);
@@ -187,7 +213,7 @@ export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fr
     };
   }
   const held = state.positions[ticker].shares;
-  const fill = sellShares(held, price, fraction);
+  const fill = sellShares(held, price, fraction, date);
   if (fill.shares <= 0) return state;
   const closed = closeLots(state.positions[ticker], fill.shares, price, state.cursor, ticker, fill.fee);
   return {
@@ -201,16 +227,16 @@ export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fr
   };
 }
 
-function liquidate(state: GameState, tqqqPrice: number, sqqqPrice: number): GameState {
+function liquidate(state: GameState, tqqqPrice: number, sqqqPrice: number, date: string): GameState {
   let next = state;
-  if (next.positions.TQQQ.shares > 0) next = trade({ ...next, phase: "play" }, "TQQQ", "sell", 1, tqqqPrice);
-  if (next.positions.SQQQ.shares > 0) next = trade({ ...next, phase: "play" }, "SQQQ", "sell", 1, sqqqPrice);
+  if (next.positions.TQQQ.shares > 0) next = trade({ ...next, phase: "play" }, "TQQQ", "sell", 1, tqqqPrice, date);
+  if (next.positions.SQQQ.shares > 0) next = trade({ ...next, phase: "play" }, "SQQQ", "sell", 1, sqqqPrice, date);
   return next;
 }
 
 function finishDay(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[], date: string, holdTqqq: number): GameState {
   const prices = livePrices(state, tqqq, sqqq);
-  const flat = track(liquidate(state, prices.t, prices.s), tqqq, sqqq);
+  const flat = track(liquidate(state, prices.t, prices.s, date), tqqq, sqqq);
   const equity = flat.cash;
   const result: DayResult = {
     date,
@@ -222,11 +248,7 @@ function finishDay(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[], date:
   };
   const batchDays = [...state.batchDays, result];
   const history = { ...state.history, equity: [...state.history.equity, { label: date, value: equity }] };
-  if (state.day < 4) {
-    return { ...flat, phase: "day", playing: false, batchDays, history };
-  }
-  const summary = summarizeBatch(batchDays, flat.batchTrades, state.batchStartEquity, equity, flat.batchFees, holdTqqq);
-  return { ...flat, phase: "batch", playing: false, batchDays, history: { equity: history.equity, batches: [...state.history.batches, summary] } };
+  return { ...flat, phase: "day", playing: false, batchDays, history, batchHold: holdTqqq };
 }
 
 export function summarizeBatch(
@@ -257,17 +279,17 @@ export function summarizeBatch(
   };
 }
 
-export function sessionHoldValue(startEquity: number, windows: { open: number; close: number }[]): number {
-  return windows.reduce((equity, window) => holdTqqqValue(equity, window.open, window.close), startEquity);
+export function sessionHoldValue(startEquity: number, windows: { open: number; close: number; date?: string }[]): number {
+  return windows.reduce((equity, window) => holdTqqqValue(equity, window.open, window.close, window.date ?? ""), startEquity);
 }
 
-export function holdTqqqValue(startEquity: number, open: number, close: number): number {
+/** Buy the open and sell the close at those exact prices. The sell pays Robinhood's regulatory fees. */
+export function holdTqqqValue(startEquity: number, open: number, close: number, date = ""): number {
   if (!(open > 0) || !(close > 0)) return startEquity;
-  const shares = Math.floor(startEquity / (open + 0.01));
+  const shares = Math.floor(startEquity / open);
   if (shares <= 0) return startEquity;
-  const cash = startEquity - shares * open - shares * 0.01;
-  const gross = shares * close;
-  return cash + gross - shares * 0.01 - secFee(gross);
+  const cash = startEquity - shares * open;
+  return cash + shares * close - sellFees(shares, close, date);
 }
 
 export function tickForward(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[], date: string, hold: number): GameState {
@@ -311,25 +333,81 @@ export function advance(state: GameState, steps: number, tqqq: MinuteBar[], sqqq
   return next;
 }
 
-export function nextDay(state: GameState): GameState {
-  if (state.phase !== "day") return state;
+function dayInProgress(state: GameState): boolean {
+  if (state.phase !== "play") return false;
+  const shares = state.positions.TQQQ.shares + state.positions.SQQQ.shares;
+  return state.cursor > 0 || state.tick > 0 || state.markers.length > 0 || state.dayFees > 0 || shares > 0;
+}
+
+function closeBatch(state: GameState): GameState {
+  if (state.phase === "batch") return state;
+  const equity = state.batchDays.length ? state.batchDays[state.batchDays.length - 1].equity : state.cash;
+  const summary = summarizeBatch(state.batchDays, state.batchTrades, state.batchStartEquity, equity, state.batchFees, state.batchHold);
   return {
     ...state,
-    day: state.day + 1,
-    cursor: 0,
-    tick: 0,
+    phase: "batch",
     playing: false,
-    phase: "play",
-    dayStartEquity: state.cash,
-    dayFees: 0,
-    dayPeak: state.cash,
-    dayDrawdown: 0,
-    markers: [],
+    history: { equity: state.history.equity, batches: [...state.history.batches, summary] },
   };
 }
 
+/** Leave the day review for the next session. The fifth day records the batch, then continues. */
+export function nextDay(state: GameState, dayCount: number): GameState {
+  if (state.phase === "batch") return nextBatch(state, dayCount);
+  if (state.phase !== "day") return state;
+  if (state.day + 1 < state.batchDaysTotal) {
+    return {
+      ...state,
+      day: state.day + 1,
+      cursor: 0,
+      tick: 0,
+      playing: false,
+      phase: "play",
+      dayStartEquity: state.cash,
+      dayFees: 0,
+      dayPeak: state.cash,
+      dayDrawdown: 0,
+      markers: [],
+    };
+  }
+  const closed = closeBatch(state);
+  const advanced = nextBatch(closed, dayCount);
+  return advanced === closed ? closed : advanced;
+}
+
+/** Open the five-day review without leaving the book. */
+export function openBatchReview(state: GameState): GameState {
+  if (state.phase !== "day" || state.day + 1 < state.batchDaysTotal) return state;
+  return closeBatch(state);
+}
+
+/**
+ * Point a not-yet-started session at another day.
+ * Completed days in the current batch stay in history, and cash carries over.
+ */
+export function chooseSession(state: GameState, dayCount: number, startIndex: number, partialHold = 0): GameState {
+  if (dayCount <= 0 || dayInProgress(state)) return state;
+  const index = Math.max(0, Math.min(dayCount - 1, Math.floor(startIndex)));
+  const untouched = state.phase === "play" && state.day === 0 && state.batchDays.length === 0 && state.batchTrades.length === 0;
+  if (untouched) {
+    if (index === state.batchStart) return state;
+    return { ...state, batchStart: index, batchDaysTotal: batchLength(dayCount, index), day: 0, cursor: 0, tick: 0, playing: false };
+  }
+  if (state.phase !== "batch" && index === state.batchStart + state.day) return state;
+  let history = state.history;
+  if (state.phase !== "batch" && (state.batchDays.length > 0 || state.batchTrades.length > 0)) {
+    const end = state.batchDays.length ? state.batchDays[state.batchDays.length - 1].equity : state.cash;
+    const summary = summarizeBatch(state.batchDays, state.batchTrades, state.batchStartEquity, end, state.batchFees, partialHold);
+    history = { equity: history.equity, batches: [...history.batches, summary] };
+  }
+  const game = fresh(index, state.cash, history, Math.random, state.speed, dayCount);
+  return { ...game, startedAt: state.startedAt, ticker: state.ticker, timeframe: state.timeframe };
+}
+
 export function nextBatch(state: GameState, dayCount: number, random: () => number = Math.random): GameState {
-  const start = Math.max(0, dayCount - 5);
-  const game = fresh(Math.floor(random() * (start + 1)), state.cash, state.history, random, state.speed);
-  return { ...game, startedAt: state.startedAt };
+  if (state.phase !== "batch") return state;
+  const index = state.batchStart + batchLength(dayCount, state.batchStart);
+  if (index >= dayCount) return state;
+  const game = fresh(index, state.cash, state.history, random, state.speed, dayCount);
+  return { ...game, startedAt: state.startedAt, ticker: state.ticker, timeframe: state.timeframe };
 }

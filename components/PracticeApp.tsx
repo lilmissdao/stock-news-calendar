@@ -8,11 +8,12 @@ import {
   equityNow,
   fastForward,
   liveQuote,
+  chooseSession,
   loadGame,
   minuteLeft,
   newGame,
-  nextBatch,
   nextDay,
+  openBatchReview,
   sessionHoldValue,
   SPEEDS,
   stepMinute,
@@ -34,6 +35,7 @@ import {
   deleteGame,
   parseExport,
   parseHistory,
+  playedDates,
   rowFromGame,
   serializeExport,
   SPEED_KEY,
@@ -83,19 +85,29 @@ function dayStarted(state: GameState): boolean {
   return state.cursor > 0 || state.tick > 0 || state.markers.length > 0 || state.dayFees > 0 || open;
 }
 
+function sessionWindow(day: (typeof BOOK.days)[number]): { open: number; close: number; date: string } {
+  const closeBar = day.tqqq[5] ?? day.tqqq[day.tqqq.length - 1];
+  return { open: day.tqqq[0][0], close: closeBar[3], date: day.date };
+}
+
 function fullHold(state: GameState): number {
   return sessionHoldValue(
     state.batchStartEquity,
-    BOOK.days.slice(state.batchStart, state.batchStart + 5).map((day) => ({ open: day.tqqq[0][0], close: day.tqqq[5][3] })),
+    BOOK.days.slice(state.batchStart, state.batchStart + state.batchDaysTotal).map(sessionWindow),
   );
 }
 
 function holdForDates(startEquity: number, dates: string[]): number {
   const windows = dates.flatMap((date) => {
     const day = BOOK.days.find((item) => item.date === date);
-    return day ? [{ open: day.tqqq[0][0], close: day.tqqq[5][3] }] : [];
+    return day ? [sessionWindow(day)] : [];
   });
   return sessionHoldValue(startEquity, windows);
+}
+
+function hasNextSession(state: GameState): boolean {
+  if (state.phase === "day" && state.day + 1 < state.batchDaysTotal) return true;
+  return state.batchStart + state.batchDaysTotal < BOOK.days.length;
 }
 
 function pendingDates(state: GameState): string[] {
@@ -283,6 +295,7 @@ export function PracticeApp() {
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
   const prior = priorClose(game.batchStart + game.day, game.ticker);
+  const played = new Set(playedDates(history, game));
   const rows = historyRows(game, history, value);
   const active = game;
   const tape = session;
@@ -294,7 +307,7 @@ export function PracticeApp() {
       const day = BOOK.days[current.batchStart + current.day];
       const paths = buildSession(day, current.seeds[current.day] || 1);
       const live = liveQuote(current, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES));
-      return trade(current, current.ticker, side, fraction, live[current.ticker]);
+      return trade(current, current.ticker, side, fraction, live[current.ticker], day?.date ?? "");
     });
   }
 
@@ -306,6 +319,14 @@ export function PracticeApp() {
   function askNew() {
     setGame((current) => (current ? { ...current, playing: false } : current));
     setConfirm(true);
+  }
+
+  function pickDay(index: number) {
+    setGame((current) => {
+      if (!current) return current;
+      const dates = current.phase === "batch" ? [] : current.batchDays.map((day) => day.date);
+      return chooseSession(current, BOOK.days.length, index, holdForDates(current.batchStartEquity, dates));
+    });
   }
 
   function commitNew() {
@@ -428,8 +449,11 @@ export function PracticeApp() {
                 <strong className="pr-price">{formatCents(price)}</strong>
                 <p className="pr-left">{game.phase === "play" ? minuteLeft(game.tick, game.speed) : "9:30–10:00"}</p>
                 <p className="pr-day">
-                  {game.phase === "play" ? `Day ${game.day + 1} of 5` : prettyDate(session.day.date)}
-                  <span>{asOf}</span>
+                  {prettyDate(session.day.date)}
+                  <span>
+                    Day {game.day + 1} of {game.batchDaysTotal}
+                    {asOf ? ` · ${asOf}` : ""}
+                  </span>
                   <span>9:30–10:00{prior !== null ? ` · Prior ${formatCents(prior)}` : ""}</span>
                 </p>
               </div>
@@ -442,6 +466,10 @@ export function PracticeApp() {
                 </button>
               ) : null}
             </div>
+            {game.phase === "play" ? (
+              <DayPicker days={BOOK.days} played={played} value={game.batchStart + game.day} disabled={dayStarted(game)} onPick={pickDay} />
+            ) : null}
+            {game.phase === "play" ? (
             <div className="pr-toggle" role="group" aria-label="Timeframe">
               {FRAMES.map((frame) => (
                 <button key={frame} type="button" aria-pressed={game.timeframe === frame} onClick={() => setGame({ ...game, timeframe: frame })}>
@@ -449,7 +477,8 @@ export function PracticeApp() {
                 </button>
               ))}
             </div>
-            {game.phase !== "batch" ? (
+            ) : null}
+            {game.phase === "play" ? (
               <div ref={stageRef} className={full ? "pr-full" : chartH ? "pr-stage pr-stage-set" : "pr-stage"} style={!full && chartH ? { height: chartH } : undefined}>
                 <PracticeChart
                   ref={chartRef}
@@ -606,9 +635,25 @@ export function PracticeApp() {
                 ) : null}
               </>
             ) : null}
-            {game.phase === "day" ? <DayReview game={game} onNext={() => setGame((current) => (current ? nextDay(current) : current))} /> : null}
+            {game.phase === "day" ? (
+              <DayReview
+                game={game}
+                canNext={hasNextSession(game)}
+                played={played}
+                onPick={pickDay}
+                onNext={() => setGame((current) => (current ? nextDay(current, BOOK.days.length) : current))}
+                onReview={() => setGame((current) => (current ? openBatchReview(current) : current))}
+              />
+            ) : null}
             {game.phase === "batch" ? (
-              <BatchReview game={game} onNext={() => setGame((current) => (current ? nextBatch(current, BOOK.days.length) : current))} onReset={askNew} />
+              <BatchReview
+                game={game}
+                canNext={hasNextSession(game)}
+                played={played}
+                onPick={pickDay}
+                onNext={() => setGame((current) => (current ? nextDay(current, BOOK.days.length) : current))}
+                onReset={askNew}
+              />
             ) : null}
             <p className="chart-note">
               {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 5-minute bar is randomized; the bar’s open, high, low, and close are real.
@@ -646,23 +691,86 @@ function Stat({ label, value, tone = 0 }: { label: string; value: string; tone?:
   );
 }
 
-function DayReview({ game, onNext }: { game: GameState; onNext: () => void }) {
+function DayPicker({
+  days,
+  played,
+  value,
+  disabled,
+  onPick,
+}: {
+  days: { date: string }[];
+  played: Set<string>;
+  value: number;
+  disabled: boolean;
+  onPick: (index: number) => void;
+}) {
+  return (
+    <label className="pr-picker">
+      <span>{disabled ? "Today’s session" : "Choose a day"}</span>
+      <select aria-label="Choose a day" value={value} disabled={disabled} onChange={(event) => onPick(Number(event.target.value))}>
+        {days.map((day, index) => (
+          <option key={day.date} value={index}>
+            {prettyDate(day.date)}
+            {played.has(day.date) ? " · played" : ""}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function DayReview({
+  game,
+  canNext,
+  played,
+  onPick,
+  onNext,
+  onReview,
+}: {
+  game: GameState;
+  canNext: boolean;
+  played: Set<string>;
+  onPick: (index: number) => void;
+  onNext: () => void;
+  onReview: () => void;
+}) {
   const last = game.batchDays[game.batchDays.length - 1];
+  const finishesBatch = game.day + 1 >= game.batchDaysTotal;
   return (
     <section className="pr-review">
-      <h2>Day {game.day + 1} of 5</h2>
+      <h2>{prettyDate(last.date)}</h2>
       <p className="pr-lead">
-        {prettyDate(last.date)} · {dollars(last.dollars)} · {pct(last.pct)}
+        Day {game.day + 1} of {game.batchDaysTotal} · {dollars(last.dollars)} · {pct(last.pct)}
       </p>
       <p className="pr-note">Sold flat at 10:00. Fees {formatCents(last.fees)}. This result is the 9:30–10:00 window.</p>
-      <button type="button" className="today-jump" onClick={onNext}>
-        {game.day < 4 ? "Next day" : "Batch review"}
+      <DayPicker days={BOOK.days} played={played} value={game.batchStart + game.day} disabled={false} onPick={onPick} />
+      <button type="button" className="pr-next" onClick={onNext} disabled={!canNext}>
+        Next day
       </button>
+      {finishesBatch ? (
+        <button type="button" className="text-btn pr-review-link" onClick={onReview}>
+          Batch review
+        </button>
+      ) : null}
     </section>
   );
 }
 
-function BatchReview({ game, onNext, onReset }: { game: GameState; onNext: () => void; onReset: () => void }) {
+function BatchReview({
+  game,
+  canNext,
+  played,
+  onPick,
+  onNext,
+  onReset,
+}: {
+  game: GameState;
+  canNext: boolean;
+  played: Set<string>;
+  onPick: (index: number) => void;
+  onNext: () => void;
+  onReset: () => void;
+}) {
   const batch = game.history.batches[game.history.batches.length - 1];
   const origin = game.history.equity[0]?.value || 31000;
   const latest = game.history.equity[game.history.equity.length - 1]?.value || game.cash;
@@ -706,10 +814,17 @@ function BatchReview({ game, onNext, onReset }: { game: GameState; onNext: () =>
           </li>
         ))}
       </ol>
+      <DayPicker
+        days={BOOK.days}
+        played={played}
+        value={Math.min(BOOK.days.length - 1, game.batchStart + game.batchDaysTotal)}
+        disabled={false}
+        onPick={onPick}
+      />
+      <button type="button" className="pr-next" onClick={onNext} disabled={!canNext}>
+        Next day
+      </button>
       <div className="pr-actions">
-        <button type="button" className="today-jump" onClick={onNext}>
-          Next batch
-        </button>
         <button type="button" className="text-btn" onClick={onReset}>
           New game
         </button>

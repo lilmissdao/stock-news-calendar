@@ -249,6 +249,20 @@ export function deleteAllHistory(): HistoryFile {
   return emptyHistory();
 }
 
+/** Session dates already saved, including days finished in the game still on screen. */
+export function playedDates(history: HistoryFile, game: GameState | null): string[] {
+  const dates = new Set<string>();
+  const take = (days: { date?: string }[] | undefined) => {
+    for (const day of days ?? []) if (day?.date) dates.add(day.date);
+  };
+  for (const archived of history.games) for (const batch of archived.batches) take(batch.days);
+  if (game) {
+    for (const batch of game.history.batches) take(batch.days);
+    take(game.batchDays);
+  }
+  return [...dates];
+}
+
 export function rowFromGame(game: ArchivedGame, title = `Game ${game.number}`): GameRow {
   const trades = game.batches.reduce((sum, batch) => sum + (batch.trades?.length ?? 0), 0);
   return {

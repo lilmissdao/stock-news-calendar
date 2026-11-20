@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { fastForward, minuteLeft, newGame, ticksDue, trade } from "./practice-engine";
-import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
+import { chooseSession, fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, ticksDue, trade, type BatchSummary, type GameState } from "./practice-engine";
+import { deleteAllHistory, deleteGame, emptyHistory, playedDates, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
 import { buildSession, candleInView, chartBars, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
 import type { PracticeMarket } from "./practice-market";
-import { sellShares } from "./practice-trade";
+import { buyShares, catFee, secFee, sellFees, sellShares, tafFee } from "./practice-trade";
 
 const price = 50;
 
@@ -171,6 +171,111 @@ function scaleStaysOnTheTicker() {
   }
 }
 
+function regulatoryFeesOnly() {
+  assert.equal(secFee(500), 0);
+  assert.equal(secFee(500.01), 0.02);
+  assert.equal(secFee(1_000_000), 20.6);
+  assert.equal(catFee(1), 0.01);
+  assert.equal(catFee(3333), 0.01);
+  assert.equal(catFee(3334), 0.02);
+  assert.equal(tafFee(50, "2026-09-01"), 0);
+  assert.equal(tafFee(51, "2026-09-01"), 0.01);
+  assert.equal(tafFee(100, "2026-09-30"), 0.02);
+  assert.equal(tafFee(100, "2026-10-01"), 0);
+  assert.equal(tafFee(100, "2026-12-31"), 0);
+  assert.equal(tafFee(100, "2027-01-01"), 0.02);
+  assert.equal(tafFee(100_000, "2026-09-01"), 9.79);
+  const bought = buyShares(31_000, 50, 1);
+  assert.equal(bought.shares, 620);
+  assert.equal(bought.fee, 0);
+  assert.equal(bought.cash, 0);
+  const paused = "2026-11-18";
+  const charged = "2026-09-15";
+  assert.equal(sellFees(620, 50, paused), 0.65);
+  assert.equal(sellFees(620, 50, charged), 0.78);
+  assert.equal(sellShares(10, 40, 1, charged).fee, 0.01);
+  let game = trade(fresh(), "TQQQ", "buy", 1, 50, charged);
+  assert.equal(game.dayFees, 0);
+  game = trade(game, "TQQQ", "sell", 1, 50, charged);
+  assert.equal(game.positions.TQQQ.shares, 0);
+  assert.equal(game.dayFees, 0.78);
+  assert.equal(game.cash, 31_000 - 0.78);
+  const held = holdTqqqValue(31_000, 50, 55, paused);
+  assert.equal(held, 31_000 - 620 * 50 + 620 * 55 - sellFees(620, 55, paused));
+}
+
+function flatBars() {
+  return Array.from({ length: 30 }, (_, index) => ({ t: index * 60, o: 50, h: 51, l: 49, c: 50 }));
+}
+
+function playDay(game: GameState, date: string) {
+  return fastForward(game, 5000, flatBars(), flatBars(), date, 31_000);
+}
+
+function dayPickerAndNextDay() {
+  const book = market as PracticeMarket;
+  let game = newGame(book.days.length, () => 0, 1, 10);
+  assert.equal(game.batchStart, 10);
+  assert.equal(game.batchDaysTotal, 5);
+  assert.equal(book.days.length >= 60, true);
+  game = chooseSession(game, book.days.length, 4, 0);
+  assert.equal(game.batchStart, 4);
+  assert.equal(game.cash, 31_000);
+  game = { ...game, cursor: 2 };
+  assert.equal(chooseSession(game, book.days.length, 8, 0).batchStart, 4, "a started day stays put");
+  game = newGame(book.days.length, () => 0, 1, 10);
+  const cash = game.cash;
+  for (let day = 0; day < 4; day += 1) {
+    game = playDay(game, `2026-09-${String(day + 1).padStart(2, "0")}`);
+    assert.equal(game.phase, "day");
+    assert.equal(game.day, day);
+    game = nextDay(game, book.days.length);
+    assert.equal(game.phase, "play");
+    assert.equal(game.day, day + 1);
+    assert.equal(game.batchStart, 10);
+  }
+  game = playDay(game, "2026-09-05");
+  assert.equal(game.phase, "day");
+  assert.equal(game.day, 4);
+  const reviewed = openBatchReview(game);
+  assert.equal(reviewed.phase, "batch");
+  assert.equal(reviewed.history.batches.length, 1);
+  assert.equal(reviewed.history.batches[0].days.length, 5);
+  assert.equal(reviewed.cash, cash);
+  const continued = nextDay(game, book.days.length);
+  assert.equal(continued.phase, "play");
+  assert.equal(continued.batchStart, 15);
+  assert.equal(continued.day, 0);
+  assert.equal(continued.history.batches.length, 1);
+  assert.equal(continued.cash, cash);
+  const tail = newGame(book.days.length, () => 0, 1, book.days.length - 1);
+  assert.equal(tail.batchDaysTotal, 1);
+  const ended = playDay(tail, book.days[book.days.length - 1].date);
+  const stuck = nextDay(ended, book.days.length);
+  assert.equal(stuck.phase, "batch");
+  assert.equal(stuck.batchStart, book.days.length - 1);
+  const jumped = chooseSession(ended, book.days.length, 2, 100);
+  assert.equal(jumped.batchStart, 2);
+  assert.equal(jumped.history.batches.length, 1);
+  assert.equal(jumped.history.batches[0].holdTqqq, 100);
+  assert.equal(jumped.cash, ended.cash);
+  const history = emptyHistory();
+  history.games.push({
+    id: "g",
+    number: 1,
+    playedAt: "",
+    endedAt: "",
+    endingBalance: 31_000,
+    startBalance: 31_000,
+    batches: [{ days: [{ date: "2026-08-27" }] } as BatchSummary],
+  });
+  const marked = playedDates(history, jumped);
+  assert.ok(marked.includes("2026-08-27"));
+  assert.ok(marked.includes(ended.batchDays[0].date));
+}
+
+regulatoryFeesOnly();
+dayPickerAndNextDay();
 buyThenSellAll();
 partialSellsThenAll();
 sellWithNoCash();

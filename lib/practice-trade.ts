@@ -1,8 +1,17 @@
 import type { MinuteBar } from "./practice-path";
 
 export const STARTING_CASH = 31_000;
-export const SPREAD = 0.01;
-const SEC_FEE_RATE = 0.0000206;
+const SEC_PER_DOLLAR = 20.6 / 1_000_000;
+const CAT_PER_SHARE = 0.000003;
+const TAF_PER_SHARE = 0.000195;
+const TAF_MAX = 9.79;
+const TAF_PAUSE_START = "2026-10-01";
+const TAF_PAUSE_END = "2026-12-31";
+
+function roundUpCent(amount: number): number {
+  if (!(amount > 0)) return 0;
+  return Math.ceil(amount * 100 - 1e-8) / 100;
+}
 
 export type Ticker = "TQQQ" | "SQQQ";
 export type Lot = { shares: number; price: number; minute: number };
@@ -23,26 +32,43 @@ export function emptyPosition(): Position {
 
 export function secFee(sellValue: number): number {
   if (!(sellValue > 500)) return 0;
-  return Math.ceil(sellValue * SEC_FEE_RATE * 100 - 1e-8) / 100;
+  return roundUpCent(sellValue * SEC_PER_DOLLAR);
+}
+
+/** FINRA TAF is paused Oct 1 through Dec 31, 2026. Other dates still charge it. */
+export function tafApplies(date: string): boolean {
+  return date < TAF_PAUSE_START || date > TAF_PAUSE_END;
+}
+
+export function catFee(shares: number): number {
+  return roundUpCent(shares * CAT_PER_SHARE);
+}
+
+export function tafFee(shares: number, date: string): number {
+  if (shares <= 50 || !tafApplies(date)) return 0;
+  return Math.min(TAF_MAX, roundUpCent(shares * TAF_PER_SHARE));
+}
+
+export function sellFees(shares: number, price: number, date: string): number {
+  return secFee(shares * price) + catFee(shares) + tafFee(shares, date);
 }
 
 export function buyShares(cash: number, price: number, fraction: number): { shares: number; cash: number; fee: number } {
   if (!(price > 0) || !(cash > 0) || !(fraction > 0)) return { shares: 0, cash, fee: 0 };
-  const shares = Math.floor((cash * Math.min(1, fraction)) / (price + SPREAD));
+  const shares = Math.floor((cash * Math.min(1, fraction)) / price);
   if (shares <= 0) return { shares: 0, cash, fee: 0 };
-  const fee = shares * SPREAD;
-  return { shares, cash: cash - shares * price - fee, fee };
+  return { shares, cash: cash - shares * price, fee: 0 };
 }
 
-/** Sell a fraction of the shares she already holds. Cash and fees never block the sale. */
-export function sellShares(held: number, price: number, fraction: number): { shares: number; proceeds: number; fee: number } {
+/** Sell a fraction of the shares she already holds. Buys are free; sells pay Robinhood's regulatory fees only. */
+export function sellShares(held: number, price: number, fraction: number, date = ""): { shares: number; proceeds: number; fee: number } {
   if (!(price > 0) || held <= 0 || !(fraction > 0)) return { shares: 0, proceeds: 0, fee: 0 };
   const portion = Math.min(1, fraction);
   let shares = portion >= 1 ? held : Math.floor(held * portion);
   if (shares < 1) shares = 1;
   shares = Math.min(held, shares);
   const gross = shares * price;
-  const fee = shares * SPREAD + secFee(gross);
+  const fee = sellFees(shares, price, date);
   return { shares, proceeds: gross - fee, fee };
 }
 
@@ -71,7 +97,7 @@ export function closeLots(position: Position, shares: number, price: number, min
       exit: price,
       entryMinute: lot.minute,
       exitMinute: minute,
-      pnl: (price - lot.price) * used - used * SPREAD - feeShare,
+      pnl: (price - lot.price) * used - feeShare,
     });
     left -= used;
     if (lot.shares > used) lots.push({ ...lot, shares: lot.shares - used });

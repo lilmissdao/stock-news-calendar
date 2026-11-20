@@ -40,10 +40,10 @@ export function fillDelayMs(random: () => number = Math.random): number {
   return Math.round(500 + Math.min(1, Math.max(0, random())) * 700);
 }
 
-/** Cents of slippage per share. Wider at the open, tighter after 9:45. */
+/** Cents of slippage per share. 2–3¢ from 9:30 to 9:35, then 1¢ through 10:00. */
 export function slipPerShare(minute: number, random: () => number = Math.random): number {
-  const [low, high] = minute < 5 ? [3, 5] : minute < 15 ? [2, 3] : [1, 2];
-  const cents = low + Math.floor(Math.min(0.999999, Math.max(0, random())) * (high - low + 1));
+  if (minute >= 5) return 0.01;
+  const cents = 2 + Math.floor(Math.min(0.999999, Math.max(0, random())) * 2);
   return cents / 100;
 }
 

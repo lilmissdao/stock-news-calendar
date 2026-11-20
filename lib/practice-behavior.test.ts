@@ -339,12 +339,12 @@ function skipAfterTheCloseDoesNotDoubleCount() {
 }
 
 function realisticFillMath() {
-  assert.equal(slipPerShare(0, () => 0), 0.03);
-  assert.equal(slipPerShare(4, () => 0.999), 0.05);
-  assert.equal(slipPerShare(5, () => 0), 0.02);
-  assert.equal(slipPerShare(14, () => 0.999), 0.03);
+  assert.equal(slipPerShare(0, () => 0), 0.02);
+  assert.equal(slipPerShare(4, () => 0.999), 0.03);
+  assert.equal(slipPerShare(5, () => 0), 0.01);
+  assert.equal(slipPerShare(14, () => 0.999), 0.01);
   assert.equal(slipPerShare(15, () => 0), 0.01);
-  assert.equal(slipPerShare(29, () => 0.999), 0.02);
+  assert.equal(slipPerShare(29, () => 0.999), 0.01);
   assert.equal(slippedPrice(50, "buy", 0.04), 50.04);
   assert.equal(slippedPrice(50, "sell", 0.04), 49.96);
   assert.equal(fillDelayMs(() => 0), 500);

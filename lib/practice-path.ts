@@ -4,6 +4,10 @@ export type MinuteBar = { t: number; o: number; h: number; l: number; c: number 
 export type Timeframe = "1m" | "5m" | "15m" | "30m" | "1D";
 
 const FRAME_MINUTES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 390 };
+/** One sub-tick per real second at 1x. A 1-minute candle takes 60 seconds to reach its close. */
+export const SUBTICKS = 60;
+/** 9:30–10:00 AM ET. Six real 5-minute bars. */
+export const SESSION_MINUTES = 30;
 
 type Rng = () => number;
 
@@ -39,7 +43,7 @@ function barOf(tuple: Ohlc): { o: number; h: number; l: number; c: number } {
 function shape(tuple: Ohlc, noise: number[], sign: number): number[] {
   const bar = barOf(tuple);
   const span = Math.max(bar.h - bar.l, 0);
-  const points = noise.map((value, index) => bar.o + (bar.c - bar.o) * (index / 5) + sign * value * span * 0.35);
+  const points = noise.map((value, index) => bar.o + (bar.c - bar.o) * (index / 5) + sign * value * span * 0.9);
   points[0] = bar.o;
   points[5] = bar.c;
   for (let i = 1; i < 5; i += 1) points[i] = Math.min(bar.h, Math.max(bar.l, points[i]));
@@ -62,13 +66,29 @@ function shape(tuple: Ohlc, noise: number[], sign: number): number[] {
   return points;
 }
 
-function candles(points: number[], origin: number, minuteBase: number): MinuteBar[] {
+function candles(points: number[], origin: number, minuteBase: number, high: number, low: number): MinuteBar[] {
   const bars: MinuteBar[] = [];
   for (let i = 0; i < 5; i += 1) {
     const open = points[i];
     const close = points[i + 1];
-    bars.push({ t: origin + (minuteBase + i) * 60, o: open, h: Math.max(open, close), l: Math.min(open, close), c: close });
+    const bodyHigh = Math.max(open, close);
+    const bodyLow = Math.min(open, close);
+    let top = bodyHigh + Math.max(0, high - bodyHigh) * 0.72;
+    let bottom = bodyLow - Math.max(0, bodyLow - low) * 0.72;
+    if (Math.abs(open - high) < 1e-8 || Math.abs(close - high) < 1e-8) top = high;
+    if (Math.abs(open - low) < 1e-8 || Math.abs(close - low) < 1e-8) bottom = low;
+    top = Math.min(high, Math.max(top, bodyHigh));
+    bottom = Math.max(low, Math.min(bottom, bodyLow));
+    bars.push({ t: origin + (minuteBase + i) * 60, o: open, h: top, l: bottom, c: close });
   }
+  let hi = 0;
+  let lo = 0;
+  for (let i = 1; i < bars.length; i += 1) {
+    if (bars[i].h > bars[hi].h) hi = i;
+    if (bars[i].l < bars[lo].l) lo = i;
+  }
+  if (bars[hi].h < high) bars[hi].h = high;
+  if (bars[lo].l > low) bars[lo].l = low;
   return bars;
 }
 
@@ -78,10 +98,31 @@ export function buildSession(day: PracticeDay, seed: number): { TQQQ: MinuteBar[
   const sqqq: MinuteBar[] = [];
   for (let i = 0; i < day.tqqq.length; i += 1) {
     const noise = bridge(rng);
-    tqqq.push(...candles(shape(day.tqqq[i], noise, 1), day.start, i * 5));
-    sqqq.push(...candles(shape(day.sqqq[i], noise, -1), day.start, i * 5));
+    const tBar = barOf(day.tqqq[i]);
+    const sBar = barOf(day.sqqq[i]);
+    tqqq.push(...candles(shape(day.tqqq[i], noise, 1), day.start, i * 5, tBar.h, tBar.l));
+    sqqq.push(...candles(shape(day.sqqq[i], noise, -1), day.start, i * 5, sBar.h, sBar.l));
   }
   return { TQQQ: tqqq, SQQQ: sqqq };
+}
+
+export function minuteSeed(daySeed: number, minute: number): number {
+  return (daySeed + minute * 997) >>> 0;
+}
+
+/** Completed minutes in the 9:30–10:00 window, plus the candle that is still forming. */
+export function chartBars(minutes: MinuteBar[], cursor: number, tick: number, daySeed: number, sign: number, timeframe: Timeframe): MinuteBar[] {
+  if (minutes.length === 0) return [];
+  const last = Math.min(minutes.length, SESSION_MINUTES) - 1;
+  const minute = Math.max(0, Math.min(cursor, last));
+  const formed = Math.max(0, Math.min(tick, SUBTICKS));
+  const completeThrough = formed >= SUBTICKS ? minute : minute - 1;
+  const bars = minutes.slice(0, Math.max(0, completeThrough + 1));
+  if (formed < SUBTICKS) {
+    const bar = minutes[minute];
+    bars.push(formingBar(bar, subpath(bar, minuteSeed(daySeed, minute), sign), formed));
+  }
+  return aggregate(bars, timeframe, bars.length);
 }
 
 export function aggregate(minutes: MinuteBar[], timeframe: Timeframe, revealed: number): MinuteBar[] {
@@ -100,6 +141,38 @@ export function aggregate(minutes: MinuteBar[], timeframe: Timeframe, revealed: 
     });
   }
   return bars;
+}
+
+/** Prices inside one 1-minute candle: open, a wander that touches high and low, then the close. */
+export function subpath(bar: MinuteBar, seed: number, sign = 1): number[] {
+  const rng = mulberry32(seed);
+  const count = SUBTICKS;
+  const raw = [0];
+  for (let i = 1; i <= count; i += 1) raw.push(raw[i - 1] + gaussian(rng));
+  const end = raw[count];
+  const span = Math.max(bar.h - bar.l, Math.abs(bar.c - bar.o), 0.01);
+  const points = raw.map((value, index) => {
+    const bridge = value - (index / count) * end;
+    const linear = bar.o + ((bar.c - bar.o) * index) / count;
+    return Math.min(bar.h, Math.max(bar.l, linear + sign * bridge * span * 0.55));
+  });
+  points[0] = bar.o;
+  points[count] = bar.c;
+  let hi = 1 + Math.floor(rng() * Math.max(1, count - 2));
+  let lo = 1 + Math.floor(rng() * Math.max(1, count - 2));
+  if (lo === hi) lo = hi >= count - 1 ? 1 : hi + 1;
+  points[hi] = bar.h;
+  points[lo] = bar.l;
+  for (let i = 1; i < count; i += 1) points[i] = Math.min(bar.h, Math.max(bar.l, points[i]));
+  points[0] = bar.o;
+  points[count] = bar.c;
+  return points;
+}
+
+export function formingBar(bar: MinuteBar, path: number[], tick: number): MinuteBar {
+  const index = Math.max(0, Math.min(tick, path.length - 1));
+  const seen = path.slice(0, index + 1);
+  return { t: bar.t, o: bar.o, c: path[index], h: Math.max(...seen), l: Math.min(...seen) };
 }
 
 export function clock(unix: number): string {

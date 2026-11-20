@@ -1339,6 +1339,7 @@ main { min-width: 0; }
   padding: 8px 0;
   background: color-mix(in srgb, var(--bg) 92%, transparent);
 }
+.pr-trade { display: flex; flex-direction: column; gap: 8px; }
 .pr-note { margin: 0; color: var(--ink-soft); font-size: 13px; }
 .pr-review { display: flex; flex-direction: column; gap: 12px; }
 .pr-review h2, .pr-review h3 { margin: 0; }
@@ -1355,8 +1356,28 @@ main { min-width: 0; }
 }
 .pr-equity { width: 100%; height: auto; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 16px; }
 .pr-equity path { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+.pr-now { min-width: 0; }
+.pr-price { display: block; margin: 0; font-size: 1.45rem; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.pr-confirm { display: flex; flex-direction: column; gap: 12px; }
+.pr-confirm h2 { margin: 0; }
+.pr-cards { display: flex; flex-direction: column; gap: 8px; }
+.pr-card { border: 1px solid var(--line); border-radius: 16px; background: var(--bg-elev); padding: 12px; }
+.pr-card-hit { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; min-height: 48px; padding: 0; }
+.pr-card-hit .pr-note { display: block; }
+.pr-kv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 10px 0 0; }
+.pr-kv dt { margin: 0; color: var(--ink-soft); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+.pr-kv dd { margin: 2px 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pr-batch-list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.pr-progress { width: 100%; height: auto; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 16px; }
+.pr-progress text { fill: var(--ink-soft); font-size: 12px; font-family: var(--font-sans), sans-serif; }
+.pr-progress path.line { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+.pr-progress path.zero { stroke: var(--line); stroke-width: 1; }
+.pr-progress circle { fill: var(--accent); }
+.pr-file { cursor: pointer; }
+.pr-actions .text-btn, .pr-confirm .text-btn, .pr-confirm .today-jump { min-height: 48px; }
 @media (max-width: 800px) {
-  .pr-chart { height: 280px; }
+  .pr-chart { height: 250px; }
+  .pr-dock, .pr-trade .pr-dock { position: static; background: transparent; padding: 0; }
   .pr-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pr-buy, .pr-sell { min-height: 56px; font-size: 15px; }
   .pr-bar { align-items: flex-start; }

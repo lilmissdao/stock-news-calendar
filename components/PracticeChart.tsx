@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { IChartApi, ISeriesApi, ISeriesMarkersPluginApi, Time, UTCTimestamp } from "lightweight-charts";
+import type { IChartApi, IPriceLine, ISeriesApi, ISeriesMarkersPluginApi, LineStyle, Time, UTCTimestamp } from "lightweight-charts";
 import { clock } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
@@ -11,8 +11,12 @@ function paint(
   series: ISeriesApi<"Candlestick">,
   marks: ISeriesMarkersPluginApi<Time> | null,
   chart: IChartApi,
+  line: { current: IPriceLine | null },
   candles: ChartCandle[],
   markers: ChartMark[],
+  priorClose: number | null,
+  fit: boolean,
+  refreshLine: boolean,
 ) {
   series.setData(
     candles.map((bar) => ({
@@ -34,16 +38,36 @@ function paint(
       text: mark.side === "buy" ? "B" : "S",
     })),
   );
-  if (candles.length) chart.timeScale().fitContent();
+  if (refreshLine) {
+  if (line.current) {
+    series.removePriceLine(line.current);
+    line.current = null;
+  }
+  if (priorClose !== null && Number.isFinite(priorClose)) {
+    const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink-soft").trim();
+    line.current = series.createPriceLine({
+      price: priorClose,
+      color: ink || "#8a8478",
+      lineWidth: 1,
+      lineStyle: 2 as LineStyle,
+      axisLabelVisible: true,
+      title: "Prior close",
+    });
+  }
+  }
+  if (fit && candles.length) chart.timeScale().fitContent();
 }
 
-export function PracticeChart({ candles, markers, theme }: { candles: ChartCandle[]; markers: ChartMark[]; theme: string }) {
+export function PracticeChart({ candles, markers, theme, priorClose }: { candles: ChartCandle[]; markers: ChartMark[]; theme: string; priorClose: number | null }) {
   const host = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const marksRef = useRef<ISeriesMarkersPluginApi<Time> | null>(null);
-  const latest = useRef({ candles, markers });
-  latest.current = { candles, markers };
+  const lineRef = useRef<IPriceLine | null>(null);
+  const countRef = useRef(0);
+  const priorSeen = useRef<number | null | undefined>(undefined);
+  const latest = useRef({ candles, markers, priorClose });
+  latest.current = { candles, markers, priorClose };
 
   useEffect(() => {
     const el = host.current;
@@ -76,11 +100,27 @@ export function PracticeChart({ candles, markers, theme }: { candles: ChartCandl
         wickUpColor: pick("--up"),
         wickDownColor: pick("--down"),
         borderVisible: false,
+        autoscaleInfoProvider: () => {
+          const data = latest.current.candles;
+          if (!data.length) return null;
+          let high = Math.max(...data.map((bar) => bar.h));
+          let low = Math.min(...data.map((bar) => bar.l));
+          const mid = (high + low) / 2;
+          const prior = latest.current.priorClose;
+          if (prior !== null && mid > 0 && Math.abs(prior - mid) / mid <= 0.04) {
+            high = Math.max(high, prior);
+            low = Math.min(low, prior);
+          }
+          const pad = Math.max((high - low) * 0.12, high * 0.0015);
+          return { priceRange: { minValue: low - pad, maxValue: high + pad } };
+        },
       });
       chartRef.current = chart;
       seriesRef.current = series;
       marksRef.current = createSeriesMarkers(series, []);
-      paint(series, marksRef.current, chart, latest.current.candles, latest.current.markers);
+      countRef.current = latest.current.candles.length;
+      priorSeen.current = latest.current.priorClose;
+      paint(series, marksRef.current, chart, lineRef, latest.current.candles, latest.current.markers, latest.current.priorClose, true, true);
     });
     return () => {
       dead = true;
@@ -88,6 +128,9 @@ export function PracticeChart({ candles, markers, theme }: { candles: ChartCandl
       chartRef.current = null;
       seriesRef.current = null;
       marksRef.current = null;
+      lineRef.current = null;
+      countRef.current = 0;
+      priorSeen.current = undefined;
     };
   }, [theme]);
 
@@ -95,8 +138,12 @@ export function PracticeChart({ candles, markers, theme }: { candles: ChartCandl
     const series = seriesRef.current;
     const chart = chartRef.current;
     if (!series || !chart) return;
-    paint(series, marksRef.current, chart, candles, markers);
-  }, [candles, markers]);
+    const fit = candles.length !== countRef.current;
+    countRef.current = candles.length;
+    const refreshLine = priorSeen.current !== priorClose;
+    priorSeen.current = priorClose;
+    paint(series, marksRef.current, chart, lineRef, candles, markers, priorClose, fit, refreshLine);
+  }, [candles, markers, priorClose]);
 
   return <div ref={host} className="pr-chart" />;
 }

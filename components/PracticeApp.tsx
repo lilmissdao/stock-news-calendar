@@ -3,29 +3,47 @@
 import { useEffect, useMemo, useState } from "react";
 import market from "@/data/practice-market.json";
 import { PracticeChart, type ChartCandle, type ChartMark } from "@/components/PracticeChart";
+import { PracticeHistory } from "@/components/PracticeHistory";
 import {
-  advance,
   equityNow,
-  holdTqqqValue,
+  liveQuote,
   loadGame,
   newGame,
   nextBatch,
   nextDay,
+  sessionHoldValue,
+  SPEEDS,
+  stepMinute,
+  summarizeBatch,
+  tickForward,
+  tickMs,
   trade,
+  coerceSpeed,
   type EquityPoint,
   type GameState,
   type Speed,
 } from "@/lib/practice-engine";
+import {
+  archiveCurrent,
+  hasProgress,
+  HISTORY_KEY,
+  parseExport,
+  parseHistory,
+  rowFromGame,
+  serializeExport,
+  SPEED_KEY,
+  type GameRow,
+  type HistoryFile,
+} from "@/lib/practice-history";
 import type { PracticeMarket } from "@/lib/practice-market";
-import { aggregate, buildSession, clock, type Timeframe } from "@/lib/practice-path";
+import { chartBars, clock, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
 import type { Ticker } from "@/lib/practice-trade";
 
 const STORAGE_KEY = "snc-practice:v1";
 const BOOK = market as PracticeMarket;
-const SPEEDS: Speed[] = [1, 5, 15, 60];
 const FRAMES: Timeframe[] = ["1m", "5m", "15m", "30m", "1D"];
-const SIZES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 390 };
+const SIZES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 30 };
 
 function pct(value: number): string {
   const text = `${Math.abs(value * 100).toFixed(2)}%`;
@@ -54,12 +72,106 @@ function snap(start: number, minute: number, timeframe: Timeframe): number {
   return start + Math.floor(minute / size) * size * 60;
 }
 
+function dayStarted(state: GameState): boolean {
+  const open = state.positions.TQQQ.shares + state.positions.SQQQ.shares > 0;
+  return state.cursor > 0 || state.tick > 0 || state.markers.length > 0 || state.dayFees > 0 || open;
+}
+
+function fullHold(state: GameState): number {
+  return sessionHoldValue(
+    state.batchStartEquity,
+    BOOK.days.slice(state.batchStart, state.batchStart + 5).map((day) => ({ open: day.tqqq[0][0], close: day.tqqq[5][3] })),
+  );
+}
+
+function holdForDates(startEquity: number, dates: string[]): number {
+  const windows = dates.flatMap((date) => {
+    const day = BOOK.days.find((item) => item.date === date);
+    return day ? [{ open: day.tqqq[0][0], close: day.tqqq[5][3] }] : [];
+  });
+  return sessionHoldValue(startEquity, windows);
+}
+
+function pendingDates(state: GameState): string[] {
+  const dates = state.batchDays.map((day) => day.date);
+  if (state.phase === "play" && dayStarted(state)) {
+    const date = BOOK.days[state.batchStart + state.day]?.date;
+    if (date) dates.push(date);
+  }
+  return dates;
+}
+
+function run(state: GameState, step: typeof tickForward): GameState {
+  const day = BOOK.days[state.batchStart + state.day];
+  const paths = buildSession(day, state.seeds[state.day] || 1);
+  return step(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES), day.date, fullHold(state));
+}
+
+function priorClose(index: number, ticker: Ticker): number | null {
+  if (index <= 0) return null;
+  const bars = ticker === "TQQQ" ? BOOK.days[index - 1].tqqq : BOOK.days[index - 1].sqqq;
+  return bars[bars.length - 1]?.[3] ?? null;
+}
+
+function rememberSpeed(speed: Speed) {
+  try {
+    localStorage.setItem(SPEED_KEY, String(speed));
+  } catch {
+    /* Private mode can refuse storage. */
+  }
+}
+
+function historyRows(game: GameState, history: HistoryFile, ending: number): GameRow[] {
+  const archived = [...history.games].reverse().map((item) => rowFromGame(item));
+  if (!hasProgress(game)) return archived;
+  const batches = [...game.history.batches];
+  if (game.phase !== "batch") {
+    const days = [...game.batchDays];
+    if (game.phase === "play" && dayStarted(game)) {
+      const date = BOOK.days[game.batchStart + game.day]?.date ?? "";
+      days.push({
+        date,
+        dollars: ending - game.dayStartEquity,
+        pct: game.dayStartEquity > 0 ? ending / game.dayStartEquity - 1 : 0,
+        equity: ending,
+        drawdown: game.dayDrawdown,
+        fees: game.dayFees,
+      });
+    }
+    if (days.length > 0 || game.batchTrades.length > 0) {
+      const end = days.length ? days[days.length - 1].equity : ending;
+      batches.push(summarizeBatch(days, game.batchTrades, game.batchStartEquity, end, game.batchFees, holdForDates(game.batchStartEquity, days.map((day) => day.date))));
+    }
+  }
+  const current = rowFromGame(
+    {
+      id: "this",
+      number: 0,
+      playedAt: game.startedAt,
+      endedAt: "",
+      batches,
+      endingBalance: ending,
+      startBalance: game.history.equity[0]?.value || 31000,
+    },
+    "This game",
+  );
+  return [current, ...archived];
+}
+
 export function PracticeApp() {
   const [game, setGame] = useState<GameState | null>(null);
+  const [history, setHistory] = useState<HistoryFile | null>(null);
   const [theme, setTheme] = useState("light");
+  const [tab, setTab] = useState<"play" | "history">("play");
+  const [confirm, setConfirm] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    setGame(loadGame(localStorage.getItem(STORAGE_KEY), BOOK.days.length) ?? newGame(BOOK.days.length));
+    const speed = coerceSpeed(typeof localStorage !== "undefined" ? localStorage.getItem(SPEED_KEY) : 1);
+    const loaded = loadGame(localStorage.getItem(STORAGE_KEY), BOOK.days.length) ?? newGame(BOOK.days.length, Math.random, speed);
+    setGame(loaded);
+    rememberSpeed(loaded.speed);
+    setHistory(parseHistory(localStorage.getItem(HISTORY_KEY)));
     const stored = localStorage.getItem("snc-theme");
     const initial = stored === "dark" || stored === "light" ? stored : document.documentElement.dataset.theme || "light";
     setTheme(initial);
@@ -76,19 +188,32 @@ export function PracticeApp() {
   }, [game]);
 
   useEffect(() => {
-    if (!game?.playing) return;
+    if (!history) return;
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    } catch {
+      /* ignore */
+    }
+  }, [history]);
+
+  useEffect(() => {
+    if (!game?.playing || game.phase !== "play") return;
     const id = window.setInterval(() => {
-      setGame((current) => (current ? play(current, current.speed) : current));
-    }, 1000);
+      setGame((current) => (current && current.playing && current.phase === "play" ? run(current, tickForward) : current));
+    }, tickMs(game.speed));
     return () => window.clearInterval(id);
   }, [game?.playing, game?.speed, game?.phase, game?.day, game?.batchStart]);
 
+  const pathKey = game ? `${game.batchStart}:${game.day}:${game.seeds[game.day] ?? 0}` : "";
   const session = useMemo(() => {
     if (!game) return null;
-    return buildSession(BOOK.days[game.batchStart + game.day], game.seeds[game.day] || 1);
-  }, [game]);
+    const day = BOOK.days[game.batchStart + game.day];
+    if (!day) return null;
+    const paths = buildSession(day, game.seeds[game.day] || 1);
+    return { day, TQQQ: paths.TQQQ.slice(0, SESSION_MINUTES), SQQQ: paths.SQQQ.slice(0, SESSION_MINUTES) };
+  }, [pathKey]);
 
-  if (!game || !session) {
+  if (!game || !session || !history) {
     return (
       <div className="shell">
         <p className="pr-loading">Loading practice…</p>
@@ -96,20 +221,83 @@ export function PracticeApp() {
     );
   }
 
-  const day = BOOK.days[game.batchStart + game.day];
-  const price = session[game.ticker][game.cursor]?.c ?? 0;
+  const quote = liveQuote(game, session.TQQQ, session.SQQQ);
+  const price = quote[game.ticker];
   const value = equityNow(game, session.TQQQ, session.SQQQ);
   const position = game.positions[game.ticker];
   const other = game.ticker === "TQQQ" ? "SQQQ" : "TQQQ";
   const today = game.dayStartEquity > 0 ? value / game.dayStartEquity - 1 : 0;
-  const candles = aggregate(session[game.ticker], game.timeframe, game.cursor + 1);
+  const candles = chartBars(session[game.ticker], game.cursor, game.tick, game.seeds[game.day] || 1, game.ticker === "TQQQ" ? 1 : -1, game.timeframe);
   const marks: ChartMark[] = game.markers
     .filter((mark) => mark.ticker === game.ticker && mark.minute <= game.cursor)
-    .map((mark) => ({ time: snap(day.start, mark.minute, game.timeframe), side: mark.side }));
-  const asOf = session.TQQQ[game.cursor] ? clock(session.TQQQ[game.cursor].t + 60) : "";
+    .map((mark) => ({ time: snap(session.day.start, mark.minute, game.timeframe), side: mark.side }));
+  const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
+  const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
+  const prior = priorClose(game.batchStart + game.day, game.ticker);
+  const rows = historyRows(game, history, value);
+  const active = game;
+  const tape = session;
+  const saved = history;
 
   function act(side: "buy" | "sell", fraction: number) {
-    setGame((current) => (current ? trade(current, current.ticker, side, fraction, price) : current));
+    setGame((current) => {
+      if (!current) return current;
+      const day = BOOK.days[current.batchStart + current.day];
+      const paths = buildSession(day, current.seeds[current.day] || 1);
+      const live = liveQuote(current, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES));
+      return trade(current, current.ticker, side, fraction, live[current.ticker]);
+    });
+  }
+
+  function chooseSpeed(speed: Speed) {
+    rememberSpeed(speed);
+    setGame({ ...active, speed });
+  }
+
+  function askNew() {
+    setGame((current) => (current ? { ...current, playing: false } : current));
+    setConfirm(true);
+  }
+
+  function commitNew() {
+    const ending = equityNow(active, tape.TQQQ, tape.SQQQ);
+    setHistory(archiveCurrent(active, saved, ending, tape.day.date, holdForDates(active.batchStartEquity, pendingDates(active))));
+    const speed = coerceSpeed(localStorage.getItem(SPEED_KEY) ?? active.speed);
+    setGame(newGame(BOOK.days.length, Math.random, speed));
+    setConfirm(false);
+    setTab("play");
+    setNotice(null);
+  }
+
+  function exportHistory() {
+    const blob = new Blob([serializeExport(saved, active, active.speed)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "practice-history.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importHistory(file: File) {
+    try {
+      const parsed = parseExport(await file.text(), BOOK.days.length);
+      if (!parsed) {
+        setNotice("That file isn’t a practice history.");
+        return;
+      }
+      setHistory(parsed.history);
+      setGame((current) => {
+        const base = parsed.game ?? current;
+        if (!base) return current;
+        const speed = parsed.speed ?? base.speed;
+        rememberSpeed(speed);
+        return { ...base, playing: false, speed };
+      });
+      setNotice("History imported.");
+    } catch {
+      setNotice("That file isn’t a practice history.");
+    }
   }
 
   return (
@@ -135,100 +323,146 @@ export function PracticeApp() {
         </div>
       </header>
       <main className="pr-main">
-        <div className="pr-bar">
-          <div className="pr-toggle" role="group" aria-label="Ticker">
-            {(["TQQQ", "SQQQ"] as Ticker[]).map((symbol) => (
-              <button key={symbol} type="button" aria-pressed={game.ticker === symbol} onClick={() => setGame({ ...game, ticker: symbol })}>
-                {symbol}
-              </button>
-            ))}
-          </div>
-          <p className="pr-day">
-            {game.phase === "play" ? `Day ${game.day + 1} of 5` : prettyDate(day.date)}
-            <span>{asOf}</span>
-          </p>
-          <strong className={today >= 0 ? "up" : "down"}>{dollars(value - game.dayStartEquity)} {pct(today)}</strong>
+        <div className="pr-toggle" role="tablist" aria-label="Practice">
+          <button type="button" role="tab" aria-selected={tab === "play"} onClick={() => setTab("play")}>
+            Trade
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === "history"}
+            onClick={() => {
+              setTab("history");
+              setGame((current) => (current ? { ...current, playing: false } : current));
+            }}
+          >
+            History
+          </button>
         </div>
-        <div className="pr-toggle" role="group" aria-label="Timeframe">
-          {FRAMES.map((frame) => (
-            <button key={frame} type="button" aria-pressed={game.timeframe === frame} onClick={() => setGame({ ...game, timeframe: frame })}>
-              {frame}
-            </button>
-          ))}
-        </div>
-        {game.phase !== "batch" ? <PracticeChart candles={candles as ChartCandle[]} markers={marks} theme={theme} /> : null}
-        {game.phase === "play" ? (
-          <>
-            <dl className="pr-stats">
-              <Stat label="Cash" value={formatWholeDollars(game.cash)} />
-              <Stat label="Value" value={formatWholeDollars(value)} />
-              <Stat label="Today" value={pct(today)} tone={today} />
-              <Stat label={position.shares ? `${position.shares} sh` : "Flat"} value={position.shares ? formatWholeDollars(position.avgCost) : "—"} />
-              <Stat
-                label="Open P/L"
-                value={position.shares ? `${dollars((price - position.avgCost) * position.shares)} ${pct(position.avgCost ? price / position.avgCost - 1 : 0)}` : "—"}
-                tone={position.shares ? price - position.avgCost : 0}
-              />
-              <Stat label="Fees" value={formatCents(game.dayFees)} />
-            </dl>
-            {game.positions[other].shares > 0 ? (
-              <p className="pr-note">
-                Also holding {game.positions[other].shares} {other}
-              </p>
-            ) : null}
-            <div className="pr-pad">
-              <div>
-                {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
-                  <button key={fraction} type="button" className="pr-buy" onClick={() => act("buy", fraction)}>
-                    Buy {fraction * 100}%
-                  </button>
-                ))}
-              </div>
-              <div>
-                {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
-                  <button key={fraction} type="button" className="pr-sell" disabled={!position.shares} onClick={() => act("sell", fraction)}>
-                    Sell {fraction * 100}%
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="pr-dock">
-              <button type="button" className="today-jump" onClick={() => setGame({ ...game, playing: !game.playing })}>
-                {game.playing ? "Pause" : "Play"}
+        {confirm ? (
+          <section className="pr-confirm">
+            <h2>Start over at $31,000?</h2>
+            <p className="pr-lead">Your history is kept.</p>
+            <div className="pr-actions">
+              <button type="button" className="text-btn" onClick={() => setConfirm(false)}>
+                Keep playing
               </button>
-              {SPEEDS.map((speed) => (
-                <button key={speed} type="button" className="text-btn" aria-pressed={game.speed === speed} onClick={() => setGame({ ...game, speed })}>
-                  {speed}x
-                </button>
-              ))}
-              <button type="button" className="text-btn" onClick={() => setGame((current) => (current ? play(current, 1) : current))}>
-                Step +1m
+              <button type="button" className="today-jump" onClick={commitNew}>
+                New game
               </button>
             </div>
-          </>
+          </section>
         ) : null}
-        {game.phase === "day" ? <DayReview game={game} onNext={() => setGame((current) => (current ? nextDay(current) : current))} /> : null}
-        {game.phase === "batch" ? (
-          <BatchReview
+        {!confirm && tab === "history" ? (
+          <PracticeHistory
+            history={history}
             game={game}
-            onNext={() => setGame((current) => (current ? nextBatch(current, BOOK.days.length) : current))}
-            onReset={() => setGame(newGame(BOOK.days.length))}
+            rows={rows}
+            pending={game.phase === "batch" ? [] : game.batchDays}
+            onExport={exportHistory}
+            onImport={(file) => void importHistory(file)}
+            onNewGame={askNew}
+            notice={notice}
           />
         ) : null}
-        <p className="chart-note">
-          {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. The wiggle inside each 5-minute bar is randomized; the bar’s open, high, low, and close are real.
-        </p>
+        {!confirm && tab === "play" ? (
+          <>
+            <div className="pr-bar">
+              <div className="pr-toggle" role="group" aria-label="Ticker">
+                {(["TQQQ", "SQQQ"] as Ticker[]).map((symbol) => (
+                  <button key={symbol} type="button" aria-pressed={game.ticker === symbol} onClick={() => setGame({ ...game, ticker: symbol })}>
+                    {symbol}
+                  </button>
+                ))}
+              </div>
+              <div className="pr-now">
+                <strong className="pr-price">{formatCents(price)}</strong>
+                <p className="pr-day">
+                  {game.phase === "play" ? `Day ${game.day + 1} of 5` : prettyDate(session.day.date)}
+                  <span>{asOf}</span>
+                  <span>9:30–10:00{prior !== null ? ` · Prior ${formatCents(prior)}` : ""}</span>
+                </p>
+              </div>
+              <strong className={today >= 0 ? "up" : "down"}>
+                {dollars(value - game.dayStartEquity)} {pct(today)}
+              </strong>
+            </div>
+            <div className="pr-toggle" role="group" aria-label="Timeframe">
+              {FRAMES.map((frame) => (
+                <button key={frame} type="button" aria-pressed={game.timeframe === frame} onClick={() => setGame({ ...game, timeframe: frame })}>
+                  {frame}
+                </button>
+              ))}
+            </div>
+            {game.phase !== "batch" ? <PracticeChart candles={candles as ChartCandle[]} markers={marks} theme={theme} priorClose={prior} /> : null}
+            {game.phase === "play" ? (
+              <>
+                <dl className="pr-stats">
+                  <Stat label="Cash" value={formatWholeDollars(game.cash)} />
+                  <Stat label="Value" value={formatWholeDollars(value)} />
+                  <Stat label="Today" value={pct(today)} tone={today} />
+                  <Stat label={position.shares ? `${position.shares} sh` : "Flat"} value={position.shares ? formatWholeDollars(position.avgCost) : "—"} />
+                  <Stat
+                    label="Open P/L"
+                    value={position.shares ? `${dollars((price - position.avgCost) * position.shares)} ${pct(position.avgCost ? price / position.avgCost - 1 : 0)}` : "—"}
+                    tone={position.shares ? price - position.avgCost : 0}
+                  />
+                  <Stat label="Fees" value={formatCents(game.dayFees)} />
+                </dl>
+                {game.positions[other].shares > 0 ? (
+                  <p className="pr-note">
+                    Also holding {game.positions[other].shares} {other}
+                  </p>
+                ) : null}
+                <div className="pr-trade">
+                <div className="pr-pad">
+                  <div>
+                    {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
+                      <button key={fraction} type="button" className="pr-buy" onClick={() => act("buy", fraction)}>
+                        Buy {fraction * 100}%
+                      </button>
+                    ))}
+                  </div>
+                  <div>
+                    {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
+                      <button key={fraction} type="button" className="pr-sell" disabled={!position.shares} onClick={() => act("sell", fraction)}>
+                        Sell {fraction * 100}%
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="pr-dock">
+                  <button type="button" className="today-jump" onClick={() => setGame({ ...game, playing: !game.playing })}>
+                    {game.playing ? "Pause" : "Play"}
+                  </button>
+                  {SPEEDS.map((speed) => (
+                    <button key={speed} type="button" className="text-btn" aria-pressed={game.speed === speed} onClick={() => chooseSpeed(speed)}>
+                      {speed}x
+                    </button>
+                  ))}
+                  <button type="button" className="text-btn" onClick={() => setGame((current) => (current ? run(current, stepMinute) : current))}>
+                    Step
+                  </button>
+                  <button type="button" className="text-btn" onClick={askNew}>
+                    New game
+                  </button>
+                </div>
+                <p className="pr-note">1x is real time. One minute on the chart takes one minute.</p>
+                </div>
+              </>
+            ) : null}
+            {game.phase === "day" ? <DayReview game={game} onNext={() => setGame((current) => (current ? nextDay(current) : current))} /> : null}
+            {game.phase === "batch" ? (
+              <BatchReview game={game} onNext={() => setGame((current) => (current ? nextBatch(current, BOOK.days.length) : current))} onReset={askNew} />
+            ) : null}
+            <p className="chart-note">
+              {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 5-minute bar is randomized; the bar’s open, high, low, and close are real.
+            </p>
+          </>
+        ) : null}
       </main>
     </div>
   );
-}
-
-function play(state: GameState, steps: number): GameState {
-  const sessionDay = BOOK.days[state.batchStart + state.day];
-  const paths = buildSession(sessionDay, state.seeds[state.day] || 1);
-  const first = BOOK.days[state.batchStart].tqqq[0][0];
-  const last = BOOK.days[state.batchStart + 4].tqqq[77][3];
-  return advance(state, steps, paths.TQQQ, paths.SQQQ, sessionDay.date, holdTqqqValue(state.batchStartEquity, first, last));
 }
 
 function toggle(setTheme: (theme: string) => void) {
@@ -259,7 +493,7 @@ function DayReview({ game, onNext }: { game: GameState; onNext: () => void }) {
       <p className="pr-lead">
         {prettyDate(last.date)} · {dollars(last.dollars)} · {pct(last.pct)}
       </p>
-      <p className="pr-note">Fees {formatCents(last.fees)}. Flat into the close.</p>
+      <p className="pr-note">Sold flat at 10:00. Fees {formatCents(last.fees)}. This result is the 9:30–10:00 window.</p>
       <button type="button" className="today-jump" onClick={onNext}>
         {game.day < 4 ? "Next day" : "Batch review"}
       </button>
@@ -298,6 +532,7 @@ function BatchReview({ game, onNext, onReset }: { game: GameState; onNext: () =>
         <Stat label="Fees" value={formatCents(batch.fees)} />
         <Stat label="Hold TQQQ" value={dollars(batch.holdTqqq - batch.startEquity)} tone={batch.holdTqqq - batch.startEquity} />
       </dl>
+      <p className="pr-note">Hold TQQQ buys the 9:30 open and sells at 10:00 each day.</p>
       <h3>Overall</h3>
       <p className="pr-lead">
         {dollars(latest - origin)} · {pct(origin ? latest / origin - 1 : 0)} from {formatWholeDollars(origin)}

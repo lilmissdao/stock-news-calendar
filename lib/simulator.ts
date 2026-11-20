@@ -23,6 +23,13 @@ export type MonthPoint = {
   balance: number;
 };
 
+export type YearSlice = {
+  year: number;
+  /** Time-weighted return for that year. Deposits are not counted as gain. */
+  rate: number | null;
+  ending: number;
+};
+
 export type Simulation = {
   points: MonthPoint[];
   ending: number;
@@ -32,6 +39,9 @@ export type Simulation = {
   tradingDays: number;
   /** Compound monthly rate when the deposit is $0. Null otherwise, or when it is undefined. */
   avgNetMonthly: number | null;
+  /** Compound annual return. Deposits are left out of the gain. */
+  avgAnnual: number | null;
+  yearSlices: YearSlice[];
   /** Trading day the balance first reaches $1M. 0 if it starts there. Null if it never does. */
   millionDay: number | null;
   years: number;
@@ -189,7 +199,10 @@ export function simulate(input: Scenario): Simulation {
   const flatDays = noTradeDaysByDay(tradingDays, hits, noTradeRequested);
 
   let balance = start;
+  let monthOpen = start;
   const points: MonthPoint[] = [{ month: 0, balance }];
+  const monthFactors: number[] = [];
+  const yearEndings: number[] = [];
   let millionDay: number | null = start >= MILLION ? 0 : null;
   let drawdownDays = 0;
   let tradeDays = 0;
@@ -205,9 +218,14 @@ export function simulate(input: Scenario): Simulation {
       tradeDays += 1;
       balance *= 1 + daily;
     }
-    if (day % TRADING_DAYS_PER_MONTH === 0) balance += deposit;
+    if (day % TRADING_DAYS_PER_MONTH === 0) {
+      monthFactors.push(monthGrowth(monthOpen, balance));
+      balance += deposit;
+      if (monthFactors.length % 12 === 0) yearEndings.push(balance);
+      monthOpen = balance;
+      points.push({ month: day / TRADING_DAYS_PER_MONTH, balance });
+    }
     if (millionDay === null && balance >= MILLION) millionDay = day;
-    if (day % TRADING_DAYS_PER_MONTH === 0) points.push({ month: day / TRADING_DAYS_PER_MONTH, balance });
   }
 
   const totalPutIn = start + deposit * months;
@@ -216,8 +234,51 @@ export function simulate(input: Scenario): Simulation {
     if (balance > 0) avgNetMonthly = (balance / start) ** (1 / months) - 1;
     else if (balance === 0) avgNetMonthly = -1;
   }
+  const avgAnnual = annualizedReturn(monthFactors, years);
+  const yearSlices = yearEndings.map((ending, index) => ({
+    year: index + 1,
+    rate: periodReturn(monthFactors.slice(index * 12, index * 12 + 12)),
+    ending,
+  }));
 
-  return { points, ending: balance, totalPutIn, drawdownDays, tradeDays, tradingDays, avgNetMonthly, millionDay, years };
+  return {
+    points,
+    ending: balance,
+    totalPutIn,
+    drawdownDays,
+    tradeDays,
+    tradingDays,
+    avgNetMonthly,
+    avgAnnual,
+    yearSlices,
+    millionDay,
+    years,
+  };
+}
+
+/** Growth of capital already in the account. A deposit is not part of the gain. */
+function monthGrowth(opened: number, beforeDeposit: number): number {
+  if (!(opened > 0) || !Number.isFinite(beforeDeposit)) return beforeDeposit === 0 && opened <= 0 ? 1 : Number.NaN;
+  if (beforeDeposit < 0) return Number.NaN;
+  return beforeDeposit / opened;
+}
+
+function periodReturn(factors: number[]): number | null {
+  if (factors.length === 0) return null;
+  let product = 1;
+  for (const factor of factors) {
+    if (!Number.isFinite(factor) || factor < 0) return null;
+    product *= factor;
+  }
+  if (!Number.isFinite(product)) return null;
+  return product - 1;
+}
+
+function annualizedReturn(factors: number[], years: number): number | null {
+  const total = periodReturn(factors);
+  if (total === null || years <= 0) return null;
+  const rate = (1 + total) ** (1 / years) - 1;
+  return Number.isFinite(rate) ? rate : null;
 }
 
 export function formatWholeDollars(value: number): string {
@@ -249,21 +310,59 @@ export function formatMonthLabel(month: number): string {
   if (month <= 0) return "Start";
   const years = Math.floor(month / 12);
   const remainder = month % 12;
-  if (remainder === 0) return years === 1 ? "1 yr" : `${years} yr`;
-  if (years === 0) return month === 1 ? "1 mo" : `${month} mo`;
-  return `${month} mo`;
+  if (remainder === 0) return `${years} yr`;
+  if (remainder === 6) return years === 0 ? "6 mo" : `${years}.5 yr`;
+  if (years === 0) return `${remainder} mo`;
+  return `${years} yr ${remainder} mo`;
 }
 
-export function chartLabelMonths(totalMonths: number): number[] {
+/** Clean x-axis ticks. One year is quarterly; 2–3 years are every 6 months; 4+ years are yearly. */
+export function explicitChartMonths(totalMonths: number): number[] {
   if (totalMonths <= 0) return [0];
-  const slots = Math.min(6, totalMonths + 1);
-  const labels: number[] = [];
-  const seen = new Set<number>();
-  for (let i = 0; i < slots; i += 1) {
-    const month = Math.round((i * totalMonths) / (slots - 1));
-    if (seen.has(month)) continue;
-    seen.add(month);
-    labels.push(month);
+  const step = totalMonths <= 12 ? 3 : totalMonths <= 36 ? 6 : 12;
+  const months = [0];
+  for (let month = step; month < totalMonths; month += step) months.push(month);
+  if (months[months.length - 1] !== totalMonths) months.push(totalMonths);
+  return months;
+}
+
+const X_LABEL_CHAR_PX = 8.6;
+const X_LABEL_GAP_PX = 14;
+
+function xLabelWidth(month: number): number {
+  return formatMonthLabel(month).length * X_LABEL_CHAR_PX;
+}
+
+function dropEveryOtherTick(months: number[]): number[] {
+  if (months.length <= 2) return months;
+  const last = months[months.length - 1];
+  const kept = months.filter((_, index) => index % 2 === 0);
+  if (kept[kept.length - 1] !== last) kept.push(last);
+  return kept;
+}
+
+/** First label is left-aligned, the last is right-aligned, and the rest are centered. */
+function xLabelsFit(months: number[], totalMonths: number, plotWidth: number): boolean {
+  if (months.length <= 1 || !(plotWidth > 0)) return true;
+  const boxes = months.map((month, index) => {
+    const x = (month / totalMonths) * plotWidth;
+    const width = xLabelWidth(month);
+    if (index === 0) return [x, x + width] as const;
+    if (index === months.length - 1) return [x - width, x] as const;
+    return [x - width / 2, x + width / 2] as const;
+  });
+  for (let index = 0; index < boxes.length - 1; index += 1) {
+    if (boxes[index][1] + X_LABEL_GAP_PX > boxes[index + 1][0]) return false;
+  }
+  return true;
+}
+
+export function chartLabelMonths(totalMonths: number, plotWidth = Number.POSITIVE_INFINITY): number[] {
+  let labels = explicitChartMonths(totalMonths);
+  for (let guard = 0; labels.length > 2 && !xLabelsFit(labels, totalMonths, plotWidth) && guard < 6; guard += 1) {
+    const next = dropEveryOtherTick(labels);
+    if (next.length >= labels.length) break;
+    labels = next;
   }
   return labels;
 }
@@ -271,6 +370,14 @@ export function chartLabelMonths(totalMonths: number): number[] {
 export function formatPercent(rate: number | null): string {
   if (rate === null || !Number.isFinite(rate)) return "—";
   return `${(rate * 100).toFixed(2)}%`;
+}
+
+export function formatSignedPercent(rate: number | null): string {
+  if (rate === null || !Number.isFinite(rate)) return "—";
+  const text = `${Math.abs(rate * 100).toFixed(2)}%`;
+  if (rate > 0) return `+${text}`;
+  if (rate < 0) return `-${text}`;
+  return text;
 }
 
 export function formatTimeToMillion(day: number | null, years: number, startingCapital: number): string {

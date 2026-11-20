@@ -1234,34 +1234,14 @@ main { min-width: 0; }
   font-size: 12px;
   letter-spacing: 0;
   text-transform: none;
+  line-height: 1.35;
 }
 
-.sim-chart-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.sim-ending { margin: 0; text-align: right; }
-
-.sim-ending span {
-  display: block;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-}
-
-.sim-ending strong {
-  display: block;
-  margin-top: 2px;
-  font-family: var(--font-serif), Georgia, serif;
-  font-size: 2rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1;
+.sim-years {
+  margin: 0;
   color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .chart.sim-chart { padding: 0; position: relative; }
@@ -1319,7 +1299,6 @@ main { min-width: 0; }
   .sim-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sim-page .sim-fields input[type="text"],
   .sim-page .sim-fields select { font-size: 16px; min-height: 36px; }
-  .sim-ending strong { font-size: 1.7rem; }
   .sim-card-actions,
   .sim-actions { width: 100%; }
   .sim-card-actions .text-btn,

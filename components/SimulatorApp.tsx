@@ -11,6 +11,7 @@ import {
   formatAxisMoney,
   formatMonthLabel,
   formatPercent,
+  formatSignedPercent,
   formatTimeToMillion,
   formatWholeDollars,
   loadScenarios,
@@ -235,13 +236,13 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
     const longest = tickLabels.reduce((best, text) => Math.max(best, text.length), 0);
     const left = Math.max(84, Math.min(168, longest * 8.4 + 22));
     const top = 18;
-    const right = 18;
-    const bottom = 36;
+    const right = 28;
+    const bottom = 42;
     const plotWidth = viewWidth - left - right;
     const plotHeight = CHART_HEIGHT - top - bottom;
     const xOf = (index: number) => left + (index / (points.length - 1)) * plotWidth;
     const yOf = (value: number) => top + ((max - value) / span) * plotHeight;
-    const labels = chartLabelMonths(years * 12);
+    const labels = chartLabelMonths(years * 12, plotWidth);
     return { span, ticks, tickLabels, left, top, right, plotWidth, plotHeight, xOf, yOf, labels };
   }, [finite, points, years, viewWidth]);
 
@@ -311,11 +312,11 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
             {tickLabels[index]}
           </text>
         ))}
-        {labels.map((month) => {
-          const last = labels[labels.length - 1] === month && month !== labels[0];
-          const anchor = month === 0 ? "start" : last ? "end" : "middle";
+        {labels.map((month, index) => {
+          const last = index === labels.length - 1 && index !== 0;
+          const anchor = index === 0 ? "start" : last ? "end" : "middle";
           return (
-            <text key={month} className="tick" x={xOf(month)} y={CHART_HEIGHT - 12} textAnchor={anchor}>
+            <text key={month} className="tick sim-xlabel" x={xOf(month)} y={CHART_HEIGHT - 16} textAnchor={anchor}>
               {formatMonthLabel(month)}
             </text>
           );
@@ -522,34 +523,27 @@ function ScenarioCard({
           <dd>{formatWholeDollars(result.totalPutIn)}</dd>
         </div>
         <div className="sim-stat">
-          <dt>Drawdown days</dt>
-          <dd>
-            {result.drawdownDays} of {result.tradingDays}
-          </dd>
-        </div>
-        <div className="sim-stat">
-          <dt>Trade days</dt>
-          <dd>
-            {result.tradeDays} of {result.tradingDays}
-          </dd>
-        </div>
-        <div className="sim-stat">
           <dt>Avg net return per month</dt>
           <dd>{depositNote ? "—" : formatPercent(result.avgNetMonthly)}</dd>
           {depositNote ? <small>Shown when the monthly deposit is $0</small> : null}
+        </div>
+        <div className="sim-stat">
+          <dt>Avg return per year</dt>
+          <dd>{formatSignedPercent(result.avgAnnual)}</dd>
         </div>
         <div className="sim-stat">
           <dt>Time to $1M</dt>
           <dd>{formatTimeToMillion(result.millionDay, result.years, scenario.startingCapital)}</dd>
         </div>
       </dl>
-      <div className="sim-chart-head">
-        <p className="kicker">Balance</p>
-        <p className="sim-ending">
-          <span>Ending balance</span>
-          <strong>{formatWholeDollars(result.ending)}</strong>
-        </p>
-      </div>
+      <p className="sim-years">
+        {result.yearSlices.map((slice, index) => (
+          <span key={slice.year}>
+            {index > 0 ? " · " : ""}
+            Yr {slice.year} {formatSignedPercent(slice.rate)} · {formatWholeDollars(slice.ending)}
+          </span>
+        ))}
+      </p>
       <BalanceChart name={scenario.name} result={result} />
     </article>
   );

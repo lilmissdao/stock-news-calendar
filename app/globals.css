@@ -213,6 +213,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, circle:focus-vi
   align-items: center;
   text-decoration: none;
   white-space: nowrap;
+  color: inherit;
 }
 .view-switch button[aria-selected="true"],
 .view-switch a[aria-selected="true"],
@@ -1033,4 +1034,188 @@ main { min-width: 0; }
 }
 @media (max-width: 640px) {
   .watch-grid, .watch-grid.wide { grid-template-columns: 1fr; }
+}
+
+.brand a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sim-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.sim-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.sim-head h2 {
+  margin: 2px 0 0;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.05;
+}
+
+.sim-footnote { max-width: 40rem; }
+
+.sim-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sim-page .today-jump:disabled,
+.sim-page .text-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sim-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sim-list > li { min-width: 0; }
+
+.sim-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scroll-margin: 16px;
+}
+
+.sim-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.sim-name { flex: 1 1 220px; }
+
+.sim-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sim-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px 14px;
+}
+
+.sim-page input[type="text"],
+.sim-page input[type="number"],
+.sim-page select {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  padding: 8px 10px;
+  font-size: 16px;
+}
+
+.sim-fields .field > span { line-height: 1.3; }
+
+.sim-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.sim-stat {
+  background: var(--muted);
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.sim-stat dt {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.sim-stat dd {
+  margin: 4px 0 0;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.2rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+.sim-stat small {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.sim-chart { position: relative; }
+
+.sim-chart svg { cursor: crosshair; }
+
+.sim-guide {
+  stroke: var(--ink-soft);
+  stroke-dasharray: 4 3;
+}
+
+.sim-tip {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 10px;
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+}
+
+.sim-tip strong {
+  display: block;
+  font-size: 13px;
+}
+
+.sim-status,
+.sim-loading {
+  margin: 0;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .sim-card-head { align-items: stretch; }
+  .sim-card-actions,
+  .sim-actions { width: 100%; }
+  .sim-card-actions .text-btn,
+  .sim-actions .today-jump,
+  .sim-actions .text-btn { flex: 1; }
 }

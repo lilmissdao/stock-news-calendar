@@ -215,6 +215,9 @@ export function App({
                 </button>
               );
             })}
+            <a href="/simulator" role="tab" aria-selected={false}>
+              Simulator
+            </a>
           </div>
           <button
             type="button"

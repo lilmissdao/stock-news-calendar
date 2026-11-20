@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import market from "@/data/practice-market.json";
-import { PracticeChart, type ChartCandle, type ChartMark } from "@/components/PracticeChart";
+import { PracticeChart, type ChartCandle, type ChartMark, type PracticeChartHandle } from "@/components/PracticeChart";
 import { PracticeHistory } from "@/components/PracticeHistory";
 import {
   equityNow,
@@ -46,6 +46,7 @@ import { formatCents, formatWholeDollars } from "@/lib/simulator";
 import type { Ticker } from "@/lib/practice-trade";
 
 const STORAGE_KEY = "snc-practice:v1";
+const CHART_KEY = "snc-practice-chart-h";
 const BOOK = market as PracticeMarket;
 const FRAMES: Timeframe[] = ["1m", "5m", "15m", "30m", "1D"];
 const SIZES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 30 };
@@ -176,6 +177,10 @@ export function PracticeApp() {
   const [tab, setTab] = useState<"play" | "history">("play");
   const [confirm, setConfirm] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [chartH, setChartH] = useState<number | null>(null);
+  const [full, setFull] = useState(false);
+  const chartRef = useRef<PracticeChartHandle>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const speed = coerceSpeed(typeof localStorage !== "undefined" ? localStorage.getItem(SPEED_KEY) : 1);
@@ -187,6 +192,8 @@ export function PracticeApp() {
     const initial = stored === "dark" || stored === "light" ? stored : document.documentElement.dataset.theme || "light";
     setTheme(initial);
     document.documentElement.dataset.theme = initial;
+    const savedHeight = Number(localStorage.getItem(CHART_KEY));
+    if (savedHeight >= 220 && savedHeight <= 1200) setChartH(savedHeight);
   }, []);
 
   useEffect(() => {
@@ -443,9 +450,93 @@ export function PracticeApp() {
               ))}
             </div>
             {game.phase !== "batch" ? (
-              <PracticeChart candles={candles as ChartCandle[]} markers={marks} theme={theme} priorClose={prior} seriesId={`${game.ticker}-${game.timeframe}`} />
+              <div ref={stageRef} className={full ? "pr-full" : chartH ? "pr-stage pr-stage-set" : "pr-stage"} style={!full && chartH ? { height: chartH } : undefined}>
+                <PracticeChart
+                  ref={chartRef}
+                  candles={candles as ChartCandle[]}
+                  markers={marks}
+                  theme={theme}
+                  priorClose={prior}
+                  seriesId={`${game.ticker}-${game.timeframe}`}
+                />
+                <div className="pr-chart-tools">
+                  <button type="button" aria-label="Zoom in" onClick={() => chartRef.current?.zoom(0.75)}>
+                    +
+                  </button>
+                  <button type="button" aria-label="Zoom out" onClick={() => chartRef.current?.zoom(1.35)}>
+                    −
+                  </button>
+                  <button type="button" onClick={() => chartRef.current?.auto()}>
+                    Auto
+                  </button>
+                  <button type="button" onClick={() => setFull((value) => !value)}>
+                    {full ? "Close" : "Full"}
+                  </button>
+                </div>
+                {!full ? (
+                  <div
+                    className="pr-resize"
+                    role="separator"
+                    aria-label="Resize chart"
+                    onPointerDown={(event) => {
+                      const stage = stageRef.current;
+                      if (!stage) return;
+                      const startY = event.clientY;
+                      const startH = stage.getBoundingClientRect().height;
+                      const target = event.currentTarget;
+                      target.setPointerCapture(event.pointerId);
+                      const move = (pointer: PointerEvent) => {
+                        const next = Math.min(Math.max(220, startH + pointer.clientY - startY), window.innerHeight * 0.92);
+                        stage.style.height = `${next}px`;
+                      };
+                      const up = (pointer: PointerEvent) => {
+                        target.releasePointerCapture(pointer.pointerId);
+                        target.removeEventListener("pointermove", move);
+                        const next = Math.round(stage.getBoundingClientRect().height);
+                        setChartH(next);
+                        try {
+                          localStorage.setItem(CHART_KEY, String(next));
+                        } catch {
+                          /* ignore */
+                        }
+                      };
+                      target.addEventListener("pointermove", move);
+                      target.addEventListener("pointerup", up, { once: true });
+                    }}
+                  />
+                ) : (
+                  <div className="pr-fullbar">
+                    <div className="pr-toggle pr-ticker" role="group" aria-label="Ticker">
+                      {(["TQQQ", "SQQQ"] as Ticker[]).map((symbol) => (
+                        <button key={symbol} type="button" aria-pressed={game.ticker === symbol} onClick={() => setGame({ ...game, ticker: symbol })}>
+                          {symbol}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="pr-book">
+                      TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
+                    </p>
+                    <div className="pr-pad">
+                      <div>
+                        {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
+                          <button key={fraction} type="button" className="pr-buy" onClick={() => act("buy", fraction)}>
+                            Buy {fraction * 100}%
+                          </button>
+                        ))}
+                      </div>
+                      <div>
+                        {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
+                          <button key={fraction} type="button" className="pr-sell" disabled={position.shares <= 0} onClick={() => act("sell", fraction)}>
+                            Sell {fraction * 100}%
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : null}
-            {game.phase === "play" ? (
+            {game.phase === "play" && !full ? (
               <>
                 <div className="pr-trade">
                 <div className="pr-toggle pr-ticker" role="group" aria-label="Ticker">
@@ -523,7 +614,10 @@ export function PracticeApp() {
               {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 5-minute bar is randomized; the bar’s open, high, low, and close are real.
             </p>
             <p className="pr-stamp">
-              Build {process.env.NEXT_PUBLIC_COMMIT_SHA || "local"} · {process.env.NEXT_PUBLIC_BUILD_TIME || "dev"}
+              Build {process.env.NEXT_PUBLIC_COMMIT_SHA || "local"} · {process.env.NEXT_PUBLIC_BUILD_TIME || "dev"} ·{" "}
+              <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">
+                Charts by TradingView
+              </a>
             </p>
           </>
         ) : null}

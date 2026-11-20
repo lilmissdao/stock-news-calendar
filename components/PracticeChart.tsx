@@ -1,62 +1,260 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import type { IChartApi, IPriceLine, ISeriesApi, ISeriesMarkersPluginApi, LineStyle, Time, UTCTimestamp } from "lightweight-charts";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import type { IChartApi, IPriceLine, ISeriesApi, ISeriesMarkersPluginApi, LineStyle, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
 import { clock, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
 export type ChartMark = { time: number; side: "buy" | "sell" };
+export type PracticeChartHandle = {
+  zoom: (factor: number) => void;
+  auto: () => void;
+};
 
 function toBar(bar: ChartCandle) {
   return { time: bar.t as UTCTimestamp, open: bar.o, high: bar.h, low: bar.l, close: bar.c };
 }
 
-function showCandles(chart: IChartApi, candles: ChartCandle[], priorClose: number | null, host: HTMLElement | null) {
-  const scale = chart.priceScale("right");
-  const window = priceWindow(candles, priorClose);
-  if (window) {
-    scale.setAutoScale(true);
-    scale.setVisibleRange({ from: window.from, to: window.to });
-    scale.setAutoScale(true);
-  }
-  const last = Math.max(candles.length - 1, 0);
-  chart.timeScale().fitContent();
-  chart.timeScale().setVisibleLogicalRange({ from: -0.5, to: last + 1.5 });
-  if (host && window) {
-    const visible = scale.getVisibleRange();
-    host.dataset.priceFrom = visible ? String(visible.from) : String(window.from);
-    host.dataset.priceTo = visible ? String(visible.to) : String(window.to);
-    host.dataset.barCount = String(candles.length);
-    host.dataset.last = candles.length ? String(candles[candles.length - 1].c) : "";
-  }
-}
-
-function candleOffscreen(chart: IChartApi, candles: ChartCandle[]): boolean {
-  const last = candles[candles.length - 1];
-  if (!last) return false;
+function publish(chart: IChartApi, candles: ChartCandle[], host: HTMLElement | null, manual: boolean) {
+  if (!host) return;
   const price = chart.priceScale("right").getVisibleRange();
   const time = chart.timeScale().getVisibleLogicalRange();
-  const index = candles.length - 1;
-  if (!price || last.c < price.from || last.c > price.to || last.l < price.from || last.h > price.to) return true;
-  if (!time || index < time.from || index > time.to) return true;
-  return false;
+  if (price) {
+    host.dataset.priceFrom = String(price.from);
+    host.dataset.priceTo = String(price.to);
+  }
+  if (time) {
+    host.dataset.timeFrom = String(time.from);
+    host.dataset.timeTo = String(time.to);
+  }
+  host.dataset.barCount = String(candles.length);
+  host.dataset.last = candles.length ? String(candles[candles.length - 1].c) : "";
+  host.dataset.manual = manual ? "1" : "0";
 }
+
+function holdApply(applying: { current: boolean }, run: () => void) {
+  applying.current = true;
+  run();
+  window.setTimeout(() => {
+    applying.current = false;
+  }, 120);
+}
+
+function fitNow(chart: IChartApi, candles: ChartCandle[], priorClose: number | null, host: HTMLElement | null, applying: { current: boolean }) {
+  const scale = chart.priceScale("right");
+  const window = priceWindow(candles, priorClose);
+  holdApply(applying, () => {
+    chart.timeScale().applyOptions({ barSpacing: 16, rightOffset: 5, minBarSpacing: 8 });
+    if (window) {
+      scale.setVisibleRange({ from: window.from, to: window.to });
+      scale.setAutoScale(true);
+    }
+    const last = Math.max(candles.length - 1, 0);
+    chart.timeScale().setVisibleLogicalRange({ from: last - 14, to: last + 5 });
+  });
+  publish(chart, candles, host, false);
+}
+
+export const PracticeChart = forwardRef<PracticeChartHandle, {
+  candles: ChartCandle[];
+  markers: ChartMark[];
+  theme: string;
+  priorClose: number | null;
+  seriesId: string;
+}>(function PracticeChart({ candles, markers, theme, priorClose, seriesId }, ref) {
+  const host = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<IChartApi | null>(null);
+  const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+  const marksRef = useRef<ISeriesMarkersPluginApi<Time> | null>(null);
+  const lineRef = useRef<IPriceLine | null>(null);
+  const barsRef = useRef<ChartCandle[] | null>(null);
+  const seriesIdRef = useRef<string | null>(null);
+  const manual = useRef(false);
+  const applying = useRef(false);
+  const latest = useRef({ candles, markers, priorClose, seriesId });
+  latest.current = { candles, markers, priorClose, seriesId };
+
+  useImperativeHandle(ref, () => ({
+    zoom(factor: number) {
+      const chart = chartRef.current;
+      if (!chart) return;
+      const range = chart.timeScale().getVisibleLogicalRange();
+      if (!range) return;
+      manual.current = true;
+      chart.priceScale("right").setAutoScale(false);
+      const center = (range.from + range.to) / 2;
+      const half = Math.max(2, ((range.to - range.from) / 2) * factor);
+      applying.current = true;
+      chart.timeScale().setVisibleLogicalRange({ from: center - half, to: center + half });
+      applying.current = false;
+      publish(chart, latest.current.candles, host.current, true);
+    },
+    auto() {
+      const chart = chartRef.current;
+      if (!chart) return;
+      manual.current = false;
+      fitNow(chart, latest.current.candles, latest.current.priorClose, host.current, applying);
+      window.setTimeout(() => {
+        manual.current = false;
+        if (chartRef.current) publish(chartRef.current, latest.current.candles, host.current, false);
+      }, 160);
+    },
+  }));
+
+  useEffect(() => {
+    const el = host.current;
+    if (!el) return;
+    let dead = false;
+    let chart: IChartApi | null = null;
+    void import("lightweight-charts").then(({ CandlestickSeries, ColorType, createChart, createSeriesMarkers }) => {
+      if (dead || !host.current) return;
+      const style = getComputedStyle(document.documentElement);
+      const pick = (name: string) => style.getPropertyValue(name).trim();
+      chart = createChart(host.current, {
+        autoSize: true,
+        layout: {
+          background: { type: ColorType.Solid, color: "transparent" },
+          textColor: pick("--ink-soft"),
+          fontFamily: "var(--font-sans), sans-serif",
+          attributionLogo: false,
+        },
+        grid: { vertLines: { color: pick("--line") }, horzLines: { color: pick("--line") } },
+        rightPriceScale: { borderColor: pick("--line") },
+        handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
+        handleScale: {
+          mouseWheel: true,
+          pinch: true,
+          axisPressedMouseMove: { time: true, price: true },
+          axisDoubleClickReset: { time: true, price: true },
+        },
+        timeScale: {
+          borderColor: pick("--line"),
+          timeVisible: true,
+          secondsVisible: false,
+          barSpacing: 16,
+          minBarSpacing: 8,
+          rightOffset: 5,
+          shiftVisibleRangeOnNewBar: true,
+          tickMarkFormatter: (time: Time) => clock(typeof time === "number" ? time : 0),
+        },
+        localization: { timeFormatter: (time: Time) => clock(typeof time === "number" ? time : 0) },
+      });
+      const gesture = { current: false };
+      const arm = () => {
+        gesture.current = true;
+      };
+      const disarm = () => {
+        window.setTimeout(() => {
+          gesture.current = false;
+        }, 250);
+      };
+      host.current.addEventListener("pointerdown", arm);
+      host.current.addEventListener("pointerup", disarm);
+      host.current.addEventListener("wheel", arm, { passive: true });
+      const onRange = () => {
+        if (gesture.current && !applying.current) {
+          manual.current = true;
+          chart?.priceScale("right").setAutoScale(false);
+        }
+        if (chart) publish(chart, latest.current.candles, host.current, manual.current);
+      };
+      chart.timeScale().subscribeVisibleLogicalRangeChange(onRange);
+      const series = chart.addSeries(CandlestickSeries, {
+        upColor: pick("--up"),
+        downColor: pick("--down"),
+        wickUpColor: pick("--up"),
+        wickDownColor: pick("--down"),
+        borderVisible: false,
+        autoscaleInfoProvider: () => {
+          const data = latest.current.candles;
+          const window = priceWindow(data, latest.current.priorClose);
+          if (!window) return null;
+          return { priceRange: { minValue: window.from, maxValue: window.to } };
+        },
+      });
+      chartRef.current = chart;
+      seriesRef.current = series;
+      marksRef.current = createSeriesMarkers(series, []);
+      barsRef.current = null;
+      seriesIdRef.current = null;
+      manual.current = false;
+      paint(series, marksRef.current, chart, lineRef, latest.current, host.current, true, barsRef, seriesIdRef, manual, applying);
+    });
+    return () => {
+      dead = true;
+      chart?.remove();
+      chartRef.current = null;
+      seriesRef.current = null;
+      marksRef.current = null;
+      lineRef.current = null;
+      barsRef.current = null;
+      seriesIdRef.current = null;
+    };
+  }, [theme]);
+
+  useEffect(() => {
+    const el = host.current;
+    if (!el) return;
+    const down = (event: PointerEvent) => {
+      const box = el.getBoundingClientRect();
+      if (event.clientX > box.right - 72) {
+        manual.current = true;
+        chartRef.current?.priceScale("right").setAutoScale(false);
+        if (chartRef.current) publish(chartRef.current, latest.current.candles, el, true);
+      }
+    };
+    el.addEventListener("pointerdown", down);
+    return () => el.removeEventListener("pointerdown", down);
+  }, []);
+
+  useEffect(() => {
+    const series = seriesRef.current;
+    const chart = chartRef.current;
+    if (!series || !chart) return;
+    const switched = seriesIdRef.current !== null && seriesIdRef.current !== seriesId;
+    if (switched) manual.current = false;
+    let frames = 0;
+    let raf = 0;
+    let cancelled = false;
+    const draw = () => {
+      if (cancelled) return;
+      const live = seriesRef.current;
+      const box = chartRef.current;
+      if (!live || !box) return;
+      if ((host.current?.clientWidth ?? 0) < 8 && frames < 20) {
+        frames += 1;
+        raf = window.requestAnimationFrame(draw);
+        return;
+      }
+      paint(live, marksRef.current, box, lineRef, latest.current, host.current, switched, barsRef, seriesIdRef, manual, applying);
+    };
+    draw();
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(raf);
+    };
+  }, [candles, markers, priorClose, seriesId]);
+
+  return <div ref={host} className="pr-chart" />;
+});
 
 function paint(
   series: ISeriesApi<"Candlestick">,
   marks: ISeriesMarkersPluginApi<Time> | null,
   chart: IChartApi,
   line: { current: IPriceLine | null },
-  candles: ChartCandle[],
-  markers: ChartMark[],
-  priorClose: number | null,
-  fit: boolean,
+  latest: { candles: ChartCandle[]; markers: ChartMark[]; priorClose: number | null; seriesId: string },
+  host: HTMLElement | null,
+  switched: boolean,
   previous: { current: ChartCandle[] | null },
   previousId: { current: string | null },
-  seriesId: string,
-  host: HTMLElement | null,
+  manual: { current: boolean },
+  applying: { current: boolean },
 ) {
+  const { candles, markers, priorClose, seriesId } = latest;
   const replace = seriesNeedsReset(previousId.current, seriesId, previous.current, candles) || !candles.length;
+  const savedTime: LogicalRange | null = manual.current ? chart.timeScale().getVisibleLogicalRange() : null;
+  const savedPrice = manual.current ? chart.priceScale("right").getVisibleRange() : null;
   const markerData = markers.map((mark) => ({
     time: mark.time as UTCTimestamp,
     position: mark.side === "buy" ? ("belowBar" as const) : ("aboveBar" as const),
@@ -85,10 +283,19 @@ function paint(
         lineWidth: 1,
         lineStyle: 2 as LineStyle,
         axisLabelVisible: true,
-        title: "Prior close",
+        title: "Prior",
       });
     }
-    showCandles(chart, candles, priorClose, host);
+    if (!manual.current || switched) {
+      manual.current = false;
+      fitNow(chart, candles, priorClose, host, applying);
+    } else {
+      applying.current = true;
+      if (savedTime) chart.timeScale().setVisibleLogicalRange(savedTime);
+      if (savedPrice) chart.priceScale("right").setVisibleRange(savedPrice);
+      applying.current = false;
+      publish(chart, candles, host, true);
+    }
   } else if (candles.length) {
     series.update(toBar(candles[candles.length - 1]));
     try {
@@ -96,133 +303,9 @@ function paint(
     } catch {
       marks?.setMarkers([]);
     }
-    if (candleOffscreen(chart, candles)) showCandles(chart, candles, priorClose, host);
+    if (!manual.current) chart.priceScale("right").setAutoScale(true);
+    publish(chart, candles, host, manual.current);
   }
   previous.current = candles;
   previousId.current = seriesId;
-  if (fit && !replace && candles.length) chart.timeScale().fitContent();
-  if (host && candles.length) {
-    const visible = chart.priceScale("right").getVisibleRange();
-    if (visible) {
-      host.dataset.priceFrom = String(visible.from);
-      host.dataset.priceTo = String(visible.to);
-    }
-    host.dataset.barCount = String(candles.length);
-    host.dataset.last = String(candles[candles.length - 1].c);
-  }
-}
-
-export function PracticeChart({ candles, markers, theme, priorClose, seriesId }: { candles: ChartCandle[]; markers: ChartMark[]; theme: string; priorClose: number | null; seriesId: string }) {
-  const host = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
-  const marksRef = useRef<ISeriesMarkersPluginApi<Time> | null>(null);
-  const lineRef = useRef<IPriceLine | null>(null);
-  const countRef = useRef(0);
-  const priorSeen = useRef<number | null | undefined>(undefined);
-  const barsRef = useRef<ChartCandle[] | null>(null);
-  const seriesIdRef = useRef<string | null>(null);
-  const latest = useRef({ candles, markers, priorClose, seriesId });
-  latest.current = { candles, markers, priorClose, seriesId };
-
-  useEffect(() => {
-    const el = host.current;
-    if (!el) return;
-    let dead = false;
-    let chart: IChartApi | null = null;
-    void import("lightweight-charts").then(({ CandlestickSeries, ColorType, createChart, createSeriesMarkers }) => {
-      if (dead || !host.current) return;
-      const style = getComputedStyle(document.documentElement);
-      const pick = (name: string) => style.getPropertyValue(name).trim();
-      chart = createChart(host.current, {
-        autoSize: true,
-        layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: pick("--ink-soft"), fontFamily: "var(--font-sans), sans-serif" },
-        grid: { vertLines: { color: pick("--line") }, horzLines: { color: pick("--line") } },
-        rightPriceScale: { borderColor: pick("--line") },
-        timeScale: {
-          borderColor: pick("--line"),
-          timeVisible: true,
-          secondsVisible: false,
-          barSpacing: 8,
-          minBarSpacing: 3,
-          rightOffset: 4,
-          tickMarkFormatter: (time: Time) => clock(typeof time === "number" ? time : 0),
-        },
-        localization: { timeFormatter: (time: Time) => clock(typeof time === "number" ? time : 0) },
-      });
-      const series = chart.addSeries(CandlestickSeries, {
-        upColor: pick("--up"),
-        downColor: pick("--down"),
-        wickUpColor: pick("--up"),
-        wickDownColor: pick("--down"),
-        borderVisible: false,
-        autoscaleInfoProvider: () => {
-          const data = latest.current.candles;
-          if (!data.length) return null;
-          let high = Math.max(...data.map((bar) => bar.h));
-          let low = Math.min(...data.map((bar) => bar.l));
-          const mid = (high + low) / 2;
-          const prior = latest.current.priorClose;
-          if (prior !== null && mid > 0 && Math.abs(prior - mid) / mid <= 0.04) {
-            high = Math.max(high, prior);
-            low = Math.min(low, prior);
-          }
-          const pad = Math.max((high - low) * 0.12, high * 0.0015);
-          return { priceRange: { minValue: low - pad, maxValue: high + pad } };
-        },
-      });
-      chartRef.current = chart;
-      seriesRef.current = series;
-      marksRef.current = createSeriesMarkers(series, []);
-      countRef.current = latest.current.candles.length;
-      priorSeen.current = latest.current.priorClose;
-      barsRef.current = null;
-      seriesIdRef.current = null;
-      paint(series, marksRef.current, chart, lineRef, latest.current.candles, latest.current.markers, latest.current.priorClose, true, barsRef, seriesIdRef, latest.current.seriesId, host.current);
-    });
-    return () => {
-      dead = true;
-      chart?.remove();
-      chartRef.current = null;
-      seriesRef.current = null;
-      marksRef.current = null;
-      lineRef.current = null;
-      countRef.current = 0;
-      priorSeen.current = undefined;
-      barsRef.current = null;
-      seriesIdRef.current = null;
-    };
-  }, [theme]);
-
-  useEffect(() => {
-    const series = seriesRef.current;
-    const chart = chartRef.current;
-    if (!series || !chart) return;
-    const switched = seriesIdRef.current !== seriesId;
-    const fit = switched || candles.length !== countRef.current;
-    countRef.current = candles.length;
-    priorSeen.current = priorClose;
-    let frames = 0;
-    let raf = 0;
-    let cancelled = false;
-    const draw = () => {
-      if (cancelled) return;
-      const live = seriesRef.current;
-      const box = chartRef.current;
-      if (!live || !box) return;
-      if ((host.current?.clientWidth ?? 0) < 8 && frames < 20) {
-        frames += 1;
-        raf = window.requestAnimationFrame(draw);
-        return;
-      }
-      paint(live, marksRef.current, box, lineRef, candles, markers, priorClose, fit, barsRef, seriesIdRef, seriesId, host.current);
-    };
-    draw();
-    return () => {
-      cancelled = true;
-      window.cancelAnimationFrame(raf);
-    };
-  }, [candles, markers, priorClose, seriesId]);
-
-  return <div ref={host} className="pr-chart" />;
 }

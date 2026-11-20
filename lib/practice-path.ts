@@ -113,10 +113,10 @@ export function minuteSeed(daySeed: number, minute: number): number {
 export type PriceWindow = { from: number; to: number };
 
 /** Visible price range for the candles on screen. A prior close from the other ticker is left out. */
-export function priceWindow(bars: { h: number; l: number }[], priorClose: number | null): PriceWindow | null {
+export function priceWindow(bars: { h: number; l: number; o?: number; c?: number }[], priorClose: number | null): PriceWindow | null {
   if (!bars.length) return null;
-  let high = Math.max(...bars.map((bar) => bar.h));
-  let low = Math.min(...bars.map((bar) => bar.l));
+  let high = Math.max(...bars.map((bar) => Math.max(bar.h, bar.o ?? bar.h, bar.c ?? bar.h)));
+  let low = Math.min(...bars.map((bar) => Math.min(bar.l, bar.o ?? bar.l, bar.c ?? bar.l)));
   if (!Number.isFinite(high) || !Number.isFinite(low)) return null;
   if (high < low) [high, low] = [low, high];
   const mid = (high + low) / 2 || Math.abs(high) || 1;

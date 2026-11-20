@@ -8,7 +8,6 @@ import {
   equityNow,
   fastForward,
   liveQuote,
-  chooseSession,
   loadGame,
   minuteLeft,
   newGame,
@@ -94,11 +93,20 @@ function sessionWindow(day: (typeof BOOK.days)[number]): { open: number; close: 
   return { open: day.tqqq[0][0], close: closeBar[3], date: day.date };
 }
 
-function fullHold(state: GameState): number {
-  return sessionHoldValue(
-    state.batchStartEquity,
-    BOOK.days.slice(state.batchStart, state.batchStart + state.batchDaysTotal).map(sessionWindow),
-  );
+function bookDay(state: GameState) {
+  return BOOK.days[state.session] ?? BOOK.days[Math.max(0, Math.min(BOOK.days.length - 1, state.batchStart))];
+}
+
+function playedIndexes(history: HistoryFile, game: GameState | null): number[] {
+  const dates = new Set(playedDates(history, game));
+  return BOOK.days.flatMap((day, index) => (dates.has(day.date) ? [index] : []));
+}
+
+function holdSoFar(state: GameState): number {
+  const dates = state.batchDays.map((day) => day.date);
+  const current = bookDay(state)?.date;
+  if (current && !dates.includes(current)) dates.push(current);
+  return holdForDates(state.batchStartEquity, dates);
 }
 
 function holdForDates(startEquity: number, dates: string[]): number {
@@ -109,30 +117,25 @@ function holdForDates(startEquity: number, dates: string[]): number {
   return sessionHoldValue(startEquity, windows);
 }
 
-function hasNextSession(state: GameState): boolean {
-  if (state.phase === "day" && state.day + 1 < state.batchDaysTotal) return true;
-  return state.batchStart + state.batchDaysTotal < BOOK.days.length;
-}
-
 function pendingDates(state: GameState): string[] {
   const dates = state.batchDays.map((day) => day.date);
   if (state.phase === "play" && dayStarted(state)) {
-    const date = BOOK.days[state.batchStart + state.day]?.date;
+    const date = bookDay(state)?.date;
     if (date) dates.push(date);
   }
   return dates;
 }
 
 function run(state: GameState, step: typeof tickForward): GameState {
-  const day = BOOK.days[state.batchStart + state.day];
+  const day = bookDay(state);
   const paths = buildSession(day, state.seeds[state.day] || 1);
-  return step(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES), day.date, fullHold(state));
+  return step(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES), day.date, holdSoFar(state));
 }
 
 function runForward(state: GameState, steps: number): GameState {
-  const day = BOOK.days[state.batchStart + state.day];
+  const day = bookDay(state);
   const paths = buildSession(day, state.seeds[state.day] || 1);
-  return fastForward(state, steps, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES), day.date, fullHold(state));
+  return fastForward(state, steps, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES), day.date, holdSoFar(state));
 }
 
 function priorClose(index: number, ticker: Ticker): number | null {
@@ -156,7 +159,7 @@ function historyRows(game: GameState, history: HistoryFile, ending: number): Gam
   if (game.phase !== "batch") {
     const days = [...game.batchDays];
     if (game.phase === "play" && dayStarted(game)) {
-      const date = BOOK.days[game.batchStart + game.day]?.date ?? "";
+      const date = bookDay(game)?.date ?? "";
       days.push({
         date,
         dollars: ending - game.dayStartEquity,
@@ -200,10 +203,11 @@ export function PracticeApp() {
 
   useEffect(() => {
     const speed = coerceSpeed(typeof localStorage !== "undefined" ? localStorage.getItem(SPEED_KEY) : 1);
-    const loaded = loadGame(localStorage.getItem(STORAGE_KEY), BOOK.days.length) ?? newGame(BOOK.days.length, Math.random, speed);
+    const savedHistory = parseHistory(localStorage.getItem(HISTORY_KEY));
+    const loaded = loadGame(localStorage.getItem(STORAGE_KEY), BOOK.days.length) ?? newGame(BOOK.days.length, Math.random, speed, playedIndexes(savedHistory, null));
     setGame(loaded);
     rememberSpeed(loaded.speed);
-    setHistory(parseHistory(localStorage.getItem(HISTORY_KEY)));
+    setHistory(savedHistory);
     const stored = localStorage.getItem("snc-theme");
     const initial = stored === "dark" || stored === "light" ? stored : document.documentElement.dataset.theme || "light";
     setTheme(initial);
@@ -267,12 +271,12 @@ export function PracticeApp() {
       window.removeEventListener("focus", wake);
       window.removeEventListener("pageshow", wake);
     };
-  }, [game?.playing, game?.speed, game?.phase, game?.day, game?.batchStart]);
+  }, [game?.playing, game?.speed, game?.phase, game?.day, game?.session]);
 
-  const pathKey = game ? `${game.batchStart}:${game.day}:${game.seeds[game.day] ?? 0}` : "";
+  const pathKey = game ? `${game.session}:${game.day}:${game.seeds[game.day] ?? 0}` : "";
   const session = useMemo(() => {
     if (!game) return null;
-    const day = BOOK.days[game.batchStart + game.day];
+    const day = BOOK.days[game.session];
     if (!day) return null;
     const paths = buildSession(day, game.seeds[game.day] || 1);
     return { day, TQQQ: paths.TQQQ.slice(0, SESSION_MINUTES), SQQQ: paths.SQQQ.slice(0, SESSION_MINUTES) };
@@ -298,8 +302,7 @@ export function PracticeApp() {
     .map((mark) => ({ time: snap(session.day.start, mark.minute, game.timeframe), side: mark.side }));
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
-  const prior = priorClose(game.batchStart + game.day, game.ticker);
-  const played = new Set(playedDates(history, game));
+  const prior = priorClose(game.session, game.ticker);
   const rows = historyRows(game, history, value);
   const active = game;
   const tape = session;
@@ -308,7 +311,7 @@ export function PracticeApp() {
   function act(side: "buy" | "sell", fraction: number) {
     setGame((current) => {
       if (!current) return current;
-      const day = BOOK.days[current.batchStart + current.day];
+      const day = bookDay(current);
       const paths = buildSession(day, current.seeds[current.day] || 1);
       const live = liveQuote(current, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES));
       return trade(current, current.ticker, side, fraction, live[current.ticker], day?.date ?? "");
@@ -325,19 +328,16 @@ export function PracticeApp() {
     setConfirm(true);
   }
 
-  function pickDay(index: number) {
-    setGame((current) => {
-      if (!current) return current;
-      const dates = current.phase === "batch" ? [] : current.batchDays.map((day) => day.date);
-      return chooseSession(current, BOOK.days.length, index, holdForDates(current.batchStartEquity, dates));
-    });
+  function goNext(current: GameState) {
+    return nextDay(current, BOOK.days.length, playedIndexes(saved, current));
   }
 
   function commitNew() {
     const ending = equityNow(active, tape.TQQQ, tape.SQQQ);
-    setHistory(archiveCurrent(active, saved, ending, tape.day.date, holdForDates(active.batchStartEquity, pendingDates(active))));
+    const nextHistory = archiveCurrent(active, saved, ending, tape.day.date, holdForDates(active.batchStartEquity, pendingDates(active)));
+    setHistory(nextHistory);
     const speed = coerceSpeed(localStorage.getItem(SPEED_KEY) ?? active.speed);
-    setGame(newGame(BOOK.days.length, Math.random, speed));
+    setGame(newGame(BOOK.days.length, Math.random, speed, playedIndexes(nextHistory, null)));
     setConfirm(false);
     setTab("play");
     setNotice(null);
@@ -453,11 +453,8 @@ export function PracticeApp() {
                 <strong className="pr-price">{formatCents(price)}</strong>
                 <p className="pr-left">{game.phase === "play" ? minuteLeft(game.tick, game.speed) : "9:30–10:00"}</p>
                 <p className="pr-day">
-                  {prettyDate(session.day.date)}
-                  <span>
-                    Day {game.day + 1} of {game.batchDaysTotal}
-                    {asOf ? ` · ${asOf}` : ""}
-                  </span>
+                  {game.phase === "play" ? `Day ${game.day + 1} of ${game.batchDaysTotal}` : prettyDate(session.day.date)}
+                  <span>{game.phase === "play" ? asOf : `Day ${game.day + 1} of ${game.batchDaysTotal}${asOf ? ` · ${asOf}` : ""}`}</span>
                   <span>9:30–10:00{prior !== null ? ` · Prior ${formatCents(prior)}` : ""}</span>
                 </p>
               </div>
@@ -470,9 +467,6 @@ export function PracticeApp() {
                 </button>
               ) : null}
             </div>
-            {game.phase === "play" ? (
-              <DayPicker days={BOOK.days} played={played} value={game.batchStart + game.day} disabled={dayStarted(game)} onPick={pickDay} />
-            ) : null}
             {game.phase === "play" ? (
             <div className="pr-toggle" role="group" aria-label="Timeframe">
               {FRAMES.map((frame) => (
@@ -640,24 +634,10 @@ export function PracticeApp() {
               </>
             ) : null}
             {game.phase === "day" ? (
-              <DayReview
-                game={game}
-                canNext={hasNextSession(game)}
-                played={played}
-                onPick={pickDay}
-                onNext={() => setGame((current) => (current ? nextDay(current, BOOK.days.length) : current))}
-                onReview={() => setGame((current) => (current ? openBatchReview(current) : current))}
-              />
+              <DayReview game={game} onNext={() => setGame((current) => (current ? goNext(current) : current))} onReview={() => setGame((current) => (current ? openBatchReview(current) : current))} />
             ) : null}
             {game.phase === "batch" ? (
-              <BatchReview
-                game={game}
-                canNext={hasNextSession(game)}
-                played={played}
-                onPick={pickDay}
-                onNext={() => setGame((current) => (current ? nextDay(current, BOOK.days.length) : current))}
-                onReset={askNew}
-              />
+              <BatchReview game={game} onNext={() => setGame((current) => (current ? goNext(current) : current))} onReset={askNew} />
             ) : null}
             <p className="chart-note">
               {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 5-minute bar is randomized; the bar’s open, high, low, and close are real.
@@ -695,49 +675,7 @@ function Stat({ label, value, tone = 0 }: { label: string; value: string; tone?:
   );
 }
 
-function DayPicker({
-  days,
-  played,
-  value,
-  disabled,
-  onPick,
-}: {
-  days: { date: string }[];
-  played: Set<string>;
-  value: number;
-  disabled: boolean;
-  onPick: (index: number) => void;
-}) {
-  return (
-    <label className="pr-picker">
-      <span>{disabled ? "Today’s session" : "Choose a day"}</span>
-      <select aria-label="Choose a day" value={value} disabled={disabled} onChange={(event) => onPick(Number(event.target.value))}>
-        {days.map((day, index) => (
-          <option key={day.date} value={index}>
-            {prettyDate(day.date)}
-            {played.has(day.date) ? " · played" : ""}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
-function DayReview({
-  game,
-  canNext,
-  played,
-  onPick,
-  onNext,
-  onReview,
-}: {
-  game: GameState;
-  canNext: boolean;
-  played: Set<string>;
-  onPick: (index: number) => void;
-  onNext: () => void;
-  onReview: () => void;
-}) {
+function DayReview({ game, onNext, onReview }: { game: GameState; onNext: () => void; onReview: () => void }) {
   const last = game.batchDays[game.batchDays.length - 1];
   const finishesBatch = game.day + 1 >= game.batchDaysTotal;
   return (
@@ -747,8 +685,7 @@ function DayReview({
         Day {game.day + 1} of {game.batchDaysTotal} · {dollars(last.dollars)} · {pct(last.pct)}
       </p>
       <p className="pr-note">Sold flat at 10:00. Fees {formatCents(last.fees)}. This result is the 9:30–10:00 window.</p>
-      <DayPicker days={BOOK.days} played={played} value={game.batchStart + game.day} disabled={false} onPick={onPick} />
-      <button type="button" className="pr-next" onClick={onNext} disabled={!canNext}>
+      <button type="button" className="pr-next" onClick={onNext}>
         Next day
       </button>
       {finishesBatch ? (
@@ -760,21 +697,7 @@ function DayReview({
   );
 }
 
-function BatchReview({
-  game,
-  canNext,
-  played,
-  onPick,
-  onNext,
-  onReset,
-}: {
-  game: GameState;
-  canNext: boolean;
-  played: Set<string>;
-  onPick: (index: number) => void;
-  onNext: () => void;
-  onReset: () => void;
-}) {
+function BatchReview({ game, onNext, onReset }: { game: GameState; onNext: () => void; onReset: () => void }) {
   const batch = game.history.batches[game.history.batches.length - 1];
   const origin = game.history.equity[0]?.value || 31000;
   const latest = game.history.equity[game.history.equity.length - 1]?.value || game.cash;
@@ -786,7 +709,7 @@ function BatchReview({
       </p>
       <ul className="pr-days">
         {batch.days.map((day, index) => (
-          <li key={day.date}>
+          <li key={`${day.date}-${index}`}>
             <span>Day {index + 1}</span>
             <span>{prettyDate(day.date)}</span>
             <strong className={day.dollars >= 0 ? "up" : "down"}>
@@ -818,14 +741,7 @@ function BatchReview({
           </li>
         ))}
       </ol>
-      <DayPicker
-        days={BOOK.days}
-        played={played}
-        value={Math.min(BOOK.days.length - 1, game.batchStart + game.batchDaysTotal)}
-        disabled={false}
-        onPick={onPick}
-      />
-      <button type="button" className="pr-next" onClick={onNext} disabled={!canNext}>
+      <button type="button" className="pr-next" onClick={onNext}>
         Next day
       </button>
       <div className="pr-actions">

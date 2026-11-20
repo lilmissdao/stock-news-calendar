@@ -60,6 +60,8 @@ export type GameState = {
   cash: number;
   positions: Record<Ticker, Position>;
   batchStart: number;
+  /** Index into the session book for the day on screen. */
+  session: number;
   day: number;
   seeds: number[];
   cursor: number;
@@ -96,10 +98,23 @@ export function batchLength(dayCount: number, batchStart: number): number {
   return Math.max(1, Math.min(BATCH_LENGTH, dayCount - start));
 }
 
-export function newGame(dayCount: number, random: () => number = Math.random, speed: Speed = 1, startIndex?: number): GameState {
-  const span = Math.max(0, dayCount - BATCH_LENGTH);
-  const index = startIndex == null ? Math.floor(random() * (span + 1)) : Math.max(0, Math.min(Math.max(0, dayCount - 1), Math.floor(startIndex)));
-  return fresh(index, STARTING_CASH, { batches: [], equity: [{ label: "Start", value: STARTING_CASH }] }, random, speed, dayCount);
+/** An unplayed session when any remain, otherwise any session in the book. */
+export function pickSession(dayCount: number, blocked: Iterable<number>, random: () => number): number {
+  if (dayCount <= 0) return 0;
+  const skip = new Set<number>();
+  for (const value of blocked) {
+    const index = Math.floor(value);
+    if (index >= 0 && index < dayCount) skip.add(index);
+  }
+  const open: number[] = [];
+  for (let index = 0; index < dayCount; index += 1) if (!skip.has(index)) open.push(index);
+  const pool = open.length > 0 ? open : Array.from({ length: dayCount }, (_, index) => index);
+  const choice = Math.floor(random() * pool.length);
+  return pool[Math.max(0, Math.min(pool.length - 1, choice))];
+}
+
+export function newGame(dayCount: number, random: () => number = Math.random, speed: Speed = 1, played: number[] = []): GameState {
+  return fresh(pickSession(dayCount, played, random), STARTING_CASH, { batches: [], equity: [{ label: "Start", value: STARTING_CASH }] }, random, speed, dayCount);
 }
 
 export function coerceSpeed(value: unknown): Speed {
@@ -113,6 +128,7 @@ function fresh(batchStart: number, cash: number, history: GameState["history"], 
     cash,
     positions: { TQQQ: emptyPosition(), SQQQ: emptyPosition() },
     batchStart,
+    session: batchStart,
     day: 0,
     seeds: [0, 1, 2, 3, 4].map(() => Math.floor(random() * 1_000_000_000)),
     cursor: 0,
@@ -132,7 +148,7 @@ function fresh(batchStart: number, cash: number, history: GameState["history"], 
     batchDays: [],
     batchFees: 0,
     batchStartEquity: cash,
-    batchDaysTotal: batchLength(dayCount, batchStart),
+    batchDaysTotal: Math.max(1, Math.min(BATCH_LENGTH, dayCount)),
     batchHold: 0,
     history,
   };
@@ -152,9 +168,13 @@ export function loadGame(raw: string | null, dayCount: number): GameState | null
     let tick = legacy ? 0 : parsed.tick;
     tick = Math.max(0, Math.min(SUBTICKS, Math.round(tick)));
     const startedAt = parsed.startedAt || parsed.history?.batches?.[0]?.startDate || new Date().toISOString();
-    const room = batchLength(dayCount, parsed.batchStart);
+    const savedSession = Number((parsed as GameState).session);
+    const hasSession = Number.isInteger(savedSession) && savedSession >= 0 && savedSession < dayCount;
+    const room = hasSession ? Math.max(1, Math.min(BATCH_LENGTH, dayCount)) : batchLength(dayCount, parsed.batchStart);
     const savedLength = Number(parsed.batchDaysTotal);
     const batchDaysTotal = savedLength >= 1 && savedLength <= room ? savedLength : room;
+    const legacySession = parsed.batchStart + (Number.isFinite(parsed.day) ? parsed.day : 0);
+    const session = hasSession ? savedSession : Math.max(0, Math.min(dayCount - 1, legacySession));
     return {
       ...parsed,
       cursor,
@@ -162,6 +182,7 @@ export function loadGame(raw: string | null, dayCount: number): GameState | null
       speed: coerceSpeed(parsed.speed),
       startedAt,
       playing: false,
+      session,
       batchDaysTotal,
       batchHold: Number.isFinite(parsed.batchHold) ? parsed.batchHold : 0,
     };
@@ -333,12 +354,6 @@ export function advance(state: GameState, steps: number, tqqq: MinuteBar[], sqqq
   return next;
 }
 
-function dayInProgress(state: GameState): boolean {
-  if (state.phase !== "play") return false;
-  const shares = state.positions.TQQQ.shares + state.positions.SQQQ.shares;
-  return state.cursor > 0 || state.tick > 0 || state.markers.length > 0 || state.dayFees > 0 || shares > 0;
-}
-
 function closeBatch(state: GameState): GameState {
   if (state.phase === "batch") return state;
   const equity = state.batchDays.length ? state.batchDays[state.batchDays.length - 1].equity : state.cash;
@@ -351,27 +366,30 @@ function closeBatch(state: GameState): GameState {
   };
 }
 
-/** Leave the day review for the next session. The fifth day records the batch, then continues. */
-export function nextDay(state: GameState, dayCount: number): GameState {
-  if (state.phase === "batch") return nextBatch(state, dayCount);
+function resetDay(state: GameState, session: number, day: number): GameState {
+  return {
+    ...state,
+    session,
+    day,
+    cursor: 0,
+    tick: 0,
+    playing: false,
+    phase: "play",
+    dayStartEquity: state.cash,
+    dayFees: 0,
+    dayPeak: state.cash,
+    dayDrawdown: 0,
+    markers: [],
+  };
+}
+
+/** Leave the day review for a random session. The fifth day records the batch, then continues. */
+export function nextDay(state: GameState, dayCount: number, played: number[] = [], random: () => number = Math.random): GameState {
+  if (state.phase === "batch") return nextBatch(state, dayCount, played, random);
   if (state.phase !== "day") return state;
-  if (state.day + 1 < state.batchDaysTotal) {
-    return {
-      ...state,
-      day: state.day + 1,
-      cursor: 0,
-      tick: 0,
-      playing: false,
-      phase: "play",
-      dayStartEquity: state.cash,
-      dayFees: 0,
-      dayPeak: state.cash,
-      dayDrawdown: 0,
-      markers: [],
-    };
-  }
+  if (state.day + 1 < state.batchDaysTotal) return resetDay(state, pickSession(dayCount, played, random), state.day + 1);
   const closed = closeBatch(state);
-  const advanced = nextBatch(closed, dayCount);
+  const advanced = nextBatch(closed, dayCount, played, random);
   return advanced === closed ? closed : advanced;
 }
 
@@ -381,33 +399,8 @@ export function openBatchReview(state: GameState): GameState {
   return closeBatch(state);
 }
 
-/**
- * Point a not-yet-started session at another day.
- * Completed days in the current batch stay in history, and cash carries over.
- */
-export function chooseSession(state: GameState, dayCount: number, startIndex: number, partialHold = 0): GameState {
-  if (dayCount <= 0 || dayInProgress(state)) return state;
-  const index = Math.max(0, Math.min(dayCount - 1, Math.floor(startIndex)));
-  const untouched = state.phase === "play" && state.day === 0 && state.batchDays.length === 0 && state.batchTrades.length === 0;
-  if (untouched) {
-    if (index === state.batchStart) return state;
-    return { ...state, batchStart: index, batchDaysTotal: batchLength(dayCount, index), day: 0, cursor: 0, tick: 0, playing: false };
-  }
-  if (state.phase !== "batch" && index === state.batchStart + state.day) return state;
-  let history = state.history;
-  if (state.phase !== "batch" && (state.batchDays.length > 0 || state.batchTrades.length > 0)) {
-    const end = state.batchDays.length ? state.batchDays[state.batchDays.length - 1].equity : state.cash;
-    const summary = summarizeBatch(state.batchDays, state.batchTrades, state.batchStartEquity, end, state.batchFees, partialHold);
-    history = { equity: history.equity, batches: [...history.batches, summary] };
-  }
-  const game = fresh(index, state.cash, history, Math.random, state.speed, dayCount);
-  return { ...game, startedAt: state.startedAt, ticker: state.ticker, timeframe: state.timeframe };
-}
-
-export function nextBatch(state: GameState, dayCount: number, random: () => number = Math.random): GameState {
-  if (state.phase !== "batch") return state;
-  const index = state.batchStart + batchLength(dayCount, state.batchStart);
-  if (index >= dayCount) return state;
-  const game = fresh(index, state.cash, state.history, random, state.speed, dayCount);
+export function nextBatch(state: GameState, dayCount: number, played: number[] = [], random: () => number = Math.random): GameState {
+  if (state.phase !== "batch" || dayCount <= 0) return state;
+  const game = fresh(pickSession(dayCount, played, random), state.cash, state.history, random, state.speed, dayCount);
   return { ...game, startedAt: state.startedAt, ticker: state.ticker, timeframe: state.timeframe };
 }

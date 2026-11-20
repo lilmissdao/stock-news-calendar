@@ -1386,21 +1386,6 @@ main { min-width: 0; }
 .pr-note { margin: 0; color: var(--ink-soft); font-size: 13px; }
 .pr-review { display: flex; flex-direction: column; gap: 12px; }
 .pr-review h2, .pr-review h3 { margin: 0; }
-.pr-picker { display: flex; flex-direction: column; gap: 4px; }
-.pr-picker span { color: var(--ink-soft); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-.pr-picker select {
-  width: 100%;
-  min-height: 48px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--bg-elev);
-  color: var(--ink);
-  font: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  padding: 8px 12px;
-}
-.pr-picker select:disabled { opacity: 0.72; }
 .pr-next {
   width: 100%;
   min-height: 64px;

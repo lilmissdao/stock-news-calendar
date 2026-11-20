@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { chooseSession, fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, ticksDue, trade, type BatchSummary, type GameState } from "./practice-engine";
-import { deleteAllHistory, deleteGame, emptyHistory, playedDates, type ArchivedGame } from "./practice-history";
+import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, pickSession, ticksDue, trade, type GameState } from "./practice-engine";
+import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { buildSession, candleInView, chartBars, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
+import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
 import type { PracticeMarket } from "./practice-market";
 import { buyShares, catFee, secFee, sellFees, sellShares, tafFee } from "./practice-trade";
 
@@ -212,70 +212,44 @@ function playDay(game: GameState, date: string) {
   return fastForward(game, 5000, flatBars(), flatBars(), date, 31_000);
 }
 
-function dayPickerAndNextDay() {
+function randomSessionPrefersUnplayed() {
   const book = market as PracticeMarket;
-  let game = newGame(book.days.length, () => 0, 1, 10);
-  assert.equal(game.batchStart, 10);
+  const count = book.days.length;
+  assert.ok(count >= 60);
+  const played = [0, 1, 2];
+  assert.equal(pickSession(count, played, () => 0), 3);
+  const all = Array.from({ length: count }, (_, index) => index);
+  assert.equal(pickSession(count, all, () => 0), 0);
+  assert.equal(pickSession(count, all, () => 0.5), Math.floor(count * 0.5));
+  let game = newGame(count, () => 0, 1, played);
+  assert.equal(game.session, 3);
   assert.equal(game.batchDaysTotal, 5);
-  assert.equal(book.days.length >= 60, true);
-  game = chooseSession(game, book.days.length, 4, 0);
-  assert.equal(game.batchStart, 4);
-  assert.equal(game.cash, 31_000);
-  game = { ...game, cursor: 2 };
-  assert.equal(chooseSession(game, book.days.length, 8, 0).batchStart, 4, "a started day stays put");
-  game = newGame(book.days.length, () => 0, 1, 10);
-  const cash = game.cash;
+  const seen = [game.session];
   for (let day = 0; day < 4; day += 1) {
-    game = playDay(game, `2026-09-${String(day + 1).padStart(2, "0")}`);
-    assert.equal(game.phase, "day");
-    assert.equal(game.day, day);
-    game = nextDay(game, book.days.length);
+    game = playDay(game, book.days[game.session].date);
+    const blocked = [...played, ...game.batchDays.map((item) => book.days.findIndex((entry) => entry.date === item.date))];
+    game = nextDay(game, count, blocked, () => 0);
     assert.equal(game.phase, "play");
     assert.equal(game.day, day + 1);
-    assert.equal(game.batchStart, 10);
+    seen.push(game.session);
   }
-  game = playDay(game, "2026-09-05");
-  assert.equal(game.phase, "day");
-  assert.equal(game.day, 4);
+  assert.deepEqual(seen, [3, 4, 5, 6, 7]);
+  game = playDay(game, book.days[game.session].date);
   const reviewed = openBatchReview(game);
-  assert.equal(reviewed.phase, "batch");
-  assert.equal(reviewed.history.batches.length, 1);
-  assert.equal(reviewed.history.batches[0].days.length, 5);
-  assert.equal(reviewed.cash, cash);
-  const continued = nextDay(game, book.days.length);
+  assert.equal(reviewed.history.batches[0].days.map((day) => day.date).join(), seen.map((index) => book.days[index].date).join());
+  const continued = nextDay(game, count, [...played, ...seen], () => 0);
   assert.equal(continued.phase, "play");
-  assert.equal(continued.batchStart, 15);
   assert.equal(continued.day, 0);
+  assert.equal(continued.session, 8);
   assert.equal(continued.history.batches.length, 1);
-  assert.equal(continued.cash, cash);
-  const tail = newGame(book.days.length, () => 0, 1, book.days.length - 1);
-  assert.equal(tail.batchDaysTotal, 1);
-  const ended = playDay(tail, book.days[book.days.length - 1].date);
-  const stuck = nextDay(ended, book.days.length);
-  assert.equal(stuck.phase, "batch");
-  assert.equal(stuck.batchStart, book.days.length - 1);
-  const jumped = chooseSession(ended, book.days.length, 2, 100);
-  assert.equal(jumped.batchStart, 2);
-  assert.equal(jumped.history.batches.length, 1);
-  assert.equal(jumped.history.batches[0].holdTqqq, 100);
-  assert.equal(jumped.cash, ended.cash);
-  const history = emptyHistory();
-  history.games.push({
-    id: "g",
-    number: 1,
-    playedAt: "",
-    endedAt: "",
-    endingBalance: 31_000,
-    startBalance: 31_000,
-    batches: [{ days: [{ date: "2026-08-27" }] } as BatchSummary],
-  });
-  const marked = playedDates(history, jumped);
-  assert.ok(marked.includes("2026-08-27"));
-  assert.ok(marked.includes(ended.batchDays[0].date));
+  assert.equal(continued.cash, 31_000);
+  const label = clock(book.days[0].start);
+  assert.match(label, /\d{1,2}:\d{2}/);
+  assert.equal(/\d{4}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Mon|Tue|Wed|Thu|Fri|Sat|Sun/.test(label), false);
 }
 
 regulatoryFeesOnly();
-dayPickerAndNextDay();
+randomSessionPrefersUnplayed();
 buyThenSellAll();
 partialSellsThenAll();
 sellWithNoCash();

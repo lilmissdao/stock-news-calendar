@@ -59,6 +59,10 @@ function pct(value: number): string {
 }
 
 function dollars(value: number): string {
+  if (value !== 0 && Math.abs(value) < 0.5) {
+    const cents = formatCents(Math.abs(value));
+    return value > 0 ? `+${cents}` : `-${cents}`;
+  }
   const text = formatWholeDollars(Math.abs(value));
   return value > 0 ? `+${text}` : value < 0 ? `-${text}` : text;
 }

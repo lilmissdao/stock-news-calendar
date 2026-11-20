@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { DEFAULT_SCENARIOS, formatAxisMoney, formatMoney, simulate } from "./simulator";
+import { ASSUMED_SHARE_PRICE, DEFAULT_SCENARIOS, formatAxisMoney, formatMoney, simulate } from "./simulator";
 
 function moneyScale() {
   assert.equal(formatMoney(31000), "$31,000.00");
@@ -26,11 +26,12 @@ function iraTenYearScenario() {
     tradeWith: "shares" as const,
   };
   const result = simulate(scenario);
-  assert.equal(result.dayOneShares, 620);
+  assert.equal(result.dayOneShares, Math.floor(31_000 / ASSUMED_SHARE_PRICE));
+  assert.notEqual(result.dayOneShares, Math.floor(31_000 / scenario.sharePrice));
   assert.equal(Number.isFinite(result.ending), true);
   assert.equal(Number.isFinite(result.feesPaid), true);
   assert.ok(result.ending > 1e21);
-  assert.equal(formatMoney(result.ending), "$1.1e22");
+  assert.equal(formatMoney(result.ending), "$1.2e22");
   const fixedShares = 620 * 0.01 * result.tradeDays;
   assert.ok(result.feesPaid > fixedShares * 1000, "fees grow as the balance buys more shares");
   assert.equal(formatMoney(result.feesPaid).includes(","), false);

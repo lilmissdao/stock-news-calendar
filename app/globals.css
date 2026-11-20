@@ -1220,9 +1220,11 @@ main { min-width: 0; }
 .sim-stat dd {
   margin: 4px 0 0;
   font-family: var(--font-serif), Georgia, serif;
-  font-size: 1.2rem;
+  font-size: clamp(0.95rem, 3.2vw, 1.2rem);
   line-height: 1.25;
   overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1242,7 +1244,9 @@ main { min-width: 0; }
   color: var(--ink);
   font-size: 13px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
+.sim-years span { overflow-wrap: anywhere; }
 
 .chart.sim-chart { padding: 0; position: relative; }
 
@@ -1273,7 +1277,9 @@ main { min-width: 0; }
   padding: 8px 10px;
   font-size: 14px;
   line-height: 1.3;
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 11rem;
+  overflow-wrap: anywhere;
   box-shadow: var(--shadow);
 }
 

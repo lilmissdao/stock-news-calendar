@@ -12,6 +12,7 @@ import {
   formatBreakEven,
   formatCents,
   formatCount,
+  formatMoney,
   formatMonthLabel,
   formatPercent,
   formatSignedPercent,
@@ -266,7 +267,7 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
     return (
       <figure className="chart">
         <figcaption>Balance</figcaption>
-        <p className="empty">This scenario grows past what the chart can draw.</p>
+        <p className="empty">Balance reaches {formatMoney(points[points.length - 1]?.balance ?? NaN)}, which is too large to plot.</p>
       </figure>
     );
   }
@@ -274,7 +275,7 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
   const { ticks, tickLabels, left, top, plotWidth, plotHeight, xOf, yOf, labels } = geometry;
   const line = points.map((point, index) => `${xOf(index).toFixed(1)},${yOf(point.balance).toFixed(1)}`).join(" ");
   const hoverPoint: MonthPoint | null = hover === null ? null : points[hover] ?? null;
-  const hoverText = hoverPoint ? `${formatMonthLabel(hoverPoint.month)} ${formatWholeDollars(hoverPoint.balance)}` : "";
+  const hoverText = hoverPoint ? `${formatMonthLabel(hoverPoint.month)} ${formatMoney(hoverPoint.balance)}` : "";
   const tipX = hover === null ? 0 : xOf(hover);
   const tipY = hoverPoint ? yOf(hoverPoint.balance) : 0;
   const plotRight = left + plotWidth;
@@ -300,7 +301,7 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
       <svg
         viewBox={`0 0 ${viewWidth} ${CHART_HEIGHT}`}
         role="img"
-        aria-label={`${label}, from ${formatWholeDollars(points[0].balance)} to ${formatWholeDollars(points[points.length - 1].balance)}. Drawdowns are included.`}
+        aria-label={`${label}, from ${formatMoney(points[0].balance)} to ${formatMoney(points[points.length - 1].balance)}. Drawdowns are included.`}
         tabIndex={0}
         onPointerMove={(event) => setHover(nearest(event))}
         onPointerLeave={() => setHover(null)}
@@ -361,7 +362,7 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
           }}
         >
           <span>{formatMonthLabel(hoverPoint.month)}</span>
-          <strong>{formatWholeDollars(hoverPoint.balance)}</strong>
+          <strong>{formatMoney(hoverPoint.balance)}</strong>
         </div>
       ) : null}
       <p className="sr" aria-live="polite">
@@ -551,7 +552,7 @@ function ScenarioCard({
       <dl className="sim-results">
         <div className="sim-stat">
           <dt>Ending balance</dt>
-          <dd>{formatWholeDollars(result.ending)}</dd>
+          <dd>{formatMoney(result.ending)}</dd>
         </div>
         <div className="sim-stat">
           <dt>Avg net return per month</dt>
@@ -567,14 +568,14 @@ function ScenarioCard({
         </div>
         <div className="sim-stat">
           <dt>Est. fees & spread paid</dt>
-          <dd>{formatCents(result.feesPaid)}</dd>
+          <dd>{formatMoney(result.feesPaid)}</dd>
         </div>
         <div className="sim-stat">
           <dt>Break-even daily gain</dt>
           <dd>{formatBreakEven(result.breakEven)}</dd>
         </div>
         <div className="sim-stat">
-          <dt>{scenario.tradeWith === "options" ? "Contracts per trade" : "Shares per trade"}</dt>
+          <dt>{scenario.tradeWith === "options" ? "Contracts per trade (start)" : "Shares per trade (start)"}</dt>
           <dd>{formatCount(scenario.tradeWith === "options" ? result.dayOneContracts : result.dayOneShares)}</dd>
         </div>
       </dl>
@@ -582,7 +583,7 @@ function ScenarioCard({
         {result.yearSlices.map((slice, index) => (
           <span key={slice.year}>
             {index > 0 ? " · " : ""}
-            Yr {slice.year} {formatSignedPercent(slice.rate)} · {formatWholeDollars(slice.ending)}
+            Yr {slice.year} {formatSignedPercent(slice.rate)} · {formatMoney(slice.ending)}
           </span>
         ))}
       </p>

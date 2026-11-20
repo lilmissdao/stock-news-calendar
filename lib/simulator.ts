@@ -228,15 +228,24 @@ function roundTrip(balance: number, multiplier: number, scenario: Scenario): Rou
 }
 
 function settled(leftover: number, sellValue: number, cost: number): number {
-  return Math.max(0, leftover + sellValue - cost);
+  const next = leftover + sellValue - cost;
+  if (Number.isFinite(next)) return Math.max(0, next);
+  if (next === Infinity) return Infinity;
+  return Number.isFinite(leftover) ? Math.max(0, leftover) : 0;
 }
 
 function secFee(sellValue: number): number {
-  if (!(sellValue > 500)) return 0;
-  return Math.ceil(sellValue * SEC_FEE_RATE * 100 - 1e-8) / 100;
+  if (!(sellValue > 500) || !Number.isFinite(sellValue)) return 0;
+  const raw = sellValue * SEC_FEE_RATE;
+  if (!Number.isFinite(raw) || raw === 0) return 0;
+  if (raw >= 1e16) return raw;
+  return Math.ceil(raw * 100 - 1e-8) / 100;
 }
 
 function nearestCent(amount: number): number {
+  if (!Number.isFinite(amount)) return 0;
+  // Cents stop being representable, and rounding would overflow a finite double.
+  if (Math.abs(amount) >= 1e16) return amount;
   return Math.round(amount * 100) / 100;
 }
 
@@ -248,10 +257,33 @@ function compoundRate(opened: number, closed: number, periods: number): number |
 }
 
 export function formatWholeDollars(value: number): string {
-  if (!Number.isFinite(value) || Math.abs(value) >= 1e21) return "—";
+  if (!Number.isFinite(value)) return "—";
   const rounded = Math.round(value);
   const sign = rounded < 0 ? "-" : "";
   return `${sign}$${Math.abs(rounded).toLocaleString("en-US")}`;
+}
+
+function scaledMoney(abs: number, unit: number, suffix: string): string {
+  const text = (abs / unit).toFixed(2).replace(/\.?0+$/, "");
+  return `$${text}${suffix}`;
+}
+
+/** Cards, yearly rows, chart axes, and tooltips. Commas under $1M, then $1.23M, $4.56B, $7.89T, then $1.2e18. */
+export function formatMoney(value: number): string {
+  if (value === Infinity) return "$∞";
+  if (value === -Infinity) return "-$∞";
+  if (!Number.isFinite(value)) return "$0";
+  const sign = value < 0 ? "-" : "";
+  const abs = Math.abs(value);
+  if (abs >= 1e15) {
+    const exp = Math.floor(Math.log10(abs));
+    const mantissa = abs / 10 ** exp;
+    return `${sign}$${mantissa.toFixed(1)}e${exp}`;
+  }
+  if (abs >= 1e12) return `${sign}${scaledMoney(abs, 1e12, "T")}`;
+  if (abs >= 1e9) return `${sign}${scaledMoney(abs, 1e9, "B")}`;
+  if (abs >= 1e6) return `${sign}${scaledMoney(abs, 1e6, "M")}`;
+  return `${sign}$${abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function formatCents(value: number): string {
@@ -272,22 +304,15 @@ export function formatCount(value: number): string {
   return Math.max(0, Math.floor(value)).toLocaleString("en-US");
 }
 
-function compactUnit(value: number): string {
-  const digits = value >= 100 ? 0 : 1;
-  return value.toFixed(digits).replace(/\.0$/, "");
-}
-
-/** Axis ticks. Commas under $1M, compact units above that ($1.2M). Cents only for a tiny range. */
+/** Axis ticks. Same money format as the cards, with cents only for a tiny range. */
 export function formatAxisMoney(value: number, span: number): string {
-  if (!Number.isFinite(value) || Math.abs(value) >= 1e21) return "—";
-  const sign = value < 0 ? "-" : "";
+  if (!Number.isFinite(value) || value === Infinity || value === -Infinity) return formatMoney(value);
   const abs = Math.abs(value);
   if (span < 10 && abs < 1000) {
+    const sign = value < 0 ? "-" : "";
     return `${sign}$${abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
-  if (abs >= 1_000_000_000) return `${sign}$${compactUnit(abs / 1_000_000_000)}B`;
-  if (abs >= 1_000_000) return `${sign}$${compactUnit(abs / 1_000_000)}M`;
-  return formatWholeDollars(value);
+  return formatMoney(value);
 }
 
 export function formatMonthLabel(month: number): string {

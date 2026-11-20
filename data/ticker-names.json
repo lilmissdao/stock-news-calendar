@@ -349,5 +349,16 @@
   "P": "Everpure",
   "REGN": "Regeneron",
   "UNH": "UnitedHealth",
-  "WWD": "Woodward"
+  "WWD": "Woodward",
+  "A": "Agilent",
+  "ADI": "Analog Devices",
+  "CRIS": "Curis",
+  "HPQ": "HP",
+  "MBRX": "Moleculin",
+  "MDB": "MongoDB",
+  "MDT": "Medtronic",
+  "PEP": "PepsiCo",
+  "SLGL": "Sol-Gel",
+  "USAR": "USA Rare Earth",
+  "ZM": "Zoom"
 }

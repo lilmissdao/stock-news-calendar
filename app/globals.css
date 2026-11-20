@@ -1323,9 +1323,8 @@ main { min-width: 0; }
 .pr-chart-label {
   position: absolute;
   z-index: 3;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 52px;
+  left: 8px;
   margin: 0;
   padding: 4px 10px;
   border-radius: 999px;

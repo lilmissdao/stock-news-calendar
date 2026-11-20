@@ -1358,6 +1358,27 @@ main { min-width: 0; }
 .pr-equity path { fill: none; stroke: var(--accent); stroke-width: 2.5; }
 .pr-now { min-width: 0; }
 .pr-price { display: block; margin: 0; font-size: 1.45rem; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.pr-left { margin: 2px 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pr-book { margin: 0; color: var(--ink-soft); font-size: 14px; font-variant-numeric: tabular-nums; }
+.pr-play {
+  width: 100%;
+  min-height: 64px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 22px;
+  font-weight: 700;
+}
+.pr-delete {
+  min-height: 48px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--down);
+  color: #fff;
+  font-weight: 700;
+  padding: 8px 16px;
+}
 .pr-confirm { display: flex; flex-direction: column; gap: 12px; }
 .pr-confirm h2 { margin: 0; }
 .pr-cards { display: flex; flex-direction: column; gap: 8px; }

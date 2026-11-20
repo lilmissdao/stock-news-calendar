@@ -21,6 +21,21 @@ const CANDLE_MS = 60_000;
 export function tickMs(speed: Speed): number {
   return Math.round(CANDLE_MS / speed / SUBTICKS);
 }
+
+/** How many sub-ticks belong in this much real time. */
+export function ticksDue(elapsedMs: number, speed: Speed): number {
+  if (!(elapsedMs > 0)) return 0;
+  return Math.floor(elapsedMs / tickMs(speed));
+}
+
+/** Time left until the forming candle reaches its close. */
+export function minuteLeft(tick: number, speed: Speed): string {
+  const clamped = Math.max(0, Math.min(SUBTICKS, tick));
+  const seconds = Math.round(((SUBTICKS - clamped) * 60) / speed / SUBTICKS);
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${String(secs).padStart(2, "0")} left in this minute`;
+}
 export type Phase = "play" | "day" | "batch";
 export type Marker = { minute: number; ticker: Ticker; side: "buy" | "sell" };
 export type DayResult = { date: string; dollars: number; pct: number; equity: number; drawdown: number; fees: number };
@@ -116,12 +131,11 @@ export function loadGame(raw: string | null, dayCount: number): GameState | null
     if (!parsed?.positions?.TQQQ || !parsed.positions.SQQQ || parsed.seeds?.length !== 5) return null;
     if (parsed.batchStart < 0 || parsed.batchStart + 4 >= dayCount) return null;
     if (parsed.cursor < 0) return null;
-    let cursor = parsed.cursor;
-    let tick = typeof parsed.tick === "number" ? parsed.tick : SUBTICKS;
-    if (cursor > LAST_MINUTE) {
-      cursor = LAST_MINUTE;
-      tick = SUBTICKS;
-    }
+    // Older saves have no sub-tick, or a cursor from the full 6.5-hour day.
+    // Those playheads sit on a finished candle or past 10:00, so Play appears to do nothing.
+    const legacy = typeof parsed.tick !== "number" || parsed.cursor > LAST_MINUTE;
+    let cursor = legacy ? 0 : parsed.cursor;
+    let tick = legacy ? 0 : parsed.tick;
     tick = Math.max(0, Math.min(SUBTICKS, Math.round(tick)));
     const startedAt = parsed.startedAt || parsed.history?.batches?.[0]?.startDate || new Date().toISOString();
     return { ...parsed, cursor, tick, speed: coerceSpeed(parsed.speed), startedAt, playing: false };
@@ -282,6 +296,13 @@ export function stepMinute(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[
   const done = track({ ...state, cursor: cursor + 1, tick: SUBTICKS }, tqqq, sqqq);
   if (done.cursor >= last) return finishDay(done, tqqq, sqqq, date, hold);
   return done;
+}
+
+export function fastForward(state: GameState, steps: number, tqqq: MinuteBar[], sqqq: MinuteBar[], date: string, hold: number): GameState {
+  let next = state;
+  const cap = Math.max(0, Math.min(Math.floor(steps), 8000));
+  for (let step = 0; step < cap && next.phase === "play"; step += 1) next = tickForward(next, tqqq, sqqq, date, hold);
+  return next;
 }
 
 export function advance(state: GameState, steps: number, tqqq: MinuteBar[], sqqq: MinuteBar[], date: string, hold: number): GameState {

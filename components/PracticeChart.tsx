@@ -7,6 +7,20 @@ import { clock } from "@/lib/practice-path";
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
 export type ChartMark = { time: number; side: "buy" | "sell" };
 
+function toBar(bar: ChartCandle) {
+  return { time: bar.t as UTCTimestamp, open: bar.o, high: bar.h, low: bar.l, close: bar.c };
+}
+
+function onlyLastChanged(prev: ChartCandle[] | null, next: ChartCandle[]): boolean {
+  if (!prev || prev.length !== next.length || next.length === 0) return false;
+  for (let i = 0; i < prev.length - 1; i += 1) {
+    const before = prev[i];
+    const after = next[i];
+    if (before.t !== after.t || before.o !== after.o || before.h !== after.h || before.l !== after.l || before.c !== after.c) return false;
+  }
+  return prev[prev.length - 1].t === next[next.length - 1].t;
+}
+
 function paint(
   series: ISeriesApi<"Candlestick">,
   marks: ISeriesMarkersPluginApi<Time> | null,
@@ -17,16 +31,14 @@ function paint(
   priorClose: number | null,
   fit: boolean,
   refreshLine: boolean,
+  previous: { current: ChartCandle[] | null },
 ) {
-  series.setData(
-    candles.map((bar) => ({
-      time: bar.t as UTCTimestamp,
-      open: bar.o,
-      high: bar.h,
-      low: bar.l,
-      close: bar.c,
-    })),
-  );
+  if (onlyLastChanged(previous.current, candles)) {
+    series.update(toBar(candles[candles.length - 1]));
+  } else {
+    series.setData(candles.map(toBar));
+  }
+  previous.current = candles;
   const up = getComputedStyle(document.documentElement).getPropertyValue("--up").trim();
   const down = getComputedStyle(document.documentElement).getPropertyValue("--down").trim();
   marks?.setMarkers(
@@ -66,6 +78,7 @@ export function PracticeChart({ candles, markers, theme, priorClose }: { candles
   const lineRef = useRef<IPriceLine | null>(null);
   const countRef = useRef(0);
   const priorSeen = useRef<number | null | undefined>(undefined);
+  const barsRef = useRef<ChartCandle[] | null>(null);
   const latest = useRef({ candles, markers, priorClose });
   latest.current = { candles, markers, priorClose };
 
@@ -120,7 +133,8 @@ export function PracticeChart({ candles, markers, theme, priorClose }: { candles
       marksRef.current = createSeriesMarkers(series, []);
       countRef.current = latest.current.candles.length;
       priorSeen.current = latest.current.priorClose;
-      paint(series, marksRef.current, chart, lineRef, latest.current.candles, latest.current.markers, latest.current.priorClose, true, true);
+      barsRef.current = null;
+      paint(series, marksRef.current, chart, lineRef, latest.current.candles, latest.current.markers, latest.current.priorClose, true, true, barsRef);
     });
     return () => {
       dead = true;
@@ -131,6 +145,7 @@ export function PracticeChart({ candles, markers, theme, priorClose }: { candles
       lineRef.current = null;
       countRef.current = 0;
       priorSeen.current = undefined;
+      barsRef.current = null;
     };
   }, [theme]);
 
@@ -142,7 +157,7 @@ export function PracticeChart({ candles, markers, theme, priorClose }: { candles
     countRef.current = candles.length;
     const refreshLine = priorSeen.current !== priorClose;
     priorSeen.current = priorClose;
-    paint(series, marksRef.current, chart, lineRef, candles, markers, priorClose, fit, refreshLine);
+    paint(series, marksRef.current, chart, lineRef, candles, markers, priorClose, fit, refreshLine, barsRef);
   }, [candles, markers, priorClose]);
 
   return <div ref={host} className="pr-chart" />;

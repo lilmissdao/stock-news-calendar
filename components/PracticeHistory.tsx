@@ -36,6 +36,8 @@ export function PracticeHistory({
   onExport,
   onImport,
   onNewGame,
+  onDelete,
+  onDeleteAll,
   notice,
 }: {
   history: HistoryFile;
@@ -45,10 +47,14 @@ export function PracticeHistory({
   onExport: () => void;
   onImport: (file: File) => void;
   onNewGame: () => void;
+  onDelete: (id: string) => void;
+  onDeleteAll: () => void;
   notice: string | null;
 }) {
   const [mode, setMode] = useState<"return" | "win">("return");
   const [open, setOpen] = useState<string | null>("this");
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [confirmAll, setConfirmAll] = useState(false);
   const points = progressPoints(history, game.history.batches);
   const summary = summarizeProgress(history, game.history.batches, pending, rows.some((row) => row.id === "this"));
 
@@ -114,6 +120,30 @@ export function PracticeHistory({
               </div>
             </dl>
             {open === row.id ? <BatchList batches={row.batches} /> : null}
+            {row.id !== "this" && confirmId === row.id ? (
+              <div className="pr-confirm">
+                <p className="pr-lead">Delete Game #{row.number}? This can't be undone.</p>
+                <div className="pr-actions">
+                  <button type="button" className="text-btn" onClick={() => setConfirmId(null)}>
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="pr-delete"
+                    onClick={() => {
+                      onDelete(row.id);
+                      setConfirmId(null);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ) : row.id !== "this" ? (
+              <button type="button" className="text-btn" onClick={() => setConfirmId(row.id)}>
+                Delete
+              </button>
+            ) : null}
           </article>
         ))}
       </div>
@@ -137,7 +167,33 @@ export function PracticeHistory({
         <button type="button" className="text-btn" onClick={onNewGame}>
           New game
         </button>
+        {history.games.length > 0 ? (
+          <button type="button" className="text-btn" onClick={() => setConfirmAll(true)}>
+            Delete all history
+          </button>
+        ) : null}
       </div>
+      {confirmAll ? (
+        <div className="pr-confirm">
+          <p className="pr-lead">Delete all history? This can't be undone.</p>
+          <div className="pr-actions">
+            <button type="button" className="text-btn" onClick={() => setConfirmAll(false)}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="pr-delete"
+              onClick={() => {
+                onDeleteAll();
+                setConfirmAll(false);
+                setConfirmId(null);
+              }}
+            >
+              Delete all history
+            </button>
+          </div>
+        </div>
+      ) : null}
       {notice ? <p className="pr-note">{notice}</p> : null}
     </section>
   );

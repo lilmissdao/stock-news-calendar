@@ -227,6 +227,7 @@ export function parseExport(raw: string, dayCount: number): { history: HistoryFi
 
 export type GameRow = {
   id: string;
+  number: number;
   title: string;
   playedAt: string;
   batches: BatchSummary[];
@@ -240,10 +241,19 @@ export type GameRow = {
   vsHold: number;
 };
 
+export function deleteGame(history: HistoryFile, id: string): HistoryFile {
+  return { v: 1, games: history.games.filter((game) => game.id !== id) };
+}
+
+export function deleteAllHistory(): HistoryFile {
+  return emptyHistory();
+}
+
 export function rowFromGame(game: ArchivedGame, title = `Game ${game.number}`): GameRow {
   const trades = game.batches.reduce((sum, batch) => sum + (batch.trades?.length ?? 0), 0);
   return {
     id: game.id,
+    number: game.number,
     title,
     playedAt: game.playedAt,
     batches: game.batches,

@@ -143,27 +143,55 @@ export function aggregate(minutes: MinuteBar[], timeframe: Timeframe, revealed: 
   return bars;
 }
 
-/** Prices inside one 1-minute candle: open, a wander that touches high and low, then the close. */
-export function subpath(bar: MinuteBar, seed: number, sign = 1): number[] {
-  const rng = mulberry32(seed);
+export type SharedTape = { unit: number[]; hi: number; lo: number };
+
+/** One random path in 0–1 for a minute. SQQQ uses the mirror of the same tape. */
+export function sharedTape(seed: number): SharedTape {
+  const rng = mulberry32(seed >>> 0);
   const count = SUBTICKS;
-  const raw = [0];
-  for (let i = 1; i <= count; i += 1) raw.push(raw[i - 1] + gaussian(rng));
-  const end = raw[count];
-  const span = Math.max(bar.h - bar.l, Math.abs(bar.c - bar.o), 0.01);
-  const points = raw.map((value, index) => {
-    const bridge = value - (index / count) * end;
-    const linear = bar.o + ((bar.c - bar.o) * index) / count;
-    return Math.min(bar.h, Math.max(bar.l, linear + sign * bridge * span * 0.55));
-  });
-  points[0] = bar.o;
-  points[count] = bar.c;
+  const unit = [0];
+  for (let i = 1; i < count; i += 1) {
+    const dir = rng() < 0.5 ? -1 : 1;
+    let next = unit[i - 1] + dir * (0.08 + rng() * 0.14);
+    next = Math.min(1, Math.max(0, next));
+    if (Math.abs(next - unit[i - 1]) < 0.06) next = Math.min(1, Math.max(0, unit[i - 1] + dir * 0.08));
+    unit.push(next);
+  }
+  unit.push(0);
   let hi = 1 + Math.floor(rng() * Math.max(1, count - 2));
   let lo = 1 + Math.floor(rng() * Math.max(1, count - 2));
-  if (lo === hi) lo = hi >= count - 1 ? 1 : hi + 1;
-  points[hi] = bar.h;
-  points[lo] = bar.l;
-  for (let i = 1; i < count; i += 1) points[i] = Math.min(bar.h, Math.max(bar.l, points[i]));
+  if (lo === hi) lo = hi > 1 ? hi - 1 : hi + 1;
+  unit[hi] = 1;
+  unit[lo] = 0;
+  return { unit, hi, lo };
+}
+
+/** Prices inside one 1-minute candle. Sign −1 mirrors the shared tape. */
+export function subpath(bar: MinuteBar, seed: number, sign = 1): number[] {
+  const tape = sharedTape(seed);
+  const count = SUBTICKS;
+  const span = Math.max(bar.h - bar.l, 0);
+  const points = tape.unit.map((unit, index) => {
+    if (index === 0) return bar.o;
+    if (index === count) return bar.c;
+    const placed = sign < 0 ? 1 - unit : unit;
+    return bar.l + placed * span;
+  });
+  points[sign < 0 ? tape.lo : tape.hi] = bar.h;
+  points[sign < 0 ? tape.hi : tape.lo] = bar.l;
+  points[0] = bar.o;
+  points[count] = bar.c;
+  const minStep = span >= 0.05 ? 0.01 : 0;
+  if (minStep > 0) {
+    for (let i = 1; i < count; i += 1) {
+      if (points[i] === bar.h || points[i] === bar.l) continue;
+      if (Math.abs(points[i] - points[i - 1]) >= minStep - 1e-9) continue;
+      const dir = (i % 2 === 0 ? 1 : -1) * (sign < 0 ? -1 : 1);
+      points[i] = Math.min(bar.h, Math.max(bar.l, points[i - 1] + dir * minStep));
+    }
+  }
+  points[sign < 0 ? tape.lo : tape.hi] = bar.h;
+  points[sign < 0 ? tape.hi : tape.lo] = bar.l;
   points[0] = bar.o;
   points[count] = bar.c;
   return points;

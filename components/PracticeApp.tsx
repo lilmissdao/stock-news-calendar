@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import market from "@/data/practice-market.json";
 import { PracticeChart, type ChartCandle, type ChartMark } from "@/components/PracticeChart";
 import { PracticeHistory } from "@/components/PracticeHistory";
 import {
   equityNow,
+  fastForward,
   liveQuote,
   loadGame,
+  minuteLeft,
   newGame,
   nextBatch,
   nextDay,
@@ -16,6 +18,7 @@ import {
   stepMinute,
   summarizeBatch,
   tickForward,
+  ticksDue,
   tickMs,
   trade,
   coerceSpeed,
@@ -27,6 +30,8 @@ import {
   archiveCurrent,
   hasProgress,
   HISTORY_KEY,
+  deleteAllHistory,
+  deleteGame,
   parseExport,
   parseHistory,
   rowFromGame,
@@ -105,6 +110,12 @@ function run(state: GameState, step: typeof tickForward): GameState {
   const day = BOOK.days[state.batchStart + state.day];
   const paths = buildSession(day, state.seeds[state.day] || 1);
   return step(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES), day.date, fullHold(state));
+}
+
+function runForward(state: GameState, steps: number): GameState {
+  const day = BOOK.days[state.batchStart + state.day];
+  const paths = buildSession(day, state.seeds[state.day] || 1);
+  return fastForward(state, steps, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES), day.date, fullHold(state));
 }
 
 function priorClose(index: number, ticker: Ticker): number | null {
@@ -196,12 +207,43 @@ export function PracticeApp() {
     }
   }, [history]);
 
+  const clockRef = useRef<{ at: number; applied: number } | null>(null);
   useEffect(() => {
-    if (!game?.playing || game.phase !== "play") return;
-    const id = window.setInterval(() => {
-      setGame((current) => (current && current.playing && current.phase === "play" ? run(current, tickForward) : current));
-    }, tickMs(game.speed));
-    return () => window.clearInterval(id);
+    if (!game?.playing || game.phase !== "play") {
+      clockRef.current = null;
+      return;
+    }
+    const speed = game.speed;
+    clockRef.current = { at: Date.now(), applied: 0 };
+    let frame = 0;
+    const pump = () => {
+      const clock = clockRef.current;
+      if (!clock) return;
+      const due = ticksDue(Date.now() - clock.at, speed);
+      const add = due - clock.applied;
+      if (add > 0) {
+        clock.applied = due;
+        setGame((current) => (current && current.playing && current.phase === "play" ? runForward(current, add) : current));
+      }
+    };
+    const loop = () => {
+      pump();
+      frame = window.requestAnimationFrame(loop);
+    };
+    frame = window.requestAnimationFrame(loop);
+    const timer = window.setInterval(pump, Math.min(250, tickMs(speed)));
+    const wake = () => pump();
+    document.addEventListener("visibilitychange", wake);
+    window.addEventListener("focus", wake);
+    window.addEventListener("pageshow", wake);
+    return () => {
+      clockRef.current = null;
+      window.cancelAnimationFrame(frame);
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", wake);
+      window.removeEventListener("focus", wake);
+      window.removeEventListener("pageshow", wake);
+    };
   }, [game?.playing, game?.speed, game?.phase, game?.day, game?.batchStart]);
 
   const pathKey = game ? `${game.batchStart}:${game.day}:${game.seeds[game.day] ?? 0}` : "";
@@ -300,6 +342,11 @@ export function PracticeApp() {
     }
   }
 
+  function removeGame(id: string) {
+    if (id === "this") return;
+    setHistory((current) => (current ? deleteGame(current, id) : current));
+  }
+
   return (
     <div className="shell pr-shell">
       <header className="topbar">
@@ -362,6 +409,8 @@ export function PracticeApp() {
             onExport={exportHistory}
             onImport={(file) => void importHistory(file)}
             onNewGame={askNew}
+            onDelete={removeGame}
+            onDeleteAll={() => setHistory(deleteAllHistory())}
             notice={notice}
           />
         ) : null}
@@ -377,6 +426,7 @@ export function PracticeApp() {
               </div>
               <div className="pr-now">
                 <strong className="pr-price">{formatCents(price)}</strong>
+                <p className="pr-left">{game.phase === "play" ? minuteLeft(game.tick, game.speed) : "9:30–10:00"}</p>
                 <p className="pr-day">
                   {game.phase === "play" ? `Day ${game.day + 1} of 5` : prettyDate(session.day.date)}
                   <span>{asOf}</span>
@@ -387,6 +437,14 @@ export function PracticeApp() {
                 {dollars(value - game.dayStartEquity)} {pct(today)}
               </strong>
             </div>
+            <p className="pr-book">
+              TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
+            </p>
+            {game.phase === "play" ? (
+              <button type="button" className="pr-play" onClick={() => setGame({ ...game, playing: !game.playing })}>
+                {game.playing ? "Pause" : "Play"}
+              </button>
+            ) : null}
             <div className="pr-toggle" role="group" aria-label="Timeframe">
               {FRAMES.map((frame) => (
                 <button key={frame} type="button" aria-pressed={game.timeframe === frame} onClick={() => setGame({ ...game, timeframe: frame })}>
@@ -425,22 +483,26 @@ export function PracticeApp() {
                   </div>
                   <div>
                     {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
-                      <button key={fraction} type="button" className="pr-sell" disabled={!position.shares} onClick={() => act("sell", fraction)}>
+                      <button key={fraction} type="button" className="pr-sell" disabled={position.shares <= 0} onClick={() => act("sell", fraction)}>
                         Sell {fraction * 100}%
                       </button>
                     ))}
                   </div>
                 </div>
                 <div className="pr-dock">
-                  <button type="button" className="today-jump" onClick={() => setGame({ ...game, playing: !game.playing })}>
-                    {game.playing ? "Pause" : "Play"}
-                  </button>
                   {SPEEDS.map((speed) => (
                     <button key={speed} type="button" className="text-btn" aria-pressed={game.speed === speed} onClick={() => chooseSpeed(speed)}>
                       {speed}x
                     </button>
                   ))}
-                  <button type="button" className="text-btn" onClick={() => setGame((current) => (current ? run(current, stepMinute) : current))}>
+                  <button
+                    type="button"
+                    className="text-btn"
+                    onClick={() => {
+                      clockRef.current = { at: Date.now(), applied: 0 };
+                      setGame((current) => (current ? run(current, stepMinute) : current));
+                    }}
+                  >
                     Step
                   </button>
                   <button type="button" className="text-btn" onClick={askNew}>

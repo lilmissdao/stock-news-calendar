@@ -34,10 +34,13 @@ export function buyShares(cash: number, price: number, fraction: number): { shar
   return { shares, cash: cash - shares * price - fee, fee };
 }
 
+/** Sell a fraction of the shares she already holds. Cash and fees never block the sale. */
 export function sellShares(held: number, price: number, fraction: number): { shares: number; proceeds: number; fee: number } {
   if (!(price > 0) || held <= 0 || !(fraction > 0)) return { shares: 0, proceeds: 0, fee: 0 };
-  const shares = fraction >= 1 ? held : Math.min(held, Math.floor(held * fraction));
-  if (shares <= 0) return { shares: 0, proceeds: 0, fee: 0 };
+  const portion = Math.min(1, fraction);
+  let shares = portion >= 1 ? held : Math.floor(held * portion);
+  if (shares < 1) shares = 1;
+  shares = Math.min(held, shares);
   const gross = shares * price;
   const fee = shares * SPREAD + secFee(gross);
   return { shares, proceeds: gross - fee, fee };

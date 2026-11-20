@@ -35,6 +35,7 @@ const NAV = [
   { href: "/enterprise-ai", label: "Enterprise AI" },
   { href: "/pharma", label: "Pharma/Biotech" },
   { href: "/simulator", label: "Simulator", current: true },
+  { href: "/practice", label: "Practice" },
 ];
 
 const CHART_HEIGHT = 400;

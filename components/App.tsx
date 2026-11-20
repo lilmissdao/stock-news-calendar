@@ -218,6 +218,9 @@ export function App({
             <a href="/simulator" role="tab" aria-selected={false}>
               Simulator
             </a>
+            <a href="/practice" role="tab" aria-selected={false}>
+              Practice
+            </a>
           </div>
           <button
             type="button"

@@ -12,9 +12,6 @@ export type Scenario = {
   dailyReturnPct: number;
   drawdownPct: number;
   drawdownsPerMonth: number;
-  /** Whole days each month with a 0% return. Missing values load as 4. */
-  noTradeDaysPerMonth: number;
-  monthlyDeposit: number;
   years: number;
 };
 
@@ -25,7 +22,6 @@ export type MonthPoint = {
 
 export type YearSlice = {
   year: number;
-  /** Time-weighted return for that year. Deposits are not counted as gain. */
   rate: number | null;
   ending: number;
 };
@@ -33,13 +29,12 @@ export type YearSlice = {
 export type Simulation = {
   points: MonthPoint[];
   ending: number;
-  totalPutIn: number;
   drawdownDays: number;
   tradeDays: number;
   tradingDays: number;
-  /** Compound monthly rate when the deposit is $0. Null otherwise, or when it is undefined. */
+  /** Compound monthly rate, (ending / start) ^ (1 / months) - 1. */
   avgNetMonthly: number | null;
-  /** Compound annual return. Deposits are left out of the gain. */
+  /** Compound annual return, (ending / start) ^ (1 / years) - 1. */
   avgAnnual: number | null;
   yearSlices: YearSlice[];
   /** Trading day the balance first reaches $1M. 0 if it starts there. Null if it never does. */
@@ -55,8 +50,6 @@ export const DEFAULT_SCENARIOS: Scenario[] = [
     dailyReturnPct: 0.25,
     drawdownPct: 2,
     drawdownsPerMonth: 1,
-    noTradeDaysPerMonth: 4,
-    monthlyDeposit: 0,
     years: 3,
   },
   {
@@ -66,8 +59,6 @@ export const DEFAULT_SCENARIOS: Scenario[] = [
     dailyReturnPct: 0.25,
     drawdownPct: 2,
     drawdownsPerMonth: 1,
-    noTradeDaysPerMonth: 4,
-    monthlyDeposit: 0,
     years: 3,
   },
 ];
@@ -85,8 +76,6 @@ export function createScenario(source: Scenario | undefined, index: number): Sce
     dailyReturnPct: source?.dailyReturnPct ?? 0.25,
     drawdownPct: source?.drawdownPct ?? 2,
     drawdownsPerMonth: source?.drawdownsPerMonth ?? 1,
-    noTradeDaysPerMonth: source?.noTradeDaysPerMonth ?? 4,
-    monthlyDeposit: source?.monthlyDeposit ?? 0,
     years: source?.years ?? 3,
   };
 }
@@ -117,70 +106,6 @@ export function drawdownHitsByDay(totalDays: number, drawdownsPerMonth: number):
   return hits;
 }
 
-export function clampNoTradeDays(value: number): number {
-  if (!Number.isFinite(value)) return 4;
-  return Math.min(TRADING_DAYS_PER_MONTH, Math.max(0, Math.round(value)));
-}
-
-/** Even day-of-month slots, same rounding drawdowns use: nearest to k * 21 / count. */
-function evenMonthSlots(count: number): number[] {
-  if (count <= 0) return [];
-  const interval = TRADING_DAYS_PER_MONTH / count;
-  const slots: number[] = [];
-  const seen = new Set<number>();
-  const limit = TRADING_DAYS_PER_MONTH + 0.5;
-  for (let k = 1; slots.length < count && k < 1_000_000; k += 1) {
-    const target = k * interval;
-    if (target > limit) break;
-    const day = Math.round(target);
-    if (day >= 1 && day <= TRADING_DAYS_PER_MONTH && !seen.has(day)) {
-      seen.add(day);
-      slots.push(day);
-    }
-  }
-  return slots;
-}
-
-function nearestOpenDay(target: number, open: Set<number>): number | null {
-  if (open.has(target)) return target;
-  for (let distance = 1; distance <= TRADING_DAYS_PER_MONTH; distance += 1) {
-    const earlier = target - distance;
-    const later = target + distance;
-    if (open.has(earlier)) return earlier;
-    if (open.has(later)) return later;
-  }
-  return null;
-}
-
-/**
- * No-trade days are spread through each month like drawdowns, then moved off
- * any drawdown day. The count is capped so drawdown days plus no-trade days
- * never exceed the 21 trading days in that month.
- */
-export function noTradeDaysByDay(totalDays: number, drawdowns: Map<number, number>, requested: number): Set<number> {
-  const chosen = new Set<number>();
-  const count = clampNoTradeDays(requested);
-  if (count === 0 || totalDays <= 0) return chosen;
-  const months = Math.ceil(totalDays / TRADING_DAYS_PER_MONTH);
-  for (let month = 0; month < months; month += 1) {
-    const start = month * TRADING_DAYS_PER_MONTH;
-    const open = new Set<number>();
-    for (let offset = 1; offset <= TRADING_DAYS_PER_MONTH; offset += 1) {
-      const day = start + offset;
-      if (day > totalDays) break;
-      if ((drawdowns.get(day) ?? 0) === 0) open.add(offset);
-    }
-    const place = Math.min(count, open.size);
-    for (const slot of evenMonthSlots(place)) {
-      const offset = nearestOpenDay(slot, open);
-      if (offset === null) continue;
-      open.delete(offset);
-      chosen.add(start + offset);
-    }
-  }
-  return chosen;
-}
-
 function finite(value: number, fallback: number): number {
   return Number.isFinite(value) ? value : fallback;
 }
@@ -193,16 +118,10 @@ export function simulate(input: Scenario): Simulation {
   const daily = finite(input.dailyReturnPct, 0) / 100;
   const drawdown = finite(input.drawdownPct, 0) / 100;
   const perMonth = Math.max(0, finite(input.drawdownsPerMonth, 0));
-  const noTradeRequested = input.noTradeDaysPerMonth == null ? 4 : clampNoTradeDays(input.noTradeDaysPerMonth);
-  const deposit = Math.max(0, finite(input.monthlyDeposit, 0));
   const hits = drawdownHitsByDay(tradingDays, perMonth);
-  const flatDays = noTradeDaysByDay(tradingDays, hits, noTradeRequested);
 
   let balance = start;
-  let monthOpen = start;
   const points: MonthPoint[] = [{ month: 0, balance }];
-  const monthFactors: number[] = [];
-  const yearEndings: number[] = [];
   let millionDay: number | null = start >= MILLION ? 0 : null;
   let drawdownDays = 0;
   let tradeDays = 0;
@@ -212,72 +131,30 @@ export function simulate(input: Scenario): Simulation {
     if (count > 0) {
       drawdownDays += 1;
       balance *= (1 - drawdown) ** count;
-    } else if (flatDays.has(day)) {
-      // 0% day: no gain and no loss.
     } else {
       tradeDays += 1;
       balance *= 1 + daily;
     }
-    if (day % TRADING_DAYS_PER_MONTH === 0) {
-      monthFactors.push(monthGrowth(monthOpen, balance));
-      balance += deposit;
-      if (monthFactors.length % 12 === 0) yearEndings.push(balance);
-      monthOpen = balance;
-      points.push({ month: day / TRADING_DAYS_PER_MONTH, balance });
-    }
+    if (day % TRADING_DAYS_PER_MONTH === 0) points.push({ month: day / TRADING_DAYS_PER_MONTH, balance });
     if (millionDay === null && balance >= MILLION) millionDay = day;
   }
 
-  const totalPutIn = start + deposit * months;
-  let avgNetMonthly: number | null = null;
-  if (deposit === 0 && start > 0 && Number.isFinite(balance)) {
-    if (balance > 0) avgNetMonthly = (balance / start) ** (1 / months) - 1;
-    else if (balance === 0) avgNetMonthly = -1;
+  const avgNetMonthly = compoundRate(start, balance, months);
+  const avgAnnual = compoundRate(start, balance, years);
+  const yearSlices: YearSlice[] = [];
+  for (let year = 1; year <= years; year += 1) {
+    const opened = points[(year - 1) * 12]?.balance ?? start;
+    const ending = points[year * 12]?.balance ?? balance;
+    yearSlices.push({ year, rate: compoundRate(opened, ending, 1), ending });
   }
-  const avgAnnual = annualizedReturn(monthFactors, years);
-  const yearSlices = yearEndings.map((ending, index) => ({
-    year: index + 1,
-    rate: periodReturn(monthFactors.slice(index * 12, index * 12 + 12)),
-    ending,
-  }));
 
-  return {
-    points,
-    ending: balance,
-    totalPutIn,
-    drawdownDays,
-    tradeDays,
-    tradingDays,
-    avgNetMonthly,
-    avgAnnual,
-    yearSlices,
-    millionDay,
-    years,
-  };
+  return { points, ending: balance, drawdownDays, tradeDays, tradingDays, avgNetMonthly, avgAnnual, yearSlices, millionDay, years };
 }
 
-/** Growth of capital already in the account. A deposit is not part of the gain. */
-function monthGrowth(opened: number, beforeDeposit: number): number {
-  if (!(opened > 0) || !Number.isFinite(beforeDeposit)) return beforeDeposit === 0 && opened <= 0 ? 1 : Number.NaN;
-  if (beforeDeposit < 0) return Number.NaN;
-  return beforeDeposit / opened;
-}
-
-function periodReturn(factors: number[]): number | null {
-  if (factors.length === 0) return null;
-  let product = 1;
-  for (const factor of factors) {
-    if (!Number.isFinite(factor) || factor < 0) return null;
-    product *= factor;
-  }
-  if (!Number.isFinite(product)) return null;
-  return product - 1;
-}
-
-function annualizedReturn(factors: number[], years: number): number | null {
-  const total = periodReturn(factors);
-  if (total === null || years <= 0) return null;
-  const rate = (1 + total) ** (1 / years) - 1;
+function compoundRate(opened: number, closed: number, periods: number): number | null {
+  if (!(opened > 0) || !Number.isFinite(closed) || closed < 0 || !(periods > 0)) return null;
+  if (closed === 0) return -1;
+  const rate = (closed / opened) ** (1 / periods) - 1;
   return Number.isFinite(rate) ? rate : null;
 }
 
@@ -413,14 +290,12 @@ function sanitizeScenario(value: unknown, used: Set<string>): Scenario | null {
   const dailyReturnPct = readNumber(row.dailyReturnPct);
   const drawdownPct = readNumber(row.drawdownPct);
   const drawdownsPerMonth = readNumber(row.drawdownsPerMonth);
-  const monthlyDeposit = readNumber(row.monthlyDeposit);
   if (
     years === null ||
     startingCapital === null ||
     dailyReturnPct === null ||
     drawdownPct === null ||
-    drawdownsPerMonth === null ||
-    monthlyDeposit === null
+    drawdownsPerMonth === null
   ) {
     return null;
   }
@@ -435,8 +310,6 @@ function sanitizeScenario(value: unknown, used: Set<string>): Scenario | null {
     dailyReturnPct,
     drawdownPct: Math.max(0, drawdownPct),
     drawdownsPerMonth: Math.max(0, drawdownsPerMonth),
-    noTradeDaysPerMonth: clampNoTradeDays(readNumber(row.noTradeDaysPerMonth) ?? 4),
-    monthlyDeposit: Math.max(0, monthlyDeposit),
     years,
   };
 }

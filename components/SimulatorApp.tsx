@@ -123,41 +123,27 @@ function DecimalField({
   value,
   onChange,
   allowNegative = false,
-  integer = false,
-  min,
-  max,
 }: {
   label: string;
   value: number;
   onChange: (value: number) => void;
   allowNegative?: boolean;
-  integer?: boolean;
-  min?: number;
-  max?: number;
 }) {
   const [text, setText] = useState<string | null>(null);
-  const pattern = integer ? /^\d*$/ : allowNegative ? /^-?\d*\.?\d*$/ : /^\d*\.?\d*$/;
-
-  function commit(raw: string) {
-    let parsed = Number(raw);
-    if (!Number.isFinite(parsed)) parsed = min ?? 0;
-    if (integer) parsed = Math.round(parsed);
-    if (min !== undefined) parsed = Math.max(min, parsed);
-    if (max !== undefined) parsed = Math.min(max, parsed);
-    onChange(parsed);
-  }
+  const pattern = allowNegative ? /^-?\d*\.?\d*$/ : /^\d*\.?\d*$/;
 
   return (
     <label className="field">
       <span>{label}</span>
       <input
         type="text"
-        inputMode={integer ? "numeric" : "decimal"}
+        inputMode="decimal"
         autoComplete="off"
         spellCheck={false}
         value={text ?? String(value)}
         onBlur={(event) => {
-          commit(event.currentTarget.value);
+          const parsed = Number(event.currentTarget.value);
+          onChange(Number.isFinite(parsed) ? parsed : 0);
           setText(null);
         }}
         onChange={(event) => {
@@ -167,13 +153,7 @@ function DecimalField({
           setText(next);
           if (next === "" || next === "-" || next === "." || next === "-.") return;
           const parsed = Number(next);
-          if (!Number.isFinite(parsed)) return;
-          if (max !== undefined && parsed > max) {
-            commit(next);
-            setText(null);
-            return;
-          }
-          onChange(integer ? Math.round(parsed) : parsed);
+          if (Number.isFinite(parsed)) onChange(parsed);
         }}
       />
     </label>
@@ -384,7 +364,6 @@ function ScenarioCard({
 }) {
   const titleId = useId();
   const result = useMemo(() => simulate(scenario), [scenario]);
-  const depositNote = scenario.monthlyDeposit !== 0;
   const number = index + 1;
 
   return (
@@ -486,19 +465,6 @@ function ScenarioCard({
           value={scenario.drawdownsPerMonth}
           onChange={(drawdownsPerMonth) => onChange(scenario.id, { drawdownsPerMonth: Math.max(0, drawdownsPerMonth) })}
         />
-        <DecimalField
-          label="No-trade days / month"
-          value={scenario.noTradeDaysPerMonth}
-          integer
-          min={0}
-          max={21}
-          onChange={(noTradeDaysPerMonth) => onChange(scenario.id, { noTradeDaysPerMonth })}
-        />
-        <DollarField
-          label="Monthly deposit"
-          value={scenario.monthlyDeposit}
-          onChange={(monthlyDeposit) => onChange(scenario.id, { monthlyDeposit })}
-        />
         <label className="field">
           <span>Time span</span>
           <select
@@ -519,13 +485,8 @@ function ScenarioCard({
           <dd>{formatWholeDollars(result.ending)}</dd>
         </div>
         <div className="sim-stat">
-          <dt>Total put in</dt>
-          <dd>{formatWholeDollars(result.totalPutIn)}</dd>
-        </div>
-        <div className="sim-stat">
           <dt>Avg net return per month</dt>
-          <dd>{depositNote ? "—" : formatPercent(result.avgNetMonthly)}</dd>
-          {depositNote ? <small>Shown when the monthly deposit is $0</small> : null}
+          <dd>{formatPercent(result.avgNetMonthly)}</dd>
         </div>
         <div className="sim-stat">
           <dt>Avg return per year</dt>
@@ -754,8 +715,8 @@ export function SimulatorApp() {
           </ul>
         )}
         <p className="chart-note">
-          {TRADING_DAYS_PER_YEAR} trading days a year, 21 a month. Each day compounds. A drawdown day replaces that day’s gain. A
-          deposit lands every 21 trading days. The line is one point per month.
+          {TRADING_DAYS_PER_YEAR} trading days a year, 21 a month. Each day compounds. A drawdown day replaces that day’s gain. The
+          line is one point per month.
         </p>
       </main>
     </div>

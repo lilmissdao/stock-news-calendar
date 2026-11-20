@@ -2,13 +2,44 @@
 
 import { useEffect, useRef } from "react";
 import type { IChartApi, IPriceLine, ISeriesApi, ISeriesMarkersPluginApi, LineStyle, Time, UTCTimestamp } from "lightweight-charts";
-import { clock, seriesNeedsReset } from "@/lib/practice-path";
+import { clock, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
 export type ChartMark = { time: number; side: "buy" | "sell" };
 
 function toBar(bar: ChartCandle) {
   return { time: bar.t as UTCTimestamp, open: bar.o, high: bar.h, low: bar.l, close: bar.c };
+}
+
+function showCandles(chart: IChartApi, candles: ChartCandle[], priorClose: number | null, host: HTMLElement | null) {
+  const scale = chart.priceScale("right");
+  const window = priceWindow(candles, priorClose);
+  if (window) {
+    scale.setAutoScale(true);
+    scale.setVisibleRange({ from: window.from, to: window.to });
+    scale.setAutoScale(true);
+  }
+  const last = Math.max(candles.length - 1, 0);
+  chart.timeScale().fitContent();
+  chart.timeScale().setVisibleLogicalRange({ from: -0.5, to: last + 1.5 });
+  if (host && window) {
+    const visible = scale.getVisibleRange();
+    host.dataset.priceFrom = visible ? String(visible.from) : String(window.from);
+    host.dataset.priceTo = visible ? String(visible.to) : String(window.to);
+    host.dataset.barCount = String(candles.length);
+    host.dataset.last = candles.length ? String(candles[candles.length - 1].c) : "";
+  }
+}
+
+function candleOffscreen(chart: IChartApi, candles: ChartCandle[]): boolean {
+  const last = candles[candles.length - 1];
+  if (!last) return false;
+  const price = chart.priceScale("right").getVisibleRange();
+  const time = chart.timeScale().getVisibleLogicalRange();
+  const index = candles.length - 1;
+  if (!price || last.c < price.from || last.c > price.to || last.l < price.from || last.h > price.to) return true;
+  if (!time || index < time.from || index > time.to) return true;
+  return false;
 }
 
 function paint(
@@ -20,48 +51,65 @@ function paint(
   markers: ChartMark[],
   priorClose: number | null,
   fit: boolean,
-  refreshLine: boolean,
   previous: { current: ChartCandle[] | null },
   previousId: { current: string | null },
   seriesId: string,
+  host: HTMLElement | null,
 ) {
-  const replace = seriesNeedsReset(previousId.current, seriesId, previous.current, candles);
-  if (!replace && candles.length) {
-    series.update(toBar(candles[candles.length - 1]));
-  } else {
+  const replace = seriesNeedsReset(previousId.current, seriesId, previous.current, candles) || !candles.length;
+  const markerData = markers.map((mark) => ({
+    time: mark.time as UTCTimestamp,
+    position: mark.side === "buy" ? ("belowBar" as const) : ("aboveBar" as const),
+    shape: mark.side === "buy" ? ("arrowUp" as const) : ("arrowDown" as const),
+    color: mark.side === "buy" ? getComputedStyle(document.documentElement).getPropertyValue("--up").trim() : getComputedStyle(document.documentElement).getPropertyValue("--down").trim(),
+    text: mark.side === "buy" ? "B" : "S",
+  }));
+  if (replace) {
+    marks?.setMarkers([]);
+    if (line.current) {
+      series.removePriceLine(line.current);
+      line.current = null;
+    }
     series.setData(candles.map(toBar));
+    try {
+      marks?.setMarkers(markerData);
+    } catch {
+      marks?.setMarkers([]);
+    }
+    const window = priceWindow(candles, priorClose);
+    if (priorClose !== null && window && priorClose >= window.from && priorClose <= window.to) {
+      const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink-soft").trim();
+      line.current = series.createPriceLine({
+        price: priorClose,
+        color: ink || "#8a8478",
+        lineWidth: 1,
+        lineStyle: 2 as LineStyle,
+        axisLabelVisible: true,
+        title: "Prior close",
+      });
+    }
+    showCandles(chart, candles, priorClose, host);
+  } else if (candles.length) {
+    series.update(toBar(candles[candles.length - 1]));
+    try {
+      marks?.setMarkers(markerData);
+    } catch {
+      marks?.setMarkers([]);
+    }
+    if (candleOffscreen(chart, candles)) showCandles(chart, candles, priorClose, host);
   }
   previous.current = candles;
   previousId.current = seriesId;
-  const up = getComputedStyle(document.documentElement).getPropertyValue("--up").trim();
-  const down = getComputedStyle(document.documentElement).getPropertyValue("--down").trim();
-  marks?.setMarkers(
-    markers.map((mark) => ({
-      time: mark.time as UTCTimestamp,
-      position: mark.side === "buy" ? "belowBar" : "aboveBar",
-      shape: mark.side === "buy" ? "arrowUp" : "arrowDown",
-      color: mark.side === "buy" ? up : down,
-      text: mark.side === "buy" ? "B" : "S",
-    })),
-  );
-  if (refreshLine) {
-  if (line.current) {
-    series.removePriceLine(line.current);
-    line.current = null;
+  if (fit && !replace && candles.length) chart.timeScale().fitContent();
+  if (host && candles.length) {
+    const visible = chart.priceScale("right").getVisibleRange();
+    if (visible) {
+      host.dataset.priceFrom = String(visible.from);
+      host.dataset.priceTo = String(visible.to);
+    }
+    host.dataset.barCount = String(candles.length);
+    host.dataset.last = String(candles[candles.length - 1].c);
   }
-  if (priorClose !== null && Number.isFinite(priorClose)) {
-    const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink-soft").trim();
-    line.current = series.createPriceLine({
-      price: priorClose,
-      color: ink || "#8a8478",
-      lineWidth: 1,
-      lineStyle: 2 as LineStyle,
-      axisLabelVisible: true,
-      title: "Prior close",
-    });
-  }
-  }
-  if (fit && candles.length) chart.timeScale().fitContent();
 }
 
 export function PracticeChart({ candles, markers, theme, priorClose, seriesId }: { candles: ChartCandle[]; markers: ChartMark[]; theme: string; priorClose: number | null; seriesId: string }) {
@@ -130,7 +178,7 @@ export function PracticeChart({ candles, markers, theme, priorClose, seriesId }:
       priorSeen.current = latest.current.priorClose;
       barsRef.current = null;
       seriesIdRef.current = null;
-      paint(series, marksRef.current, chart, lineRef, latest.current.candles, latest.current.markers, latest.current.priorClose, true, true, barsRef, seriesIdRef, latest.current.seriesId);
+      paint(series, marksRef.current, chart, lineRef, latest.current.candles, latest.current.markers, latest.current.priorClose, true, barsRef, seriesIdRef, latest.current.seriesId, host.current);
     });
     return () => {
       dead = true;
@@ -153,9 +201,27 @@ export function PracticeChart({ candles, markers, theme, priorClose, seriesId }:
     const switched = seriesIdRef.current !== seriesId;
     const fit = switched || candles.length !== countRef.current;
     countRef.current = candles.length;
-    const refreshLine = switched || priorSeen.current !== priorClose;
     priorSeen.current = priorClose;
-    paint(series, marksRef.current, chart, lineRef, candles, markers, priorClose, fit, refreshLine, barsRef, seriesIdRef, seriesId);
+    let frames = 0;
+    let raf = 0;
+    let cancelled = false;
+    const draw = () => {
+      if (cancelled) return;
+      const live = seriesRef.current;
+      const box = chartRef.current;
+      if (!live || !box) return;
+      if ((host.current?.clientWidth ?? 0) < 8 && frames < 20) {
+        frames += 1;
+        raf = window.requestAnimationFrame(draw);
+        return;
+      }
+      paint(live, marksRef.current, box, lineRef, candles, markers, priorClose, fit, barsRef, seriesIdRef, seriesId, host.current);
+    };
+    draw();
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(raf);
+    };
   }, [candles, markers, priorClose, seriesId]);
 
   return <div ref={host} className="pr-chart" />;

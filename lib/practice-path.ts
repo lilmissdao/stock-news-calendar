@@ -110,6 +110,30 @@ export function minuteSeed(daySeed: number, minute: number): number {
   return (daySeed + minute * 997) >>> 0;
 }
 
+export type PriceWindow = { from: number; to: number };
+
+/** Visible price range for the candles on screen. A prior close from the other ticker is left out. */
+export function priceWindow(bars: { h: number; l: number }[], priorClose: number | null): PriceWindow | null {
+  if (!bars.length) return null;
+  let high = Math.max(...bars.map((bar) => bar.h));
+  let low = Math.min(...bars.map((bar) => bar.l));
+  if (!Number.isFinite(high) || !Number.isFinite(low)) return null;
+  if (high < low) [high, low] = [low, high];
+  const mid = (high + low) / 2 || Math.abs(high) || 1;
+  if (priorClose !== null && Number.isFinite(priorClose) && Math.abs(priorClose - mid) / mid <= 0.04) {
+    high = Math.max(high, priorClose);
+    low = Math.min(low, priorClose);
+  }
+  const pad = Math.max((high - low) * 0.2, Math.abs(mid) * 0.004, 0.05);
+  return { from: low - pad, to: high + pad };
+}
+
+export function candleInView(range: PriceWindow, time: { from: number; to: number }, bar: { h: number; l: number; c: number }, index: number): boolean {
+  const priceOk = bar.l >= range.from - 1e-6 && bar.h <= range.to + 1e-6 && bar.c >= range.from && bar.c <= range.to;
+  const timeOk = index >= time.from - 1e-6 && index <= time.to + 1e-6;
+  return priceOk && timeOk;
+}
+
 /** True when the chart must call setData. A ticker switch keeps the same timestamps, so it is not an in-place update of the last bar. */
 export function seriesNeedsReset(previousId: string | null, nextId: string, previous: MinuteBar[] | null, next: MinuteBar[]): boolean {
   if (previousId !== nextId || !previous || previous.length !== next.length || next.length === 0) return true;

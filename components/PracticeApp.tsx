@@ -417,13 +417,6 @@ export function PracticeApp() {
         {!confirm && tab === "play" ? (
           <>
             <div className="pr-bar">
-              <div className="pr-toggle" role="group" aria-label="Ticker">
-                {(["TQQQ", "SQQQ"] as Ticker[]).map((symbol) => (
-                  <button key={symbol} type="button" aria-pressed={game.ticker === symbol} onClick={() => setGame({ ...game, ticker: symbol })}>
-                    {symbol}
-                  </button>
-                ))}
-              </div>
               <div className="pr-now">
                 <strong className="pr-price">{formatCents(price)}</strong>
                 <p className="pr-left">{game.phase === "play" ? minuteLeft(game.tick, game.speed) : "9:30–10:00"}</p>
@@ -436,15 +429,12 @@ export function PracticeApp() {
               <strong className={today >= 0 ? "up" : "down"}>
                 {dollars(value - game.dayStartEquity)} {pct(today)}
               </strong>
+              {game.phase === "play" ? (
+                <button type="button" className="pr-play" onClick={() => setGame({ ...game, playing: !game.playing })}>
+                  {game.playing ? "Pause" : "Play"}
+                </button>
+              ) : null}
             </div>
-            <p className="pr-book">
-              TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
-            </p>
-            {game.phase === "play" ? (
-              <button type="button" className="pr-play" onClick={() => setGame({ ...game, playing: !game.playing })}>
-                {game.playing ? "Pause" : "Play"}
-              </button>
-            ) : null}
             <div className="pr-toggle" role="group" aria-label="Timeframe">
               {FRAMES.map((frame) => (
                 <button key={frame} type="button" aria-pressed={game.timeframe === frame} onClick={() => setGame({ ...game, timeframe: frame })}>
@@ -457,24 +447,17 @@ export function PracticeApp() {
             ) : null}
             {game.phase === "play" ? (
               <>
-                <dl className="pr-stats">
-                  <Stat label="Cash" value={formatWholeDollars(game.cash)} />
-                  <Stat label="Value" value={formatWholeDollars(value)} />
-                  <Stat label="Today" value={pct(today)} tone={today} />
-                  <Stat label={position.shares ? `${position.shares} sh` : "Flat"} value={position.shares ? formatWholeDollars(position.avgCost) : "—"} />
-                  <Stat
-                    label="Open P/L"
-                    value={position.shares ? `${dollars((price - position.avgCost) * position.shares)} ${pct(position.avgCost ? price / position.avgCost - 1 : 0)}` : "—"}
-                    tone={position.shares ? price - position.avgCost : 0}
-                  />
-                  <Stat label="Fees" value={formatCents(game.dayFees)} />
-                </dl>
-                {game.positions[other].shares > 0 ? (
-                  <p className="pr-note">
-                    Also holding {game.positions[other].shares} {other}
-                  </p>
-                ) : null}
                 <div className="pr-trade">
+                <div className="pr-toggle pr-ticker" role="group" aria-label="Ticker">
+                  {(["TQQQ", "SQQQ"] as Ticker[]).map((symbol) => (
+                    <button key={symbol} type="button" aria-pressed={game.ticker === symbol} onClick={() => setGame({ ...game, ticker: symbol })}>
+                      {symbol}
+                    </button>
+                  ))}
+                </div>
+                <p className="pr-book">
+                  TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
+                </p>
                 <div className="pr-pad">
                   <div>
                     {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
@@ -490,6 +473,7 @@ export function PracticeApp() {
                       </button>
                     ))}
                   </div>
+                </div>
                 </div>
                 <div className="pr-dock">
                   {SPEEDS.map((speed) => (
@@ -512,7 +496,23 @@ export function PracticeApp() {
                   </button>
                 </div>
                 <p className="pr-note">1x is real time. One minute on the chart takes one minute.</p>
-                </div>
+                <dl className="pr-stats">
+                  <Stat label="Cash" value={formatWholeDollars(game.cash)} />
+                  <Stat label="Value" value={formatWholeDollars(value)} />
+                  <Stat label="Today" value={pct(today)} tone={today} />
+                  <Stat label={position.shares ? `${position.shares} sh` : "Flat"} value={position.shares ? formatWholeDollars(position.avgCost) : "—"} />
+                  <Stat
+                    label="Open P/L"
+                    value={position.shares ? `${dollars((price - position.avgCost) * position.shares)} ${pct(position.avgCost ? price / position.avgCost - 1 : 0)}` : "—"}
+                    tone={position.shares ? price - position.avgCost : 0}
+                  />
+                  <Stat label="Fees" value={formatCents(game.dayFees)} />
+                </dl>
+                {game.positions[other].shares > 0 ? (
+                  <p className="pr-note">
+                    Also holding {game.positions[other].shares} {other}
+                  </p>
+                ) : null}
               </>
             ) : null}
             {game.phase === "day" ? <DayReview game={game} onNext={() => setGame((current) => (current ? nextDay(current) : current))} /> : null}
@@ -521,6 +521,9 @@ export function PracticeApp() {
             ) : null}
             <p className="chart-note">
               {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 5-minute bar is randomized; the bar’s open, high, low, and close are real.
+            </p>
+            <p className="pr-stamp">
+              Build {process.env.NEXT_PUBLIC_COMMIT_SHA || "local"} · {process.env.NEXT_PUBLIC_BUILD_TIME || "dev"}
             </p>
           </>
         ) : null}

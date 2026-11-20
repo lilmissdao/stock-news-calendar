@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { fastForward, minuteLeft, newGame, ticksDue, trade } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { buildSession, chartBars, minuteSeed, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
+import { buildSession, candleInView, chartBars, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
 import type { PracticeMarket } from "./practice-market";
 import { sellShares } from "./practice-trade";
 
@@ -154,12 +154,30 @@ function switchKeepsTheLiveCandle() {
   assert.equal(seriesNeedsReset("TQQQ-1m", "TQQQ-1m", before, after), false, "the same ticker keeps updating the live candle");
 }
 
+function scaleStaysOnTheTicker() {
+  const book = market as PracticeMarket;
+  const session = buildSession(book.days[4], 99);
+  const sqqq = session.SQQQ.slice(0, 30);
+  const frames: Timeframe[] = ["1m", "5m", "15m", "30m", "1D"];
+  for (const frame of frames) {
+    const bars = chartBars(sqqq, 8, 12, 99, -1, frame);
+    const last = bars[bars.length - 1];
+    const range = priceWindow(bars, 82);
+    assert.ok(range, frame);
+    const time = { from: -0.5, to: bars.length - 1 + 1.5 };
+    assert.equal(candleInView(range, time, last, bars.length - 1), true, `${frame} live candle outside the view`);
+    assert.ok(82 > range.to, `${frame} still includes the other ticker at ${range.to}`);
+    assert.ok((range.from + range.to) / 2 < last.c * 1.2, `${frame} scale center drifted`);
+  }
+}
+
 buyThenSellAll();
 partialSellsThenAll();
 sellWithNoCash();
 switchTickerThenSell();
 tapeMovesAndMirrors();
 switchKeepsTheLiveCandle();
+scaleStaysOnTheTicker();
 clockAndCatchUp();
 historyDeleteLeavesTheRest();
 console.log("practice behavior ok");

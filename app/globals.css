@@ -1339,7 +1339,7 @@ main { min-width: 0; }
   padding: 8px 0;
   background: color-mix(in srgb, var(--bg) 92%, transparent);
 }
-.pr-trade { display: flex; flex-direction: column; gap: 8px; }
+.pr-trade { display: flex; flex-direction: column; gap: 6px; }
 .pr-note { margin: 0; color: var(--ink-soft); font-size: 13px; }
 .pr-review { display: flex; flex-direction: column; gap: 12px; }
 .pr-review h2, .pr-review h3 { margin: 0; }
@@ -1361,15 +1361,19 @@ main { min-width: 0; }
 .pr-left { margin: 2px 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
 .pr-book { margin: 0; color: var(--ink-soft); font-size: 14px; font-variant-numeric: tabular-nums; }
 .pr-play {
-  width: 100%;
-  min-height: 64px;
+  min-height: 52px;
+  min-width: 112px;
   border: 0;
   border-radius: 16px;
   background: var(--ink);
   color: var(--bg);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
+  padding: 0 18px;
 }
+.pr-ticker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.pr-ticker button { min-height: 52px; font-size: 20px; font-weight: 800; border-radius: 14px; }
+.pr-stamp { margin: 8px 0 0; color: var(--ink-soft); font-size: 12px; }
 .pr-delete {
   min-height: 48px;
   border: 0;
@@ -1397,11 +1401,39 @@ main { min-width: 0; }
 .pr-file { cursor: pointer; }
 .pr-actions .text-btn, .pr-confirm .text-btn, .pr-confirm .today-jump { min-height: 48px; }
 @media (max-width: 800px) {
-  .pr-chart { height: 250px; }
+  .pr-shell.shell { padding-top: 8px; padding-bottom: 8px; }
+  .pr-shell .kicker { display: none; }
+  .pr-shell .brand h1 { font-size: 1.45rem; }
+  .pr-main { gap: 6px; margin-top: 8px; }
+  .pr-chart { height: 150px; }
   .pr-dock, .pr-trade .pr-dock { position: static; background: transparent; padding: 0; }
   .pr-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .pr-buy, .pr-sell { min-height: 56px; font-size: 15px; }
-  .pr-bar { align-items: flex-start; }
+  .pr-buy, .pr-sell { min-height: 44px; font-size: 15px; }
+  .pr-bar { align-items: center; }
+  .pr-ticker button { min-height: 44px; font-size: 18px; }
+  .pr-book { font-size: 13px; }
+}
+@media (max-height: 720px) {
+  .pr-chart { height: 118px; }
+  .pr-price { font-size: 1.2rem; }
+  .pr-left { font-size: 14px; }
+}
+@media (max-height: 600px) {
+  .pr-shell .theme { display: none; }
+  .pr-chart { height: 50px; }
+  .pr-day span { display: none; }
+  .pr-play { min-height: 40px; min-width: 84px; font-size: 16px; padding: 0 12px; }
+  .pr-shell.shell { padding-bottom: 200px; }
+  .pr-trade {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 8;
+    background: var(--bg);
+    padding: 6px 12px 8px;
+    border-top: 1px solid var(--line);
+  }
 }
 
 @media (max-width: 640px) {

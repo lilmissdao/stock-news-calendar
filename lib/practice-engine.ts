@@ -98,23 +98,9 @@ export function batchLength(dayCount: number, batchStart: number): number {
   return Math.max(1, Math.min(BATCH_LENGTH, dayCount - start));
 }
 
-/** An unplayed session when any remain, otherwise any session in the book. */
-export function pickSession(dayCount: number, blocked: Iterable<number>, random: () => number): number {
-  if (dayCount <= 0) return 0;
-  const skip = new Set<number>();
-  for (const value of blocked) {
-    const index = Math.floor(value);
-    if (index >= 0 && index < dayCount) skip.add(index);
-  }
-  const open: number[] = [];
-  for (let index = 0; index < dayCount; index += 1) if (!skip.has(index)) open.push(index);
-  const pool = open.length > 0 ? open : Array.from({ length: dayCount }, (_, index) => index);
-  const choice = Math.floor(random() * pool.length);
-  return pool[Math.max(0, Math.min(pool.length - 1, choice))];
-}
-
-export function newGame(dayCount: number, random: () => number = Math.random, speed: Speed = 1, played: number[] = []): GameState {
-  return fresh(pickSession(dayCount, played, random), STARTING_CASH, { batches: [], equity: [{ label: "Start", value: STARTING_CASH }] }, random, speed, dayCount);
+export function newGame(dayCount: number, random: () => number = Math.random, speed: Speed = 1, session = 0): GameState {
+  const index = dayCount <= 0 ? 0 : Math.max(0, Math.min(dayCount - 1, Math.floor(session)));
+  return fresh(index, STARTING_CASH, { batches: [], equity: [{ label: "Start", value: STARTING_CASH }] }, random, speed, dayCount);
 }
 
 export function coerceSpeed(value: unknown): Speed {
@@ -383,13 +369,19 @@ function resetDay(state: GameState, session: number, day: number): GameState {
   };
 }
 
-/** Leave the day review for a random session. The fifth day records the batch, then continues. */
-export function nextDay(state: GameState, dayCount: number, played: number[] = [], random: () => number = Math.random): GameState {
-  if (state.phase === "batch") return nextBatch(state, dayCount, played, random);
+function sessionIndex(dayCount: number, session: number): number {
+  if (dayCount <= 0) return 0;
+  return Math.max(0, Math.min(dayCount - 1, Math.floor(session)));
+}
+
+/** Leave the day review for the session she was dealt. The fifth day records the batch, then continues. */
+export function nextDay(state: GameState, dayCount: number, session = 0): GameState {
+  const index = sessionIndex(dayCount, session);
+  if (state.phase === "batch") return nextBatch(state, dayCount, index);
   if (state.phase !== "day") return state;
-  if (state.day + 1 < state.batchDaysTotal) return resetDay(state, pickSession(dayCount, played, random), state.day + 1);
+  if (state.day + 1 < state.batchDaysTotal) return resetDay(state, index, state.day + 1);
   const closed = closeBatch(state);
-  const advanced = nextBatch(closed, dayCount, played, random);
+  const advanced = nextBatch(closed, dayCount, index);
   return advanced === closed ? closed : advanced;
 }
 
@@ -399,8 +391,8 @@ export function openBatchReview(state: GameState): GameState {
   return closeBatch(state);
 }
 
-export function nextBatch(state: GameState, dayCount: number, played: number[] = [], random: () => number = Math.random): GameState {
+export function nextBatch(state: GameState, dayCount: number, session = 0): GameState {
   if (state.phase !== "batch" || dayCount <= 0) return state;
-  const game = fresh(pickSession(dayCount, played, random), state.cash, state.history, random, state.speed, dayCount);
+  const game = fresh(sessionIndex(dayCount, session), state.cash, state.history, Math.random, state.speed, dayCount);
   return { ...game, startedAt: state.startedAt, ticker: state.ticker, timeframe: state.timeframe };
 }

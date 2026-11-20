@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, pickSession, ticksDue, trade, type GameState } from "./practice-engine";
+import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cycle";
+import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
 import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
-import type { PracticeMarket } from "./practice-market";
+import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, secFee, sellFees, sellShares, tafFee } from "./practice-trade";
 
 const price = 50;
@@ -212,23 +213,60 @@ function playDay(game: GameState, date: string) {
   return fastForward(game, 5000, flatBars(), flatBars(), date, 31_000);
 }
 
-function randomSessionPrefersUnplayed() {
+function mulberry32(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let value = Math.imul(state ^ (state >>> 15), 1 | state);
+    value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
+    return (value ^ (value >>> 14)) >>> 0;
+  };
+}
+
+function shuffleUsesEveryDayBeforeRepeating() {
+  const book = market as PracticeMarket;
+  assert.equal(book.days.length, 60);
+  const dates = book.days.map((day) => day.date);
+  const history = dates.slice(0, 10);
+  let cycle = emptyCycle();
+  const next = mulberry32(99);
+  const dealt: string[] = [];
+  for (let step = 0; step < dates.length - history.length; step += 1) {
+    const draw = drawSession(dates, history, cycle, "", next);
+    assert.equal(history.includes(draw.date) || dealt.includes(draw.date), false);
+    dealt.push(draw.date);
+    cycle = draw.cycle;
+    assert.equal(freshLeft(dates, history, cycle, draw.date), dates.length - history.length - dealt.length + 1);
+  }
+  assert.equal(new Set([...history, ...dealt]).size, 60);
+  const again = drawSession(dates, history, cycle, dealt[dealt.length - 1], next);
+  assert.equal(again.cycle.generation, 1);
+  assert.notEqual(again.date, dealt[dealt.length - 1]);
+  assert.equal(again.cycle.dates.length, 1);
+  assert.equal(freshLeft(dates, history, again.cycle, again.date), 60);
+  const counts = Array.from({ length: 60 }, () => 0);
+  const roll = mulberry32(3);
+  for (let sample = 0; sample < 12000; sample += 1) counts[uniformIndex(60, roll)] += 1;
+  assert.ok(Math.min(...counts) > 120, `shuffle missed an end: ${counts[0]} … ${counts[59]}`);
+  const older: PracticeDay[] = [{ date: "2020-01-02", start: 1, tqqq: [], sqqq: [] }];
+  const newer: PracticeDay[] = [
+    { date: "2020-01-03", start: 2, tqqq: [], sqqq: [] },
+    { date: "2020-01-02", start: 9, tqqq: [], sqqq: [] },
+  ];
+  const merged = mergePracticeDays(older, newer);
+  assert.deepEqual(merged.map((day) => [day.date, day.start]), [["2020-01-02", 9], ["2020-01-03", 2]]);
+}
+
+function dealtSessionAdvancesTheBatch() {
   const book = market as PracticeMarket;
   const count = book.days.length;
-  assert.ok(count >= 60);
-  const played = [0, 1, 2];
-  assert.equal(pickSession(count, played, () => 0), 3);
-  const all = Array.from({ length: count }, (_, index) => index);
-  assert.equal(pickSession(count, all, () => 0), 0);
-  assert.equal(pickSession(count, all, () => 0.5), Math.floor(count * 0.5));
-  let game = newGame(count, () => 0, 1, played);
+  let game = newGame(count, () => 0, 1, 3);
   assert.equal(game.session, 3);
   assert.equal(game.batchDaysTotal, 5);
-  const seen = [game.session];
+  const seen = [3];
   for (let day = 0; day < 4; day += 1) {
     game = playDay(game, book.days[game.session].date);
-    const blocked = [...played, ...game.batchDays.map((item) => book.days.findIndex((entry) => entry.date === item.date))];
-    game = nextDay(game, count, blocked, () => 0);
+    game = nextDay(game, count, 4 + day);
     assert.equal(game.phase, "play");
     assert.equal(game.day, day + 1);
     seen.push(game.session);
@@ -237,7 +275,7 @@ function randomSessionPrefersUnplayed() {
   game = playDay(game, book.days[game.session].date);
   const reviewed = openBatchReview(game);
   assert.equal(reviewed.history.batches[0].days.map((day) => day.date).join(), seen.map((index) => book.days[index].date).join());
-  const continued = nextDay(game, count, [...played, ...seen], () => 0);
+  const continued = nextDay(game, count, 8);
   assert.equal(continued.phase, "play");
   assert.equal(continued.day, 0);
   assert.equal(continued.session, 8);
@@ -249,7 +287,8 @@ function randomSessionPrefersUnplayed() {
 }
 
 regulatoryFeesOnly();
-randomSessionPrefersUnplayed();
+shuffleUsesEveryDayBeforeRepeating();
+dealtSessionAdvancesTheBatch();
 buyThenSellAll();
 partialSellsThenAll();
 sellWithNoCash();

@@ -78,6 +78,14 @@ function sessionBars(chart: YahooChart): Map<string, { start: number; bars: Ohlc
   return byDay;
 }
 
+/** Keep every saved session. A newer fetch replaces the same date and adds days the old file does not have. */
+export function mergePracticeDays(older: PracticeDay[], newer: PracticeDay[]): PracticeDay[] {
+  const byDate = new Map<string, PracticeDay>();
+  for (const day of older) if (day?.date) byDate.set(day.date, day);
+  for (const day of newer) if (day?.date) byDate.set(day.date, day);
+  return [...byDate.values()].sort((left, right) => left.date.localeCompare(right.date));
+}
+
 export async function fetchPracticeMarket(now = new Date()): Promise<PracticeMarket> {
   const [tqqq, sqqq] = await Promise.all([
     fetchChart("TQQQ", "5m", "60d"),

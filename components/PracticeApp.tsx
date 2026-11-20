@@ -41,6 +41,7 @@ import {
   type GameRow,
   type HistoryFile,
 } from "@/lib/practice-history";
+import { CYCLE_KEY, drawSession, freshLeft, parseCycle, type CycleFile } from "@/lib/practice-cycle";
 import type { PracticeMarket } from "@/lib/practice-market";
 import { chartBars, clock, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
@@ -49,6 +50,7 @@ import type { Ticker } from "@/lib/practice-trade";
 const STORAGE_KEY = "snc-practice:v1";
 const CHART_KEY = "snc-practice-chart-h";
 const BOOK = market as PracticeMarket;
+const SESSION_DATES = BOOK.days.map((day) => day.date);
 const FRAMES: Timeframe[] = ["1m", "5m", "15m", "30m", "1D"];
 const SIZES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 30 };
 
@@ -97,9 +99,10 @@ function bookDay(state: GameState) {
   return BOOK.days[state.session] ?? BOOK.days[Math.max(0, Math.min(BOOK.days.length - 1, state.batchStart))];
 }
 
-function playedIndexes(history: HistoryFile, game: GameState | null): number[] {
-  const dates = new Set(playedDates(history, game));
-  return BOOK.days.flatMap((day, index) => (dates.has(day.date) ? [index] : []));
+function deal(historyDates: string[], cycle: CycleFile, avoid = ""): { index: number; cycle: CycleFile } {
+  const draw = drawSession(SESSION_DATES, historyDates, cycle, avoid);
+  const index = SESSION_DATES.indexOf(draw.date);
+  return { index: index < 0 ? 0 : index, cycle: draw.cycle };
 }
 
 function holdSoFar(state: GameState): number {
@@ -196,6 +199,7 @@ export function PracticeApp() {
   const [tab, setTab] = useState<"play" | "history">("play");
   const [confirm, setConfirm] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [cycle, setCycle] = useState<CycleFile | null>(null);
   const [chartH, setChartH] = useState<number | null>(null);
   const [full, setFull] = useState(false);
   const chartRef = useRef<PracticeChartHandle>(null);
@@ -204,9 +208,28 @@ export function PracticeApp() {
   useEffect(() => {
     const speed = coerceSpeed(typeof localStorage !== "undefined" ? localStorage.getItem(SPEED_KEY) : 1);
     const savedHistory = parseHistory(localStorage.getItem(HISTORY_KEY));
-    const loaded = loadGame(localStorage.getItem(STORAGE_KEY), BOOK.days.length) ?? newGame(BOOK.days.length, Math.random, speed, playedIndexes(savedHistory, null));
-    setGame(loaded);
-    rememberSpeed(loaded.speed);
+    const loaded = loadGame(localStorage.getItem(STORAGE_KEY), BOOK.days.length);
+    let nextCycle = parseCycle(localStorage.getItem(CYCLE_KEY));
+    let game = loaded;
+    if (!game) {
+      const dealt = deal(playedDates(savedHistory, null), nextCycle);
+      game = newGame(BOOK.days.length, Math.random, speed, dealt.index);
+      nextCycle = dealt.cycle;
+    } else {
+      const current = BOOK.days[game.session]?.date;
+      const seen = playedDates(savedHistory, game);
+      if (current && !seen.includes(current) && !nextCycle.dates.includes(current)) {
+        nextCycle = { ...nextCycle, dates: [...nextCycle.dates, current] };
+      }
+    }
+    try {
+      localStorage.setItem(CYCLE_KEY, JSON.stringify(nextCycle));
+    } catch {
+      /* Private mode can refuse storage. */
+    }
+    setCycle(nextCycle);
+    setGame(game);
+    rememberSpeed(game.speed);
     setHistory(savedHistory);
     const stored = localStorage.getItem("snc-theme");
     const initial = stored === "dark" || stored === "light" ? stored : document.documentElement.dataset.theme || "light";
@@ -215,6 +238,15 @@ export function PracticeApp() {
     const savedHeight = Number(localStorage.getItem(CHART_KEY));
     if (savedHeight >= 220 && savedHeight <= 1200) setChartH(savedHeight);
   }, []);
+
+  useEffect(() => {
+    if (!cycle) return;
+    try {
+      localStorage.setItem(CYCLE_KEY, JSON.stringify(cycle));
+    } catch {
+      /* Private mode can refuse storage. */
+    }
+  }, [cycle]);
 
   useEffect(() => {
     if (!game) return;
@@ -328,8 +360,11 @@ export function PracticeApp() {
     setConfirm(true);
   }
 
-  function goNext(current: GameState) {
-    return nextDay(current, BOOK.days.length, playedIndexes(saved, current));
+  function goNext() {
+    if (!active || !cycle) return;
+    const dealt = deal(playedDates(saved, active), cycle, bookDay(active)?.date ?? "");
+    setCycle(dealt.cycle);
+    setGame(nextDay(active, BOOK.days.length, dealt.index));
   }
 
   function commitNew() {
@@ -337,7 +372,9 @@ export function PracticeApp() {
     const nextHistory = archiveCurrent(active, saved, ending, tape.day.date, holdForDates(active.batchStartEquity, pendingDates(active)));
     setHistory(nextHistory);
     const speed = coerceSpeed(localStorage.getItem(SPEED_KEY) ?? active.speed);
-    setGame(newGame(BOOK.days.length, Math.random, speed, playedIndexes(nextHistory, null)));
+    const dealt = deal(playedDates(nextHistory, null), cycle ?? { v: 1, generation: 0, dates: [] }, tape.day.date);
+    setCycle(dealt.cycle);
+    setGame(newGame(BOOK.days.length, Math.random, speed, dealt.index));
     setConfirm(false);
     setTab("play");
     setNotice(null);
@@ -467,6 +504,9 @@ export function PracticeApp() {
                 </button>
               ) : null}
             </div>
+            {cycle && game.phase === "play" && !dayStarted(game) ? (
+              <p className="pr-fresh">Fresh days left: {freshLeft(SESSION_DATES, playedDates(history, game), cycle, session.day.date)} of {BOOK.days.length}</p>
+            ) : null}
             {game.phase === "play" ? (
             <div className="pr-toggle" role="group" aria-label="Timeframe">
               {FRAMES.map((frame) => (
@@ -634,10 +674,10 @@ export function PracticeApp() {
               </>
             ) : null}
             {game.phase === "day" ? (
-              <DayReview game={game} onNext={() => setGame((current) => (current ? goNext(current) : current))} onReview={() => setGame((current) => (current ? openBatchReview(current) : current))} />
+              <DayReview game={game} onNext={goNext} onReview={() => setGame((current) => (current ? openBatchReview(current) : current))} />
             ) : null}
             {game.phase === "batch" ? (
-              <BatchReview game={game} onNext={() => setGame((current) => (current ? goNext(current) : current))} onReset={askNew} />
+              <BatchReview game={game} onNext={goNext} onReset={askNew} />
             ) : null}
             <p className="chart-note">
               {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 5-minute bar is randomized; the bar’s open, high, low, and close are real.

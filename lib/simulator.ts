@@ -4,6 +4,12 @@ export const TRADING_DAYS_PER_YEAR = 252;
 export const TRADING_DAYS_PER_MONTH = 21;
 export const STORAGE_KEY = "snc-simulator:v1";
 export const MILLION = 1_000_000;
+/** SEC Section 31 fee rate per dollar of sell value. */
+const SEC_FEE_RATE = 0.0000206;
+/** Robinhood options regulatory/OCC fee per contract, charged on the buy and the sell. */
+const OPTION_FEE_PER_CONTRACT_PER_SIDE = 0.04;
+
+export type TradeWith = "shares" | "options";
 
 export type Scenario = {
   id: string;
@@ -13,6 +19,11 @@ export type Scenario = {
   drawdownPct: number;
   drawdownsPerMonth: number;
   years: number;
+  tradeWith: TradeWith;
+  sharePrice: number;
+  optionPrice: number;
+  shareSpread: number;
+  optionSpread: number;
 };
 
 export type MonthPoint = {
@@ -37,6 +48,11 @@ export type Simulation = {
   /** Compound annual return, (ending / start) ^ (1 / years) - 1. */
   avgAnnual: number | null;
   yearSlices: YearSlice[];
+  feesPaid: number;
+  /** Day-1 round-trip cost divided by the starting balance. */
+  breakEven: number | null;
+  dayOneShares: number;
+  dayOneContracts: number;
   /** Trading day the balance first reaches $1M. 0 if it starts there. Null if it never does. */
   millionDay: number | null;
   years: number;
@@ -51,6 +67,11 @@ export const DEFAULT_SCENARIOS: Scenario[] = [
     drawdownPct: 2,
     drawdownsPerMonth: 1,
     years: 3,
+    tradeWith: "shares",
+    sharePrice: 50,
+    optionPrice: 2,
+    shareSpread: 0.01,
+    optionSpread: 0.05,
   },
   {
     id: "ira-plus-25k",
@@ -60,6 +81,11 @@ export const DEFAULT_SCENARIOS: Scenario[] = [
     drawdownPct: 2,
     drawdownsPerMonth: 1,
     years: 3,
+    tradeWith: "shares",
+    sharePrice: 50,
+    optionPrice: 2,
+    shareSpread: 0.01,
+    optionSpread: 0.05,
   },
 ];
 
@@ -77,6 +103,11 @@ export function createScenario(source: Scenario | undefined, index: number): Sce
     drawdownPct: source?.drawdownPct ?? 2,
     drawdownsPerMonth: source?.drawdownsPerMonth ?? 1,
     years: source?.years ?? 3,
+    tradeWith: source?.tradeWith === "options" ? "options" : "shares",
+    sharePrice: source?.sharePrice ?? 50,
+    optionPrice: source?.optionPrice ?? 2,
+    shareSpread: source?.shareSpread ?? 0.01,
+    optionSpread: source?.optionSpread ?? 0.05,
   };
 }
 
@@ -119,22 +150,23 @@ export function simulate(input: Scenario): Simulation {
   const drawdown = finite(input.drawdownPct, 0) / 100;
   const perMonth = Math.max(0, finite(input.drawdownsPerMonth, 0));
   const hits = drawdownHitsByDay(tradingDays, perMonth);
+  const opening = roundTrip(start, 1, input);
 
   let balance = start;
   const points: MonthPoint[] = [{ month: 0, balance }];
   let millionDay: number | null = start >= MILLION ? 0 : null;
   let drawdownDays = 0;
   let tradeDays = 0;
+  let feesPaid = 0;
 
   for (let day = 1; day <= tradingDays; day += 1) {
     const count = hits.get(day) ?? 0;
-    if (count > 0) {
-      drawdownDays += 1;
-      balance *= (1 - drawdown) ** count;
-    } else {
-      tradeDays += 1;
-      balance *= 1 + daily;
-    }
+    const multiplier = count > 0 ? (1 - drawdown) ** count : 1 + daily;
+    if (count > 0) drawdownDays += 1;
+    else tradeDays += 1;
+    const traded = roundTrip(balance, multiplier, input);
+    balance = traded.balance;
+    feesPaid += traded.cost;
     if (day % TRADING_DAYS_PER_MONTH === 0) points.push({ month: day / TRADING_DAYS_PER_MONTH, balance });
     if (millionDay === null && balance >= MILLION) millionDay = day;
   }
@@ -148,7 +180,64 @@ export function simulate(input: Scenario): Simulation {
     yearSlices.push({ year, rate: compoundRate(opened, ending, 1), ending });
   }
 
-  return { points, ending: balance, drawdownDays, tradeDays, tradingDays, avgNetMonthly, avgAnnual, yearSlices, millionDay, years };
+  return {
+    points,
+    ending: balance,
+    drawdownDays,
+    tradeDays,
+    tradingDays,
+    avgNetMonthly,
+    avgAnnual,
+    yearSlices,
+    feesPaid,
+    breakEven: start > 0 ? opening.cost / start : null,
+    dayOneShares: opening.shares,
+    dayOneContracts: opening.contracts,
+    millionDay,
+    years,
+  };
+}
+
+type RoundTrip = { balance: number; cost: number; shares: number; contracts: number };
+
+/** One buy-then-sell of as much of the balance as the price allows. Multiplier is the gross move. */
+function roundTrip(balance: number, multiplier: number, scenario: Scenario): RoundTrip {
+  if (!(balance > 0) || !Number.isFinite(multiplier) || multiplier < 0) {
+    return { balance: Math.max(0, balance), cost: 0, shares: 0, contracts: 0 };
+  }
+  if (scenario.tradeWith === "options") {
+    const premium = finite(scenario.optionPrice, 0);
+    const unit = premium * 100;
+    const contracts = unit > 0 ? Math.floor(balance / unit) : 0;
+    if (contracts <= 0) return { balance, cost: 0, shares: 0, contracts: 0 };
+    const spent = contracts * unit;
+    const sellValue = spent * multiplier;
+    const spreadCost = contracts * 100 * Math.max(0, finite(scenario.optionSpread, 0));
+    const regulatory = contracts * OPTION_FEE_PER_CONTRACT_PER_SIDE * 2;
+    const cost = nearestCent(spreadCost + regulatory) + secFee(sellValue);
+    return { balance: settled(balance - spent, sellValue, cost), cost, shares: 0, contracts };
+  }
+  const price = finite(scenario.sharePrice, 0);
+  const shares = price > 0 ? Math.floor(balance / price) : 0;
+  if (shares <= 0) return { balance, cost: 0, shares: 0, contracts: 0 };
+  const spent = shares * price;
+  const sellValue = spent * multiplier;
+  const spreadCost = shares * Math.max(0, finite(scenario.shareSpread, 0));
+  const cost = nearestCent(spreadCost) + secFee(sellValue);
+  return { balance: settled(balance - spent, sellValue, cost), cost, shares, contracts: 0 };
+}
+
+function settled(leftover: number, sellValue: number, cost: number): number {
+  return Math.max(0, leftover + sellValue - cost);
+}
+
+function secFee(sellValue: number): number {
+  if (!(sellValue > 500)) return 0;
+  return Math.ceil(sellValue * SEC_FEE_RATE * 100 - 1e-8) / 100;
+}
+
+function nearestCent(amount: number): number {
+  return Math.round(amount * 100) / 100;
 }
 
 function compoundRate(opened: number, closed: number, periods: number): number | null {
@@ -163,6 +252,24 @@ export function formatWholeDollars(value: number): string {
   const rounded = Math.round(value);
   const sign = rounded < 0 ? "-" : "";
   return `${sign}$${Math.abs(rounded).toLocaleString("en-US")}`;
+}
+
+export function formatCents(value: number): string {
+  if (!Number.isFinite(value) || Math.abs(value) >= 1e21) return "—";
+  const sign = value < 0 ? "-" : "";
+  return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+export function formatBreakEven(rate: number | null): string {
+  if (rate === null || !Number.isFinite(rate)) return "—";
+  const pct = rate * 100;
+  const digits = pct >= 0.01 ? 2 : pct >= 0.0001 ? 4 : 6;
+  return `${pct.toFixed(digits)}%`;
+}
+
+export function formatCount(value: number): string {
+  if (!Number.isFinite(value)) return "—";
+  return Math.max(0, Math.floor(value)).toLocaleString("en-US");
 }
 
 function compactUnit(value: number): string {
@@ -277,6 +384,12 @@ function clampYears(value: unknown): number | null {
   return Math.min(10, Math.max(1, Math.round(number)));
 }
 
+function readNonNegative(value: unknown, fallback: number): number {
+  const number = readNumber(value);
+  if (number === null || number < 0) return fallback;
+  return number;
+}
+
 function readNumber(value: unknown): number | null {
   const number = typeof value === "number" ? value : typeof value === "string" && value.trim() ? Number(value) : NaN;
   return Number.isFinite(number) ? number : null;
@@ -311,6 +424,11 @@ function sanitizeScenario(value: unknown, used: Set<string>): Scenario | null {
     drawdownPct: Math.max(0, drawdownPct),
     drawdownsPerMonth: Math.max(0, drawdownsPerMonth),
     years,
+    tradeWith: row.tradeWith === "options" ? "options" : "shares",
+    sharePrice: readNonNegative(row.sharePrice, 50),
+    optionPrice: readNonNegative(row.optionPrice, 2),
+    shareSpread: readNonNegative(row.shareSpread, 0.01),
+    optionSpread: readNonNegative(row.optionSpread, 0.05),
   };
 }
 

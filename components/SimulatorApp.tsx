@@ -9,6 +9,9 @@ import {
   decodeScenarios,
   duplicateScenario,
   formatAxisMoney,
+  formatBreakEven,
+  formatCents,
+  formatCount,
   formatMonthLabel,
   formatPercent,
   formatSignedPercent,
@@ -152,6 +155,38 @@ function DecimalField({
           if (next.length > 16) return;
           setText(next);
           if (next === "" || next === "-" || next === "." || next === "-.") return;
+          const parsed = Number(next);
+          if (Number.isFinite(parsed)) onChange(parsed);
+        }}
+      />
+    </label>
+  );
+}
+
+function CentsField({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
+  const [text, setText] = useState<string | null>(null);
+
+  return (
+    <label className="field">
+      <span>{label}</span>
+      <input
+        type="text"
+        inputMode="decimal"
+        autoComplete="off"
+        spellCheck={false}
+        value={text ?? formatCents(value)}
+        onFocus={() => setText(Number.isFinite(value) ? String(value) : "")}
+        onBlur={() => {
+          const parsed = Number((text ?? "").replace(/[^0-9.]/g, ""));
+          onChange(Number.isFinite(parsed) && parsed >= 0 ? parsed : 0);
+          setText(null);
+        }}
+        onChange={(event) => {
+          const next = event.target.value.replace(/[^0-9.]/g, "");
+          if ((next.match(/\./g) ?? []).length > 1) return;
+          if (next.length > 16) return;
+          setText(next);
+          if (next === "" || next === ".") return;
           const parsed = Number(next);
           if (Number.isFinite(parsed)) onChange(parsed);
         }}
@@ -466,6 +501,39 @@ function ScenarioCard({
           onChange={(drawdownsPerMonth) => onChange(scenario.id, { drawdownsPerMonth: Math.max(0, drawdownsPerMonth) })}
         />
         <label className="field">
+          <span>Trade with</span>
+          <select
+            value={scenario.tradeWith}
+            onChange={(event) => onChange(scenario.id, { tradeWith: event.target.value === "options" ? "options" : "shares" })}
+          >
+            <option value="shares">Shares</option>
+            <option value="options">Options</option>
+          </select>
+        </label>
+        {scenario.tradeWith === "options" ? (
+          <CentsField
+            label="Option price per share"
+            value={scenario.optionPrice}
+            onChange={(optionPrice) => onChange(scenario.id, { optionPrice })}
+          />
+        ) : (
+          <CentsField
+            label="Price per share"
+            value={scenario.sharePrice}
+            onChange={(sharePrice) => onChange(scenario.id, { sharePrice })}
+          />
+        )}
+        <CentsField
+          label="Spread ($ per share)"
+          value={scenario.tradeWith === "options" ? scenario.optionSpread : scenario.shareSpread}
+          onChange={(spread) =>
+            onChange(
+              scenario.id,
+              scenario.tradeWith === "options" ? { optionSpread: spread } : { shareSpread: spread },
+            )
+          }
+        />
+        <label className="field">
           <span>Time span</span>
           <select
             value={scenario.years}
@@ -495,6 +563,18 @@ function ScenarioCard({
         <div className="sim-stat">
           <dt>Time to $1M</dt>
           <dd>{formatTimeToMillion(result.millionDay, result.years, scenario.startingCapital)}</dd>
+        </div>
+        <div className="sim-stat">
+          <dt>Est. fees & spread paid</dt>
+          <dd>{formatCents(result.feesPaid)}</dd>
+        </div>
+        <div className="sim-stat">
+          <dt>Break-even daily gain</dt>
+          <dd>{formatBreakEven(result.breakEven)}</dd>
+        </div>
+        <div className="sim-stat">
+          <dt>{scenario.tradeWith === "options" ? "Contracts per trade" : "Shares per trade"}</dt>
+          <dd>{formatCount(scenario.tradeWith === "options" ? result.dayOneContracts : result.dayOneShares)}</dd>
         </div>
       </dl>
       <p className="sim-years">

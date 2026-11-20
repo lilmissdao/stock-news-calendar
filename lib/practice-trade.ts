@@ -26,6 +26,33 @@ export type ClosedTrade = {
   pnl: number;
 };
 
+export type FillNote = {
+  minute: number;
+  ticker: Ticker;
+  side: "buy" | "sell";
+  shares: number;
+  price: number;
+  slippage: number;
+};
+
+/** Marketable delay, 0.5s to 1.2s. */
+export function fillDelayMs(random: () => number = Math.random): number {
+  return Math.round(500 + Math.min(1, Math.max(0, random())) * 700);
+}
+
+/** Cents of slippage per share. Wider at the open, tighter after 9:45. */
+export function slipPerShare(minute: number, random: () => number = Math.random): number {
+  const [low, high] = minute < 5 ? [3, 5] : minute < 15 ? [2, 3] : [1, 2];
+  const cents = low + Math.floor(Math.min(0.999999, Math.max(0, random())) * (high - low + 1));
+  return cents / 100;
+}
+
+/** Buys pay above the print. Sells receive below it. */
+export function slippedPrice(quote: number, side: "buy" | "sell", slip: number): number {
+  const worse = side === "buy" ? quote + slip : quote - slip;
+  return Math.max(0.01, worse);
+}
+
 export function emptyPosition(): Position {
   return { shares: 0, avgCost: 0, lots: [] };
 }

@@ -238,6 +238,8 @@ export type GameRow = {
   winRate: number | null;
   trades: number;
   fees: number;
+  /** Null when the saved game predates slippage tracking. */
+  slippage: number | null;
   vsHold: number;
 };
 
@@ -263,6 +265,12 @@ export function playedDates(history: HistoryFile, game: GameState | null): strin
   return [...dates];
 }
 
+export function rowSlippage(batches: BatchSummary[]): number | null {
+  if (batches.length === 0) return 0;
+  if (batches.some((batch) => typeof batch.slippage !== "number")) return null;
+  return batches.reduce((sum, batch) => sum + (batch.slippage ?? 0), 0);
+}
+
 export function rowFromGame(game: ArchivedGame, title = `Game ${game.number}`): GameRow {
   const trades = game.batches.reduce((sum, batch) => sum + (batch.trades?.length ?? 0), 0);
   return {
@@ -278,6 +286,7 @@ export function rowFromGame(game: ArchivedGame, title = `Game ${game.number}`): 
     winRate: combinedWinRate(game.batches),
     trades,
     fees: game.batches.reduce((sum, batch) => sum + (batch.fees || 0), 0),
+    slippage: rowSlippage(game.batches),
     vsHold: holdGap(game.batches, game.endingBalance, game.startBalance),
   };
 }

@@ -115,6 +115,10 @@ export function PracticeHistory({
                 <dd>{formatCents(row.fees)}</dd>
               </div>
               <div>
+                <dt>Slippage</dt>
+                <dd>{row.slippage === null ? "—" : formatCents(row.slippage)}</dd>
+              </div>
+              <div>
                 <dt>Vs hold TQQQ</dt>
                 <dd className={row.vsHold >= 0 ? "up" : "down"}>{signedDollars(row.vsHold)}</dd>
               </div>
@@ -223,7 +227,7 @@ function BatchList({ batches }: { batches: BatchSummary[] }) {
               ))}
             </ul>
             <p className="pr-note">
-              Win rate {batch.winRate === null ? "—" : formatSignedPercent(batch.winRate).replace("+", "")} · Fees {formatCents(batch.fees)} · Vs hold {signedDollars(batch.endEquity - batch.startEquity - hold)}
+              Win rate {batch.winRate === null ? "—" : formatSignedPercent(batch.winRate).replace("+", "")} · Fees {formatCents(batch.fees)} · Slippage {typeof batch.slippage === "number" ? formatCents(batch.slippage) : "—"} · Vs hold {signedDollars(batch.endEquity - batch.startEquity - hold)}
             </p>
           </div>
         );

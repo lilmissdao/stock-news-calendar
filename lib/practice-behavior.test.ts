@@ -5,7 +5,8 @@ import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from ".
 import market from "../data/practice-market.json";
 import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
-import { buyShares, catFee, secFee, sellFees, sellShares, tafFee } from "./practice-trade";
+import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
+import { rowSlippage } from "./practice-history";
 
 const price = 50;
 
@@ -335,6 +336,28 @@ function skipAfterTheCloseDoesNotDoubleCount() {
   assert.equal(game.day, 1);
   assert.equal(game.session, 3);
   assert.equal(game.phase, "play");
+}
+
+function realisticFillMath() {
+  assert.equal(slipPerShare(0, () => 0), 0.03);
+  assert.equal(slipPerShare(4, () => 0.999), 0.05);
+  assert.equal(slipPerShare(5, () => 0), 0.02);
+  assert.equal(slipPerShare(14, () => 0.999), 0.03);
+  assert.equal(slipPerShare(15, () => 0), 0.01);
+  assert.equal(slipPerShare(29, () => 0.999), 0.02);
+  assert.equal(slippedPrice(50, "buy", 0.04), 50.04);
+  assert.equal(slippedPrice(50, "sell", 0.04), 49.96);
+  assert.equal(fillDelayMs(() => 0), 500);
+  assert.equal(fillDelayMs(() => 1), 1200);
+  let game = trade(fresh(), "TQQQ", "buy", 0.25, 50.04, "2026-09-01", 0.04);
+  assert.equal(game.dayFees, 0);
+  assert.equal(game.daySlippage, game.positions.TQQQ.shares * 0.04);
+  assert.equal(game.fills[0].side, "buy");
+  game = trade(game, "TQQQ", "sell", 1, 49.96, "2026-09-01", 0.04);
+  assert.ok(game.dayFees > 0);
+  assert.ok(game.daySlippage > game.fills[0].slippage);
+  assert.equal(rowSlippage([{ fees: 1, days: [{ slippage: 0.2 }] } as never, { fees: 1 } as never]), null);
+  assert.equal(rowSlippage([{ slippage: 0.2 } as never, { slippage: 0.3 } as never]), 0.5);
 }
 
 regulatoryFeesOnly();

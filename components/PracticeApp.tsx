@@ -47,8 +47,9 @@ import { CYCLE_KEY, drawSession, freshLeft, parseCycle, type CycleFile } from "@
 import type { PracticeMarket } from "@/lib/practice-market";
 import { chartBars, clock, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
-import type { Ticker } from "@/lib/practice-trade";
+import { fillDelayMs, slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
 
+const REALISTIC_KEY = "snc-practice-realistic";
 const STORAGE_KEY = "snc-practice:v1";
 const CHART_KEY = "snc-practice-chart-h";
 const BOOK = market as PracticeMarket;
@@ -143,6 +144,15 @@ function runForward(state: GameState, steps: number): GameState {
   return fastForward(state, steps, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES), day.date, holdSoFar(state));
 }
 
+function applyFill(state: GameState, side: "buy" | "sell", fraction: number, ticker: Ticker, slip: number): GameState {
+  if (state.phase !== "play") return state;
+  const day = bookDay(state);
+  const paths = buildSession(day, state.seeds[state.day] || 1);
+  const quote = liveQuote(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES))[ticker];
+  const price = slip > 0 ? slippedPrice(quote, side, slip) : quote;
+  return trade(state, ticker, side, fraction, price, day?.date ?? "", slip);
+}
+
 function priorClose(index: number, ticker: Ticker): number | null {
   if (index <= 0) return null;
   const bars = ticker === "TQQQ" ? BOOK.days[index - 1].tqqq : BOOK.days[index - 1].sqqq;
@@ -172,6 +182,7 @@ function historyRows(game: GameState, history: HistoryFile, ending: number): Gam
         equity: ending,
         drawdown: game.dayDrawdown,
         fees: game.dayFees,
+        slippage: game.daySlippage,
       });
     }
     if (days.length > 0 || game.batchTrades.length > 0) {
@@ -201,15 +212,26 @@ export function PracticeApp() {
   const [tab, setTab] = useState<"play" | "history">("play");
   const [confirm, setConfirm] = useState(false);
   const [skipAsk, setSkipAsk] = useState(false);
+  const [realistic, setRealistic] = useState(true);
+  const [filling, setFilling] = useState(false);
+  const gameRef = useRef<GameState | null>(null);
+  const realisticRef = useRef(true);
+  const fillTimer = useRef<number | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [cycle, setCycle] = useState<CycleFile | null>(null);
   const [chartH, setChartH] = useState<number | null>(null);
   const [full, setFull] = useState(false);
   const chartRef = useRef<PracticeChartHandle>(null);
+  gameRef.current = game;
+  realisticRef.current = realistic;
   const stageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const speed = coerceSpeed(typeof localStorage !== "undefined" ? localStorage.getItem(SPEED_KEY) : 1);
+    const savedFills = localStorage.getItem(REALISTIC_KEY);
+    const realisticOn = savedFills !== "0";
+    setRealistic(realisticOn);
+    realisticRef.current = realisticOn;
     const savedHistory = parseHistory(localStorage.getItem(HISTORY_KEY));
     const loaded = loadGame(localStorage.getItem(STORAGE_KEY), BOOK.days.length);
     let nextCycle = parseCycle(localStorage.getItem(CYCLE_KEY));
@@ -240,6 +262,12 @@ export function PracticeApp() {
     document.documentElement.dataset.theme = initial;
     const savedHeight = Number(localStorage.getItem(CHART_KEY));
     if (savedHeight >= 220 && savedHeight <= 1200) setChartH(savedHeight);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (fillTimer.current !== null) window.clearTimeout(fillTimer.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -343,14 +371,32 @@ export function PracticeApp() {
   const tape = session;
   const saved = history;
 
+  function clearFill() {
+    if (fillTimer.current !== null) {
+      window.clearTimeout(fillTimer.current);
+      fillTimer.current = null;
+    }
+    setFilling(false);
+  }
+
   function act(side: "buy" | "sell", fraction: number) {
-    setGame((current) => {
-      if (!current) return current;
-      const day = bookDay(current);
-      const paths = buildSession(day, current.seeds[current.day] || 1);
-      const live = liveQuote(current, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES));
-      return trade(current, current.ticker, side, fraction, live[current.ticker], day?.date ?? "");
-    });
+    const snapshot = gameRef.current;
+    if (!snapshot || snapshot.phase !== "play" || filling) return;
+    const ticker = snapshot.ticker;
+    if (!realisticRef.current) {
+      setGame((state) => (state ? applyFill(state, side, fraction, ticker, 0) : state));
+      return;
+    }
+    setFilling(true);
+    fillTimer.current = window.setTimeout(() => {
+      fillTimer.current = null;
+      setFilling(false);
+      setGame((state) => {
+        if (!state || state.phase !== "play") return state;
+        const slip = realisticRef.current ? slipPerShare(state.cursor) : 0;
+        return applyFill(state, side, fraction, ticker, slip);
+      });
+    }, fillDelayMs());
   }
 
   function chooseSpeed(speed: Speed) {
@@ -387,6 +433,7 @@ export function PracticeApp() {
 
   function askSkip() {
     if (!active) return;
+    clearFill();
     setGame((current) => (current ? { ...current, playing: false } : current));
     if (active.phase === "play" && sharesHeld(active) > 0) {
       setSkipAsk(true);
@@ -644,22 +691,8 @@ export function PracticeApp() {
                     <p className="pr-book">
                       TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
                     </p>
-                    <div className="pr-pad">
-                      <div>
-                        {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
-                          <button key={fraction} type="button" className="pr-buy" onClick={() => act("buy", fraction)}>
-                            Buy {fraction * 100}%
-                          </button>
-                        ))}
-                      </div>
-                      <div>
-                        {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
-                          <button key={fraction} type="button" className="pr-sell" disabled={position.shares <= 0} onClick={() => act("sell", fraction)}>
-                            Sell {fraction * 100}%
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    {filling ? <p className="pr-note">Filling…</p> : null}
+                    <OrderPad filling={filling} shares={position.shares} onAct={act} />
                   </div>
                 )}
               </div>
@@ -677,22 +710,8 @@ export function PracticeApp() {
                 <p className="pr-book">
                   TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
                 </p>
-                <div className="pr-pad">
-                  <div>
-                    {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
-                      <button key={fraction} type="button" className="pr-buy" onClick={() => act("buy", fraction)}>
-                        Buy {fraction * 100}%
-                      </button>
-                    ))}
-                  </div>
-                  <div>
-                    {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
-                      <button key={fraction} type="button" className="pr-sell" disabled={position.shares <= 0} onClick={() => act("sell", fraction)}>
-                        Sell {fraction * 100}%
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                {filling ? <p className="pr-note">Filling…</p> : null}
+                <OrderPad filling={filling} shares={position.shares} onAct={act} />
                 </div>
                 <div className="pr-dock">
                   {SPEEDS.map((speed) => (
@@ -713,6 +732,23 @@ export function PracticeApp() {
                   <button type="button" className="text-btn" onClick={askNew}>
                     New game
                   </button>
+                  <button
+                    type="button"
+                    className="text-btn"
+                    aria-pressed={realistic}
+                    onClick={() => {
+                      const next = !realistic;
+                      realisticRef.current = next;
+                      setRealistic(next);
+                      try {
+                        localStorage.setItem(REALISTIC_KEY, next ? "1" : "0");
+                      } catch {
+                        /* ignore */
+                      }
+                    }}
+                  >
+                    Realistic fills
+                  </button>
                 </div>
                 <p className="pr-note">1x is real time. One minute on the chart takes one minute.</p>
                 <dl className="pr-stats">
@@ -726,7 +762,9 @@ export function PracticeApp() {
                     tone={position.shares ? price - position.avgCost : 0}
                   />
                   <Stat label="Fees" value={formatCents(game.dayFees)} />
+                  <Stat label="Slippage" value={formatCents(game.daySlippage)} />
                 </dl>
+                <TradeLog fills={game.fills ?? []} />
                 {game.positions[other].shares > 0 ? (
                   <p className="pr-note">
                     Also holding {game.positions[other].shares} {other}
@@ -767,6 +805,44 @@ function toggle(setTheme: (theme: string) => void) {
   setTheme(next);
 }
 
+function slippageText(value: number | undefined): string {
+  return typeof value === "number" && Number.isFinite(value) ? formatCents(value) : "—";
+}
+
+function OrderPad({ filling, shares, onAct }: { filling: boolean; shares: number; onAct: (side: "buy" | "sell", fraction: number) => void }) {
+  return (
+    <div className="pr-pad">
+      <div>
+        {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
+          <button key={fraction} type="button" className="pr-buy" disabled={filling} onClick={() => onAct("buy", fraction)}>
+            {filling ? "Filling…" : `Buy ${fraction * 100}%`}
+          </button>
+        ))}
+      </div>
+      <div>
+        {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
+          <button key={fraction} type="button" className="pr-sell" disabled={filling || shares <= 0} onClick={() => onAct("sell", fraction)}>
+            {filling ? "Filling…" : `Sell ${fraction * 100}%`}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TradeLog({ fills }: { fills: FillNote[] }) {
+  if (fills.length === 0) return null;
+  return (
+    <ul className="pr-log" aria-label="Trade log">
+      {fills.map((fill, index) => (
+        <li key={`${fill.minute}-${fill.side}-${index}`}>
+          {fill.side === "buy" ? "Buy" : "Sell"} {fill.shares} {fill.ticker} at {formatCents(fill.price)} · slippage {formatCents(fill.slippage)}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function Stat({ label, value, tone = 0 }: { label: string; value: string; tone?: number }) {
   return (
     <div>
@@ -785,7 +861,9 @@ function DayReview({ game, onNext, onReview }: { game: GameState; onNext: () => 
       <p className="pr-lead">
         Day {game.day + 1} of {game.batchDaysTotal} · {dollars(last.dollars)} · {pct(last.pct)}
       </p>
-      <p className="pr-note">Sold flat at 10:00. Fees {formatCents(last.fees)}. This result is the 9:30–10:00 window.</p>
+      <p className="pr-note">
+        Sold flat at 10:00. Fees {formatCents(last.fees)}. Slippage {slippageText(last.slippage)}. This result is the 9:30–10:00 window.
+      </p>
       <button type="button" className="pr-next" onClick={onNext}>
         Next day
       </button>
@@ -827,6 +905,7 @@ function BatchReview({ game, onNext, onReset }: { game: GameState; onNext: () =>
         <Stat label="Avg hold" value={holdLabel(batch.avgHold)} />
         <Stat label="Max drop" value={pct(-batch.maxDrawdown)} tone={-1} />
         <Stat label="Fees" value={formatCents(batch.fees)} />
+        <Stat label="Slippage" value={slippageText(batch.slippage)} />
         <Stat label="Hold TQQQ" value={dollars(batch.holdTqqq - batch.startEquity)} tone={batch.holdTqqq - batch.startEquity} />
       </dl>
       <p className="pr-note">Hold TQQQ buys the 9:30 open and sells at 10:00 each day.</p>

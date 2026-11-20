@@ -9,6 +9,7 @@ import {
   sellFees,
   sellShares,
   type ClosedTrade,
+  type FillNote,
   type Position,
   type Ticker,
 } from "./practice-trade";
@@ -38,13 +39,15 @@ export function minuteLeft(tick: number, speed: Speed): string {
 }
 export type Phase = "play" | "day" | "batch";
 export type Marker = { minute: number; ticker: Ticker; side: "buy" | "sell" };
-export type DayResult = { date: string; dollars: number; pct: number; equity: number; drawdown: number; fees: number };
+export type DayResult = { date: string; dollars: number; pct: number; equity: number; drawdown: number; fees: number; slippage?: number };
 export type BatchSummary = {
   startDate: string;
   endDate: string;
   days: DayResult[];
   trades: ClosedTrade[];
   fees: number;
+  /** Missing on games played before slippage was tracked. */
+  slippage?: number;
   startEquity: number;
   endEquity: number;
   holdTqqq: number;
@@ -75,12 +78,15 @@ export type GameState = {
   phase: Phase;
   dayStartEquity: number;
   dayFees: number;
+  daySlippage: number;
   dayPeak: number;
   dayDrawdown: number;
   markers: Marker[];
+  fills: FillNote[];
   batchTrades: ClosedTrade[];
   batchDays: DayResult[];
   batchFees: number;
+  batchSlippage: number;
   batchStartEquity: number;
   /** How many sessions are in this batch. Five, or fewer at the end of the book. */
   batchDaysTotal: number;
@@ -127,12 +133,15 @@ function fresh(batchStart: number, cash: number, history: GameState["history"], 
     phase: "play",
     dayStartEquity: cash,
     dayFees: 0,
+    daySlippage: 0,
     dayPeak: cash,
     dayDrawdown: 0,
     markers: [],
+    fills: [],
     batchTrades: [],
     batchDays: [],
     batchFees: 0,
+    batchSlippage: 0,
     batchStartEquity: cash,
     batchDaysTotal: Math.max(1, Math.min(BATCH_LENGTH, dayCount)),
     batchHold: 0,
@@ -171,6 +180,9 @@ export function loadGame(raw: string | null, dayCount: number): GameState | null
       session,
       batchDaysTotal,
       batchHold: Number.isFinite(parsed.batchHold) ? parsed.batchHold : 0,
+      fills: Array.isArray(parsed.fills) ? parsed.fills : [],
+      daySlippage: Number.isFinite(parsed.daySlippage) ? parsed.daySlippage : 0,
+      batchSlippage: Number.isFinite(parsed.batchSlippage) ? parsed.batchSlippage : 0,
     };
   } catch {
     return null;
@@ -205,7 +217,16 @@ function track(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[]): GameStat
   return { ...state, dayPeak: peak, dayDrawdown: Math.max(state.dayDrawdown, drop) };
 }
 
-export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fraction: number, price: number, date = ""): GameState {
+function noteFill(state: GameState, ticker: Ticker, side: "buy" | "sell", shares: number, price: number, slipPerShare: number): Pick<GameState, "fills" | "daySlippage" | "batchSlippage"> {
+  const slippage = shares * Math.max(0, slipPerShare);
+  return {
+    fills: [...state.fills, { minute: state.cursor, ticker, side, shares, price, slippage }],
+    daySlippage: state.daySlippage + slippage,
+    batchSlippage: state.batchSlippage + slippage,
+  };
+}
+
+export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fraction: number, price: number, date = "", slipPerShare = 0): GameState {
   if (state.phase !== "play" || !(price > 0)) return state;
   if (side === "buy") {
     const fill = buyShares(state.cash, price, fraction);
@@ -215,6 +236,7 @@ export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fr
       cash: fill.cash,
       dayFees: state.dayFees + fill.fee,
       batchFees: state.batchFees + fill.fee,
+      ...noteFill(state, ticker, "buy", fill.shares, price, slipPerShare),
       positions: { ...state.positions, [ticker]: addLots(state.positions[ticker], fill.shares, price, state.cursor) },
       markers: [...state.markers, { minute: state.cursor, ticker, side: "buy" }],
     };
@@ -228,6 +250,7 @@ export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fr
     cash: state.cash + fill.proceeds,
     dayFees: state.dayFees + fill.fee,
     batchFees: state.batchFees + fill.fee,
+    ...noteFill(state, ticker, "sell", fill.shares, price, slipPerShare),
     positions: { ...state.positions, [ticker]: closed.position },
     batchTrades: [...state.batchTrades, ...closed.trades],
     markers: [...state.markers, { minute: state.cursor, ticker, side: "sell" }],
@@ -252,6 +275,7 @@ function finishDay(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[], date:
     equity,
     drawdown: flat.dayDrawdown,
     fees: flat.dayFees,
+    slippage: flat.daySlippage,
   };
   const batchDays = [...state.batchDays, result];
   const history = { ...state.history, equity: [...state.history.equity, { label: date, value: equity }] };
@@ -283,6 +307,7 @@ export function summarizeBatch(
     worst: pnls.length ? Math.min(...pnls) : null,
     avgHold: holds.length ? holds.reduce((sum, value) => sum + value, 0) / holds.length : null,
     maxDrawdown: Math.max(0, ...days.map((day) => day.drawdown)),
+    slippage: days.every((day) => typeof day.slippage === "number") ? days.reduce((sum, day) => sum + (day.slippage ?? 0), 0) : undefined,
   };
 }
 
@@ -363,9 +388,11 @@ function resetDay(state: GameState, session: number, day: number): GameState {
     phase: "play",
     dayStartEquity: state.cash,
     dayFees: 0,
+    daySlippage: 0,
     dayPeak: state.cash,
     dayDrawdown: 0,
     markers: [],
+    fills: [],
   };
 }
 

@@ -316,7 +316,7 @@ export function PracticeApp() {
   }, [history]);
 
   const pace = useRef({ playing: false, speed: 1 as Speed, phase: "play" as GameState["phase"] });
-  const clockRef = useRef<{ at: number; applied: number; speed: Speed } | null>(null);
+  const clockRef = useRef<{ at: number; applied: number; speed: Speed; drawn: number } | null>(null);
   pace.current = {
     playing: !!game?.playing,
     speed: game?.speed ?? 1,
@@ -330,12 +330,16 @@ export function PracticeApp() {
         clockRef.current = null;
         return;
       }
-      if (!clockRef.current || clockRef.current.speed !== speed) clockRef.current = { at: Date.now(), applied: 0, speed };
+      if (!clockRef.current || clockRef.current.speed !== speed) clockRef.current = { at: Date.now(), applied: 0, speed, drawn: 0 };
       const clock = clockRef.current;
-      const due = ticksDue(Date.now() - clock.at, speed);
+      const now = Date.now();
+      // Redraw at most ten times a second; any ticks in between are applied together.
+      if (clock.drawn && now - clock.drawn < 100) return;
+      const due = ticksDue(now - clock.at, speed);
       const add = due - clock.applied;
       if (add > 0) {
         clock.applied = due;
+        clock.drawn = now;
         setGame((current) => (current && current.playing && current.phase === "play" ? runForward(current, add) : current));
       }
     };

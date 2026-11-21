@@ -18,15 +18,15 @@ export type Speed = 1 | 2 | 5 | 15;
 export const SPEEDS: Speed[] = [1, 2, 5, 15];
 const CANDLE_MS = 60_000;
 
-/** Milliseconds between live sub-ticks. 1x is one sub-tick per second. */
+/** Milliseconds between live sub-ticks. 1x is eight sub-ticks per second. */
 export function tickMs(speed: Speed): number {
   return Math.round(CANDLE_MS / speed / SUBTICKS);
 }
 
-/** How many sub-ticks belong in this much real time. */
+/** How many sub-ticks belong in this much real time. Evenly spaced, so the candle glides. */
 export function ticksDue(elapsedMs: number, speed: Speed): number {
   if (!(elapsedMs > 0)) return 0;
-  return Math.floor(elapsedMs / tickMs(speed));
+  return Math.floor((elapsedMs * speed * SUBTICKS) / CANDLE_MS + 1e-9);
 }
 
 /** Time left until the forming candle reaches its close. */
@@ -354,7 +354,8 @@ export function stepMinute(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[
 
 export function fastForward(state: GameState, steps: number, tqqq: MinuteBar[], sqqq: MinuteBar[], date: string, hold: number): GameState {
   let next = state;
-  const cap = Math.max(0, Math.min(Math.floor(steps), 8000));
+  // Enough steps to play a whole session in one catch-up.
+  const cap = Math.max(0, Math.min(Math.floor(steps), (SESSION_MINUTES + 1) * (SUBTICKS + 1)));
   for (let step = 0; step < cap && next.phase === "play"; step += 1) next = tickForward(next, tqqq, sqqq, date, hold);
   return next;
 }

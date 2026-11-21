@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
+import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { rowSlippage } from "./practice-history";
@@ -70,7 +70,8 @@ function switchTickerThenSell() {
 
 function tapeMovesAndMirrors() {
   const tqqq = { t: 0, o: 50, h: 51.2, l: 49.4, c: 50.6 };
-  const sqqq = { t: 0, o: 18, h: 18.8, l: 17.4, c: 17.9 };
+  // An inverse bar: TQQQ closes up, so SQQQ closes down from near its high.
+  const sqqq = { t: 0, o: 18.65, h: 18.8, l: 17.4, c: 17.9 };
   const up = subpath(tqqq, 11, 1);
   const down = subpath(sqqq, 11, -1);
   const shape = sharedTape(11);
@@ -85,19 +86,19 @@ function tapeMovesAndMirrors() {
   const cents = up.map((value) => Math.round(value * 100));
   let changes = 0;
   for (let i = 1; i < cents.length; i += 1) if (cents[i] !== cents[i - 1]) changes += 1;
-  assert.ok(changes >= 40, `tape should tick almost every second, changed ${changes} times`);
+  assert.ok(changes >= 40, `tape should keep ticking, changed ${changes} times`);
 }
 
 function clockAndCatchUp() {
-  assert.equal(minuteLeft(18, 1), "0:42 left in this minute");
+  assert.equal(minuteLeft(SUBTICKS * 0.3, 1), "0:42 left in this minute");
   assert.equal(minuteLeft(0, 1), "1:00 left in this minute");
-  assert.equal(ticksDue(5000, 1), 5);
+  assert.equal(ticksDue(5000, 1), 40, "1x is eight evenly spaced ticks a second");
   assert.equal(ticksDue(0, 1), 0);
   const game = fresh();
   const bars = Array.from({ length: 30 }, (_, index) => ({ t: index * 60, o: 10, h: 11, l: 9, c: 10.5 }));
   const next = fastForward(game, ticksDue(5000, 1), bars, bars, "2026-11-18", 31000);
   assert.equal(next.cursor, 0);
-  assert.equal(next.tick, 5);
+  assert.equal(next.tick, 40);
   assert.equal(next.phase, "play");
 }
 
@@ -211,7 +212,7 @@ function flatBars() {
 }
 
 function playDay(game: GameState, date: string) {
-  return fastForward(game, 5000, flatBars(), flatBars(), date, 31_000);
+  return fastForward(game, (SESSION_MINUTES + 1) * (SUBTICKS + 1), flatBars(), flatBars(), date, 31_000);
 }
 
 function mulberry32(seed: number): () => number {

@@ -5,7 +5,7 @@ export type Timeframe = "1m" | "5m" | "15m" | "30m" | "1D";
 
 const FRAME_MINUTES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 390 };
 /** One sub-tick per real second at 1x. A 1-minute candle takes 60 seconds to reach its close. */
-export const SUBTICKS = 60;
+export const SUBTICKS = 480;
 /** 9:30–10:00 AM ET. Six real 5-minute bars. */
 export const SESSION_MINUTES = 30;
 
@@ -103,7 +103,19 @@ export function buildSession(day: PracticeDay, seed: number): { TQQQ: MinuteBar[
     tqqq.push(...candles(shape(day.tqqq[i], noise, 1), day.start, i * 5, tBar.h, tBar.l));
     sqqq.push(...candles(shape(day.sqqq[i], noise, -1), day.start, i * 5, sBar.h, sBar.l));
   }
-  return { TQQQ: tqqq, SQQQ: sqqq };
+  return { TQQQ: joined(tqqq), SQQQ: joined(sqqq) };
+}
+
+/**
+ * Each candle opens exactly where the one before it closed, so the tape flows from candle to candle.
+ * Closes are kept; when the open moves, the wick stretches just enough to include it.
+ */
+function joined(bars: MinuteBar[]): MinuteBar[] {
+  return bars.map((bar, index) => {
+    if (index === 0) return bar;
+    const o = bars[index - 1].c;
+    return { ...bar, o, h: Math.max(bar.h, o), l: Math.min(bar.l, o) };
+  });
 }
 
 export function minuteSeed(daySeed: number, minute: number): number {
@@ -178,57 +190,234 @@ export function aggregate(minutes: MinuteBar[], timeframe: Timeframe, revealed: 
   return bars;
 }
 
-export type SharedTape = { unit: number[]; hi: number; lo: number };
+export type SharedTape = { hi: number; lo: number };
 
-/** One random path in 0–1 for a minute. SQQQ uses the mirror of the same tape. */
-export function sharedTape(seed: number): SharedTape {
-  const rng = mulberry32(seed >>> 0);
-  const count = SUBTICKS;
-  const unit = [0];
-  for (let i = 1; i < count; i += 1) {
-    const dir = rng() < 0.5 ? -1 : 1;
-    let next = unit[i - 1] + dir * (0.08 + rng() * 0.14);
-    next = Math.min(1, Math.max(0, next));
-    if (Math.abs(next - unit[i - 1]) < 0.06) next = Math.min(1, Math.max(0, unit[i - 1] + dir * 0.08));
-    unit.push(next);
+type TapePlan = {
+  /** Tick where the first wick is tagged. */
+  early: number;
+  /** Tick where the second wick is tagged. */
+  late: number;
+  /** Small-bodied bars only: take the far wick first. */
+  sharpFlip: boolean;
+  /** Pullback shape inside each leg, shared by TQQQ and SQQQ so they wiggle against each other. */
+  wiggle: { m: number; a: number }[][];
+  /** How bunched up each leg's travel is. 0 is even speed, 1 is fast in the middle. */
+  ease: number[];
+  /** Small tick-to-tick chop, shared by TQQQ and SQQQ (mirrored), so the tape never sits still. */
+  chop: number[];
+};
+
+const plans = new Map<number, TapePlan>();
+const paths = new Map<string, number[]>();
+
+function planOf(seed: number): TapePlan {
+  const key = seed >>> 0;
+  const cached = plans.get(key);
+  if (cached) return cached;
+  const rng = mulberry32(key);
+  const n = SUBTICKS;
+  // Most of a real minute's range prints early. The first wick lands in the first ~30%, the second by ~75%.
+  const early = Math.round(n * 0.065) + Math.floor(rng() * Math.floor(n * 0.24));
+  let late = Math.floor(n * 0.42) + Math.floor(rng() * Math.floor(n * 0.32));
+  const gap = Math.round(n * 0.13);
+  if (late - early < gap) late = Math.min(n - gap, early + gap);
+  const sharpFlip = rng() < 0.1;
+  const wiggle = [0, 1, 2].map(() => {
+    const count = 1 + Math.floor(rng() * 2);
+    return Array.from({ length: count }, () => ({ m: 2 + Math.floor(rng() * 3), a: (rng() * 2 - 1) * (0.6 + rng() * 0.4) }));
+  });
+  const ease = [0, 1, 2].map(() => 0.3 + rng() * 0.6);
+  const chop: number[] = [];
+  let drift = 0;
+  for (let k = 0; k <= n; k += 1) {
+    // Smooth mean-reverting noise (about -1.5 to 1.5): gentle back-and-forth around the trail, not tick-to-tick jitter.
+    drift = drift * 0.93 + (rng() + rng() + rng() - 1.5) * 0.5;
+    chop.push(drift);
   }
-  unit.push(0);
-  let hi = 1 + Math.floor(rng() * Math.max(1, count - 2));
-  let lo = 1 + Math.floor(rng() * Math.max(1, count - 2));
-  if (lo === hi) lo = hi > 1 ? hi - 1 : hi + 1;
-  unit[hi] = 1;
-  unit[lo] = 0;
-  return { unit, hi, lo };
+  const plan = { early, late, sharpFlip, wiggle, ease, chop };
+  plans.set(key, plan);
+  return plan;
 }
 
-/** Prices inside one 1-minute candle. Sign −1 mirrors the shared tape. */
-export function subpath(bar: MinuteBar, seed: number, sign = 1): number[] {
-  const tape = sharedTape(seed);
-  const count = SUBTICKS;
-  const span = Math.max(bar.h - bar.l, 0);
-  const points = tape.unit.map((unit, index) => {
-    if (index === 0) return bar.o;
-    if (index === count) return bar.c;
-    const placed = sign < 0 ? 1 - unit : unit;
-    return bar.l + placed * span;
-  });
-  points[sign < 0 ? tape.lo : tape.hi] = bar.h;
-  points[sign < 0 ? tape.hi : tape.lo] = bar.l;
-  points[0] = bar.o;
-  points[count] = bar.c;
-  const minStep = span >= 0.05 ? 0.01 : 0;
-  if (minStep > 0) {
-    for (let i = 1; i < count; i += 1) {
-      if (points[i] === bar.h || points[i] === bar.l) continue;
-      if (Math.abs(points[i] - points[i - 1]) >= minStep - 1e-9) continue;
-      const dir = (i % 2 === 0 ? 1 : -1) * (sign < 0 ? -1 : 1);
-      points[i] = Math.min(bar.h, Math.max(bar.l, points[i - 1] + dir * minStep));
+/**
+ * Which wick prints first.
+ * A green bar usually dips into its lower wick, runs up through the body into the upper wick, then settles at the close.
+ * A red bar is the mirror. A near-doji goes to whichever wick is closer to the open.
+ * Only bars with a small body sometimes take the far wick first; a strong body never does.
+ */
+function lowFirstOf(plan: TapePlan, open: number, high: number, low: number, close: number): boolean {
+  const span = high - low;
+  const body = close - open;
+  let lowFirst: boolean;
+  if (span > 0 && Math.abs(body) >= span * 0.08) lowFirst = body > 0;
+  else lowFirst = Math.abs(open - low) <= Math.abs(open - high);
+  if (plan.sharpFlip && span > 0 && Math.abs(body) < span * 0.3) lowFirst = !lowFirst;
+  return lowFirst;
+}
+
+/** Where this tape tags the high and the low on a bar that takes its low first, such as a strong green bar. */
+export function sharedTape(seed: number): SharedTape {
+  const plan = planOf(seed);
+  return { lo: plan.early, hi: plan.late };
+}
+
+function inside(price: number, low: number, high: number): number {
+  return Math.min(high, Math.max(low, price));
+}
+
+/**
+ * Keep a price inside the bar and on its side of the open by bouncing off the limit instead of sticking to it.
+ * Touching the open is allowed (a doji for an instant); going through it to the other color is not.
+ */
+function bounce(price: number, side: number, open: number, low: number, high: number): number {
+  let next = price;
+  if (next > high) next = high - (next - high);
+  if (next < low) next = low + (low - next);
+  if (side > 0 && next < open) next = 2 * open - next;
+  if (side < 0 && next > open) next = 2 * open - next;
+  next = inside(next, low, high);
+  if (side > 0 && next < open) next = Math.min(high, open);
+  if (side < 0 && next > open) next = Math.max(low, open);
+  return next;
+}
+
+/** Which side of the open a price is on. Within a third of a cent counts as at the open, so a near-touch can't pin the tape. */
+function sideOf(price: number, open: number): number {
+  if (price > open + 0.003) return 1;
+  if (price < open - 0.003) return -1;
+  return 0;
+}
+
+/** Monotone 0→1 time warp. Higher `ease` moves faster mid-leg and slower near the anchors. */
+function warp(u: number, ease: number): number {
+  const s = u * u * (3 - 2 * u);
+  return (1 - ease) * u + ease * s;
+}
+
+/**
+ * One leg between two anchors. Price glides toward the target with a couple of shallow pullbacks and gentle chop,
+ * never crosses the open more than once, and lands on the target exactly at the leg's last print.
+ * Prices are not snapped to cents, so the candle moves smoothly instead of stepping.
+ */
+function fillLeg(
+  points: number[],
+  from: number,
+  to: number,
+  start: number,
+  end: number,
+  bar: { open: number; low: number; high: number },
+  plan: TapePlan,
+  leg: number,
+  sign: number,
+) {
+  const steps = to - from;
+  if (steps <= 0) {
+    points[to] = end;
+    return;
+  }
+  const { open, low, high } = bar;
+  const span = high - low;
+  const travel = Math.abs(end - start);
+  // Kept small: real 1-minute tape mostly trends between its wicks with shallow pullbacks.
+  const amp = Math.min(travel * 0.06 + span * 0.015, span * 0.08);
+  const chopAmp = Math.min(0.008, Math.max(0.002, span * 0.007));
+  const shape = plan.wiggle[leg % plan.wiggle.length];
+  const ease = plan.ease[leg % plan.ease.length];
+  const startSide = sideOf(start, open);
+  const endSide = sideOf(end, open);
+  const fade = Math.max(3, Math.round(steps * 0.08));
+  const raw: number[] = [];
+  for (let k = 1; k < steps; k += 1) {
+    const u = k / steps;
+    let wobble = 0;
+    for (const { m, a } of shape) wobble += a * Math.sin(Math.PI * m * u);
+    // The envelope keeps the leg's first and last prints heading toward their anchors.
+    const envelope = Math.sin(Math.PI * u);
+    // Chop fades in and out near the anchors so each one is still hit exactly and approached smoothly.
+    const nearEdge = Math.min(1, Math.min(k, steps - k) / fade);
+    const chop = plan.chop[(from + k) % plan.chop.length] * chopAmp * nearEdge;
+    raw[k] = start + (end - start) * warp(u, ease) + sign * (amp * wobble * envelope * 0.6 + chop);
+  }
+  // A leg that changes color crosses the open once, at the print where the wiggling price itself last crosses it,
+  // so switching sides is seamless. Earlier dips past the open are mirrored back instead of flipping the color.
+  let crossAt = steps;
+  if (startSide !== 0 && endSide !== 0 && startSide !== endSide) {
+    crossAt = 1;
+    for (let k = steps - 1; k >= 1; k -= 1) {
+      if (sideOf(raw[k], open) === startSide) {
+        crossAt = k + 1;
+        break;
+      }
     }
   }
-  points[sign < 0 ? tape.lo : tape.hi] = bar.h;
-  points[sign < 0 ? tape.hi : tape.lo] = bar.l;
+  for (let k = 1; k < steps; k += 1) {
+    let side = startSide === 0 ? endSide : endSide === 0 ? startSide : k < crossAt ? startSide : endSide;
+    // Both ends sit at the open: hold to whichever side the leg leans, so it can't flicker across.
+    if (side === 0) side = Math.sign(end - open) || Math.sign(start - open) || Math.sign(raw[k] - open);
+    points[from + k] = bounce(raw[k], side, open, low, high);
+  }
+  points[to] = end;
+}
+
+/**
+ * Prices inside one real 1-minute bar.
+ * Green bars usually take the lower wick, then the body and upper wick, then settle at the close. Red bars are the mirror.
+ * Each leg wanders a little on the way. SQQQ uses its own inverse bar and the opposite wiggle, so it moves against TQQQ.
+ */
+export function subpath(bar: MinuteBar, seed: number, sign = 1): number[] {
+  const key = `${seed >>> 0}:${sign}:${bar.o}:${bar.h}:${bar.l}:${bar.c}`;
+  const hit = paths.get(key);
+  if (hit) return hit;
+  const points = makePath(bar, seed, sign >= 0 ? 1 : -1);
+  if (paths.size > 48) paths.delete(paths.keys().next().value as string);
+  paths.set(key, points);
+  return points;
+}
+
+function makePath(bar: MinuteBar, seed: number, sign: number): number[] {
+  const n = SUBTICKS;
+  const low = Math.min(bar.l, bar.o, bar.c);
+  const high = Math.max(bar.h, bar.o, bar.c);
+  const span = high - low;
+  const points = new Array<number>(n + 1).fill(bar.o);
+  points[n] = bar.c;
+  if (!(span > 1e-6)) return points;
+  const plan = planOf(seed);
+  const lowFirst = lowFirstOf(plan, bar.o, high, low, bar.c);
+  let lo = lowFirst ? plan.early : plan.late;
+  let hi = lowFirst ? plan.late : plan.early;
+  // With under two cents between the open and the first wick there is nowhere to wander, so it is tagged within the first few seconds.
+  const quick = Math.max(2, Math.round(n / 40));
+  if (Math.abs(bar.o - low) < 1e-6) lo = 0;
+  else if (bar.o - low < 0.005) lo = 1;
+  else if (bar.o - low < 0.02 && lo === plan.early) lo = quick;
+  if (Math.abs(bar.o - high) < 1e-6) hi = 0;
+  else if (high - bar.o < 0.005) hi = 1;
+  else if (high - bar.o < 0.02 && hi === plan.early) hi = quick;
+  if (lo === hi) {
+    if (lowFirst) hi = Math.max(hi + 1, plan.late);
+    else lo = Math.max(lo + 1, plan.late);
+  }
+  const anchors = [
+    { t: 0, p: bar.o },
+    { t: lo, p: low },
+    { t: hi, p: high },
+    { t: n, p: bar.c },
+  ].sort((a, b) => a.t - b.t || a.p - b.p);
+  const shape = { open: bar.o, low, high };
   points[0] = bar.o;
-  points[count] = bar.c;
+  let leg = 0;
+  for (let i = 0; i < anchors.length - 1; i += 1) {
+    const from = anchors[i];
+    const to = anchors[i + 1];
+    if (to.t <= from.t) continue;
+    fillLeg(points, from.t, to.t, points[from.t] ?? from.p, to.p, shape, plan, leg, sign);
+    leg += 1;
+  }
+  points[0] = bar.o;
+  points[lo] = low;
+  points[hi] = high;
+  points[n] = bar.c;
   return points;
 }
 

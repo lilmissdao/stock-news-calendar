@@ -202,6 +202,41 @@ function tapeMovesAndMirrors() {
   assert.ok(opposite / compared > 0.45, `SQQQ should usually move opposite, ${opposite}/${compared}`);
 }
 
+function candlesFormLikeATrail() {
+  const colorFlips = (bar: { o: number }, path: number[]) => {
+    let last = 0;
+    let flips = 0;
+    for (const price of path) {
+      const side = Math.sign(Math.round((price - bar.o) * 1000));
+      if (side && last && side !== last) flips += 1;
+      if (side) last = side;
+    }
+    return flips;
+  };
+  // A green bar with a real body dips into its lower wick, then runs to the high, then settles at the close.
+  const green = { t: 0, o: 50, h: 50.9, l: 49.7, c: 50.7 };
+  for (let seed = 1; seed <= 40; seed += 1) {
+    const path = subpath(green, seed, 1);
+    assert.ok(path.indexOf(green.l) < path.indexOf(green.h), `seed ${seed}: green bar tags its low first`);
+    assert.equal(colorFlips(green, path), 1, `seed ${seed}: one red-to-green change, no chatter`);
+  }
+  const red = { t: 0, o: 18, h: 18.12, l: 17.7, c: 17.75 };
+  for (let seed = 1; seed <= 40; seed += 1) {
+    const path = subpath(red, seed, -1);
+    assert.ok(path.indexOf(red.h) < path.indexOf(red.l), `seed ${seed}: red bar tags its high first`);
+    assert.equal(colorFlips(red, path), 1, `seed ${seed}: one green-to-red change`);
+  }
+  // Across the real book, a 1-minute candle never changes color more than its open, high, low and close require.
+  const book = market as PracticeMarket;
+  for (const day of book.days.slice(0, 12)) {
+    const session = buildSession(day, 1);
+    session.TQQQ.forEach((bar, minute) => {
+      const path = subpath(bar, minuteSeed(777, minute), 1);
+      assert.ok(colorFlips(bar, path) <= 2, `${day.date} minute ${minute} flipped ${colorFlips(bar, path)} times`);
+    });
+  }
+}
+
 function clockAndCatchUp() {
   assert.equal(minuteLeft(36, 1), "0:42 left in this minute");
   assert.equal(minuteLeft(0, 1), "1:00 left in this minute");
@@ -592,6 +627,7 @@ switchTickerThenSell();
 realMinutesMatchTheFile();
 morningAssemblyDropsIncompleteDays();
 tapeMovesAndMirrors();
+candlesFormLikeATrail();
 switchKeepsTheLiveCandle();
 progressiveFitShowsEveryCandleSoFar();
 scaleStaysOnTheTicker();

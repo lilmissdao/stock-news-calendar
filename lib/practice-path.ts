@@ -170,7 +170,18 @@ export function aggregate(minutes: MinuteBar[], timeframe: Timeframe, revealed: 
 
 export type SharedTape = { hi: number; lo: number };
 
-type TapePlan = { early: number; late: number; sharpFlip: boolean };
+type TapePlan = {
+  /** Tick where the first wick is tagged. */
+  early: number;
+  /** Tick where the second wick is tagged. */
+  late: number;
+  /** Small-bodied bars only: take the far wick first. */
+  sharpFlip: boolean;
+  /** Pullback shape inside each leg, shared by TQQQ and SQQQ so they wiggle against each other. */
+  wiggle: { m: number; a: number }[][];
+  /** How bunched up each leg's travel is. 0 is even speed, 1 is fast in the middle. */
+  ease: number[];
+};
 
 const plans = new Map<number, TapePlan>();
 const paths = new Map<string, number[]>();
@@ -181,24 +192,41 @@ function planOf(seed: number): TapePlan {
   if (cached) return cached;
   const rng = mulberry32(key);
   const n = SUBTICKS;
-  const early = 10 + Math.floor(rng() * Math.floor(n * 0.28));
-  let late = Math.floor(n * 0.46) + Math.floor(rng() * Math.floor(n * 0.28));
-  if (late - early < 14) late = Math.min(n - 16, early + 14);
-  const sharpFlip = rng() < 0.16;
-  const plan = { early, late, sharpFlip };
+  // Most of a real minute's range prints early. The first wick lands in the first ~30%, the second by ~75%.
+  const early = 8 + Math.floor(rng() * Math.floor(n * 0.24));
+  let late = Math.floor(n * 0.42) + Math.floor(rng() * Math.floor(n * 0.32));
+  if (late - early < 16) late = Math.min(n - 16, early + 16);
+  const sharpFlip = rng() < 0.1;
+  const wiggle = [0, 1, 2].map(() => {
+    const count = 1 + Math.floor(rng() * 2);
+    return Array.from({ length: count }, () => ({ m: 2 + Math.floor(rng() * 3), a: (rng() * 2 - 1) * (0.6 + rng() * 0.4) }));
+  });
+  const ease = [0, 1, 2].map(() => 0.3 + rng() * 0.6);
+  const plan = { early, late, sharpFlip, wiggle, ease };
   plans.set(key, plan);
   return plan;
 }
 
-function extremes(plan: TapePlan, low: number, high: number, open: number): { hi: number; lo: number } {
-  let lowFirst = Math.abs(open - low) <= Math.abs(open - high);
-  if (plan.sharpFlip) lowFirst = !lowFirst;
-  return { lo: lowFirst ? plan.early : plan.late, hi: lowFirst ? plan.late : plan.early };
+/**
+ * Which wick prints first.
+ * A green bar usually dips into its lower wick, runs up through the body into the upper wick, then settles at the close.
+ * A red bar is the mirror. A near-doji goes to whichever wick is closer to the open.
+ * Only bars with a small body sometimes take the far wick first; a strong body never does.
+ */
+function lowFirstOf(plan: TapePlan, open: number, high: number, low: number, close: number): boolean {
+  const span = high - low;
+  const body = close - open;
+  let lowFirst: boolean;
+  if (span > 0 && Math.abs(body) >= span * 0.08) lowFirst = body > 0;
+  else lowFirst = Math.abs(open - low) <= Math.abs(open - high);
+  if (plan.sharpFlip && span > 0 && Math.abs(body) < span * 0.3) lowFirst = !lowFirst;
+  return lowFirst;
 }
 
-/** Where this tape tags the high and the low when the open is nearer the low. */
+/** Where this tape tags the high and the low on a bar that takes its low first, such as a strong green bar. */
 export function sharedTape(seed: number): SharedTape {
-  return extremes(planOf(seed), 0, 1, 0);
+  const plan = planOf(seed);
+  return { lo: plan.early, hi: plan.late };
 }
 
 function cents(price: number, low: number, high: number): number {
@@ -208,72 +236,115 @@ function cents(price: number, low: number, high: number): number {
   return next;
 }
 
-/** Walk from one anchor to the next in small steps. Only the last print sits on the anchor. */
-function fillSegment(points: number[], from: number, to: number, start: number, end: number, low: number, high: number) {
+function moved(left: number, right: number): boolean {
+  return Math.abs(right - left) >= 0.0095;
+}
+
+/** Keep a price on one side of the open, so the body only changes color where the path really crosses it. */
+function onSide(price: number, side: number, open: number, low: number, high: number): number {
+  if (side > 0 && price <= open) return Math.min(high, open + 0.01);
+  if (side < 0 && price >= open) return Math.max(low, open - 0.01);
+  return price;
+}
+
+function sideOf(price: number, open: number): number {
+  if (price > open + 1e-9) return 1;
+  if (price < open - 1e-9) return -1;
+  return 0;
+}
+
+/** Monotone 0→1 time warp. Higher `ease` moves faster mid-leg and slower near the anchors. */
+function warp(u: number, ease: number): number {
+  const s = u * u * (3 - 2 * u);
+  return (1 - ease) * u + ease * s;
+}
+
+/**
+ * One leg between two anchors. It drifts toward the target with a couple of shallow pullbacks,
+ * never crosses the open more than once, and only lands on the target at the last print.
+ */
+function fillLeg(
+  points: number[],
+  from: number,
+  to: number,
+  start: number,
+  end: number,
+  bar: { open: number; low: number; high: number },
+  plan: TapePlan,
+  leg: number,
+  sign: number,
+) {
   const steps = to - from;
   if (steps <= 0) {
     points[to] = end;
     return;
   }
+  const { open, low, high } = bar;
+  const travel = Math.abs(end - start);
+  const amp = Math.min(travel * 0.16 + (high - low) * 0.08, (high - low) * 0.2);
+  const shape = plan.wiggle[leg % plan.wiggle.length];
+  const ease = plan.ease[leg % plan.ease.length];
+  const startSide = sideOf(start, open);
+  const endSide = sideOf(end, open);
+  // The one tick where this leg is allowed to switch sides of the open.
+  let crossAt = steps;
+  if (startSide !== 0 && endSide !== 0 && startSide !== endSide) {
+    for (let k = 1; k <= steps; k += 1) {
+      if (sideOf(start + (end - start) * warp(k / steps, ease), open) !== startSide) {
+        crossAt = k;
+        break;
+      }
+    }
+  }
   const dir = Math.sign(end - start) || 1;
   let prev = start;
-  let held = 0;
-  for (let k = 1; k <= steps; k += 1) {
-    if (k === steps) {
-      points[to] = end;
-      continue;
-    }
-    let price = cents(start + (end - start) * (k / steps), low, high);
+  for (let k = 1; k < steps; k += 1) {
+    const u = k / steps;
+    let wobble = 0;
+    for (const { m, a } of shape) wobble += a * Math.sin(Math.PI * m * u);
+    // The envelope keeps the leg's first and last prints heading toward their anchors.
+    const envelope = Math.sin(Math.PI * u);
+    let price = start + (end - start) * warp(u, ease) + sign * amp * wobble * envelope * 0.6;
+    price = cents(price, low, high);
     if (Math.abs(price - end) < 0.009) price = cents(end - dir * 0.01, low, high);
-    if (!moved(prev, price)) {
-      held += 1;
-      if (held >= 3) {
-        let breath = cents(prev + dir * 0.01, low, high);
-        if (Math.abs(breath - prev) < 0.004) breath = cents(prev - dir * 0.01, low, high);
-        if (Math.abs(breath - prev) >= 0.004) {
-          price = breath;
-          held = 0;
-        }
-      }
-    } else held = 0;
+    const side = startSide === 0 ? endSide : endSide === 0 ? startSide : k < crossAt ? startSide : endSide;
+    price = onSide(price, side, open, low, high);
+    if (k === 1 && !moved(prev, price)) price = onSide(cents(prev + dir * 0.01, low, high), side, open, low, high);
     points[from + k] = price;
     prev = price;
   }
   points[to] = end;
 }
 
-function moved(left: number, right: number): boolean {
-  return Math.abs(right - left) >= 0.0095;
-}
-
-/** Nudge a repeated print one cent toward the next anchor, without flipping direction. */
-function settle(points: number[], pins: Set<number>, low: number, high: number) {
+/** Nudge a repeated print one cent toward the next print, without crossing the open. */
+function settle(points: number[], pins: Set<number>, open: number, low: number, high: number) {
   for (let i = 1; i < points.length; i += 1) {
     if (pins.has(i) || moved(points[i - 1], points[i])) continue;
     const next = pins.has(i + 1) || i + 1 >= points.length ? points[i] : points[i + 1];
     const dir = Math.sign(next - points[i - 1]);
     if (dir === 0) continue;
     const nudged = cents(points[i - 1] + dir * 0.01, low, high);
-    if (moved(points[i - 1], nudged)) points[i] = nudged;
+    const side = sideOf(points[i], open) || sideOf(points[i - 1], open);
+    if (moved(points[i - 1], nudged) && (side === 0 || sideOf(nudged, open) !== -side)) points[i] = nudged;
   }
 }
 
 /**
  * Prices inside one real 1-minute bar.
- * Most bars travel from the open to the nearer extreme, then the other, then the close.
- * About one bar in eight runs to the far extreme first. SQQQ uses its own inverse bar, so it moves against TQQQ.
+ * Green bars usually take the lower wick, then the body and upper wick, then settle at the close. Red bars are the mirror.
+ * Each leg wanders a little on the way. SQQQ uses its own inverse bar and the opposite wiggle, so it moves against TQQQ.
  */
-export function subpath(bar: MinuteBar, seed: number, _sign = 1): number[] {
-  const key = `${seed >>> 0}:${bar.o}:${bar.h}:${bar.l}:${bar.c}`;
+export function subpath(bar: MinuteBar, seed: number, sign = 1): number[] {
+  const key = `${seed >>> 0}:${sign}:${bar.o}:${bar.h}:${bar.l}:${bar.c}`;
   const hit = paths.get(key);
   if (hit) return hit;
-  const points = makePath(bar, seed);
+  const points = makePath(bar, seed, sign >= 0 ? 1 : -1);
   if (paths.size > 48) paths.delete(paths.keys().next().value as string);
   paths.set(key, points);
   return points;
 }
 
-function makePath(bar: MinuteBar, seed: number): number[] {
+function makePath(bar: MinuteBar, seed: number, sign: number): number[] {
   const n = SUBTICKS;
   const low = Math.min(bar.l, bar.o, bar.c);
   const high = Math.max(bar.h, bar.o, bar.c);
@@ -282,7 +353,9 @@ function makePath(bar: MinuteBar, seed: number): number[] {
   points[n] = bar.c;
   if (!(span >= 0.02)) return points;
   const plan = planOf(seed);
-  let { hi, lo } = extremes(plan, low, high, bar.o);
+  const lowFirst = lowFirstOf(plan, bar.o, high, low, bar.c);
+  let lo = lowFirst ? plan.early : plan.late;
+  let hi = lowFirst ? plan.late : plan.early;
   if (Math.abs(bar.o - low) < 1e-6) lo = 0;
   if (Math.abs(bar.o - high) < 1e-6) hi = 0;
   const anchors = [
@@ -291,24 +364,21 @@ function makePath(bar: MinuteBar, seed: number): number[] {
     { t: hi, p: high },
     { t: n, p: bar.c },
   ].sort((a, b) => a.t - b.t || a.p - b.p);
+  const shape = { open: bar.o, low, high };
   points[0] = bar.o;
+  let leg = 0;
   for (let i = 0; i < anchors.length - 1; i += 1) {
     const from = anchors[i];
     const to = anchors[i + 1];
     if (to.t <= from.t) continue;
-    fillSegment(points, from.t, to.t, points[from.t] ?? from.p, to.p, low, high);
+    fillLeg(points, from.t, to.t, points[from.t] ?? from.p, to.p, shape, plan, leg, sign);
+    leg += 1;
   }
   points[0] = bar.o;
   points[lo] = low;
   points[hi] = high;
   points[n] = bar.c;
-  if (!moved(points[0], points[1])) {
-    const next = anchors.find((anchor) => anchor.t > 0);
-    const dir = Math.sign((next?.p ?? points[0]) - points[0]) || 1;
-    const nudged = cents(points[0] + dir * 0.01, low, high);
-    if (moved(points[0], nudged)) points[1] = nudged;
-  }
-  settle(points, new Set([0, n, hi, lo]), low, high);
+  settle(points, new Set([0, n, hi, lo]), bar.o, low, high);
   points[0] = bar.o;
   points[lo] = low;
   points[hi] = high;

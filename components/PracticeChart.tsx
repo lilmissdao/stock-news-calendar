@@ -78,15 +78,18 @@ function fitNow(chart: IChartApi, candles: ChartCandle[], priorClose: number | n
 export const PracticeChart = forwardRef<PracticeChartHandle, {
   candles: ChartCandle[];
   markers: ChartMark[];
+  /** Average cost of the shares held in the charted ticker, drawn as a plain dashed line. */
+  costPrice?: number | null;
   theme: string;
   priorClose: number | null;
   seriesId: string;
-}>(function PracticeChart({ candles, markers, theme, priorClose, seriesId }, ref) {
+}>(function PracticeChart({ candles, markers, costPrice = null, theme, priorClose, seriesId }, ref) {
   const host = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const marksRef = useRef<ISeriesMarkersPluginApi<Time> | null>(null);
   const lineRef = useRef<IPriceLine | null>(null);
+  const costRef = useRef<{ line: IPriceLine | null; price: number | null }>({ line: null, price: null });
   const barsRef = useRef<ChartCandle[] | null>(null);
   const seriesIdRef = useRef<string | null>(null);
   const markerSig = useRef("");
@@ -195,6 +198,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       });
       chartRef.current = chart;
       seriesRef.current = series;
+      costRef.current = { line: null, price: null };
       marksRef.current = createSeriesMarkers(series, []);
       barsRef.current = null;
       seriesIdRef.current = null;
@@ -207,6 +211,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       chart?.remove();
       chartRef.current = null;
       seriesRef.current = null;
+      costRef.current = { line: null, price: null };
       marksRef.current = null;
       lineRef.current = null;
       barsRef.current = null;
@@ -257,6 +262,33 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       window.cancelAnimationFrame(raf);
     };
   }, [candles, markers, priorClose, seriesId]);
+
+  useEffect(() => {
+    const series = seriesRef.current;
+    if (!series) return;
+    const bag = costRef.current;
+    if (bag.price === costPrice && (bag.line !== null) === (costPrice !== null)) return;
+    if (bag.line) {
+      try {
+        series.removePriceLine(bag.line);
+      } catch {
+        /* The series was rebuilt and already dropped its lines. */
+      }
+      bag.line = null;
+    }
+    bag.price = costPrice;
+    if (costPrice === null || !(costPrice > 0)) return;
+    const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink-soft").trim();
+    // Just the dashed line: no title on the chart and no price tag on the right axis.
+    bag.line = series.createPriceLine({
+      price: costPrice,
+      color: ink || "#8a8478",
+      lineWidth: 1,
+      lineStyle: 2 as LineStyle,
+      axisLabelVisible: false,
+      title: "",
+    });
+  }, [costPrice, candles, theme]);
 
   return <div ref={host} className="pr-chart" />;
 });

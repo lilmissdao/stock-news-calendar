@@ -150,6 +150,27 @@ function applyFill(state: GameState, side: "buy" | "sell", fraction: number, tic
   return trade(state, ticker, side, fraction, price, day?.date ?? "", slip);
 }
 
+type EntryLine = { kind: "tqqq" | "sqqq"; price: number; avg: number };
+
+/**
+ * Where to draw each open position's average entry on the TQQQ chart.
+ * TQQQ sits at its average cost. SQQQ sits at the TQQQ price that puts SQQQ back at its average:
+ * the two move opposite in percent from the session open, so that level is open × (2 − SQQQ avg ÷ SQQQ open).
+ */
+function entryLines(session: ReturnType<typeof buildSession>, positions: Record<Ticker, { shares: number; avgCost: number }>): EntryLine[] {
+  const lines: EntryLine[] = [];
+  const tqqq = positions.TQQQ;
+  if (tqqq.shares > 0 && tqqq.avgCost > 0) lines.push({ kind: "tqqq", price: tqqq.avgCost, avg: tqqq.avgCost });
+  const sqqq = positions.SQQQ;
+  const tOpen = session.TQQQ[0]?.o ?? 0;
+  const sOpen = session.SQQQ[0]?.o ?? 0;
+  if (sqqq.shares > 0 && sqqq.avgCost > 0 && tOpen > 0 && sOpen > 0) {
+    const level = tOpen * (2 - sqqq.avgCost / sOpen);
+    if (Number.isFinite(level) && level > 0) lines.push({ kind: "sqqq", price: level, avg: sqqq.avgCost });
+  }
+  return lines;
+}
+
 function priorClose(index: number, ticker: Ticker): number | null {
   if (index <= 0) return null;
   const bars = ticker === "TQQQ" ? BOOK.days[index - 1].tqqq : BOOK.days[index - 1].sqqq;
@@ -360,10 +381,12 @@ export function PracticeApp() {
   const position = game.positions[game.ticker];
   const other = game.ticker === "TQQQ" ? "SQQQ" : "TQQQ";
   const today = game.dayStartEquity > 0 ? value / game.dayStartEquity - 1 : 0;
-  const candles = chartBars(session[game.ticker], game.cursor, game.tick, game.seeds[game.day] || 1, game.ticker === "TQQQ" ? 1 : -1, game.timeframe);
+  // The chart is always TQQQ; SQQQ is traded against the same tape.
+  const candles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, game.timeframe);
+  const costLines = entryLines(session, game.positions);
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
-  const prior = priorClose(game.session, game.ticker);
+  const prior = priorClose(game.session, "TQQQ");
   const rows = historyRows(game, history, value);
   const active = game;
   const tape = session;
@@ -578,11 +601,6 @@ export function PracticeApp() {
               <strong className={today >= 0 ? "up" : "down"}>
                 {dollars(value - game.dayStartEquity)} {pct(today)}
               </strong>
-              {game.phase === "play" ? (
-                <button type="button" className="pr-play" onClick={() => setGame({ ...game, playing: !game.playing })}>
-                  {game.playing ? "Pause" : "Play"}
-                </button>
-              ) : null}
             </div>
             {game.phase === "play" || game.phase === "day" ? (
               <div className="pr-skiprow">
@@ -609,13 +627,26 @@ export function PracticeApp() {
               <p className="pr-fresh">Fresh days left: {freshLeft(SESSION_DATES, playedDates(history, game), cycle, session.day.date)} of {BOOK.days.length}</p>
             ) : null}
             {game.phase === "play" ? (
-            <div className="pr-toggle" role="group" aria-label="Timeframe">
-              {FRAMES.map((frame) => (
-                <button key={frame} type="button" aria-pressed={game.timeframe === frame} onClick={() => setGame({ ...game, timeframe: frame })}>
-                  {frame}
+              <div className="pr-chartbar">
+                <button type="button" className="pr-play" onClick={() => setGame((current) => (current ? { ...current, playing: !current.playing } : current))}>
+                  {game.playing ? "Pause" : "Play"}
                 </button>
-              ))}
-            </div>
+                <div className="pr-toggle" role="group" aria-label="Timeframe">
+                  {FRAMES.map((frame) => (
+                    <button key={frame} type="button" aria-pressed={game.timeframe === frame} onClick={() => setGame({ ...game, timeframe: frame })}>
+                      {frame}
+                    </button>
+                  ))}
+                </div>
+                <span className="pr-chartnote">
+                  TQQQ chart
+                  {costLines.map((line) => (
+                    <span key={line.kind} className={`pr-costkey pr-costkey-${line.kind}`}>
+                      {line.kind === "tqqq" ? `TQQQ avg ${formatCents(line.avg)}` : `SQQQ avg ${formatCents(line.avg)}`}
+                    </span>
+                  ))}
+                </span>
+              </div>
             ) : null}
             {game.phase === "play" ? (
               <div ref={stageRef} className={full ? "pr-full" : chartH ? "pr-stage pr-stage-set" : "pr-stage"} style={!full && chartH ? { height: chartH } : undefined}>
@@ -625,7 +656,8 @@ export function PracticeApp() {
                   markers={NO_MARKS}
                   theme={theme}
                   priorClose={prior}
-                  seriesId={`${game.ticker}-${game.timeframe}`}
+                  costLines={costLines}
+                  seriesId={`TQQQ-${game.timeframe}`}
                 />
                 {full ? (
                   <button type="button" className="pr-skip pr-fullskip" onClick={askSkip}>

@@ -6,6 +6,8 @@ import { clock, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
 export type ChartMark = { time: number; side: "buy" | "sell" };
+export type CostLine = { kind: "tqqq" | "sqqq"; price: number };
+const NO_COST_LINES: CostLine[] = [];
 export type PracticeChartHandle = {
   zoom: (factor: number) => void;
   auto: () => void;
@@ -80,13 +82,16 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
   markers: ChartMark[];
   theme: string;
   priorClose: number | null;
+  /** Average entry of each open position, drawn as a dashed line with no right-axis tag. */
+  costLines?: CostLine[];
   seriesId: string;
-}>(function PracticeChart({ candles, markers, theme, priorClose, seriesId }, ref) {
+}>(function PracticeChart({ candles, markers, theme, priorClose, costLines = NO_COST_LINES, seriesId }, ref) {
   const host = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const marksRef = useRef<ISeriesMarkersPluginApi<Time> | null>(null);
   const lineRef = useRef<IPriceLine | null>(null);
+  const costRef = useRef<{ lines: IPriceLine[]; sig: string; series: ISeriesApi<"Candlestick"> | null }>({ lines: [], sig: "", series: null });
   const barsRef = useRef<ChartCandle[] | null>(null);
   const seriesIdRef = useRef<string | null>(null);
   const markerSig = useRef("");
@@ -257,6 +262,38 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       window.cancelAnimationFrame(raf);
     };
   }, [candles, markers, priorClose, seriesId]);
+
+  const costSig = costLines.map((line) => `${line.kind}:${line.price.toFixed(4)}`).join("|");
+  useEffect(() => {
+    const series = seriesRef.current;
+    if (!series) return;
+    const bag = costRef.current;
+    if (bag.series === series && bag.sig === `${costSig}#${theme}`) return;
+    if (bag.series === series) {
+      for (const line of bag.lines) {
+        try {
+          series.removePriceLine(line);
+        } catch {
+          /* already gone */
+        }
+      }
+    }
+    const css = getComputedStyle(document.documentElement);
+    const accent = css.getPropertyValue("--accent").trim() || "#8f3d32";
+    bag.lines = costLines.map((line) =>
+      series.createPriceLine({
+        price: line.price,
+        color: accent,
+        lineWidth: 2,
+        // TQQQ entry is dashed; the SQQQ breakeven level is dotted so the two can't be confused.
+        lineStyle: (line.kind === "tqqq" ? 2 : 1) as LineStyle,
+        axisLabelVisible: false,
+        title: "",
+      }),
+    );
+    bag.series = series;
+    bag.sig = `${costSig}#${theme}`;
+  });
 
   return <div ref={host} className="pr-chart" />;
 });

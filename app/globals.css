@@ -1436,16 +1436,23 @@ main { min-width: 0; }
 }
 .pr-fullskip { position: absolute; z-index: 5; top: 8px; right: 8px; }
 .pr-play {
-  min-height: 52px;
-  min-width: 112px;
+  min-height: 36px;
+  min-width: 72px;
   border: 0;
-  border-radius: 16px;
+  border-radius: 999px;
   background: var(--ink);
   color: var(--bg);
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
-  padding: 0 18px;
+  padding: 0 14px;
 }
+/* Play sits in the row right above the chart, next to the timeframes. */
+.pr-chartbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 6px; }
+.pr-chartbar .pr-toggle button { min-height: 36px; padding: 4px 10px; }
+.pr-chartnote { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600; }
+.pr-costkey { color: var(--accent); }
+.pr-costkey::before { content: ""; display: inline-block; width: 16px; margin-right: 4px; vertical-align: middle; border-top: 2px dashed var(--accent); }
+.pr-costkey-sqqq::before { border-top-style: dotted; }
 .pr-ticker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
 .pr-ticker button { min-height: 52px; font-size: 20px; font-weight: 800; border-radius: 14px; }
 .pr-stamp { margin: 8px 0 0; color: var(--ink-soft); font-size: 12px; }

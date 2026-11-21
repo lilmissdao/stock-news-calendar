@@ -223,10 +223,18 @@ async function runSync() {
     const response = await fetch("/api/sync", {
       method: "POST",
       headers: { "content-type": "application/json" },
+      cache: "no-store",
       body: JSON.stringify({ code, doc: local }),
     });
     if (!response.ok) {
-      publish(response.status === 503 ? "offline" : "error");
+      let message = response.status === 413 ? "The saved games are too big to sync." : "Sync did not save. Try again.";
+      try {
+        const body = (await response.json()) as { error?: unknown };
+        if (typeof body.error === "string" && body.error) message = body.error;
+      } catch {
+        if (response.status === 404) message = "The sync service is not on this site.";
+      }
+      publish(response.status === 503 ? "offline" : "error", undefined, { message });
       return;
     }
     applyDoc(sanitizeSync(await response.json()));
@@ -269,6 +277,7 @@ export type SyncEventDetail = {
   wroteCycle?: boolean;
   wroteSettings?: boolean;
   wroteScenarios?: boolean;
+  message?: string;
 };
 
 export type { CycleFile, GameState, HistoryFile, Scenario, Speed, SyncDoc };

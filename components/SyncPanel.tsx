@@ -16,7 +16,10 @@ export function SyncPanel() {
       const detail = (event as CustomEvent<SyncEventDetail>).detail;
       if (!detail) return;
       setCode(readSyncCode());
-      setStatus(detail.status === "synced" ? "Synced" : detail.status === "offline" ? "Offline. Saved on this device." : "Could not sync.");
+      setStatus(
+        detail.message ||
+          (detail.status === "synced" ? "Synced" : detail.status === "offline" ? "Offline. Saved on this device." : "Sync did not save. Try again."),
+      );
     };
     window.addEventListener("snc-sync", onSync);
     return () => window.removeEventListener("snc-sync", onSync);

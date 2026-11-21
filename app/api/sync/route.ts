@@ -1,4 +1,4 @@
-import { exchangeDoc, loadDoc } from "@/lib/sync-store";
+import { exchangeDoc, loadDoc, syncFailureMessage } from "@/lib/sync-store";
 import { isSyncCode, type SyncDoc } from "@/lib/sync";
 
 export const runtime = "nodejs";
@@ -13,15 +13,16 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as { code?: unknown; doc?: unknown };
   } catch {
-    return Response.json({ error: "Missing sync data." }, { status: 400 });
+    return Response.json({ error: "The sync data was too big or was not valid." }, { status: 400 });
   }
   const code = typeof body.code === "string" ? body.code.trim().toLowerCase() : "";
   if (!isSyncCode(code)) return Response.json({ error: "That sync code is not valid." }, { status: 400 });
   try {
     const doc = await exchangeDoc(code, body.doc);
     return Response.json(doc satisfies SyncDoc);
-  } catch {
-    return Response.json({ error: "Sync did not save." }, { status: 502 });
+  } catch (error) {
+    console.error("sync save failed", error instanceof Error ? error.message : error);
+    return Response.json({ error: syncFailureMessage(error) }, { status: 502 });
   }
 }
 

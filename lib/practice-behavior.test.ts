@@ -78,18 +78,24 @@ function realMinutesMatchTheFile() {
     const session = buildSession(day, 99);
     session.TQQQ.forEach((bar, index) => {
       const [o, h, l, c] = day.tqqq[index];
-      assert.equal(bar.o, o, `${day.date} open`);
-      assert.equal(bar.h, h, `${day.date} high`);
-      assert.equal(bar.l, l, `${day.date} low`);
+      // Each candle opens at the prior close, so candles join without a jump; the real closes are kept.
+      const open = index === 0 ? o : day.tqqq[index - 1][3];
+      assert.equal(bar.o, open, `${day.date} open`);
+      assert.equal(bar.h, Math.max(h, open), `${day.date} high`);
+      assert.equal(bar.l, Math.min(l, open), `${day.date} low`);
       assert.equal(bar.c, c, `${day.date} close`);
       assert.equal(bar.t, day.start + index * 60);
+      if (index > 0) assert.equal(bar.o, session.TQQQ[index - 1].c, "no gap between candles");
+    });
+    session.SQQQ.forEach((bar, index) => {
+      if (index > 0) assert.equal(bar.o, session.SQQQ[index - 1].c, "no gap between SQQQ candles");
     });
     const five = aggregate(session.TQQQ, "5m", 30);
     assert.equal(five.length, 6);
     assert.equal(five[0].o, day.tqqq[0][0]);
     assert.equal(five[0].c, day.tqqq[4][3]);
-    assert.equal(five[0].h, Math.max(...day.tqqq.slice(0, 5).map((bar) => bar[1])));
-    assert.equal(five[0].l, Math.min(...day.tqqq.slice(0, 5).map((bar) => bar[2])));
+    assert.equal(five[0].h, Math.max(...session.TQQQ.slice(0, 5).map((bar) => bar.h)));
+    assert.equal(five[0].l, Math.min(...session.TQQQ.slice(0, 5).map((bar) => bar.l)));
     const halfHour = aggregate(session.TQQQ, "30m", 30);
     assert.equal(halfHour[0].o, day.tqqq[0][0]);
     assert.equal(halfHour[0].c, day.tqqq[29][3]);

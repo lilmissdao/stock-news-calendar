@@ -29,11 +29,19 @@ function barOf(tuple: Ohlc): { o: number; h: number; l: number; c: number } {
   return { o, h: Math.max(h, o, c), l: Math.min(l, o, c), c };
 }
 
+/**
+ * The session's 1-minute bars, with each candle opening exactly where the one before it closed,
+ * so the tape flows from candle to candle instead of jumping. The real closes are untouched. When the
+ * file's open sat a few cents off the prior close, the wick stretches just enough to cover the new open.
+ */
 function placeMinutes(bars: Ohlc[], start: number): MinuteBar[] {
-  return bars.slice(0, SESSION_MINUTES).map((tuple, index) => {
+  const placed: MinuteBar[] = [];
+  bars.slice(0, SESSION_MINUTES).forEach((tuple, index) => {
     const bar = barOf(tuple);
-    return { t: start + index * 60, o: bar.o, h: bar.h, l: bar.l, c: bar.c };
+    const o = index > 0 ? placed[index - 1].c : bar.o;
+    placed.push({ t: start + index * 60, o, h: Math.max(bar.h, o), l: Math.min(bar.l, o), c: bar.c });
   });
+  return placed;
 }
 
 /** The stored bars are already real 1-minute OHLC. The seed only shapes the live path inside each bar. */

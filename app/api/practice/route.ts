@@ -1,5 +1,5 @@
 import snapshot from "@/data/practice-market.json";
-import { fetchPracticeMarket, isPlayableDay, mergePracticeDays, type PracticeMarket } from "@/lib/practice-market";
+import { fetchPracticeMarket, mergePracticeDays, type PracticeMarket } from "@/lib/practice-market";
 
 const BOOK = snapshot as PracticeMarket;
 
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   }
   try {
     const live = await fetchPracticeMarket();
-    const merged = { ...live, days: mergePracticeDays(BOOK.days.filter(isPlayableDay), live.days) };
+    const merged = { ...live, days: mergePracticeDays(BOOK.days, live.days) };
     return Response.json(merged, {
       headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
     });

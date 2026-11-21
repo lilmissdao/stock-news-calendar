@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cycle";
-import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, restartDay, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
+import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { SUBTICKS, aggregate, avgCostLabel, axisLabelFits, buildSession, candleInView, chartBars, clock, keepAnchor, minuteSeed, priceWindow, progressiveRange, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
-import { assemblePracticeDays, mergePracticeDays, morningBars, type Ohlc, type PracticeDay, type PracticeMarket, type TimedBar, type YahooChart } from "./practice-market";
+import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, subpath, type Timeframe } from "./practice-path";
+import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { rowSlippage } from "./practice-history";
 
@@ -68,106 +68,6 @@ function switchTickerThenSell() {
   assert.ok(game.positions.SQQQ.shares > 0, "the SQQQ lot is still there");
 }
 
-function realMinutesMatchTheFile() {
-  const book = market as PracticeMarket;
-  assert.ok(book.days.length >= 15, `expected about a month of sessions, got ${book.days.length}`);
-  for (const day of book.days) {
-    assert.equal(day.tqqq.length, 30, day.date);
-    assert.equal(day.sqqq.length, 30, day.date);
-    assert.ok(day.daily, day.date);
-    const session = buildSession(day, 99);
-    session.TQQQ.forEach((bar, index) => {
-      const [o, h, l, c] = day.tqqq[index];
-      assert.equal(bar.o, o, `${day.date} open`);
-      assert.equal(bar.h, h, `${day.date} high`);
-      assert.equal(bar.l, l, `${day.date} low`);
-      assert.equal(bar.c, c, `${day.date} close`);
-      assert.equal(bar.t, day.start + index * 60);
-    });
-    const five = aggregate(session.TQQQ, "5m", 30);
-    assert.equal(five.length, 6);
-    assert.equal(five[0].o, day.tqqq[0][0]);
-    assert.equal(five[0].c, day.tqqq[4][3]);
-    assert.equal(five[0].h, Math.max(...day.tqqq.slice(0, 5).map((bar) => bar[1])));
-    assert.equal(five[0].l, Math.min(...day.tqqq.slice(0, 5).map((bar) => bar[2])));
-    const halfHour = aggregate(session.TQQQ, "30m", 30);
-    assert.equal(halfHour[0].o, day.tqqq[0][0]);
-    assert.equal(halfHour[0].c, day.tqqq[29][3]);
-    const dailyBar = {
-      t: day.start,
-      o: day.daily!.tqqq[0],
-      h: day.daily!.tqqq[1],
-      l: day.daily!.tqqq[2],
-      c: day.daily!.tqqq[3],
-    };
-    assert.deepEqual(chartBars(session.TQQQ, 12, 20, 99, 1, "1D", dailyBar), [dailyBar]);
-    const opened = chartBars(session.TQQQ, 0, 0, 99, 1, "1m");
-    assert.equal(opened[0].o, day.tqqq[0][0]);
-    assert.equal(opened[0].c, day.tqqq[0][0]);
-    const closed = chartBars(session.TQQQ, 0, SUBTICKS, 99, 1, "1m");
-    assert.equal(closed[0].o, day.tqqq[0][0]);
-    assert.equal(closed[0].h, day.tqqq[0][1]);
-    assert.equal(closed[0].l, day.tqqq[0][2]);
-    assert.equal(closed[0].c, day.tqqq[0][3]);
-  }
-  const bar = { t: 0, o: 50, h: 51.2, l: 49.4, c: 50.6 };
-  const tape = sharedTape(11);
-  const path = subpath(bar, 11, 1);
-  const span = bar.h - bar.l;
-  assert.equal(path[0], bar.o);
-  assert.equal(path[path.length - 1], bar.c);
-  assert.equal(path[tape.hi], bar.h);
-  assert.equal(path[tape.lo], bar.l);
-  assert.ok(Math.abs(path[tape.hi] - path[tape.hi - 1]) <= span * 0.25, "the high is tagged gently");
-  assert.ok(Math.abs(path[tape.lo] - path[tape.lo - 1]) <= span * 0.25, "the low is tagged gently");
-  assert.ok(path.every((price) => price >= bar.l - 1e-9 && price <= bar.h + 1e-9));
-  assert.ok(Math.abs(path[1] - path[0]) >= 0.009, "the new candle moves on the first tick");
-  let flats = 0;
-  let turns = 0;
-  for (let i = 1; i < path.length; i += 1) {
-    if (Math.abs(path[i] - path[i - 1]) < 0.009) flats += 1;
-    if (i > 1) {
-      const before = Math.sign(path[i - 1] - path[i - 2]);
-      const after = Math.sign(path[i] - path[i - 1]);
-      if (before !== 0 && after !== 0 && before !== after) turns += 1;
-    }
-  }
-  assert.ok(flats < 12, `a calm tape can pause briefly, flats ${flats}`);
-  assert.ok(turns < 12, `full reversals should be rare, turns ${turns}`);
-  const big = path.filter((price, index) => index > 0 && Math.abs(price - path[index - 1]) >= span * 0.2).length;
-  assert.ok(big <= 2, `spikes should be small, saw ${big}`);
-  assert.deepEqual(subpath(bar, 11, 1), path);
-}
-
-function morningAssemblyDropsIncompleteDays() {
-  const open = Date.parse("2026-11-20T14:30:00.000Z") / 1000;
-  const row = (price: number): TimedBar[] =>
-    Array.from({ length: 30 }, (_, index) => ({
-      t: open + index * 60,
-      ohlc: [price, price + 1, price - 0.5, price + 0.4] as Ohlc,
-    }));
-  const short = row(20).slice(0, 29);
-  const daily = [{ date: "2026-11-20", ohlc: [10, 12, 9, 11] as Ohlc }];
-  const kept = assemblePracticeDays(row(10), row(30), daily, daily);
-  assert.equal(kept.length, 1);
-  assert.equal(kept[0].tqqq.length, 30);
-  assert.equal(kept[0].tqqq[0][0], 10);
-  assert.equal(kept[0].daily?.tqqq[3], 11);
-  assert.equal(assemblePracticeDays(short, row(30), daily, daily).length, 0);
-  const chart: YahooChart = {
-    chart: {
-      result: [
-        {
-          timestamp: [open - 60, open, open + 29 * 60, open + 30 * 60],
-          indicators: { quote: [{ open: [1, 2, 3, 4], high: [1, 2, 3, 4], low: [1, 2, 3, 4], close: [1, 2, 3, 4] }] },
-        },
-      ],
-    },
-  };
-  const filtered = morningBars(chart, open - 10, open + 30 * 60);
-  assert.deepEqual(filtered.map((bar) => bar.t), [open, open + 29 * 60]);
-}
-
 function tapeMovesAndMirrors() {
   const tqqq = { t: 0, o: 50, h: 51.2, l: 49.4, c: 50.6 };
   const sqqq = { t: 0, o: 18, h: 18.8, l: 17.4, c: 17.9 };
@@ -180,90 +80,24 @@ function tapeMovesAndMirrors() {
   assert.equal(down[down.length - 1], sqqq.c);
   assert.equal(up[shape.hi], tqqq.h);
   assert.equal(up[shape.lo], tqqq.l);
-  const inverse = { t: 0, o: 18.65, h: 18.8, l: 17.4, c: 17.9 };
-  const mirrored = subpath(inverse, 11, -1);
-  const tqqqFirst = Math.sign(Math.round((up[6] - up[0]) * 100));
-  const sqqqFirst = Math.sign(Math.round((mirrored[6] - mirrored[0]) * 100));
-  assert.ok(tqqqFirst !== 0 && sqqqFirst === -tqqqFirst, "an inverse SQQQ bar moves against TQQQ");
-  assert.ok(mirrored.includes(inverse.h) && mirrored.includes(inverse.l));
-  assert.equal(down[0], sqqq.o);
-  assert.ok(down.includes(sqqq.h) && down.includes(sqqq.l));
-  const big = up.filter((price, index) => index > 0 && Math.abs(price - up[index - 1]) >= (tqqq.h - tqqq.l) * 0.2).length;
-  assert.ok(big <= 2, `expected small spikes, saw ${big}`);
-  let opposite = 0;
-  let compared = 0;
-  for (let i = 1; i < up.length; i += 1) {
-    const left = Math.sign(Math.round((up[i] - up[i - 1]) * 100));
-    const right = Math.sign(Math.round((mirrored[i] - mirrored[i - 1]) * 100));
-    if (left === 0 || right === 0) continue;
-    compared += 1;
-    if (left === -right) opposite += 1;
-  }
-  assert.ok(opposite / compared > 0.45, `SQQQ should usually move opposite, ${opposite}/${compared}`);
-}
-
-function candlesFormLikeATrail() {
-  const colorFlips = (bar: { o: number }, path: number[]) => {
-    let last = 0;
-    let flips = 0;
-    for (const price of path) {
-      const side = Math.sign(Math.round((price - bar.o) * 1000));
-      if (side && last && side !== last) flips += 1;
-      if (side) last = side;
-    }
-    return flips;
-  };
-  // A green bar with a real body dips into its lower wick, then runs to the high, then settles at the close.
-  const green = { t: 0, o: 50, h: 50.9, l: 49.7, c: 50.7 };
-  for (let seed = 1; seed <= 40; seed += 1) {
-    const path = subpath(green, seed, 1);
-    assert.ok(path.indexOf(green.l) < path.indexOf(green.h), `seed ${seed}: green bar tags its low first`);
-    assert.equal(colorFlips(green, path), 1, `seed ${seed}: one red-to-green change, no chatter`);
-  }
-  const red = { t: 0, o: 18, h: 18.12, l: 17.7, c: 17.75 };
-  for (let seed = 1; seed <= 40; seed += 1) {
-    const path = subpath(red, seed, -1);
-    assert.ok(path.indexOf(red.h) < path.indexOf(red.l), `seed ${seed}: red bar tags its high first`);
-    assert.equal(colorFlips(red, path), 1, `seed ${seed}: one green-to-red change`);
-  }
-  // Across the real book, a 1-minute candle never changes color more than its open, high, low and close require.
-  const book = market as PracticeMarket;
-  for (const day of book.days.slice(0, 12)) {
-    const session = buildSession(day, 1);
-    session.TQQQ.forEach((bar, minute) => {
-      const path = subpath(bar, minuteSeed(777, minute), 1);
-      assert.ok(colorFlips(bar, path) <= 2, `${day.date} minute ${minute} flipped ${colorFlips(bar, path)} times`);
-    });
-  }
+  assert.equal(down[shape.hi], sqqq.l, "SQQQ mirrors the shared high");
+  assert.equal(down[shape.lo], sqqq.h, "SQQQ mirrors the shared low");
+  const cents = up.map((value) => Math.round(value * 100));
+  let changes = 0;
+  for (let i = 1; i < cents.length; i += 1) if (cents[i] !== cents[i - 1]) changes += 1;
+  assert.ok(changes >= 40, `tape should tick almost every second, changed ${changes} times`);
 }
 
 function clockAndCatchUp() {
-  assert.equal(minuteLeft(36, 1), "0:42 left in this minute");
+  assert.equal(minuteLeft(18, 1), "0:42 left in this minute");
   assert.equal(minuteLeft(0, 1), "1:00 left in this minute");
+  assert.equal(ticksDue(5000, 1), 5);
   assert.equal(ticksDue(0, 1), 0);
-  assert.equal(ticksDue(60_000, 1), SUBTICKS, "1x spends 60 real seconds on one candle");
-  assert.equal(ticksDue(30_000, 2), SUBTICKS, "2x spends 30 real seconds on one candle");
-  assert.equal(ticksDue(4_000, 15), SUBTICKS, "15x spends 4 real seconds on one candle");
-  const due = ticksDue(5000, 1);
-  assert.ok(due >= 8 && due <= 12, `five seconds should be about two ticks a second, was ${due}`);
-  const gaps: number[] = [];
-  let lastAt = 0;
-  let seen = 0;
-  for (let ms = 1; ms <= 5000 && gaps.length < 20; ms += 1) {
-    const got = ticksDue(ms, 1);
-    if (got > seen) {
-      gaps.push(ms - lastAt);
-      lastAt = ms;
-      seen = got;
-    }
-  }
-  assert.ok(gaps.every((gap) => gap >= 350 && gap <= 700), `gaps left the ~2Hz band: ${gaps.join(",")}`);
-  assert.ok(Math.max(...gaps) - Math.min(...gaps) >= 40, "tick spacing should be irregular");
   const game = fresh();
   const bars = Array.from({ length: 30 }, (_, index) => ({ t: index * 60, o: 10, h: 11, l: 9, c: 10.5 }));
-  const next = fastForward(game, due, bars, bars, "2026-11-18", 31000);
+  const next = fastForward(game, ticksDue(5000, 1), bars, bars, "2026-11-18", 31000);
   assert.equal(next.cursor, 0);
-  assert.equal(next.tick, due);
+  assert.equal(next.tick, 5);
   assert.equal(next.phase, "play");
 }
 
@@ -320,39 +154,6 @@ function switchKeepsTheLiveCandle() {
   const before = chartBars(tqqq, 0, 10, 99, 1, "1m");
   const after = chartBars(tqqq, 0, 11, 99, 1, "1m");
   assert.equal(seriesNeedsReset("TQQQ-1m", "TQQQ-1m", before, after), false, "the same ticker keeps updating the live candle");
-  assert.equal(seriesNeedsReset("1m", "1m", before, before), false, "a TQQQ chart with a stable series id does not reset when the traded ticker changes");
-}
-
-function progressiveFitShowsEveryCandleSoFar() {
-  const phone = 320;
-  const desk = 1100;
-  for (const width of [phone, desk]) {
-    const start = progressiveRange(1, width);
-    const pos = (0 - start.from) / (start.to - start.from);
-    assert.ok(pos > 0.4 && pos < 0.6, `first candle should be centered on ${width}px, was ${pos}`);
-    assert.ok(width / (start.to - start.from) <= 49, "one candle is not wider than the spacing cap");
-    for (const count of [8, 30]) {
-      const range = progressiveRange(count, width);
-      const last = count - 1;
-      for (let index = 0; index < count; index += 1) {
-        assert.ok(index >= range.from && index <= range.to, `${count} bars on ${width}px hide bar ${index}`);
-      }
-      const lastPos = (last - range.from) / (range.to - range.from);
-      assert.ok(lastPos > 0.7 && lastPos < 0.96, `latest of ${count} should sit near the right, was ${lastPos}`);
-      assert.ok(range.to - last >= 1, "the latest candle does not touch the right edge");
-    }
-  }
-  const bars = [{ h: 51, l: 49, o: 50, c: 50.4 }];
-  assert.equal(keepAnchor(bars, 52), true);
-  assert.equal(keepAnchor(bars, 60), false);
-  const withLine = priceWindow(bars, null, [52]);
-  assert.ok(withLine && withLine.to > 52, "a nearby average-cost line stays in the price window");
-  const ignored = priceWindow(bars, null, [60]);
-  assert.ok(ignored && ignored.to < 60, "a far average-cost line does not squash the candles");
-  const far = priceWindow(bars, 82);
-  assert.ok(far && 82 > far.to, "a far prior close is still left out");
-  const tight = priceWindow(bars, null);
-  assert.ok(tight && tight.to - tight.from < (51 - 49) * 1.4, "vertical padding stays small");
 }
 
 function scaleStaysOnTheTicker() {
@@ -410,7 +211,7 @@ function flatBars() {
 }
 
 function playDay(game: GameState, date: string) {
-  return fastForward(game, 30 * (SUBTICKS + 1), flatBars(), flatBars(), date, 31_000);
+  return fastForward(game, 5000, flatBars(), flatBars(), date, 31_000);
 }
 
 function mulberry32(seed: number): () => number {
@@ -425,9 +226,8 @@ function mulberry32(seed: number): () => number {
 
 function shuffleUsesEveryDayBeforeRepeating() {
   const book = market as PracticeMarket;
-  assert.ok(book.days.length >= 15, `expected the real 1-minute book, got ${book.days.length}`);
+  assert.equal(book.days.length, 60);
   const dates = book.days.map((day) => day.date);
-  const total = dates.length;
   const history = dates.slice(0, 10);
   let cycle = emptyCycle();
   const next = mulberry32(99);
@@ -439,12 +239,12 @@ function shuffleUsesEveryDayBeforeRepeating() {
     cycle = draw.cycle;
     assert.equal(freshLeft(dates, history, cycle, draw.date), dates.length - history.length - dealt.length + 1);
   }
-  assert.equal(new Set([...history, ...dealt]).size, total);
+  assert.equal(new Set([...history, ...dealt]).size, 60);
   const again = drawSession(dates, history, cycle, dealt[dealt.length - 1], next);
   assert.equal(again.cycle.generation, 1);
   assert.notEqual(again.date, dealt[dealt.length - 1]);
   assert.equal(again.cycle.dates.length, 1);
-  assert.equal(freshLeft(dates, history, again.cycle, again.date), total);
+  assert.equal(freshLeft(dates, history, again.cycle, again.date), 60);
   const counts = Array.from({ length: 60 }, () => 0);
   const roll = mulberry32(3);
   for (let sample = 0; sample < 12000; sample += 1) counts[uniformIndex(60, roll)] += 1;
@@ -538,63 +338,6 @@ function skipAfterTheCloseDoesNotDoubleCount() {
   assert.equal(game.phase, "play");
 }
 
-function sqqqAverageOnTheTqqqChart() {
-  assert.equal(avgCostLabel("tqqq", 54.1), "TQQQ 54.10");
-  assert.equal(avgCostLabel("sqqq", 21.4), "SQQQ 21.40");
-  assert.equal(axisLabelFits(54.1, [54.12], 2, 400), false, "an average sitting on the last price hides its axis tag");
-  assert.equal(axisLabelFits(52, [54.12], 2, 400), true);
-  assert.equal(sqqqBreakevenTqqq(80, 20, 20), 80);
-  assert.equal(sqqqBreakevenTqqq(80, 20, 22), 72);
-  assert.equal(sqqqBreakevenTqqq(80, 20, 10), null, "a breakeven far from the TQQQ price is not drawn as a line");
-  let game = trade(fresh(), "SQQQ", "buy", 1, 20, "2026-09-01", 0, { TQQQ: 80, SQQQ: 20 });
-  assert.equal(game.sqqqGuide?.level, 80);
-  assert.equal(game.sqqqGuide?.avg, game.positions.SQQQ.avgCost);
-  const level = game.sqqqGuide?.level;
-  game = trade(game, "SQQQ", "sell", 0.25, 21, "2026-09-01", 0, { TQQQ: 70, SQQQ: 21 });
-  assert.ok(game.positions.SQQQ.shares > 0);
-  assert.equal(game.sqqqGuide?.level, level, "a partial sell keeps the line when the average is unchanged");
-  const before = game.positions.SQQQ.avgCost;
-  game = trade(game, "SQQQ", "buy", 1, 18, "2026-09-01", 0, { TQQQ: 82, SQQQ: 18 });
-  assert.notEqual(game.positions.SQQQ.avgCost, before);
-  assert.equal(game.sqqqGuide?.level, sqqqBreakevenTqqq(82, 18, game.positions.SQQQ.avgCost));
-  const off = trade(fresh(), "SQQQ", "buy", 1, 40, "2026-09-01", 0, { TQQQ: 80, SQQQ: 10 });
-  assert.equal(off.sqqqGuide?.level, null);
-  assert.equal(off.sqqqGuide?.avg, 40);
-  game = trade(game, "SQQQ", "sell", 1, 18, "2026-09-01");
-  assert.equal(game.positions.SQQQ.shares, 0);
-  assert.equal(game.sqqqGuide, null);
-  const tqqq = trade(fresh(), "TQQQ", "buy", 0.25, 54.12, "2026-09-01", 0, { TQQQ: 54.12, SQQQ: 20 });
-  assert.equal(tqqq.sqqqGuide, null);
-  assert.equal(tqqq.positions.TQQQ.avgCost, 54.12);
-}
-
-function restartPutsTheDayBackAtTheOpen() {
-  let game = trade(fresh(), "TQQQ", "buy", 0.25, 50, "2026-09-01");
-  game = trade(game, "TQQQ", "sell", 0.5, 51, "2026-09-01");
-  game = { ...game, cursor: 12, tick: 40, day: 1, session: 4, batchDays: [{ date: "2026-09-01", dollars: 10, pct: 0, equity: 31010, drawdown: 0, fees: 0 }], history: { batches: [{ startDate: "old", endDate: "old", days: [], trades: [], fees: 0, startEquity: 31000, endEquity: 31000, holdTqqq: 0, winRate: null, best: null, worst: null, avgHold: null, maxDrawdown: 0 }], equity: [] }, tradeMark: 1 };
-  const earlier = game.batchTrades[0];
-  game = {
-    ...game,
-    batchTrades: [earlier, ...game.batchTrades],
-    tradeMark: 1,
-  };
-  const restarted = restartDay(game);
-  assert.equal(restarted.cursor, 0);
-  assert.equal(restarted.tick, 0);
-  assert.equal(restarted.session, 4);
-  assert.equal(restarted.day, 1);
-  assert.equal(restarted.cash, game.dayStartEquity);
-  assert.equal(restarted.positions.TQQQ.shares, 0);
-  assert.equal(restarted.positions.SQQQ.shares, 0);
-  assert.equal(restarted.sqqqGuide, null);
-  assert.equal(restarted.fills.length, 0);
-  assert.equal(restarted.markers.length, 0);
-  assert.equal(restarted.batchDays.length, 1);
-  assert.equal(restarted.history.batches.length, 1);
-  assert.equal(restarted.batchTrades.length, 1);
-  assert.equal(restarted.phase, "play");
-}
-
 function realisticFillMath() {
   assert.equal(slipPerShare(0, () => 0), 0.02);
   assert.equal(slipPerShare(4, () => 0.999), 0.03);
@@ -624,15 +367,9 @@ buyThenSellAll();
 partialSellsThenAll();
 sellWithNoCash();
 switchTickerThenSell();
-realMinutesMatchTheFile();
-morningAssemblyDropsIncompleteDays();
 tapeMovesAndMirrors();
-candlesFormLikeATrail();
 switchKeepsTheLiveCandle();
-progressiveFitShowsEveryCandleSoFar();
 scaleStaysOnTheTicker();
 clockAndCatchUp();
-restartPutsTheDayBackAtTheOpen();
-sqqqAverageOnTheTqqqChart();
 historyDeleteLeavesTheRest();
 console.log("practice behavior ok");

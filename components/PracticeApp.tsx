@@ -2,13 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import market from "@/data/practice-market.json";
-import { PracticeChart, type ChartCandle, type CostLine, type PracticeChartHandle } from "@/components/PracticeChart";
-import { SyncPanel } from "@/components/SyncPanel";
+import { PracticeChart, type ChartCandle, type ChartMark, type PracticeChartHandle } from "@/components/PracticeChart";
 import { PracticeHistory } from "@/components/PracticeHistory";
 import {
   equityNow,
   fastForward,
-  restartDay,
   liveQuote,
   loadGame,
   minuteLeft,
@@ -47,8 +45,7 @@ import {
 } from "@/lib/practice-history";
 import { CYCLE_KEY, drawSession, freshLeft, parseCycle, type CycleFile } from "@/lib/practice-cycle";
 import type { PracticeMarket } from "@/lib/practice-market";
-import { avgCostLabel, chartBars, clock, keepAnchor, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
-import { isApplyingSync, scheduleSync, tombstoneAll, tombstoneGame, touchSection, watchSync, adoptSyncCode, type SyncEventDetail } from "@/lib/sync-client";
+import { chartBars, clock, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
 import { fillDelayMs, slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
 
@@ -58,6 +55,7 @@ const CHART_KEY = "snc-practice-chart-h";
 const BOOK = market as PracticeMarket;
 const SESSION_DATES = BOOK.days.map((day) => day.date);
 const FRAMES: Timeframe[] = ["1m", "5m", "15m", "30m", "1D"];
+const SIZES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 30 };
 
 function pct(value: number): string {
   const text = `${Math.abs(value * 100).toFixed(2)}%`;
@@ -85,14 +83,19 @@ function holdLabel(minutes: number | null): string {
   return `${Math.floor(rounded / 60)}h ${rounded % 60}m`;
 }
 
+function snap(start: number, minute: number, timeframe: Timeframe): number {
+  const size = SIZES[timeframe];
+  return start + Math.floor(minute / size) * size * 60;
+}
+
 function dayStarted(state: GameState): boolean {
   const open = state.positions.TQQQ.shares + state.positions.SQQQ.shares > 0;
   return state.cursor > 0 || state.tick > 0 || state.markers.length > 0 || state.dayFees > 0 || open;
 }
 
 function sessionWindow(day: (typeof BOOK.days)[number]): { open: number; close: number; date: string } {
-  const last = day.tqqq[day.tqqq.length - 1];
-  return { open: day.tqqq[0][0], close: last?.[3] ?? day.tqqq[0][3], date: day.date };
+  const closeBar = day.tqqq[5] ?? day.tqqq[day.tqqq.length - 1];
+  return { open: day.tqqq[0][0], close: closeBar[3], date: day.date };
 }
 
 function bookDay(state: GameState) {
@@ -145,19 +148,14 @@ function applyFill(state: GameState, side: "buy" | "sell", fraction: number, tic
   if (state.phase !== "play") return state;
   const day = bookDay(state);
   const paths = buildSession(day, state.seeds[state.day] || 1);
-  const live = liveQuote(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES));
-  const quote = live[ticker];
+  const quote = liveQuote(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES))[ticker];
   const price = slip > 0 ? slippedPrice(quote, side, slip) : quote;
-  const quotes = { TQQQ: ticker === "TQQQ" ? price : live.TQQQ, SQQQ: ticker === "SQQQ" ? price : live.SQQQ };
-  return trade(state, ticker, side, fraction, price, day?.date ?? "", slip, quotes);
+  return trade(state, ticker, side, fraction, price, day?.date ?? "", slip);
 }
 
 function priorClose(index: number, ticker: Ticker): number | null {
   if (index <= 0) return null;
-  const day = BOOK.days[index - 1];
-  const daily = ticker === "TQQQ" ? day.daily?.tqqq : day.daily?.sqqq;
-  if (daily) return daily[3];
-  const bars = ticker === "TQQQ" ? day.tqqq : day.sqqq;
+  const bars = ticker === "TQQQ" ? BOOK.days[index - 1].tqqq : BOOK.days[index - 1].sqqq;
   return bars[bars.length - 1]?.[3] ?? null;
 }
 
@@ -213,7 +211,6 @@ export function PracticeApp() {
   const [theme, setTheme] = useState("light");
   const [tab, setTab] = useState<"play" | "history">("play");
   const [confirm, setConfirm] = useState(false);
-  const [resetAsk, setResetAsk] = useState(false);
   const [skipAsk, setSkipAsk] = useState(false);
   const [realistic, setRealistic] = useState(true);
   const [filling, setFilling] = useState(false);
@@ -228,14 +225,8 @@ export function PracticeApp() {
   gameRef.current = game;
   realisticRef.current = realistic;
   const stageRef = useRef<HTMLDivElement>(null);
-  const hydratedGame = useRef(false);
-  const persistTimer = useRef<number | null>(null);
-  const hydratedHistory = useRef(false);
-  const hydratedCycle = useRef(false);
 
   useEffect(() => {
-    adoptSyncCode();
-    watchSync();
     const speed = coerceSpeed(typeof localStorage !== "undefined" ? localStorage.getItem(SPEED_KEY) : 1);
     const savedFills = localStorage.getItem(REALISTIC_KEY);
     const realisticOn = savedFills !== "0";
@@ -271,33 +262,6 @@ export function PracticeApp() {
     document.documentElement.dataset.theme = initial;
     const savedHeight = Number(localStorage.getItem(CHART_KEY));
     if (savedHeight >= 220 && savedHeight <= 1200) setChartH(savedHeight);
-    scheduleSync(300);
-  }, []);
-
-  useEffect(() => {
-    const onSync = (event: Event) => {
-      const detail = (event as CustomEvent<SyncEventDetail>).detail;
-      const doc = detail?.doc;
-      if (!doc || detail.status !== "synced") return;
-      if (detail.wroteHistory) setHistory({ v: 1, games: doc.practice.games });
-      if (detail.wroteGame && doc.practice.game) {
-        const loaded = loadGame(JSON.stringify(doc.practice.game), BOOK.days.length);
-        const localEdit = gameRef.current?.editedAt ?? 0;
-        const incomingEdit = loaded?.editedAt ?? 0;
-        if (loaded && !(localEdit && incomingEdit < localEdit)) setGame({ ...loaded, playing: false });
-      }
-      if (detail.wroteCycle && doc.practice.cycle) setCycle(doc.practice.cycle);
-      if (detail.wroteSettings) {
-        if (doc.practice.settings.realistic !== null) {
-          setRealistic(doc.practice.settings.realistic);
-          realisticRef.current = doc.practice.settings.realistic;
-        }
-        if (doc.practice.settings.chartH) setChartH(doc.practice.settings.chartH);
-        if (doc.practice.settings.theme) setTheme(doc.practice.settings.theme);
-      }
-    };
-    window.addEventListener("snc-sync", onSync);
-    return () => window.removeEventListener("snc-sync", onSync);
   }, []);
 
   useEffect(() => {
@@ -313,45 +277,14 @@ export function PracticeApp() {
     } catch {
       /* Private mode can refuse storage. */
     }
-    if (!hydratedCycle.current) {
-      hydratedCycle.current = true;
-      return;
-    }
-    if (isApplyingSync()) return;
-    touchSection("cycle");
-    scheduleSync(700);
   }, [cycle]);
 
   useEffect(() => {
     if (!game) return;
-    const write = (sync: boolean) => {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(gameRef.current));
-      } catch {
-        /* Private mode can refuse storage. The session still runs. */
-      }
-      if (!hydratedGame.current) {
-        hydratedGame.current = true;
-        return;
-      }
-      if (!sync || isApplyingSync()) return;
-      const current = gameRef.current;
-      touchSection("game");
-      scheduleSync(current?.playing ? 8000 : 700);
-    };
-    if (!hydratedGame.current || !game.playing) {
-      if (persistTimer.current !== null) {
-        window.clearTimeout(persistTimer.current);
-        persistTimer.current = null;
-      }
-      write(true);
-      return;
-    }
-    if (persistTimer.current === null) {
-      persistTimer.current = window.setTimeout(() => {
-        persistTimer.current = null;
-        write(true);
-      }, 1000);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(game));
+    } catch {
+      /* Private mode can refuse storage. The session still runs. */
     }
   }, [game]);
 
@@ -362,16 +295,10 @@ export function PracticeApp() {
     } catch {
       /* ignore */
     }
-    if (!hydratedHistory.current) {
-      hydratedHistory.current = true;
-      return;
-    }
-    if (isApplyingSync()) return;
-    scheduleSync(400);
   }, [history]);
 
   const pace = useRef({ playing: false, speed: 1 as Speed, phase: "play" as GameState["phase"] });
-  const clockRef = useRef<{ at: number; applied: number; speed: Speed; drawn: number } | null>(null);
+  const clockRef = useRef<{ at: number; applied: number; speed: Speed } | null>(null);
   pace.current = {
     playing: !!game?.playing,
     speed: game?.speed ?? 1,
@@ -385,14 +312,11 @@ export function PracticeApp() {
         clockRef.current = null;
         return;
       }
-      if (!clockRef.current || clockRef.current.speed !== speed) clockRef.current = { at: Date.now(), applied: 0, speed, drawn: 0 };
+      if (!clockRef.current || clockRef.current.speed !== speed) clockRef.current = { at: Date.now(), applied: 0, speed };
       const clock = clockRef.current;
       const due = ticksDue(Date.now() - clock.at, speed);
       const add = due - clock.applied;
       if (add > 0) {
-        const now = Date.now();
-        if (clock.drawn && now - clock.drawn < 220) return;
-        clock.drawn = now;
         clock.applied = due;
         setGame((current) => (current && current.playing && current.phase === "play" ? runForward(current, add) : current));
       }
@@ -402,9 +326,7 @@ export function PracticeApp() {
       frame = window.requestAnimationFrame(loop);
     };
     frame = window.requestAnimationFrame(loop);
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === "hidden") pump();
-    }, 500);
+    const timer = window.setInterval(pump, 200);
     const wake = () => pump();
     document.addEventListener("visibilitychange", wake);
     window.addEventListener("focus", wake);
@@ -441,36 +363,13 @@ export function PracticeApp() {
   const position = game.positions[game.ticker];
   const other = game.ticker === "TQQQ" ? "SQQQ" : "TQQQ";
   const today = game.dayStartEquity > 0 ? value / game.dayStartEquity - 1 : 0;
-  const dailyTuple = session.day.daily?.tqqq;
-  const daily = dailyTuple
-    ? {
-        t: session.day.start,
-        o: dailyTuple[0],
-        h: Math.max(dailyTuple[1], dailyTuple[0], dailyTuple[3]),
-        l: Math.min(dailyTuple[2], dailyTuple[0], dailyTuple[3]),
-        c: dailyTuple[3],
-      }
-    : null;
-  const candles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, game.timeframe, daily);
-  const costLines: CostLine[] = [];
-  const costLegend: { key: string; text: string; placed: boolean }[] = [];
-  if (game.positions.TQQQ.shares > 0 && game.positions.TQQQ.avgCost > 0) {
-    const text = avgCostLabel("tqqq", game.positions.TQQQ.avgCost);
-    const placed = keepAnchor(candles, game.positions.TQQQ.avgCost);
-    if (placed) costLines.push({ key: "tqqq", price: game.positions.TQQQ.avgCost, title: "" });
-    costLegend.push({ key: "tqqq", text, placed });
-  }
-  if (game.positions.SQQQ.shares > 0 && game.positions.SQQQ.avgCost > 0) {
-    const text = avgCostLabel("sqqq", game.positions.SQQQ.avgCost);
-    const guide = game.sqqqGuide;
-    const level = guide && Math.abs(guide.avg - game.positions.SQQQ.avgCost) < 1e-6 ? guide.level : null;
-    const placed = level !== null && keepAnchor(candles, level);
-    if (placed && level !== null) costLines.push({ key: "sqqq", price: level, title: "" });
-    costLegend.push({ key: "sqqq", text, placed });
-  }
+  const candles = chartBars(session[game.ticker], game.cursor, game.tick, game.seeds[game.day] || 1, game.ticker === "TQQQ" ? 1 : -1, game.timeframe);
+  const marks: ChartMark[] = game.markers
+    .filter((mark) => mark.ticker === game.ticker && mark.minute <= game.cursor)
+    .map((mark) => ({ time: snap(session.day.start, mark.minute, game.timeframe), side: mark.side }));
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
-  const prior = priorClose(game.session, "TQQQ");
+  const prior = priorClose(game.session, game.ticker);
   const rows = historyRows(game, history, value);
   const active = game;
   const tape = session;
@@ -506,42 +405,13 @@ export function PracticeApp() {
 
   function chooseSpeed(speed: Speed) {
     rememberSpeed(speed);
-    touchSection("settings");
     setGame({ ...active, speed });
-    scheduleSync(500);
   }
 
   function askNew() {
     setGame((current) => (current ? { ...current, playing: false } : current));
     setSkipAsk(false);
-    setResetAsk(false);
     setConfirm(true);
-  }
-
-  function askReset() {
-    if (!active || active.phase !== "play") return;
-    clearFill();
-    setSkipAsk(false);
-    setGame((current) => (current ? { ...current, playing: false } : current));
-    setResetAsk(true);
-  }
-
-  function resetNow() {
-    setResetAsk(false);
-    clearFill();
-    const current = gameRef.current;
-    if (!current) return;
-    const next = restartDay(current);
-    clockRef.current = null;
-    gameRef.current = next;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      /* Private mode can refuse storage. The reset still shows. */
-    }
-    touchSection("game");
-    setGame(next);
-    scheduleSync(300);
   }
 
   function skipNow() {
@@ -629,7 +499,6 @@ export function PracticeApp() {
 
   function removeGame(id: string) {
     if (id === "this") return;
-    tombstoneGame(id);
     setHistory((current) => (current ? deleteGame(current, id) : current));
   }
 
@@ -656,7 +525,6 @@ export function PracticeApp() {
         </div>
       </header>
       <main className="pr-main">
-        <SyncPanel />
         <div className="pr-toggle" role="tablist" aria-label="Practice">
           <button type="button" role="tab" aria-selected={tab === "play"} onClick={() => setTab("play")}>
             Trade
@@ -697,10 +565,7 @@ export function PracticeApp() {
             onImport={(file) => void importHistory(file)}
             onNewGame={askNew}
             onDelete={removeGame}
-            onDeleteAll={() => {
-              tombstoneAll(history.games.map((item) => item.id));
-              setHistory(deleteAllHistory());
-            }}
+            onDeleteAll={() => setHistory(deleteAllHistory())}
             notice={notice}
           />
         ) : null}
@@ -708,21 +573,24 @@ export function PracticeApp() {
           <>
             <div className="pr-bar">
               <div className="pr-now">
-                <strong className="pr-price">
-                  {game.ticker} {formatCents(price)}
-                </strong>
+                <strong className="pr-price">{formatCents(price)}</strong>
                 <p className="pr-left">{game.phase === "play" ? minuteLeft(game.tick, game.speed) : "9:30–10:00"}</p>
                 <p className="pr-day">
                   {game.phase === "play" ? `Day ${game.day + 1} of ${game.batchDaysTotal}` : prettyDate(session.day.date)}
                   <span>{game.phase === "play" ? asOf : `Day ${game.day + 1} of ${game.batchDaysTotal}${asOf ? ` · ${asOf}` : ""}`}</span>
-                  <span>9:30–10:00{prior !== null ? ` · TQQQ prior ${formatCents(prior)}` : ""}</span>
+                  <span>9:30–10:00{prior !== null ? ` · Prior ${formatCents(prior)}` : ""}</span>
                 </p>
               </div>
               <strong className={today >= 0 ? "up" : "down"}>
                 {dollars(value - game.dayStartEquity)} {pct(today)}
               </strong>
+              {game.phase === "play" ? (
+                <button type="button" className="pr-play" onClick={() => setGame({ ...game, playing: !game.playing })}>
+                  {game.playing ? "Pause" : "Play"}
+                </button>
+              ) : null}
             </div>
-            {game.phase === "day" ? (
+            {game.phase === "play" || game.phase === "day" ? (
               <div className="pr-skiprow">
                 <button type="button" className="pr-skip" onClick={askSkip}>
                   Skip day
@@ -757,43 +625,19 @@ export function PracticeApp() {
             ) : null}
             {game.phase === "play" ? (
               <div ref={stageRef} className={full ? "pr-full" : chartH ? "pr-stage pr-stage-set" : "pr-stage"} style={!full && chartH ? { height: chartH } : undefined}>
-                {costLegend.length ? (
-                  <div className="pr-legend" aria-label="Average cost">
-                    {costLegend.map((note) => (
-                      <span key={note.key} data-kind={note.key} data-placed={note.placed ? "1" : "0"}>
-                        {note.text}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
-                <div className="pr-transport" aria-label="Playback">
-                  <button type="button" className="pr-play" onClick={() => setGame({ ...game, playing: !game.playing })}>
-                    {game.playing ? "Pause" : "Play"}
-                  </button>
-                  <div className="pr-speeds" role="group" aria-label="Speed">
-                    {SPEEDS.map((speed) => (
-                      <button key={speed} type="button" aria-pressed={game.speed === speed} onClick={() => chooseSpeed(speed)}>
-                        {speed}x
-                      </button>
-                    ))}
-                  </div>
-                  <button type="button" className="pr-skip" onClick={askSkip}>
-                    Skip
-                  </button>
-                  <button type="button" className="pr-reset" onClick={askReset}>
-                    Reset day
-                  </button>
-                </div>
-                <div className="pr-plot">
                 <PracticeChart
                   ref={chartRef}
                   candles={candles as ChartCandle[]}
-                  costLines={costLines}
+                  markers={marks}
                   theme={theme}
                   priorClose={prior}
-                  seriesId={game.timeframe}
+                  seriesId={`${game.ticker}-${game.timeframe}`}
                 />
-                <p className="pr-chart-label">Chart: TQQQ</p>
+                {full ? (
+                  <button type="button" className="pr-skip pr-fullskip" onClick={askSkip}>
+                    Skip day
+                  </button>
+                ) : null}
                 <div className="pr-chart-tools">
                   <button type="button" aria-label="Zoom in" onClick={() => chartRef.current?.zoom(0.75)}>
                     +
@@ -801,13 +645,12 @@ export function PracticeApp() {
                   <button type="button" aria-label="Zoom out" onClick={() => chartRef.current?.zoom(1.35)}>
                     −
                   </button>
-                  <button type="button" aria-label="Fit all candles" onClick={() => chartRef.current?.auto()}>
-                    Fit
+                  <button type="button" onClick={() => chartRef.current?.auto()}>
+                    Auto
                   </button>
                   <button type="button" onClick={() => setFull((value) => !value)}>
                     {full ? "Close" : "Full"}
                   </button>
-                </div>
                 </div>
                 {!full ? (
                   <div
@@ -835,8 +678,6 @@ export function PracticeApp() {
                         } catch {
                           /* ignore */
                         }
-                        touchSection("settings");
-                        scheduleSync(500);
                       };
                       target.addEventListener("pointermove", move);
                       target.addEventListener("pointerup", up, { once: true });
@@ -851,7 +692,9 @@ export function PracticeApp() {
                         </button>
                       ))}
                     </div>
-                    <TradeCue ticker={game.ticker} tqqq={quote.TQQQ} sqqq={quote.SQQQ} tqqqShares={game.positions.TQQQ.shares} sqqqShares={game.positions.SQQQ.shares} />
+                    <p className="pr-book">
+                      TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
+                    </p>
                     {filling ? <p className="pr-note">Filling…</p> : null}
                     <OrderPad filling={filling} shares={position.shares} onAct={act} />
                   </div>
@@ -868,16 +711,23 @@ export function PracticeApp() {
                     </button>
                   ))}
                 </div>
-                <TradeCue ticker={game.ticker} tqqq={quote.TQQQ} sqqq={quote.SQQQ} tqqqShares={game.positions.TQQQ.shares} sqqqShares={game.positions.SQQQ.shares} />
+                <p className="pr-book">
+                  TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
+                </p>
                 {filling ? <p className="pr-note">Filling…</p> : null}
                 <OrderPad filling={filling} shares={position.shares} onAct={act} />
                 </div>
                 <div className="pr-dock">
+                  {SPEEDS.map((speed) => (
+                    <button key={speed} type="button" className="text-btn" aria-pressed={game.speed === speed} onClick={() => chooseSpeed(speed)}>
+                      {speed}x
+                    </button>
+                  ))}
                   <button
                     type="button"
                     className="text-btn"
                     onClick={() => {
-                      clockRef.current = { at: Date.now(), applied: 0, speed: game.speed, drawn: 0 };
+                      clockRef.current = { at: Date.now(), applied: 0, speed: game.speed };
                       setGame((current) => (current ? run(current, stepMinute) : current));
                     }}
                   >
@@ -899,8 +749,6 @@ export function PracticeApp() {
                       } catch {
                         /* ignore */
                       }
-                      touchSection("settings");
-                      scheduleSync(500);
                     }}
                   >
                     Realistic fills
@@ -925,25 +773,9 @@ export function PracticeApp() {
                   <p className="pr-note">
                     Also holding {game.positions[other].shares} {other}
                   </p>
+                ) : null}
+              </>
             ) : null}
-            {resetAsk ? (
-              <div className="pr-modal" role="presentation">
-                <section className="pr-confirm" role="dialog" aria-modal="true" aria-labelledby="pr-reset-title">
-                  <h2 id="pr-reset-title">Restart this day from 9:30?</h2>
-                  <p className="pr-lead">Today's trades are wiped and cash goes back to the start of this day. Past games stay.</p>
-                  <div className="pr-actions">
-                    <button type="button" className="text-btn" onClick={() => setResetAsk(false)}>
-                      Keep playing
-                    </button>
-                    <button type="button" className="today-jump" onClick={resetNow}>
-                      Restart day
-                    </button>
-                  </div>
-                </section>
-              </div>
-            ) : null}
-          </>
-        ) : null}
             {game.phase === "day" ? (
               <DayReview game={game} onNext={goNext} onReview={() => setGame((current) => (current ? openBatchReview(current) : current))} />
             ) : null}
@@ -951,7 +783,7 @@ export function PracticeApp() {
               <BatchReview game={game} onNext={goNext} onReset={askNew} />
             ) : null}
             <p className="chart-note">
-              {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 1-minute bar is randomized; the bar’s open, high, low, and close are real.
+              {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 5-minute bar is randomized; the bar’s open, high, low, and close are real.
             </p>
             <p className="pr-stamp">
               Build {process.env.NEXT_PUBLIC_COMMIT_SHA || "local"} · {process.env.NEXT_PUBLIC_BUILD_TIME || "dev"} ·{" "}
@@ -974,46 +806,11 @@ function toggle(setTheme: (theme: string) => void) {
   } catch {
     /* ignore */
   }
-  touchSection("settings");
-  scheduleSync(500);
   setTheme(next);
 }
 
 function slippageText(value: number | undefined): string {
   return typeof value === "number" && Number.isFinite(value) ? formatCents(value) : "—";
-}
-
-function TradeCue({
-  ticker,
-  tqqq,
-  sqqq,
-  tqqqShares,
-  sqqqShares,
-}: {
-  ticker: Ticker;
-  tqqq: number;
-  sqqq: number;
-  tqqqShares: number;
-  sqqqShares: number;
-}) {
-  const trading = ticker === "SQQQ" ? sqqq : tqqq;
-  return (
-    <>
-      <p className="pr-which">
-        Chart: TQQQ · Trading: {ticker}
-      </p>
-      <p className="pr-book">
-        <strong>
-          {ticker} {formatCents(trading)}
-        </strong>
-        {ticker === "TQQQ" ? <span> · SQQQ {formatCents(sqqq)}</span> : <span> · chart stays on TQQQ</span>}
-        <span>
-          {" "}
-          · {tqqqShares} TQQQ sh | {sqqqShares} SQQQ sh
-        </span>
-      </p>
-    </>
-  );
 }
 
 function OrderPad({ filling, shares, onAct }: { filling: boolean; shares: number; onAct: (side: "buy" | "sell", fraction: number) => void }) {

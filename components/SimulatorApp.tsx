@@ -10,6 +10,8 @@ import {
   duplicateScenario,
   formatAxisMoney,
   formatBreakEven,
+  formatCents,
+  formatCount,
   formatMoney,
   formatMonthLabel,
   formatPercent,
@@ -24,8 +26,6 @@ import {
   type Scenario,
   type Simulation,
 } from "@/lib/simulator";
-import { SyncPanel } from "@/components/SyncPanel";
-import { adoptSyncCode, isApplyingSync, scheduleSync, touchSection, watchSync, type SyncEventDetail } from "@/lib/sync-client";
 
 const NAV = [
   { href: "/", label: "Calendar" },
@@ -44,7 +44,6 @@ const CHART_HEIGHT = 400;
 function useTheme(): ["light" | "dark", () => void] {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const ready = useRef(false);
-  const hydratedTheme = useRef(false);
 
   useLayoutEffect(() => {
     const stored = localStorage.getItem("snc-theme");
@@ -68,13 +67,6 @@ function useTheme(): ["light" | "dark", () => void] {
     } catch {
       /* Private browsing can reject storage. The toggle still applies for this visit. */
     }
-    if (!hydratedTheme.current) {
-      hydratedTheme.current = true;
-      return;
-    }
-    if (isApplyingSync()) return;
-    touchSection("settings");
-    scheduleSync(500);
   }, [theme]);
 
   return [theme, () => setTheme((current) => (current === "dark" ? "light" : "dark"))];
@@ -165,6 +157,38 @@ function DecimalField({
           if (next.length > 16) return;
           setText(next);
           if (next === "" || next === "-" || next === "." || next === "-.") return;
+          const parsed = Number(next);
+          if (Number.isFinite(parsed)) onChange(parsed);
+        }}
+      />
+    </label>
+  );
+}
+
+function CentsField({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
+  const [text, setText] = useState<string | null>(null);
+
+  return (
+    <label className="field">
+      <span>{label}</span>
+      <input
+        type="text"
+        inputMode="decimal"
+        autoComplete="off"
+        spellCheck={false}
+        value={text ?? formatCents(value)}
+        onFocus={() => setText(Number.isFinite(value) ? String(value) : "")}
+        onBlur={() => {
+          const parsed = Number((text ?? "").replace(/[^0-9.]/g, ""));
+          onChange(Number.isFinite(parsed) && parsed >= 0 ? parsed : 0);
+          setText(null);
+        }}
+        onChange={(event) => {
+          const next = event.target.value.replace(/[^0-9.]/g, "");
+          if ((next.match(/\./g) ?? []).length > 1) return;
+          if (next.length > 16) return;
+          setText(next);
+          if (next === "" || next === ".") return;
           const parsed = Number(next);
           if (Number.isFinite(parsed)) onChange(parsed);
         }}
@@ -479,6 +503,39 @@ function ScenarioCard({
           onChange={(drawdownsPerMonth) => onChange(scenario.id, { drawdownsPerMonth: Math.max(0, drawdownsPerMonth) })}
         />
         <label className="field">
+          <span>Trade with</span>
+          <select
+            value={scenario.tradeWith}
+            onChange={(event) => onChange(scenario.id, { tradeWith: event.target.value === "options" ? "options" : "shares" })}
+          >
+            <option value="shares">Shares</option>
+            <option value="options">Options</option>
+          </select>
+        </label>
+        {scenario.tradeWith === "options" ? (
+          <CentsField
+            label="Option price per share"
+            value={scenario.optionPrice}
+            onChange={(optionPrice) => onChange(scenario.id, { optionPrice })}
+          />
+        ) : (
+          <CentsField
+            label="Price per share"
+            value={scenario.sharePrice}
+            onChange={(sharePrice) => onChange(scenario.id, { sharePrice })}
+          />
+        )}
+        <CentsField
+          label="Spread ($ per share)"
+          value={scenario.tradeWith === "options" ? scenario.optionSpread : scenario.shareSpread}
+          onChange={(spread) =>
+            onChange(
+              scenario.id,
+              scenario.tradeWith === "options" ? { optionSpread: spread } : { shareSpread: spread },
+            )
+          }
+        />
+        <label className="field">
           <span>Time span</span>
           <select
             value={scenario.years}
@@ -517,6 +574,10 @@ function ScenarioCard({
           <dt>Break-even daily gain</dt>
           <dd>{formatBreakEven(result.breakEven)}</dd>
         </div>
+        <div className="sim-stat">
+          <dt>{scenario.tradeWith === "options" ? "Contracts per trade (start)" : "Shares per trade (start)"}</dt>
+          <dd>{formatCount(scenario.tradeWith === "options" ? result.dayOneContracts : result.dayOneShares)}</dd>
+        </div>
       </dl>
       <p className="sim-years">
         {result.yearSlices.map((slice, index) => (
@@ -539,11 +600,8 @@ export function SimulatorApp() {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const draggingRef = useRef<string | null>(null);
   const scrollNew = useRef(false);
-  const savedOnce = useRef(false);
 
   useEffect(() => {
-    adoptSyncCode();
-    watchSync();
     const params = new URLSearchParams(window.location.search);
     const token = params.get("s");
     const shared = token ? decodeScenarios(token) : null;
@@ -553,32 +611,14 @@ export function SimulatorApp() {
       const query = params.toString();
       window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
       setScenarios(shared);
-      scheduleSync(300);
       return;
     }
     setScenarios(loadScenarios() ?? DEFAULT_SCENARIOS.map((scenario) => ({ ...scenario })));
-    scheduleSync(300);
-  }, []);
-
-  useEffect(() => {
-    const onSync = (event: Event) => {
-      const detail = (event as CustomEvent<SyncEventDetail>).detail;
-      if (detail?.status === "synced" && detail.wroteScenarios && detail.doc) setScenarios(detail.doc.simulator.scenarios);
-    };
-    window.addEventListener("snc-sync", onSync);
-    return () => window.removeEventListener("snc-sync", onSync);
   }, []);
 
   useEffect(() => {
     if (!scenarios) return;
     setSaveError(!saveScenarios(scenarios));
-    if (!savedOnce.current) {
-      savedOnce.current = true;
-      return;
-    }
-    if (isApplyingSync()) return;
-    touchSection("simulator");
-    scheduleSync(700);
   }, [scenarios]);
 
   useEffect(() => {
@@ -700,7 +740,6 @@ export function SimulatorApp() {
         </div>
       </header>
       <main className="sim-page">
-        <SyncPanel />
         <div className="sim-head">
           <div>
             <p className="kicker">Model</p>

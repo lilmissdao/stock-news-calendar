@@ -1,4 +1,4 @@
-import { minuteSeed, SESSION_MINUTES, sqqqBreakevenTqqq, SUBTICKS, subpath, type MinuteBar, type Timeframe } from "./practice-path";
+import { minuteSeed, SESSION_MINUTES, SUBTICKS, subpath, type MinuteBar, type Timeframe } from "./practice-path";
 import {
   STARTING_CASH,
   accountValue,
@@ -18,28 +18,15 @@ export type Speed = 1 | 2 | 5 | 15;
 export const SPEEDS: Speed[] = [1, 2, 5, 15];
 const CANDLE_MS = 60_000;
 
-/** Average milliseconds between live sub-ticks. The real gaps wobble around this. */
+/** Milliseconds between live sub-ticks. 1x is one sub-tick per second. */
 export function tickMs(speed: Speed): number {
   return Math.round(CANDLE_MS / speed / SUBTICKS);
 }
 
-/** One-x gaps, in milliseconds. They average half a second, about 2 updates a second. */
-const PACE_MS = [420, 580, 380, 640, 460, 520];
-const CYCLE_MS = 3000;
-
 /** How many sub-ticks belong in this much real time. */
 export function ticksDue(elapsedMs: number, speed: Speed): number {
   if (!(elapsedMs > 0)) return 0;
-  const virtual = elapsedMs * speed;
-  const cycles = Math.floor(virtual / CYCLE_MS);
-  let left = virtual - cycles * CYCLE_MS;
-  let extra = 0;
-  for (const step of PACE_MS) {
-    if (left < step) break;
-    left -= step;
-    extra += 1;
-  }
-  return cycles * PACE_MS.length + extra;
+  return Math.floor(elapsedMs / tickMs(speed));
 }
 
 /** Time left until the forming candle reaches its close. */
@@ -72,11 +59,6 @@ export type BatchSummary = {
 };
 export type EquityPoint = { label: string; value: number };
 
-/** SQQQ average, plus the TQQQ chart level where that average is breakeven. `level` is null when the mapping is not usable. */
-export type SqqqGuide = { avg: number; level: number | null };
-
-export type QuotePair = { TQQQ: number; SQQQ: number };
-
 export type GameState = {
   cash: number;
   positions: Record<Ticker, Position>;
@@ -86,7 +68,7 @@ export type GameState = {
   day: number;
   seeds: number[];
   cursor: number;
-  /** 0–SUBTICKS. SUBTICKS means the current minute has reached its close. */
+  /** 0–60. 60 means the current minute has reached its close. */
   tick: number;
   startedAt: string;
   playing: boolean;
@@ -100,8 +82,6 @@ export type GameState = {
   dayPeak: number;
   dayDrawdown: number;
   markers: Marker[];
-  /** Frozen at the fill that last changed the SQQQ average. Null when that position is closed. */
-  sqqqGuide: SqqqGuide | null;
   fills: FillNote[];
   batchTrades: ClosedTrade[];
   batchDays: DayResult[];
@@ -112,10 +92,6 @@ export type GameState = {
   batchDaysTotal: number;
   /** Hold-TQQQ value for the whole batch, filled in when a day ends. */
   batchHold: number;
-  /** How many closed trades belonged to earlier days when this day opened. */
-  tradeMark: number;
-  /** Wall-clock time of the last local edit. A reset uses this so an older, further-along copy does not win a tie. */
-  editedAt?: number;
   history: { batches: BatchSummary[]; equity: EquityPoint[] };
 };
 
@@ -161,7 +137,6 @@ function fresh(batchStart: number, cash: number, history: GameState["history"], 
     dayPeak: cash,
     dayDrawdown: 0,
     markers: [],
-    sqqqGuide: null,
     fills: [],
     batchTrades: [],
     batchDays: [],
@@ -170,7 +145,6 @@ function fresh(batchStart: number, cash: number, history: GameState["history"], 
     batchStartEquity: cash,
     batchDaysTotal: Math.max(1, Math.min(BATCH_LENGTH, dayCount)),
     batchHold: 0,
-    tradeMark: 0,
     history,
   };
 }
@@ -207,29 +181,12 @@ export function loadGame(raw: string | null, dayCount: number): GameState | null
       batchDaysTotal,
       batchHold: Number.isFinite(parsed.batchHold) ? parsed.batchHold : 0,
       fills: Array.isArray(parsed.fills) ? parsed.fills : [],
-      sqqqGuide: readSqqqGuide(parsed.sqqqGuide, parsed.positions.SQQQ),
       daySlippage: Number.isFinite(parsed.daySlippage) ? parsed.daySlippage : 0,
       batchSlippage: Number.isFinite(parsed.batchSlippage) ? parsed.batchSlippage : 0,
-      tradeMark: tradeMarkOf(parsed),
-      editedAt: Number.isFinite(parsed.editedAt) ? parsed.editedAt : 0,
     };
   } catch {
     return null;
   }
-}
-
-function readSqqqGuide(value: unknown, position: Position): SqqqGuide | null {
-  if (!(position?.shares > 0) || !(position.avgCost > 0)) return null;
-  const row = value && typeof value === "object" ? (value as SqqqGuide) : null;
-  const level = row && typeof row.level === "number" && row.level > 0 && Number.isFinite(row.level) ? row.level : null;
-  const same = row && typeof row.avg === "number" && Math.abs(row.avg - position.avgCost) < 1e-6;
-  return { avg: position.avgCost, level: same ? level : null };
-}
-
-function sqqqGuideAfter(previous: SqqqGuide | null | undefined, position: Position, quotes?: QuotePair): SqqqGuide | null {
-  if (!(position.shares > 0) || !(position.avgCost > 0)) return null;
-  if (previous && Math.abs(previous.avg - position.avgCost) < 1e-8) return previous;
-  return { avg: position.avgCost, level: quotes ? sqqqBreakevenTqqq(quotes.TQQQ, quotes.SQQQ, position.avgCost) : null };
 }
 
 function livePrices(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[]): { t: number; s: number } {
@@ -269,30 +226,19 @@ function noteFill(state: GameState, ticker: Ticker, side: "buy" | "sell", shares
   };
 }
 
-export function trade(
-  state: GameState,
-  ticker: Ticker,
-  side: "buy" | "sell",
-  fraction: number,
-  price: number,
-  date = "",
-  slipPerShare = 0,
-  quotes?: QuotePair,
-): GameState {
+export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fraction: number, price: number, date = "", slipPerShare = 0): GameState {
   if (state.phase !== "play" || !(price > 0)) return state;
   if (side === "buy") {
     const fill = buyShares(state.cash, price, fraction);
     if (fill.shares <= 0) return state;
-    const position = addLots(state.positions[ticker], fill.shares, price, state.cursor);
     return {
       ...state,
       cash: fill.cash,
       dayFees: state.dayFees + fill.fee,
       batchFees: state.batchFees + fill.fee,
       ...noteFill(state, ticker, "buy", fill.shares, price, slipPerShare),
-      positions: { ...state.positions, [ticker]: position },
+      positions: { ...state.positions, [ticker]: addLots(state.positions[ticker], fill.shares, price, state.cursor) },
       markers: [...state.markers, { minute: state.cursor, ticker, side: "buy" }],
-      sqqqGuide: ticker === "SQQQ" ? sqqqGuideAfter(state.sqqqGuide, position, quotes) : (state.sqqqGuide ?? null),
     };
   }
   const held = state.positions[ticker].shares;
@@ -308,7 +254,6 @@ export function trade(
     positions: { ...state.positions, [ticker]: closed.position },
     batchTrades: [...state.batchTrades, ...closed.trades],
     markers: [...state.markers, { minute: state.cursor, ticker, side: "sell" }],
-    sqqqGuide: ticker === "SQQQ" ? sqqqGuideAfter(state.sqqqGuide, closed.position, quotes) : (state.sqqqGuide ?? null),
   };
 }
 
@@ -409,7 +354,7 @@ export function stepMinute(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[
 
 export function fastForward(state: GameState, steps: number, tqqq: MinuteBar[], sqqq: MinuteBar[], date: string, hold: number): GameState {
   let next = state;
-  const cap = Math.max(0, Math.min(Math.floor(steps), SESSION_MINUTES * (SUBTICKS + 1) + 50));
+  const cap = Math.max(0, Math.min(Math.floor(steps), 8000));
   for (let step = 0; step < cap && next.phase === "play"; step += 1) next = tickForward(next, tqqq, sqqq, date, hold);
   return next;
 }
@@ -432,13 +377,6 @@ function closeBatch(state: GameState): GameState {
   };
 }
 
-function tradeMarkOf(parsed: GameState): number {
-  const trades = Array.isArray(parsed.batchTrades) ? parsed.batchTrades.length : 0;
-  const mark = Number(parsed.tradeMark);
-  if (Number.isInteger(mark) && mark >= 0 && mark <= trades) return mark;
-  return parsed.day > 0 ? trades : 0;
-}
-
 function resetDay(state: GameState, session: number, day: number): GameState {
   return {
     ...state,
@@ -455,35 +393,6 @@ function resetDay(state: GameState, session: number, day: number): GameState {
     dayDrawdown: 0,
     markers: [],
     fills: [],
-    tradeMark: state.batchTrades.length,
-  };
-}
-
-/** Replay the current day from 9:30. Today's trades disappear. Earlier days and saved games stay. */
-export function restartDay(state: GameState): GameState {
-  if (state.phase !== "play") return state;
-  const cash = state.dayStartEquity;
-  const mark = Math.max(0, Math.min(state.batchTrades.length, state.tradeMark || 0));
-  return {
-    ...state,
-    cash,
-    positions: { TQQQ: emptyPosition(), SQQQ: emptyPosition() },
-    cursor: 0,
-    tick: 0,
-    playing: false,
-    sqqqGuide: null,
-    markers: [],
-    fills: [],
-    dayFees: 0,
-    daySlippage: 0,
-    dayPeak: cash,
-    dayDrawdown: 0,
-    batchFees: Math.max(0, (state.batchFees || 0) - (state.dayFees || 0)),
-    batchSlippage: Math.max(0, (state.batchSlippage || 0) - (state.daySlippage || 0)),
-    batchTrades: state.batchTrades.slice(0, mark),
-    session: state.session,
-    day: state.day,
-    editedAt: Date.now(),
   };
 }
 

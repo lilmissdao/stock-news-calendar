@@ -1,8 +1,6 @@
 /** Trading-day growth model. 252 trading days per year, 21 per month. */
 
 export const TRADING_DAYS_PER_YEAR = 252;
-/** Blend of TQQQ and SQQQ used only to turn a balance into a share count for fee estimates. */
-export const ASSUMED_SHARE_PRICE = 55;
 export const TRADING_DAYS_PER_MONTH = 21;
 export const STORAGE_KEY = "snc-simulator:v1";
 export const MILLION = 1_000_000;
@@ -144,16 +142,15 @@ function finite(value: number, fallback: number): number {
 }
 
 export function simulate(input: Scenario): Simulation {
-  const priced = { ...input, tradeWith: "shares" as const, sharePrice: ASSUMED_SHARE_PRICE };
-  const years = Math.min(10, Math.max(1, Math.round(finite(priced.years, 3))));
+  const years = Math.min(10, Math.max(1, Math.round(finite(input.years, 3))));
   const tradingDays = years * TRADING_DAYS_PER_YEAR;
   const months = years * 12;
-  const start = Math.max(0, finite(priced.startingCapital, 0));
-  const daily = finite(priced.dailyReturnPct, 0) / 100;
-  const drawdown = finite(priced.drawdownPct, 0) / 100;
-  const perMonth = Math.max(0, finite(priced.drawdownsPerMonth, 0));
+  const start = Math.max(0, finite(input.startingCapital, 0));
+  const daily = finite(input.dailyReturnPct, 0) / 100;
+  const drawdown = finite(input.drawdownPct, 0) / 100;
+  const perMonth = Math.max(0, finite(input.drawdownsPerMonth, 0));
   const hits = drawdownHitsByDay(tradingDays, perMonth);
-  const opening = roundTrip(start, 1, priced);
+  const opening = roundTrip(start, 1, input);
 
   let balance = start;
   const points: MonthPoint[] = [{ month: 0, balance }];
@@ -167,7 +164,7 @@ export function simulate(input: Scenario): Simulation {
     const multiplier = count > 0 ? (1 - drawdown) ** count : 1 + daily;
     if (count > 0) drawdownDays += 1;
     else tradeDays += 1;
-    const traded = roundTrip(balance, multiplier, priced);
+    const traded = roundTrip(balance, multiplier, input);
     balance = traded.balance;
     feesPaid += traded.cost;
     if (day % TRADING_DAYS_PER_MONTH === 0) points.push({ month: day / TRADING_DAYS_PER_MONTH, balance });

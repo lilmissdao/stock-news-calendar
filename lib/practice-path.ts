@@ -6,7 +6,7 @@ export type Timeframe = "1m" | "5m" | "15m" | "30m" | "1D";
 const FRAME_MINUTES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 390 };
 /** One sub-tick per real second at 1x. A 1-minute candle takes 60 seconds to reach its close. */
 export const SUBTICKS = 60;
-/** 9:30–10:00 AM ET. Six real 5-minute bars. */
+/** 9:30–10:00 AM ET. Thirty real 1-minute bars. */
 export const SESSION_MINUTES = 30;
 
 type Rng = () => number;
@@ -21,95 +21,21 @@ export function mulberry32(seed: number): Rng {
   };
 }
 
-function gaussian(rng: Rng): number {
-  const u = Math.max(rng(), 1e-12);
-  const v = rng();
-  return Math.sqrt(-2 * Math.log(u)) * Math.cos(Math.PI * 2 * v);
-}
-
-/** Brownian bridge of 6 points, pinned at 0 on both ends. */
-function bridge(rng: Rng): number[] {
-  const raw = [0];
-  for (let i = 1; i <= 5; i += 1) raw.push(raw[i - 1] + gaussian(rng));
-  const end = raw[5];
-  return raw.map((value, index) => value - (index / 5) * end);
-}
-
 function barOf(tuple: Ohlc): { o: number; h: number; l: number; c: number } {
   const [o, h, l, c] = tuple;
   return { o, h: Math.max(h, o, c), l: Math.min(l, o, c), c };
 }
 
-function shape(tuple: Ohlc, noise: number[], sign: number): number[] {
-  const bar = barOf(tuple);
-  const span = Math.max(bar.h - bar.l, 0);
-  const points = noise.map((value, index) => bar.o + (bar.c - bar.o) * (index / 5) + sign * value * span * 0.9);
-  points[0] = bar.o;
-  points[5] = bar.c;
-  for (let i = 1; i < 5; i += 1) points[i] = Math.min(bar.h, Math.max(bar.l, points[i]));
-  let maxAt = 1;
-  let minAt = 2;
-  for (let i = 1; i < 5; i += 1) {
-    if (points[i] > points[maxAt]) maxAt = i;
-    if (points[i] < points[minAt]) minAt = i;
-  }
-  if (maxAt === minAt) minAt = maxAt === 1 ? 3 : 1;
-  if (points[maxAt] < bar.h) points[maxAt] = bar.h;
-  if (points[minAt] > bar.l) points[minAt] = bar.l;
-  points[0] = bar.o;
-  points[5] = bar.c;
-  for (let i = 1; i < 5; i += 1) points[i] = Math.min(bar.h, Math.max(bar.l, points[i]));
-  if (Math.max(...points) < bar.h) points[maxAt] = bar.h;
-  if (Math.min(...points) > bar.l) points[minAt] = bar.l;
-  points[0] = bar.o;
-  points[5] = bar.c;
-  return points;
+function placeMinutes(bars: Ohlc[], start: number): MinuteBar[] {
+  return bars.slice(0, SESSION_MINUTES).map((tuple, index) => {
+    const bar = barOf(tuple);
+    return { t: start + index * 60, o: bar.o, h: bar.h, l: bar.l, c: bar.c };
+  });
 }
 
-function candles(points: number[], origin: number, minuteBase: number, high: number, low: number): MinuteBar[] {
-  const bars: MinuteBar[] = [];
-  const span = Math.max(high - low, 0);
-  // A few cents of local wick. The 5-minute high and low belong to the minutes that actually reach them.
-  const localWick = Math.min(0.04, span * 0.15);
-  for (let i = 0; i < 5; i += 1) {
-    const open = points[i];
-    const close = points[i + 1];
-    const bodyHigh = Math.max(open, close);
-    const bodyLow = Math.min(open, close);
-    const quiet = Math.abs(open - close) < 1e-9;
-    const top = quiet ? bodyHigh : Math.min(high, bodyHigh + (bodyHigh < high - 1e-9 ? localWick : 0));
-    const bottom = quiet ? bodyLow : Math.max(low, bodyLow - (bodyLow > low + 1e-9 ? localWick : 0));
-    bars.push({
-      t: origin + (minuteBase + i) * 60,
-      o: open,
-      h: Math.max(top, bodyHigh),
-      l: Math.min(bottom, bodyLow),
-      c: close,
-    });
-  }
-  let hi = 0;
-  let lo = 0;
-  for (let i = 1; i < bars.length; i += 1) {
-    if (bars[i].h > bars[hi].h || (bars[i].h === bars[hi].h && Math.max(bars[i].o, bars[i].c) > Math.max(bars[hi].o, bars[hi].c))) hi = i;
-    if (bars[i].l < bars[lo].l || (bars[i].l === bars[lo].l && Math.min(bars[i].o, bars[i].c) < Math.min(bars[lo].o, bars[lo].c))) lo = i;
-  }
-  bars[hi].h = Math.max(high, bars[hi].o, bars[hi].c);
-  bars[lo].l = Math.min(low, bars[lo].o, bars[lo].c);
-  return bars;
-}
-
-export function buildSession(day: PracticeDay, seed: number): { TQQQ: MinuteBar[]; SQQQ: MinuteBar[] } {
-  const rng = mulberry32(seed);
-  const tqqq: MinuteBar[] = [];
-  const sqqq: MinuteBar[] = [];
-  for (let i = 0; i < day.tqqq.length; i += 1) {
-    const noise = bridge(rng);
-    const tBar = barOf(day.tqqq[i]);
-    const sBar = barOf(day.sqqq[i]);
-    tqqq.push(...candles(shape(day.tqqq[i], noise, 1), day.start, i * 5, tBar.h, tBar.l));
-    sqqq.push(...candles(shape(day.sqqq[i], noise, -1), day.start, i * 5, sBar.h, sBar.l));
-  }
-  return { TQQQ: tqqq, SQQQ: sqqq };
+/** The stored bars are already real 1-minute OHLC. The seed only shapes the live path inside each bar. */
+export function buildSession(day: PracticeDay, _seed = 1): { TQQQ: MinuteBar[]; SQQQ: MinuteBar[] } {
+  return { TQQQ: placeMinutes(day.tqqq, day.start), SQQQ: placeMinutes(day.sqqq, day.start) };
 }
 
 export function minuteSeed(daySeed: number, minute: number): number {
@@ -152,7 +78,16 @@ export function seriesNeedsReset(previousId: string | null, nextId: string, prev
 }
 
 /** Completed minutes in the 9:30–10:00 window, plus the candle that is still forming. */
-export function chartBars(minutes: MinuteBar[], cursor: number, tick: number, daySeed: number, sign: number, timeframe: Timeframe): MinuteBar[] {
+export function chartBars(
+  minutes: MinuteBar[],
+  cursor: number,
+  tick: number,
+  daySeed: number,
+  sign: number,
+  timeframe: Timeframe,
+  daily: MinuteBar | null = null,
+): MinuteBar[] {
+  if (timeframe === "1D" && daily) return [{ ...daily }];
   if (minutes.length === 0) return [];
   const last = Math.min(minutes.length, SESSION_MINUTES) - 1;
   const minute = Math.max(0, Math.min(cursor, last));

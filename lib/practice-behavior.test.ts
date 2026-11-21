@@ -3,8 +3,8 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { avgCostLabel, buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
-import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
+import { aggregate, avgCostLabel, buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
+import { assemblePracticeDays, mergePracticeDays, morningBars, type Ohlc, type PracticeDay, type PracticeMarket, type TimedBar, type YahooChart } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { rowSlippage } from "./practice-history";
 
@@ -68,53 +68,87 @@ function switchTickerThenSell() {
   assert.ok(game.positions.SQQQ.shares > 0, "the SQQQ lot is still there");
 }
 
-function isFlatTee(bar: { o: number; h: number; l: number; c: number }): boolean {
-  const body = Math.abs(bar.o - bar.c);
-  const wick = bar.h - Math.max(bar.o, bar.c);
-  const range = bar.h - bar.l;
-  return body <= 0.011 && Math.abs(Math.min(bar.o, bar.c) - bar.l) <= 0.011 && range > 0.08 && wick > range * 0.45;
-}
-
-function syntheticMinutesKeepTheRealBar() {
+function realMinutesMatchTheFile() {
   const book = market as PracticeMarket;
-  let tees = 0;
-  let minutes = 0;
-  let runs = 0;
+  assert.ok(book.days.length >= 15, `expected about a month of sessions, got ${book.days.length}`);
   for (const day of book.days) {
+    assert.equal(day.tqqq.length, 30, day.date);
+    assert.equal(day.sqqq.length, 30, day.date);
+    assert.ok(day.daily, day.date);
     const session = buildSession(day, 99);
-    const shown = session.TQQQ.slice(0, 30);
-    let run = 0;
-    shown.forEach((bar, index) => {
-      minutes += 1;
-      const parent = day.tqqq[Math.floor(index / 5)];
-      const group = shown.slice(Math.floor(index / 5) * 5, Math.floor(index / 5) * 5 + 5);
-      if (index % 5 === 0) {
-        assert.equal(group[0].o, parent[0], `${day.date} open`);
-        assert.equal(group[4].c, parent[3], `${day.date} close`);
-        assert.equal(Math.max(...group.map((item) => item.h)), parent[1], `${day.date} high`);
-        assert.equal(Math.min(...group.map((item) => item.l)), parent[2], `${day.date} low`);
-      }
-      assert.ok(bar.h >= Math.max(bar.o, bar.c) - 1e-9 && bar.l <= Math.min(bar.o, bar.c) + 1e-9);
-      assert.ok(bar.h <= parent[1] + 1e-9 && bar.l >= parent[2] - 1e-9);
-      if (isFlatTee(bar)) {
-        tees += 1;
-        run += 1;
-        if (run >= 3) runs += 1;
-      } else run = 0;
+    session.TQQQ.forEach((bar, index) => {
+      const [o, h, l, c] = day.tqqq[index];
+      assert.equal(bar.o, o, `${day.date} open`);
+      assert.equal(bar.h, h, `${day.date} high`);
+      assert.equal(bar.l, l, `${day.date} low`);
+      assert.equal(bar.c, c, `${day.date} close`);
+      assert.equal(bar.t, day.start + index * 60);
     });
+    const five = aggregate(session.TQQQ, "5m", 30);
+    assert.equal(five.length, 6);
+    assert.equal(five[0].o, day.tqqq[0][0]);
+    assert.equal(five[0].c, day.tqqq[4][3]);
+    assert.equal(five[0].h, Math.max(...day.tqqq.slice(0, 5).map((bar) => bar[1])));
+    assert.equal(five[0].l, Math.min(...day.tqqq.slice(0, 5).map((bar) => bar[2])));
+    const halfHour = aggregate(session.TQQQ, "30m", 30);
+    assert.equal(halfHour[0].o, day.tqqq[0][0]);
+    assert.equal(halfHour[0].c, day.tqqq[29][3]);
+    const dailyBar = {
+      t: day.start,
+      o: day.daily!.tqqq[0],
+      h: day.daily!.tqqq[1],
+      l: day.daily!.tqqq[2],
+      c: day.daily!.tqqq[3],
+    };
+    assert.deepEqual(chartBars(session.TQQQ, 12, 20, 99, 1, "1D", dailyBar), [dailyBar]);
+    const opened = chartBars(session.TQQQ, 0, 0, 99, 1, "1m");
+    assert.equal(opened[0].o, day.tqqq[0][0]);
+    assert.equal(opened[0].c, day.tqqq[0][0]);
+    const closed = chartBars(session.TQQQ, 0, 60, 99, 1, "1m");
+    assert.equal(closed[0].o, day.tqqq[0][0]);
+    assert.equal(closed[0].h, day.tqqq[0][1]);
+    assert.equal(closed[0].l, day.tqqq[0][2]);
+    assert.equal(closed[0].c, day.tqqq[0][3]);
   }
-  assert.equal(runs, 0, "three flat T candles in a row");
-  assert.ok(tees < minutes * 0.02, `too many flat T candles: ${tees} of ${minutes}`);
   const bar = { t: 0, o: 50, h: 51.2, l: 49.4, c: 50.6 };
   const tape = sharedTape(11);
   const path = subpath(bar, 11, 1);
   const span = bar.h - bar.l;
+  assert.equal(path[0], bar.o);
+  assert.equal(path[path.length - 1], bar.c);
+  assert.equal(path[tape.hi], bar.h);
+  assert.equal(path[tape.lo], bar.l);
   assert.ok(Math.abs(path[tape.hi] - path[tape.hi - 1]) < span * 0.5, "the high is approached, not a one-tick spike");
   assert.ok(Math.abs(path[tape.lo] - path[tape.lo - 1]) < span * 0.5, "the low is approached, not a one-tick spike");
-  const forming = chartBars([bar], 0, 3, 11, 1, "1m");
-  assert.equal(forming[0].o, bar.o);
-  assert.equal(forming[0].c, path[3]);
-  assert.ok(forming[0].h <= bar.h && forming[0].l >= bar.l);
+}
+
+function morningAssemblyDropsIncompleteDays() {
+  const open = Date.parse("2026-11-20T14:30:00.000Z") / 1000;
+  const row = (price: number): TimedBar[] =>
+    Array.from({ length: 30 }, (_, index) => ({
+      t: open + index * 60,
+      ohlc: [price, price + 1, price - 0.5, price + 0.4] as Ohlc,
+    }));
+  const short = row(20).slice(0, 29);
+  const daily = [{ date: "2026-11-20", ohlc: [10, 12, 9, 11] as Ohlc }];
+  const kept = assemblePracticeDays(row(10), row(30), daily, daily);
+  assert.equal(kept.length, 1);
+  assert.equal(kept[0].tqqq.length, 30);
+  assert.equal(kept[0].tqqq[0][0], 10);
+  assert.equal(kept[0].daily?.tqqq[3], 11);
+  assert.equal(assemblePracticeDays(short, row(30), daily, daily).length, 0);
+  const chart: YahooChart = {
+    chart: {
+      result: [
+        {
+          timestamp: [open - 60, open, open + 29 * 60, open + 30 * 60],
+          indicators: { quote: [{ open: [1, 2, 3, 4], high: [1, 2, 3, 4], low: [1, 2, 3, 4], close: [1, 2, 3, 4] }] },
+        },
+      ],
+    },
+  };
+  const filtered = morningBars(chart, open - 10, open + 30 * 60);
+  assert.deepEqual(filtered.map((bar) => bar.t), [open, open + 29 * 60]);
 }
 
 function tapeMovesAndMirrors() {
@@ -276,8 +310,9 @@ function mulberry32(seed: number): () => number {
 
 function shuffleUsesEveryDayBeforeRepeating() {
   const book = market as PracticeMarket;
-  assert.equal(book.days.length, 60);
+  assert.ok(book.days.length >= 15, `expected the real 1-minute book, got ${book.days.length}`);
   const dates = book.days.map((day) => day.date);
+  const total = dates.length;
   const history = dates.slice(0, 10);
   let cycle = emptyCycle();
   const next = mulberry32(99);
@@ -289,12 +324,12 @@ function shuffleUsesEveryDayBeforeRepeating() {
     cycle = draw.cycle;
     assert.equal(freshLeft(dates, history, cycle, draw.date), dates.length - history.length - dealt.length + 1);
   }
-  assert.equal(new Set([...history, ...dealt]).size, 60);
+  assert.equal(new Set([...history, ...dealt]).size, total);
   const again = drawSession(dates, history, cycle, dealt[dealt.length - 1], next);
   assert.equal(again.cycle.generation, 1);
   assert.notEqual(again.date, dealt[dealt.length - 1]);
   assert.equal(again.cycle.dates.length, 1);
-  assert.equal(freshLeft(dates, history, again.cycle, again.date), 60);
+  assert.equal(freshLeft(dates, history, again.cycle, again.date), total);
   const counts = Array.from({ length: 60 }, () => 0);
   const roll = mulberry32(3);
   for (let sample = 0; sample < 12000; sample += 1) counts[uniformIndex(60, roll)] += 1;
@@ -445,7 +480,8 @@ buyThenSellAll();
 partialSellsThenAll();
 sellWithNoCash();
 switchTickerThenSell();
-syntheticMinutesKeepTheRealBar();
+realMinutesMatchTheFile();
+morningAssemblyDropsIncompleteDays();
 tapeMovesAndMirrors();
 switchKeepsTheLiveCandle();
 scaleStaysOnTheTicker();

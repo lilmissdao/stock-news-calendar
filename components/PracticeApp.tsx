@@ -88,8 +88,8 @@ function dayStarted(state: GameState): boolean {
 }
 
 function sessionWindow(day: (typeof BOOK.days)[number]): { open: number; close: number; date: string } {
-  const closeBar = day.tqqq[5] ?? day.tqqq[day.tqqq.length - 1];
-  return { open: day.tqqq[0][0], close: closeBar[3], date: day.date };
+  const last = day.tqqq[day.tqqq.length - 1];
+  return { open: day.tqqq[0][0], close: last?.[3] ?? day.tqqq[0][3], date: day.date };
 }
 
 function bookDay(state: GameState) {
@@ -151,7 +151,10 @@ function applyFill(state: GameState, side: "buy" | "sell", fraction: number, tic
 
 function priorClose(index: number, ticker: Ticker): number | null {
   if (index <= 0) return null;
-  const bars = ticker === "TQQQ" ? BOOK.days[index - 1].tqqq : BOOK.days[index - 1].sqqq;
+  const day = BOOK.days[index - 1];
+  const daily = ticker === "TQQQ" ? day.daily?.tqqq : day.daily?.sqqq;
+  if (daily) return daily[3];
+  const bars = ticker === "TQQQ" ? day.tqqq : day.sqqq;
   return bars[bars.length - 1]?.[3] ?? null;
 }
 
@@ -359,7 +362,17 @@ export function PracticeApp() {
   const position = game.positions[game.ticker];
   const other = game.ticker === "TQQQ" ? "SQQQ" : "TQQQ";
   const today = game.dayStartEquity > 0 ? value / game.dayStartEquity - 1 : 0;
-  const candles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, game.timeframe);
+  const dailyTuple = session.day.daily?.tqqq;
+  const daily = dailyTuple
+    ? {
+        t: session.day.start,
+        o: dailyTuple[0],
+        h: Math.max(dailyTuple[1], dailyTuple[0], dailyTuple[3]),
+        l: Math.min(dailyTuple[2], dailyTuple[0], dailyTuple[3]),
+        c: dailyTuple[3],
+      }
+    : null;
+  const candles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, game.timeframe, daily);
   const costLines: CostLine[] = [];
   let sqqqNote: string | null = null;
   if (game.positions.TQQQ.shares > 0 && game.positions.TQQQ.avgCost > 0) {
@@ -790,7 +803,7 @@ export function PracticeApp() {
               <BatchReview game={game} onNext={goNext} onReset={askNew} />
             ) : null}
             <p className="chart-note">
-              {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 5-minute bar is randomized; the bar’s open, high, low, and close are real.
+              {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 1-minute bar is randomized; the bar’s open, high, low, and close are real.
             </p>
             <p className="pr-stamp">
               Build {process.env.NEXT_PUBLIC_COMMIT_SHA || "local"} · {process.env.NEXT_PUBLIC_BUILD_TIME || "dev"} ·{" "}

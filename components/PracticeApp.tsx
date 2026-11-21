@@ -55,7 +55,6 @@ const CHART_KEY = "snc-practice-chart-h";
 const BOOK = market as PracticeMarket;
 const SESSION_DATES = BOOK.days.map((day) => day.date);
 const FRAMES: Timeframe[] = ["1m", "5m", "15m", "30m", "1D"];
-const SIZES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 30 };
 
 function pct(value: number): string {
   const text = `${Math.abs(value * 100).toFixed(2)}%`;
@@ -83,10 +82,8 @@ function holdLabel(minutes: number | null): string {
   return `${Math.floor(rounded / 60)}h ${rounded % 60}m`;
 }
 
-function snap(start: number, minute: number, timeframe: Timeframe): number {
-  const size = SIZES[timeframe];
-  return start + Math.floor(minute / size) * size * 60;
-}
+/** Buys and sells are not marked on the chart. */
+const NO_MARKS: ChartMark[] = [];
 
 function dayStarted(state: GameState): boolean {
   const open = state.positions.TQQQ.shares + state.positions.SQQQ.shares > 0;
@@ -364,9 +361,6 @@ export function PracticeApp() {
   const other = game.ticker === "TQQQ" ? "SQQQ" : "TQQQ";
   const today = game.dayStartEquity > 0 ? value / game.dayStartEquity - 1 : 0;
   const candles = chartBars(session[game.ticker], game.cursor, game.tick, game.seeds[game.day] || 1, game.ticker === "TQQQ" ? 1 : -1, game.timeframe);
-  const marks: ChartMark[] = game.markers
-    .filter((mark) => mark.ticker === game.ticker && mark.minute <= game.cursor)
-    .map((mark) => ({ time: snap(session.day.start, mark.minute, game.timeframe), side: mark.side }));
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
   const prior = priorClose(game.session, game.ticker);
@@ -628,7 +622,7 @@ export function PracticeApp() {
                 <PracticeChart
                   ref={chartRef}
                   candles={candles as ChartCandle[]}
-                  markers={marks}
+                  markers={NO_MARKS}
                   theme={theme}
                   priorClose={prior}
                   seriesId={`${game.ticker}-${game.timeframe}`}

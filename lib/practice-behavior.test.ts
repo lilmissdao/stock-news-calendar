@@ -247,14 +247,14 @@ function candlesFormLikeATrail() {
 }
 
 function clockAndCatchUp() {
-  assert.equal(minuteLeft(SUBTICKS * 0.3, 1), "1:24 left in this minute");
-  assert.equal(minuteLeft(0, 1), "2:00 left in this minute");
+  assert.equal(minuteLeft(SUBTICKS * 0.3, 1), "0:42 left in this minute");
+  assert.equal(minuteLeft(0, 1), "1:00 left in this minute");
   assert.equal(ticksDue(0, 1), 0);
-  assert.equal(ticksDue(120_000, 1), SUBTICKS, "1x spends 120 real seconds on one candle");
-  assert.equal(ticksDue(60_000, 2), SUBTICKS, "2x spends 60 real seconds on one candle");
-  assert.equal(ticksDue(8_000, 15), SUBTICKS, "15x spends 8 real seconds on one candle");
+  assert.equal(ticksDue(60_000, 1), SUBTICKS, "1x spends 60 real seconds on one candle");
+  assert.equal(ticksDue(30_000, 2), SUBTICKS, "2x spends 30 real seconds on one candle");
+  assert.equal(ticksDue(4_000, 15), SUBTICKS, "15x spends 4 real seconds on one candle");
   const due = ticksDue(5000, 1);
-  assert.equal(due, 20, `five seconds at 1x should be four ticks a second, was ${due}`);
+  assert.equal(due, 40, `five seconds at 1x should be eight ticks a second, was ${due}`);
   const gaps: number[] = [];
   let lastAt = 0;
   let seen = 0;
@@ -266,8 +266,8 @@ function clockAndCatchUp() {
       seen = got;
     }
   }
-  // Evenly spaced ticks, every quarter second at 1x, so the candle glides instead of stuttering.
-  assert.ok(gaps.slice(1).every((gap) => gap === 250), `ticks should be evenly spaced: ${gaps.join(",")}`);
+  // Evenly spaced ticks, every eighth of a second at 1x, so the candle glides instead of stuttering.
+  assert.ok(gaps.slice(1).every((gap) => gap === 125), `ticks should be evenly spaced: ${gaps.join(",")}`);
   const game = fresh();
   const bars = Array.from({ length: 30 }, (_, index) => ({ t: index * 60, o: 10, h: 11, l: 9, c: 10.5 }));
   const next = fastForward(game, due, bars, bars, "2026-11-18", 31000);

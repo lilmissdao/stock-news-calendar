@@ -16,8 +16,8 @@ import {
 
 export type Speed = 1 | 2 | 5 | 15;
 export const SPEEDS: Speed[] = [1, 2, 5, 15];
-/** Real time one 1-minute candle takes at 1x: two minutes, half the speed of the market. */
-export const CANDLE_MS = 120_000;
+/** Real time one 1-minute candle takes at 1x: one minute, the speed of the market. */
+export const CANDLE_MS = 60_000;
 
 /** Average milliseconds between live sub-ticks. The real gaps wobble around this. */
 export function tickMs(speed: Speed): number {

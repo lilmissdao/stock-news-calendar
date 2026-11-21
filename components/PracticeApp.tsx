@@ -46,7 +46,7 @@ import {
 } from "@/lib/practice-history";
 import { CYCLE_KEY, drawSession, freshLeft, parseCycle, type CycleFile } from "@/lib/practice-cycle";
 import type { PracticeMarket } from "@/lib/practice-market";
-import { avgCostLabel, chartBars, clock, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
+import { avgCostLabel, chartBars, clock, keepAnchor, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { isApplyingSync, scheduleSync, tombstoneAll, tombstoneGame, touchSection, watchSync, adoptSyncCode, type SyncEventDetail } from "@/lib/sync-client";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
 import { fillDelayMs, slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
@@ -426,18 +426,18 @@ export function PracticeApp() {
     : null;
   const candles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, game.timeframe, daily);
   const costLines: CostLine[] = [];
-  let sqqqNote: string | null = null;
+  const costNotes: string[] = [];
   if (game.positions.TQQQ.shares > 0 && game.positions.TQQQ.avgCost > 0) {
-    costLines.push({ key: "tqqq", price: game.positions.TQQQ.avgCost, title: avgCostLabel("tqqq", game.positions.TQQQ.avgCost) });
+    const title = avgCostLabel("tqqq", game.positions.TQQQ.avgCost);
+    if (keepAnchor(candles, game.positions.TQQQ.avgCost)) costLines.push({ key: "tqqq", price: game.positions.TQQQ.avgCost, title });
+    else costNotes.push(title);
   }
   if (game.positions.SQQQ.shares > 0 && game.positions.SQQQ.avgCost > 0) {
     const title = avgCostLabel("sqqq", game.positions.SQQQ.avgCost);
     const guide = game.sqqqGuide;
-    if (guide && guide.level !== null && Math.abs(guide.avg - game.positions.SQQQ.avgCost) < 1e-6) {
-      costLines.push({ key: "sqqq", price: guide.level, title });
-    } else {
-      sqqqNote = title;
-    }
+    const level = guide && Math.abs(guide.avg - game.positions.SQQQ.avgCost) < 1e-6 ? guide.level : null;
+    if (level !== null && keepAnchor(candles, level)) costLines.push({ key: "sqqq", price: level, title });
+    else costNotes.push(title);
   }
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
@@ -715,7 +715,11 @@ export function PracticeApp() {
                   seriesId={game.timeframe}
                 />
                 <p className="pr-chart-label">Chart: TQQQ</p>
-                {sqqqNote ? <p className="pr-sqqq-avg">{sqqqNote}</p> : null}
+                {costNotes.map((note, index) => (
+                  <p key={note} className="pr-sqqq-avg" style={{ top: 84 + index * 28 }}>
+                    {note}
+                  </p>
+                ))}
                 {full ? (
                   <button type="button" className="pr-skip pr-fullskip" onClick={askSkip}>
                     Skip day
@@ -728,8 +732,8 @@ export function PracticeApp() {
                   <button type="button" aria-label="Zoom out" onClick={() => chartRef.current?.zoom(1.35)}>
                     −
                   </button>
-                  <button type="button" aria-label="Fit the whole session" onClick={() => chartRef.current?.auto()}>
-                    Fit day
+                  <button type="button" aria-label="Fit all candles" onClick={() => chartRef.current?.auto()}>
+                    Fit
                   </button>
                   <button type="button" onClick={() => setFull((value) => !value)}>
                     {full ? "Close" : "Full"}

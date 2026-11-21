@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { aggregate, avgCostLabel, buildSession, candleInView, chartBars, clock, dayRange, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
+import { aggregate, avgCostLabel, buildSession, candleInView, chartBars, clock, keepAnchor, minuteSeed, priceWindow, progressiveRange, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
 import { assemblePracticeDays, mergePracticeDays, morningBars, type Ohlc, type PracticeDay, type PracticeMarket, type TimedBar, type YahooChart } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { rowSlippage } from "./practice-history";
@@ -240,23 +240,36 @@ function switchKeepsTheLiveCandle() {
   assert.equal(seriesNeedsReset("1m", "1m", before, before), false, "a TQQQ chart with a stable series id does not reset when the traded ticker changes");
 }
 
-function dayViewShowsTheWholeSession() {
-  for (const [frame, span] of [["1m", 30], ["5m", 6], ["15m", 2], ["30m", 1]] as const) {
-    const range = dayRange(frame);
-    assert.ok(range.from < 0, `${frame} leaves a little room before 9:30`);
-    assert.ok(range.to > span - 1, `${frame} includes the 10:00 edge`);
-    for (let index = 0; index < span; index += 1) {
-      assert.ok(index >= range.from && index <= range.to, `${frame} bar ${index} is outside the day`);
+function progressiveFitShowsEveryCandleSoFar() {
+  const phone = 320;
+  const desk = 1100;
+  for (const width of [phone, desk]) {
+    const start = progressiveRange(1, width);
+    const pos = (0 - start.from) / (start.to - start.from);
+    assert.ok(pos > 0.4 && pos < 0.6, `first candle should be centered on ${width}px, was ${pos}`);
+    assert.ok(width / (start.to - start.from) <= 49, "one candle is not wider than the spacing cap");
+    for (const count of [8, 30]) {
+      const range = progressiveRange(count, width);
+      const last = count - 1;
+      for (let index = 0; index < count; index += 1) {
+        assert.ok(index >= range.from && index <= range.to, `${count} bars on ${width}px hide bar ${index}`);
+      }
+      const lastPos = (last - range.from) / (range.to - range.from);
+      assert.ok(lastPos > 0.7 && lastPos < 0.96, `latest of ${count} should sit near the right, was ${lastPos}`);
+      assert.ok(range.to - last >= 1, "the latest candle does not touch the right edge");
     }
   }
-  const oneMinute = dayRange("1m");
-  const firstPos = (0 - oneMinute.from) / (oneMinute.to - oneMinute.from);
-  assert.ok(firstPos < 0.08, `the first candle should sit at the left, was ${firstPos}`);
   const bars = [{ h: 51, l: 49, o: 50, c: 50.4 }];
+  assert.equal(keepAnchor(bars, 52), true);
+  assert.equal(keepAnchor(bars, 60), false);
   const withLine = priceWindow(bars, null, [52]);
-  assert.ok(withLine && withLine.to > 52, "an average-cost line near the candle stays in the price window");
+  assert.ok(withLine && withLine.to > 52, "a nearby average-cost line stays in the price window");
+  const ignored = priceWindow(bars, null, [60]);
+  assert.ok(ignored && ignored.to < 60, "a far average-cost line does not squash the candles");
   const far = priceWindow(bars, 82);
   assert.ok(far && 82 > far.to, "a far prior close is still left out");
+  const tight = priceWindow(bars, null);
+  assert.ok(tight && tight.to - tight.from < (51 - 49) * 1.4, "vertical padding stays small");
 }
 
 function scaleStaysOnTheTicker() {
@@ -503,7 +516,7 @@ realMinutesMatchTheFile();
 morningAssemblyDropsIncompleteDays();
 tapeMovesAndMirrors();
 switchKeepsTheLiveCandle();
-dayViewShowsTheWholeSession();
+progressiveFitShowsEveryCandleSoFar();
 scaleStaysOnTheTicker();
 clockAndCatchUp();
 sqqqAverageOnTheTqqqChart();

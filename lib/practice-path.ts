@@ -44,36 +44,66 @@ export function minuteSeed(daySeed: number, minute: number): number {
 
 export type PriceWindow = { from: number; to: number };
 
+function candleBounds(bars: { h: number; l: number; o?: number; c?: number }[]): { high: number; low: number } | null {
+  if (!bars.length) return null;
+  let high = Math.max(...bars.map((bar) => Math.max(bar.h, bar.o ?? bar.h, bar.c ?? bar.h)));
+  let low = Math.min(...bars.map((bar) => Math.min(bar.l, bar.o ?? bar.l, bar.c ?? bar.l)));
+  if (!Number.isFinite(high) || !Number.isFinite(low)) return null;
+  if (high < low) [high, low] = [low, high];
+  return { high, low };
+}
+
+/** An average-cost line is drawn only when it sits near the candles. Farther lines use the overlay label. */
+export function keepAnchor(bars: { h: number; l: number; o?: number; c?: number }[], price: number): boolean {
+  const bounds = candleBounds(bars);
+  if (!bounds || !Number.isFinite(price)) return false;
+  const span = Math.max(bounds.high - bounds.low, 0.05);
+  const room = span * 0.5;
+  return price >= bounds.low - room && price <= bounds.high + room;
+}
+
 /** Visible price range. A far prior close is left out. Nearby anchors, such as average-cost lines, are kept. */
 export function priceWindow(
   bars: { h: number; l: number; o?: number; c?: number }[],
   priorClose: number | null,
   anchors: number[] = [],
 ): PriceWindow | null {
-  if (!bars.length) return null;
-  let high = Math.max(...bars.map((bar) => Math.max(bar.h, bar.o ?? bar.h, bar.c ?? bar.h)));
-  let low = Math.min(...bars.map((bar) => Math.min(bar.l, bar.o ?? bar.l, bar.c ?? bar.l)));
-  if (!Number.isFinite(high) || !Number.isFinite(low)) return null;
-  if (high < low) [high, low] = [low, high];
+  const bounds = candleBounds(bars);
+  if (!bounds) return null;
+  let { high, low } = bounds;
   const mid = (high + low) / 2 || Math.abs(high) || 1;
-  const take = (price: number | null, limit: number) => {
-    if (price === null || !Number.isFinite(price)) return;
-    if (Math.abs(price - mid) / mid <= limit) {
+  if (priorClose !== null && Number.isFinite(priorClose) && Math.abs(priorClose - mid) / mid <= 0.04) {
+    high = Math.max(high, priorClose);
+    low = Math.min(low, priorClose);
+  }
+  for (const price of anchors) {
+    if (keepAnchor(bars, price)) {
       high = Math.max(high, price);
       low = Math.min(low, price);
     }
-  };
-  take(priorClose, 0.04);
-  for (const price of anchors) take(price, 0.25);
-  const pad = Math.max((high - low) * 0.2, Math.abs(mid) * 0.004, 0.05);
+  }
+  const pad = Math.max((high - low) * 0.12, 0.02);
   return { from: low - pad, to: high + pad };
 }
 
-/** The full 9:30–10:00 window for a timeframe. Index 0 is the first candle; the rest of the session is empty space until bars arrive. */
-export function dayRange(timeframe: string): { from: number; to: number } {
-  const span = timeframe === "5m" ? 6 : timeframe === "15m" ? 2 : timeframe === "30m" || timeframe === "1D" ? 1 : 30;
-  const pad = span <= 2 ? 0.75 : 0.5;
-  return { from: -pad, to: span - 1 + pad };
+/**
+ * Logical range for the candles that exist so far.
+ * One candle is centered and capped at about 48px wide. More candles zoom out just enough to keep all of them,
+ * with the latest bar a little in from the right.
+ */
+export function progressiveRange(count: number, plotWidth: number): { from: number; to: number } {
+  const last = Math.max(0, count - 1);
+  const width = Math.max(plotWidth, 160);
+  const maxSpacing = 48;
+  const minSlots = Math.max(width / maxSpacing, 5);
+  const rightPad = 1.5;
+  if (count <= 1) {
+    const half = minSlots / 2;
+    return { from: -half, to: half };
+  }
+  const natural = last + rightPad + 0.6;
+  if (natural >= minSlots) return { from: -0.6, to: last + rightPad };
+  return { from: last + rightPad - minSlots, to: last + rightPad };
 }
 
 export function candleInView(range: PriceWindow, time: { from: number; to: number }, bar: { h: number; l: number; c: number }, index: number): boolean {

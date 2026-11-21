@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import type { IChartApi, IPriceLine, ISeriesApi, LineStyle, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
-import { clock, dayRange, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
+import { clock, priceWindow, progressiveRange, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
 export type CostLine = { key: string; price: number; title: string };
@@ -64,6 +64,10 @@ function publish(chart: IChartApi, candles: ChartCandle[], host: HTMLElement | n
   host.dataset.manual = manual ? "1" : "0";
 }
 
+function plotWidth(host: HTMLElement | null): number {
+  return Math.max(160, (host?.clientWidth ?? 360) - 64);
+}
+
 function holdApply(applying: { current: boolean }, run: () => void) {
   applying.current = true;
   run();
@@ -77,7 +81,6 @@ function fitNow(
   candles: ChartCandle[],
   priorClose: number | null,
   anchors: number[],
-  timeframe: string,
   host: HTMLElement | null,
   applying: { current: boolean },
 ) {
@@ -87,7 +90,7 @@ function fitNow(
     chart.timeScale().applyOptions({ rightOffset: 0, minBarSpacing: 0.5, shiftVisibleRangeOnNewBar: false });
     scale.setAutoScale(true);
     if (window) scale.setVisibleRange({ from: window.from, to: window.to });
-    chart.timeScale().setVisibleLogicalRange(dayRange(timeframe));
+    chart.timeScale().setVisibleLogicalRange(progressiveRange(candles.length, plotWidth(host)));
   });
   publish(chart, candles, host, false);
 }
@@ -134,7 +137,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       const chart = chartRef.current;
       if (!chart) return;
       manual.current = false;
-      fitNow(chart, latest.current.candles, latest.current.priorClose, anchors(), latest.current.seriesId, host.current, applying);
+      fitNow(chart, latest.current.candles, latest.current.priorClose, anchors(), host.current, applying);
       window.setTimeout(() => {
         manual.current = false;
         if (chartRef.current) publish(chartRef.current, latest.current.candles, host.current, false);
@@ -325,7 +328,7 @@ function paint(
     applyCostLines(series, costs, costLines, host);
     if (!manual.current || switched) {
       manual.current = false;
-      fitNow(chart, candles, priorClose, prices, seriesId, host, applying);
+      fitNow(chart, candles, priorClose, prices, host, applying);
     } else {
       applying.current = true;
       if (savedTime) chart.timeScale().setVisibleLogicalRange(savedTime);
@@ -343,10 +346,17 @@ function paint(
     applyCostLines(series, costs, costLines, host);
     if (!manual.current) {
       chart.priceScale("right").setAutoScale(true);
-      const desired = dayRange(seriesId);
+      const desired = progressiveRange(candles.length, plotWidth(host));
       const range = chart.timeScale().getVisibleLogicalRange();
-      if (!range || Math.abs(range.from - desired.from) > 0.2 || Math.abs(range.to - desired.to) > 0.2) {
-        holdApply(applying, () => chart.timeScale().setVisibleLogicalRange(desired));
+      const window = priceWindow(candles, priorClose, prices);
+      const price = chart.priceScale("right").getVisibleRange();
+      const moveTime = !range || Math.abs(range.from - desired.from) > 0.15 || Math.abs(range.to - desired.to) > 0.15;
+      const movePrice = !!window && (!price || Math.abs(price.from - window.from) > 0.005 || Math.abs(price.to - window.to) > 0.005);
+      if (moveTime || movePrice) {
+        holdApply(applying, () => {
+          if (moveTime) chart.timeScale().setVisibleLogicalRange(desired);
+          if (window && movePrice) chart.priceScale("right").setVisibleRange({ from: window.from, to: window.to });
+        });
       }
     }
     publish(chart, candles, host, manual.current);

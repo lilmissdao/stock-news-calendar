@@ -114,6 +114,8 @@ export type GameState = {
   batchHold: number;
   /** How many closed trades belonged to earlier days when this day opened. */
   tradeMark: number;
+  /** Wall-clock time of the last local edit. A reset uses this so an older, further-along copy does not win a tie. */
+  editedAt?: number;
   history: { batches: BatchSummary[]; equity: EquityPoint[] };
 };
 
@@ -209,6 +211,7 @@ export function loadGame(raw: string | null, dayCount: number): GameState | null
       daySlippage: Number.isFinite(parsed.daySlippage) ? parsed.daySlippage : 0,
       batchSlippage: Number.isFinite(parsed.batchSlippage) ? parsed.batchSlippage : 0,
       tradeMark: tradeMarkOf(parsed),
+      editedAt: Number.isFinite(parsed.editedAt) ? parsed.editedAt : 0,
     };
   } catch {
     return null;
@@ -480,6 +483,7 @@ export function restartDay(state: GameState): GameState {
     batchTrades: state.batchTrades.slice(0, mark),
     session: state.session,
     day: state.day,
+    editedAt: Date.now(),
   };
 }
 

@@ -1317,7 +1317,7 @@ main { min-width: 0; }
 }
 .pr-toggle button[aria-pressed="true"], .pr-dock .text-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .pr-stage { position: relative; height: 520px; display: flex; flex-direction: column; gap: 6px; }
-.pr-transport { display: flex; flex: none; flex-wrap: wrap; align-items: center; gap: 6px; }
+.pr-transport { position: relative; z-index: 6; display: flex; flex: none; flex-wrap: wrap; align-items: center; gap: 6px; }
 .pr-speeds { display: flex; gap: 4px; }
 .pr-speeds button, .pr-transport .pr-skip {
   min-height: 32px;
@@ -1332,16 +1332,19 @@ main { min-width: 0; }
 }
 .pr-speeds button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .pr-reset {
+  position: relative;
+  z-index: 6;
   margin-left: auto;
-  min-height: 32px;
-  padding: 4px 8px;
-  border: 0;
-  background: transparent;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-elev);
   color: var(--ink-soft);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
 }
-.pr-plot { position: relative; flex: 1; min-height: 0; }
+.pr-plot { position: relative; z-index: 1; flex: 1; min-height: 0; overflow: hidden; }
 .pr-legend {
   display: flex;
   flex: none;
@@ -1548,6 +1551,28 @@ main { min-width: 0; }
   padding: 8px 16px;
 }
 .pr-confirm { display: flex; flex-direction: column; gap: 12px; }
+.pr-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px 16px 88px;
+  background: color-mix(in srgb, #1c1915 46%, transparent);
+}
+.pr-modal .pr-confirm {
+  width: min(420px, 100%);
+  margin: 0 0 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--bg-elev);
+  box-shadow: var(--shadow);
+}
+@media (min-width: 800px) {
+  .pr-modal { align-items: center; }
+  .pr-modal .pr-confirm { margin: 0; }
+}
 .pr-confirm h2 { margin: 0; }
 .pr-cards { display: flex; flex-direction: column; gap: 8px; }
 .pr-card { border: 1px solid var(--line); border-radius: 16px; background: var(--bg-elev); padding: 12px; }

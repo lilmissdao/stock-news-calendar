@@ -118,6 +118,10 @@ function progressScore(game: GameState): number {
   return game.day * 1_000_000 + game.cursor * 1_000 + game.tick + (hasProgress(game) ? 1 : 0);
 }
 
+function editedAt(game: GameState | null): number {
+  return game && typeof game.editedAt === "number" && Number.isFinite(game.editedAt) ? game.editedAt : 0;
+}
+
 function mergeSession(
   left: { game: GameState | null; gameAt: number },
   right: { game: GameState | null; gameAt: number },
@@ -125,6 +129,9 @@ function mergeSession(
   if (left.gameAt !== right.gameAt) return left.gameAt > right.gameAt ? left : right;
   if (!left.game) return right;
   if (!right.game) return left;
+  const leftEdit = editedAt(left.game);
+  const rightEdit = editedAt(right.game);
+  if (leftEdit !== rightEdit) return leftEdit > rightEdit ? left : right;
   return progressScore(right.game) >= progressScore(left.game) ? right : left;
 }
 

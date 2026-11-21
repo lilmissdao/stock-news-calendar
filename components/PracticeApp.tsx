@@ -282,7 +282,9 @@ export function PracticeApp() {
       if (detail.wroteHistory) setHistory({ v: 1, games: doc.practice.games });
       if (detail.wroteGame && doc.practice.game) {
         const loaded = loadGame(JSON.stringify(doc.practice.game), BOOK.days.length);
-        if (loaded) setGame({ ...loaded, playing: false });
+        const localEdit = gameRef.current?.editedAt ?? 0;
+        const incomingEdit = loaded?.editedAt ?? 0;
+        if (loaded && !(localEdit && incomingEdit < localEdit)) setGame({ ...loaded, playing: false });
       }
       if (detail.wroteCycle && doc.practice.cycle) setCycle(doc.practice.cycle);
       if (detail.wroteSettings) {
@@ -527,7 +529,19 @@ export function PracticeApp() {
   function resetNow() {
     setResetAsk(false);
     clearFill();
-    setGame((current) => (current ? restartDay(current) : current));
+    const current = gameRef.current;
+    if (!current) return;
+    const next = restartDay(current);
+    clockRef.current = null;
+    gameRef.current = next;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* Private mode can refuse storage. The reset still shows. */
+    }
+    touchSection("game");
+    setGame(next);
+    scheduleSync(300);
   }
 
   function skipNow() {
@@ -714,20 +728,6 @@ export function PracticeApp() {
                   Skip day
                 </button>
               </div>
-            ) : null}
-            {resetAsk ? (
-              <section className="pr-confirm">
-                <h2>Restart this day from 9:30?</h2>
-                <p className="pr-lead">Today's trades are wiped and cash goes back to the start of this day. Past games stay.</p>
-                <div className="pr-actions">
-                  <button type="button" className="text-btn" onClick={() => setResetAsk(false)}>
-                    Keep playing
-                  </button>
-                  <button type="button" className="pr-skip" onClick={resetNow}>
-                    Restart day
-                  </button>
-                </div>
-              </section>
             ) : null}
             {skipAsk ? (
               <section className="pr-confirm">
@@ -925,9 +925,25 @@ export function PracticeApp() {
                   <p className="pr-note">
                     Also holding {game.positions[other].shares} {other}
                   </p>
-                ) : null}
-              </>
             ) : null}
+            {resetAsk ? (
+              <div className="pr-modal" role="presentation">
+                <section className="pr-confirm" role="dialog" aria-modal="true" aria-labelledby="pr-reset-title">
+                  <h2 id="pr-reset-title">Restart this day from 9:30?</h2>
+                  <p className="pr-lead">Today's trades are wiped and cash goes back to the start of this day. Past games stay.</p>
+                  <div className="pr-actions">
+                    <button type="button" className="text-btn" onClick={() => setResetAsk(false)}>
+                      Keep playing
+                    </button>
+                    <button type="button" className="today-jump" onClick={resetNow}>
+                      Restart day
+                    </button>
+                  </div>
+                </section>
+              </div>
+            ) : null}
+          </>
+        ) : null}
             {game.phase === "day" ? (
               <DayReview game={game} onNext={goNext} onReview={() => setGame((current) => (current ? openBatchReview(current) : current))} />
             ) : null}

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { newGame, restartDay, trade } from "./practice-engine";
 import { emptySync, mergeSync, newSyncCode, sanitizeSync, type SyncDoc } from "./sync";
 import type { ArchivedGame } from "./practice-history";
 import type { Scenario } from "./simulator";
@@ -106,6 +107,23 @@ function newerSessionWins() {
   assert.equal(merged.practice.gameAt, 80);
 }
 
+function resetBeatsATiedCopyThatHasGoneFurther() {
+  const played = { ...trade(newGame(10, () => 0.2), "TQQQ", "buy", 0.25, 50), cursor: 8, tick: 20, editedAt: 100 };
+  const reset = restartDay(played);
+  const resetGame = { ...reset, editedAt: 200 };
+  const local = emptySync();
+  const remote = emptySync();
+  local.practice.game = played;
+  local.practice.gameAt = 100;
+  remote.practice.game = resetGame;
+  remote.practice.gameAt = 100;
+  const merged = mergeSync(sanitizeSync(local), sanitizeSync(remote));
+  assert.equal(merged.practice.game?.cursor, 0);
+  assert.equal(merged.practice.game?.tick, 0);
+  assert.equal(merged.practice.game?.positions.TQQQ.shares, 0);
+  assert.equal(merged.practice.game?.editedAt, 200);
+}
+
 function codeLooksUnguessable() {
   const code = newSyncCode();
   assert.equal(code.length, 10);
@@ -117,5 +135,6 @@ unionsGamesAndHonorsDeletions();
 deleteAllDropsOlderGamesOnly();
 settingsAndScenariosUseTheNewerWrite();
 newerSessionWins();
+resetBeatsATiedCopyThatHasGoneFurther();
 codeLooksUnguessable();
 console.log("sync ok");

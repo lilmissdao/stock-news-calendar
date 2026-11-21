@@ -68,27 +68,33 @@ function shape(tuple: Ohlc, noise: number[], sign: number): number[] {
 
 function candles(points: number[], origin: number, minuteBase: number, high: number, low: number): MinuteBar[] {
   const bars: MinuteBar[] = [];
+  const span = Math.max(high - low, 0);
+  // A few cents of local wick. The 5-minute high and low belong to the minutes that actually reach them.
+  const localWick = Math.min(0.04, span * 0.15);
   for (let i = 0; i < 5; i += 1) {
     const open = points[i];
     const close = points[i + 1];
     const bodyHigh = Math.max(open, close);
     const bodyLow = Math.min(open, close);
-    let top = bodyHigh + Math.max(0, high - bodyHigh) * 0.72;
-    let bottom = bodyLow - Math.max(0, bodyLow - low) * 0.72;
-    if (Math.abs(open - high) < 1e-8 || Math.abs(close - high) < 1e-8) top = high;
-    if (Math.abs(open - low) < 1e-8 || Math.abs(close - low) < 1e-8) bottom = low;
-    top = Math.min(high, Math.max(top, bodyHigh));
-    bottom = Math.max(low, Math.min(bottom, bodyLow));
-    bars.push({ t: origin + (minuteBase + i) * 60, o: open, h: top, l: bottom, c: close });
+    const quiet = Math.abs(open - close) < 1e-9;
+    const top = quiet ? bodyHigh : Math.min(high, bodyHigh + (bodyHigh < high - 1e-9 ? localWick : 0));
+    const bottom = quiet ? bodyLow : Math.max(low, bodyLow - (bodyLow > low + 1e-9 ? localWick : 0));
+    bars.push({
+      t: origin + (minuteBase + i) * 60,
+      o: open,
+      h: Math.max(top, bodyHigh),
+      l: Math.min(bottom, bodyLow),
+      c: close,
+    });
   }
   let hi = 0;
   let lo = 0;
   for (let i = 1; i < bars.length; i += 1) {
-    if (bars[i].h > bars[hi].h) hi = i;
-    if (bars[i].l < bars[lo].l) lo = i;
+    if (bars[i].h > bars[hi].h || (bars[i].h === bars[hi].h && Math.max(bars[i].o, bars[i].c) > Math.max(bars[hi].o, bars[hi].c))) hi = i;
+    if (bars[i].l < bars[lo].l || (bars[i].l === bars[lo].l && Math.min(bars[i].o, bars[i].c) < Math.min(bars[lo].o, bars[lo].c))) lo = i;
   }
-  if (bars[hi].h < high) bars[hi].h = high;
-  if (bars[lo].l > low) bars[lo].l = low;
+  bars[hi].h = Math.max(high, bars[hi].o, bars[hi].c);
+  bars[lo].l = Math.min(low, bars[lo].o, bars[lo].c);
   return bars;
 }
 
@@ -180,25 +186,34 @@ export function aggregate(minutes: MinuteBar[], timeframe: Timeframe, revealed: 
 
 export type SharedTape = { unit: number[]; hi: number; lo: number };
 
-/** One random path in 0–1 for a minute. SQQQ uses the mirror of the same tape. */
+/** Small deviations around the open-to-close line. SQQQ mirrors the same tape. */
 export function sharedTape(seed: number): SharedTape {
   const rng = mulberry32(seed >>> 0);
   const count = SUBTICKS;
   const unit = [0];
   for (let i = 1; i < count; i += 1) {
-    const dir = rng() < 0.5 ? -1 : 1;
-    let next = unit[i - 1] + dir * (0.08 + rng() * 0.14);
-    next = Math.min(1, Math.max(0, next));
-    if (Math.abs(next - unit[i - 1]) < 0.06) next = Math.min(1, Math.max(0, unit[i - 1] + dir * 0.08));
-    unit.push(next);
+    const pull = -unit[i - 1] * 0.15;
+    const step = (rng() - 0.5) * 0.22 + pull;
+    unit.push(Math.max(-1, Math.min(1, unit[i - 1] + step)));
   }
   unit.push(0);
-  let hi = 1 + Math.floor(rng() * Math.max(1, count - 2));
-  let lo = 1 + Math.floor(rng() * Math.max(1, count - 2));
-  if (lo === hi) lo = hi > 1 ? hi - 1 : hi + 1;
-  unit[hi] = 1;
-  unit[lo] = 0;
+  let hi = 8 + Math.floor(rng() * (count - 16));
+  let lo = 8 + Math.floor(rng() * (count - 16));
+  if (Math.abs(hi - lo) < 10) lo = hi + 12 < count - 6 ? hi + 12 : hi - 12;
+  if (lo === hi) lo = hi > 10 ? hi - 8 : hi + 8;
   return { unit, hi, lo };
+}
+
+function approach(points: number[], at: number, target: number, low: number, high: number) {
+  const radius = 4;
+  for (let offset = -radius; offset <= radius; offset += 1) {
+    const index = at + offset;
+    if (index <= 0 || index >= points.length - 1) continue;
+    const weight = 1 - Math.abs(offset) / (radius + 1);
+    const next = points[index] + (target - points[index]) * weight;
+    points[index] = Math.min(high, Math.max(low, next));
+  }
+  if (at > 0 && at < points.length - 1) points[at] = Math.min(high, Math.max(low, target));
 }
 
 /** Prices inside one 1-minute candle. Sign −1 mirrors the shared tape. */
@@ -206,27 +221,20 @@ export function subpath(bar: MinuteBar, seed: number, sign = 1): number[] {
   const tape = sharedTape(seed);
   const count = SUBTICKS;
   const span = Math.max(bar.h - bar.l, 0);
+  const openU = span > 0 ? (bar.o - bar.l) / span : 0;
+  const closeU = span > 0 ? (bar.c - bar.l) / span : 0;
   const points = tape.unit.map((unit, index) => {
     if (index === 0) return bar.o;
     if (index === count) return bar.c;
-    const placed = sign < 0 ? 1 - unit : unit;
+    const base = openU + (closeU - openU) * (index / count);
+    const swung = base + (sign < 0 ? -unit : unit) * 0.22;
+    const placed = Math.min(1, Math.max(0, swung));
     return bar.l + placed * span;
   });
-  points[sign < 0 ? tape.lo : tape.hi] = bar.h;
-  points[sign < 0 ? tape.hi : tape.lo] = bar.l;
-  points[0] = bar.o;
-  points[count] = bar.c;
-  const minStep = span >= 0.05 ? 0.01 : 0;
-  if (minStep > 0) {
-    for (let i = 1; i < count; i += 1) {
-      if (points[i] === bar.h || points[i] === bar.l) continue;
-      if (Math.abs(points[i] - points[i - 1]) >= minStep - 1e-9) continue;
-      const dir = (i % 2 === 0 ? 1 : -1) * (sign < 0 ? -1 : 1);
-      points[i] = Math.min(bar.h, Math.max(bar.l, points[i - 1] + dir * minStep));
-    }
-  }
-  points[sign < 0 ? tape.lo : tape.hi] = bar.h;
-  points[sign < 0 ? tape.hi : tape.lo] = bar.l;
+  const highAt = sign < 0 ? tape.lo : tape.hi;
+  const lowAt = sign < 0 ? tape.hi : tape.lo;
+  approach(points, lowAt, bar.l, bar.l, bar.h);
+  approach(points, highAt, bar.h, bar.l, bar.h);
   points[0] = bar.o;
   points[count] = bar.c;
   return points;

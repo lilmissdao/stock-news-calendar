@@ -68,6 +68,55 @@ function switchTickerThenSell() {
   assert.ok(game.positions.SQQQ.shares > 0, "the SQQQ lot is still there");
 }
 
+function isFlatTee(bar: { o: number; h: number; l: number; c: number }): boolean {
+  const body = Math.abs(bar.o - bar.c);
+  const wick = bar.h - Math.max(bar.o, bar.c);
+  const range = bar.h - bar.l;
+  return body <= 0.011 && Math.abs(Math.min(bar.o, bar.c) - bar.l) <= 0.011 && range > 0.08 && wick > range * 0.45;
+}
+
+function syntheticMinutesKeepTheRealBar() {
+  const book = market as PracticeMarket;
+  let tees = 0;
+  let minutes = 0;
+  let runs = 0;
+  for (const day of book.days) {
+    const session = buildSession(day, 99);
+    const shown = session.TQQQ.slice(0, 30);
+    let run = 0;
+    shown.forEach((bar, index) => {
+      minutes += 1;
+      const parent = day.tqqq[Math.floor(index / 5)];
+      const group = shown.slice(Math.floor(index / 5) * 5, Math.floor(index / 5) * 5 + 5);
+      if (index % 5 === 0) {
+        assert.equal(group[0].o, parent[0], `${day.date} open`);
+        assert.equal(group[4].c, parent[3], `${day.date} close`);
+        assert.equal(Math.max(...group.map((item) => item.h)), parent[1], `${day.date} high`);
+        assert.equal(Math.min(...group.map((item) => item.l)), parent[2], `${day.date} low`);
+      }
+      assert.ok(bar.h >= Math.max(bar.o, bar.c) - 1e-9 && bar.l <= Math.min(bar.o, bar.c) + 1e-9);
+      assert.ok(bar.h <= parent[1] + 1e-9 && bar.l >= parent[2] - 1e-9);
+      if (isFlatTee(bar)) {
+        tees += 1;
+        run += 1;
+        if (run >= 3) runs += 1;
+      } else run = 0;
+    });
+  }
+  assert.equal(runs, 0, "three flat T candles in a row");
+  assert.ok(tees < minutes * 0.02, `too many flat T candles: ${tees} of ${minutes}`);
+  const bar = { t: 0, o: 50, h: 51.2, l: 49.4, c: 50.6 };
+  const tape = sharedTape(11);
+  const path = subpath(bar, 11, 1);
+  const span = bar.h - bar.l;
+  assert.ok(Math.abs(path[tape.hi] - path[tape.hi - 1]) < span * 0.5, "the high is approached, not a one-tick spike");
+  assert.ok(Math.abs(path[tape.lo] - path[tape.lo - 1]) < span * 0.5, "the low is approached, not a one-tick spike");
+  const forming = chartBars([bar], 0, 3, 11, 1, "1m");
+  assert.equal(forming[0].o, bar.o);
+  assert.equal(forming[0].c, path[3]);
+  assert.ok(forming[0].h <= bar.h && forming[0].l >= bar.l);
+}
+
 function tapeMovesAndMirrors() {
   const tqqq = { t: 0, o: 50, h: 51.2, l: 49.4, c: 50.6 };
   const sqqq = { t: 0, o: 18, h: 18.8, l: 17.4, c: 17.9 };
@@ -396,6 +445,7 @@ buyThenSellAll();
 partialSellsThenAll();
 sellWithNoCash();
 switchTickerThenSell();
+syntheticMinutesKeepTheRealBar();
 tapeMovesAndMirrors();
 switchKeepsTheLiveCandle();
 scaleStaysOnTheTicker();

@@ -757,7 +757,7 @@ export function PracticeApp() {
                     type="button"
                     className="text-btn"
                     onClick={() => {
-                      clockRef.current = { at: Date.now(), applied: 0, speed: game.speed };
+                      clockRef.current = { at: Date.now(), applied: 0, speed: game.speed, drawn: 0 };
                       setGame((current) => (current ? run(current, stepMinute) : current));
                     }}
                   >

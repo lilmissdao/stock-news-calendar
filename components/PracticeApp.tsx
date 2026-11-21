@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import market from "@/data/practice-market.json";
 import { PracticeChart, type ChartCandle, type CostLine, type PracticeChartHandle } from "@/components/PracticeChart";
+import { SyncPanel } from "@/components/SyncPanel";
 import { PracticeHistory } from "@/components/PracticeHistory";
 import {
   equityNow,
@@ -46,6 +47,7 @@ import {
 import { CYCLE_KEY, drawSession, freshLeft, parseCycle, type CycleFile } from "@/lib/practice-cycle";
 import type { PracticeMarket } from "@/lib/practice-market";
 import { avgCostLabel, chartBars, clock, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
+import { isApplyingSync, scheduleSync, tombstoneAll, tombstoneGame, touchSection, watchSync, adoptSyncCode, type SyncEventDetail } from "@/lib/sync-client";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
 import { fillDelayMs, slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
 
@@ -224,8 +226,13 @@ export function PracticeApp() {
   gameRef.current = game;
   realisticRef.current = realistic;
   const stageRef = useRef<HTMLDivElement>(null);
+  const hydratedGame = useRef(false);
+  const hydratedHistory = useRef(false);
+  const hydratedCycle = useRef(false);
 
   useEffect(() => {
+    adoptSyncCode();
+    watchSync();
     const speed = coerceSpeed(typeof localStorage !== "undefined" ? localStorage.getItem(SPEED_KEY) : 1);
     const savedFills = localStorage.getItem(REALISTIC_KEY);
     const realisticOn = savedFills !== "0";
@@ -261,6 +268,31 @@ export function PracticeApp() {
     document.documentElement.dataset.theme = initial;
     const savedHeight = Number(localStorage.getItem(CHART_KEY));
     if (savedHeight >= 220 && savedHeight <= 1200) setChartH(savedHeight);
+    scheduleSync(300);
+  }, []);
+
+  useEffect(() => {
+    const onSync = (event: Event) => {
+      const detail = (event as CustomEvent<SyncEventDetail>).detail;
+      const doc = detail?.doc;
+      if (!doc || detail.status !== "synced") return;
+      if (detail.wroteHistory) setHistory({ v: 1, games: doc.practice.games });
+      if (detail.wroteGame && doc.practice.game) {
+        const loaded = loadGame(JSON.stringify(doc.practice.game), BOOK.days.length);
+        if (loaded) setGame({ ...loaded, playing: false });
+      }
+      if (detail.wroteCycle && doc.practice.cycle) setCycle(doc.practice.cycle);
+      if (detail.wroteSettings) {
+        if (doc.practice.settings.realistic !== null) {
+          setRealistic(doc.practice.settings.realistic);
+          realisticRef.current = doc.practice.settings.realistic;
+        }
+        if (doc.practice.settings.chartH) setChartH(doc.practice.settings.chartH);
+        if (doc.practice.settings.theme) setTheme(doc.practice.settings.theme);
+      }
+    };
+    window.addEventListener("snc-sync", onSync);
+    return () => window.removeEventListener("snc-sync", onSync);
   }, []);
 
   useEffect(() => {
@@ -276,6 +308,13 @@ export function PracticeApp() {
     } catch {
       /* Private mode can refuse storage. */
     }
+    if (!hydratedCycle.current) {
+      hydratedCycle.current = true;
+      return;
+    }
+    if (isApplyingSync()) return;
+    touchSection("cycle");
+    scheduleSync(700);
   }, [cycle]);
 
   useEffect(() => {
@@ -285,6 +324,13 @@ export function PracticeApp() {
     } catch {
       /* Private mode can refuse storage. The session still runs. */
     }
+    if (!hydratedGame.current) {
+      hydratedGame.current = true;
+      return;
+    }
+    if (isApplyingSync()) return;
+    touchSection("game");
+    scheduleSync(game.playing ? 8000 : 700);
   }, [game]);
 
   useEffect(() => {
@@ -294,6 +340,12 @@ export function PracticeApp() {
     } catch {
       /* ignore */
     }
+    if (!hydratedHistory.current) {
+      hydratedHistory.current = true;
+      return;
+    }
+    if (isApplyingSync()) return;
+    scheduleSync(400);
   }, [history]);
 
   const pace = useRef({ playing: false, speed: 1 as Speed, phase: "play" as GameState["phase"] });
@@ -425,7 +477,9 @@ export function PracticeApp() {
 
   function chooseSpeed(speed: Speed) {
     rememberSpeed(speed);
+    touchSection("settings");
     setGame({ ...active, speed });
+    scheduleSync(500);
   }
 
   function askNew() {
@@ -519,6 +573,7 @@ export function PracticeApp() {
 
   function removeGame(id: string) {
     if (id === "this") return;
+    tombstoneGame(id);
     setHistory((current) => (current ? deleteGame(current, id) : current));
   }
 
@@ -545,6 +600,7 @@ export function PracticeApp() {
         </div>
       </header>
       <main className="pr-main">
+        <SyncPanel />
         <div className="pr-toggle" role="tablist" aria-label="Practice">
           <button type="button" role="tab" aria-selected={tab === "play"} onClick={() => setTab("play")}>
             Trade
@@ -585,7 +641,10 @@ export function PracticeApp() {
             onImport={(file) => void importHistory(file)}
             onNewGame={askNew}
             onDelete={removeGame}
-            onDeleteAll={() => setHistory(deleteAllHistory())}
+            onDeleteAll={() => {
+              tombstoneAll(history.games.map((item) => item.id));
+              setHistory(deleteAllHistory());
+            }}
             notice={notice}
           />
         ) : null}
@@ -702,6 +761,8 @@ export function PracticeApp() {
                         } catch {
                           /* ignore */
                         }
+                        touchSection("settings");
+                        scheduleSync(500);
                       };
                       target.addEventListener("pointermove", move);
                       target.addEventListener("pointerup", up, { once: true });
@@ -769,6 +830,8 @@ export function PracticeApp() {
                       } catch {
                         /* ignore */
                       }
+                      touchSection("settings");
+                      scheduleSync(500);
                     }}
                   >
                     Realistic fills
@@ -826,6 +889,8 @@ function toggle(setTheme: (theme: string) => void) {
   } catch {
     /* ignore */
   }
+  touchSection("settings");
+  scheduleSync(500);
   setTheme(next);
 }
 

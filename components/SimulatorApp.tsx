@@ -24,6 +24,8 @@ import {
   type Scenario,
   type Simulation,
 } from "@/lib/simulator";
+import { SyncPanel } from "@/components/SyncPanel";
+import { adoptSyncCode, isApplyingSync, scheduleSync, touchSection, watchSync, type SyncEventDetail } from "@/lib/sync-client";
 
 const NAV = [
   { href: "/", label: "Calendar" },
@@ -42,6 +44,7 @@ const CHART_HEIGHT = 400;
 function useTheme(): ["light" | "dark", () => void] {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const ready = useRef(false);
+  const hydratedTheme = useRef(false);
 
   useLayoutEffect(() => {
     const stored = localStorage.getItem("snc-theme");
@@ -65,6 +68,13 @@ function useTheme(): ["light" | "dark", () => void] {
     } catch {
       /* Private browsing can reject storage. The toggle still applies for this visit. */
     }
+    if (!hydratedTheme.current) {
+      hydratedTheme.current = true;
+      return;
+    }
+    if (isApplyingSync()) return;
+    touchSection("settings");
+    scheduleSync(500);
   }, [theme]);
 
   return [theme, () => setTheme((current) => (current === "dark" ? "light" : "dark"))];
@@ -529,8 +539,11 @@ export function SimulatorApp() {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const draggingRef = useRef<string | null>(null);
   const scrollNew = useRef(false);
+  const savedOnce = useRef(false);
 
   useEffect(() => {
+    adoptSyncCode();
+    watchSync();
     const params = new URLSearchParams(window.location.search);
     const token = params.get("s");
     const shared = token ? decodeScenarios(token) : null;
@@ -540,14 +553,32 @@ export function SimulatorApp() {
       const query = params.toString();
       window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
       setScenarios(shared);
+      scheduleSync(300);
       return;
     }
     setScenarios(loadScenarios() ?? DEFAULT_SCENARIOS.map((scenario) => ({ ...scenario })));
+    scheduleSync(300);
+  }, []);
+
+  useEffect(() => {
+    const onSync = (event: Event) => {
+      const detail = (event as CustomEvent<SyncEventDetail>).detail;
+      if (detail?.status === "synced" && detail.wroteScenarios && detail.doc) setScenarios(detail.doc.simulator.scenarios);
+    };
+    window.addEventListener("snc-sync", onSync);
+    return () => window.removeEventListener("snc-sync", onSync);
   }, []);
 
   useEffect(() => {
     if (!scenarios) return;
     setSaveError(!saveScenarios(scenarios));
+    if (!savedOnce.current) {
+      savedOnce.current = true;
+      return;
+    }
+    if (isApplyingSync()) return;
+    touchSection("simulator");
+    scheduleSync(700);
   }, [scenarios]);
 
   useEffect(() => {
@@ -669,6 +700,7 @@ export function SimulatorApp() {
         </div>
       </header>
       <main className="sim-page">
+        <SyncPanel />
         <div className="sim-head">
           <div>
             <p className="kicker">Model</p>

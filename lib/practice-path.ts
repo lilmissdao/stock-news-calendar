@@ -90,23 +90,19 @@ export function priceWindow(
 }
 
 /**
- * Logical range for the candles that exist so far.
- * One candle is centered and capped at about 48px wide. More candles zoom out just enough to keep all of them,
- * with the latest bar a little in from the right.
+ * Logical range for the candles that exist so far, always centered on the middle of the group.
+ * One candle sits in the middle, capped at about 48px wide. As more candles appear the group stays centered,
+ * and once it would overflow, the view zooms out just enough to keep every candle with a little room on each side.
  */
 export function progressiveRange(count: number, plotWidth: number): { from: number; to: number } {
   const last = Math.max(0, count - 1);
   const width = Math.max(plotWidth, 160);
   const maxSpacing = 48;
   const minSlots = Math.max(width / maxSpacing, 5);
-  const rightPad = 1.5;
-  if (count <= 1) {
-    const half = minSlots / 2;
-    return { from: -half, to: half };
-  }
-  const natural = last + rightPad + 0.6;
-  if (natural >= minSlots) return { from: -0.6, to: last + rightPad };
-  return { from: last + rightPad - minSlots, to: last + rightPad };
+  const edge = 1.2;
+  const center = last / 2;
+  const half = Math.max(minSlots / 2, last / 2 + edge);
+  return { from: center - half, to: center + half };
 }
 
 export function candleInView(range: PriceWindow, time: { from: number; to: number }, bar: { h: number; l: number; c: number }, index: number): boolean {

@@ -337,8 +337,9 @@ function progressiveFitShowsEveryCandleSoFar() {
       for (let index = 0; index < count; index += 1) {
         assert.ok(index >= range.from && index <= range.to, `${count} bars on ${width}px hide bar ${index}`);
       }
-      const lastPos = (last - range.from) / (range.to - range.from);
-      assert.ok(lastPos > 0.7 && lastPos < 0.96, `latest of ${count} should sit near the right, was ${lastPos}`);
+      const middle = (last / 2 - range.from) / (range.to - range.from);
+      assert.ok(Math.abs(middle - 0.5) < 1e-9, `${count} candles should be centered as a group, was ${middle}`);
+      assert.ok(0 - range.from >= 1, "the first candle does not touch the left edge");
       assert.ok(range.to - last >= 1, "the latest candle does not touch the right edge");
     }
   }

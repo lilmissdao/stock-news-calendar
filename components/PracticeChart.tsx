@@ -267,19 +267,34 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
     const blockScroll = (event: TouchEvent) => {
       if (event.cancelable) event.preventDefault();
     };
+    // Dragging the price axis takes manual control. A plain tap there keeps the auto-fit.
+    let axisStart: { x: number; y: number } | null = null;
     const down = (event: PointerEvent) => {
       const box = el.getBoundingClientRect();
-      if (event.clientX > box.right - 72) {
-        manual.current = true;
-        chartRef.current?.priceScale("right").setAutoScale(false);
-        if (chartRef.current) publish(chartRef.current, latest.current.candles, el, true);
-      }
+      axisStart = event.clientX > box.right - 72 ? { x: event.clientX, y: event.clientY } : null;
+    };
+    const move = (event: PointerEvent) => {
+      if (!axisStart) return;
+      if (Math.abs(event.clientY - axisStart.y) + Math.abs(event.clientX - axisStart.x) < 6) return;
+      axisStart = null;
+      manual.current = true;
+      chartRef.current?.priceScale("right").setAutoScale(false);
+      if (chartRef.current) publish(chartRef.current, latest.current.candles, el, true);
+    };
+    const up = () => {
+      axisStart = null;
     };
     el.addEventListener("touchmove", blockScroll, { passive: false, capture: true });
     el.addEventListener("pointerdown", down);
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", up);
     return () => {
       el.removeEventListener("touchmove", blockScroll, true);
       el.removeEventListener("pointerdown", down);
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerup", up);
+      el.removeEventListener("pointercancel", up);
     };
   }, []);
 

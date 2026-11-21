@@ -1316,7 +1316,8 @@ main { min-width: 0; }
   padding: 6px 12px;
 }
 .pr-toggle button[aria-pressed="true"], .pr-dock .text-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
-.pr-stage { position: relative; height: 520px; display: flex; flex-direction: column; gap: 6px; }
+.pr-stage { position: relative; height: 520px; display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+/* The resize grip hangs below the chart; the margin keeps it off the ticker buttons. */
 .pr-transport { position: relative; z-index: 6; display: flex; flex: none; flex-wrap: wrap; align-items: center; gap: 6px; }
 .pr-speeds { display: flex; gap: 4px; }
 .pr-speeds button, .pr-transport .pr-skip {

@@ -439,7 +439,8 @@ export function PracticeApp() {
   const price = quote[game.ticker];
   const value = equityNow(game, session.TQQQ, session.SQQQ);
   const position = game.positions[game.ticker];
-  const other = game.ticker === "TQQQ" ? "SQQQ" : "TQQQ";
+  const other: Ticker = game.ticker === "TQQQ" ? "SQQQ" : "TQQQ";
+  const canBuy = price > 0 && Math.floor(game.cash / price) >= 1;
   const today = game.dayStartEquity > 0 ? value / game.dayStartEquity - 1 : 0;
   const dailyTuple = session.day.daily?.tqqq;
   const daily = dailyTuple
@@ -475,6 +476,10 @@ export function PracticeApp() {
   const active = game;
   const tape = session;
   const saved = history;
+
+  function pickTicker(symbol: Ticker) {
+    setGame((current) => (current && current.ticker !== symbol ? { ...current, ticker: symbol } : current));
+  }
 
   function clearFill() {
     if (fillTimer.current !== null) {
@@ -846,14 +851,14 @@ export function PracticeApp() {
                   <div className="pr-fullbar">
                     <div className="pr-toggle pr-ticker" role="group" aria-label="Ticker">
                       {(["TQQQ", "SQQQ"] as Ticker[]).map((symbol) => (
-                        <button key={symbol} type="button" aria-pressed={game.ticker === symbol} onClick={() => setGame({ ...game, ticker: symbol })}>
+                        <button key={symbol} type="button" aria-pressed={game.ticker === symbol} onClick={() => pickTicker(symbol)}>
                           {symbol}
                         </button>
                       ))}
                     </div>
                     <TradeCue ticker={game.ticker} tqqq={quote.TQQQ} sqqq={quote.SQQQ} tqqqShares={game.positions.TQQQ.shares} sqqqShares={game.positions.SQQQ.shares} />
                     {filling ? <p className="pr-note">Filling…</p> : null}
-                    <OrderPad filling={filling} shares={position.shares} onAct={act} />
+                    <OrderPad filling={filling} shares={position.shares} canBuy={canBuy} ticker={game.ticker} other={other} otherShares={game.positions[other].shares} onAct={act} />
                   </div>
                 )}
               </div>
@@ -863,14 +868,14 @@ export function PracticeApp() {
                 <div className="pr-trade">
                 <div className="pr-toggle pr-ticker" role="group" aria-label="Ticker">
                   {(["TQQQ", "SQQQ"] as Ticker[]).map((symbol) => (
-                    <button key={symbol} type="button" aria-pressed={game.ticker === symbol} onClick={() => setGame({ ...game, ticker: symbol })}>
+                    <button key={symbol} type="button" aria-pressed={game.ticker === symbol} onClick={() => pickTicker(symbol)}>
                       {symbol}
                     </button>
                   ))}
                 </div>
                 <TradeCue ticker={game.ticker} tqqq={quote.TQQQ} sqqq={quote.SQQQ} tqqqShares={game.positions.TQQQ.shares} sqqqShares={game.positions.SQQQ.shares} />
                 {filling ? <p className="pr-note">Filling…</p> : null}
-                <OrderPad filling={filling} shares={position.shares} onAct={act} />
+                <OrderPad filling={filling} shares={position.shares} canBuy={canBuy} ticker={game.ticker} other={other} otherShares={game.positions[other].shares} onAct={act} />
                 </div>
                 <div className="pr-dock">
                   <button
@@ -1016,12 +1021,33 @@ function TradeCue({
   );
 }
 
-function OrderPad({ filling, shares, onAct }: { filling: boolean; shares: number; onAct: (side: "buy" | "sell", fraction: number) => void }) {
+function OrderPad({
+  filling,
+  shares,
+  canBuy,
+  ticker,
+  other,
+  otherShares,
+  onAct,
+}: {
+  filling: boolean;
+  shares: number;
+  canBuy: boolean;
+  ticker: Ticker;
+  other: Ticker;
+  otherShares: number;
+  onAct: (side: "buy" | "sell", fraction: number) => void;
+}) {
   return (
     <div className="pr-pad">
+      {!canBuy && !filling ? (
+        <p className="pr-note" role="status">
+          {otherShares > 0 ? `No cash left to buy ${ticker}. Sell ${other} first.` : `Not enough cash for one ${ticker} share.`}
+        </p>
+      ) : null}
       <div>
         {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
-          <button key={fraction} type="button" className="pr-buy" disabled={filling} onClick={() => onAct("buy", fraction)}>
+          <button key={fraction} type="button" className="pr-buy" disabled={filling || !canBuy} onClick={() => onAct("buy", fraction)}>
             {filling ? "Filling…" : `Buy ${fraction * 100}%`}
           </button>
         ))}

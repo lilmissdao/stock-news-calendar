@@ -1450,6 +1450,10 @@ main { min-width: 0; }
 .pr-chartbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 6px; }
 .pr-chartbar .pr-toggle button { min-height: 36px; padding: 4px 10px; }
 .pr-chartnote { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600; }
+.pr-timer { display: inline-flex; align-items: baseline; gap: 8px; min-height: 36px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-elev); font-variant-numeric: tabular-nums; }
+.pr-timer-clock { font-weight: 700; }
+.pr-timer-left { color: var(--accent); font-weight: 700; }
+.pr-timer-left::before { content: "⏱ "; }
 .pr-costkey { color: var(--accent); }
 .pr-costkey::before { content: ""; display: inline-block; width: 16px; margin-right: 4px; vertical-align: middle; border-top: 2px dashed var(--accent); }
 .pr-costkey-sqqq::before { border-top-style: dotted; }

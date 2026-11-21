@@ -427,6 +427,25 @@ export function formingBar(bar: MinuteBar, path: number[], tick: number): Minute
   return { t: bar.t, o: bar.o, c: path[index], h: Math.max(...seen), l: Math.min(...seen) };
 }
 
+/** Market time with seconds, e.g. "9:31:18", for the live countdown. */
+export function clockSeconds(unix: number): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  })
+    .format(new Date(Math.floor(unix) * 1000))
+    .replace(/^0/, "");
+}
+
+/** Real seconds left until the forming candle closes, as m:ss. */
+export function secondsLeft(tick: number, speed: number): string {
+  const left = Math.max(0, Math.ceil(((SUBTICKS - Math.max(0, Math.min(SUBTICKS, tick))) * 60) / speed / SUBTICKS));
+  return `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+}
+
 export function clock(unix: number): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",

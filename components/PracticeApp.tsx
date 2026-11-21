@@ -45,7 +45,7 @@ import {
 } from "@/lib/practice-history";
 import { CYCLE_KEY, drawSession, freshLeft, parseCycle, type CycleFile } from "@/lib/practice-cycle";
 import type { PracticeMarket } from "@/lib/practice-market";
-import { chartBars, clock, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
+import { chartBars, clock, clockSeconds, secondsLeft, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
 import { fillDelayMs, slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
 
@@ -390,6 +390,7 @@ export function PracticeApp() {
   const costLines = entryLines(session, game.positions);
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
+  const liveTime = shown ? clockSeconds(shown.t + (Math.min(game.tick, SUBTICKS) * 60) / SUBTICKS) : "";
   const prior = priorClose(game.session, "TQQQ");
   const rows = historyRows(game, history, value);
   const active = game;
@@ -635,6 +636,10 @@ export function PracticeApp() {
                 <button type="button" className="pr-play" onClick={() => setGame((current) => (current ? { ...current, playing: !current.playing } : current))}>
                   {game.playing ? "Pause" : "Play"}
                 </button>
+                <span className="pr-timer" aria-live="off" title="Market time · real time left in this candle">
+                  <span className="pr-timer-clock">{liveTime}</span>
+                  <span className="pr-timer-left">{secondsLeft(game.tick, game.speed)}</span>
+                </span>
                 <div className="pr-toggle" role="group" aria-label="Timeframe">
                   {FRAMES.map((frame) => (
                     <button key={frame} type="button" aria-pressed={game.timeframe === frame} onClick={() => setGame({ ...game, timeframe: frame })}>

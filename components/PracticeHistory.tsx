@@ -84,15 +84,42 @@ export function PracticeHistory({
       <div className="pr-cards">
         {rows.map((row) => (
           <article key={row.id} className="pr-card">
-            <button type="button" className="pr-card-hit" aria-expanded={open === row.id} onClick={() => setOpen(open === row.id ? null : row.id)}>
-              <span>
-                <strong>{row.title}</strong>
-                <span className="pr-note">
-                  {prettyPlayed(row.playedAt)} · {countLabel(row.batches.length, "batch")} · {countLabel(row.days, "day")}
+            <div className="pr-card-head">
+              <button type="button" className="pr-card-hit" aria-expanded={open === row.id} onClick={() => setOpen(open === row.id ? null : row.id)}>
+                <span>
+                  <strong>{row.title}</strong>
+                  <span className="pr-note">
+                    {prettyPlayed(row.playedAt)} · {countLabel(row.batches.length, "batch")} · {countLabel(row.days, "day")}
+                  </span>
                 </span>
-              </span>
-              <strong className={row.returnPct >= 0 ? "up" : "down"}>{formatSignedPercent(row.returnPct)}</strong>
-            </button>
+                <strong className={row.returnPct >= 0 ? "up" : "down"}>{formatSignedPercent(row.returnPct)}</strong>
+              </button>
+              {row.id !== "this" ? (
+                <button type="button" className="pr-delete pr-card-delete" aria-label={`Delete ${row.title}`} onClick={() => setConfirmId(row.id)}>
+                  Delete
+                </button>
+              ) : null}
+            </div>
+            {row.id !== "this" && confirmId === row.id ? (
+              <div className="pr-confirm">
+                <p className="pr-lead">Delete Game #{row.number}? This can't be undone.</p>
+                <div className="pr-actions">
+                  <button type="button" className="text-btn" onClick={() => setConfirmId(null)}>
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="pr-delete"
+                    onClick={() => {
+                      onDelete(row.id);
+                      setConfirmId(null);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ) : null}
             <dl className="pr-kv">
               <div>
                 <dt>Ending</dt>
@@ -124,30 +151,6 @@ export function PracticeHistory({
               </div>
             </dl>
             {open === row.id ? <BatchList batches={row.batches} /> : null}
-            {row.id !== "this" && confirmId === row.id ? (
-              <div className="pr-confirm">
-                <p className="pr-lead">Delete Game #{row.number}? This can't be undone.</p>
-                <div className="pr-actions">
-                  <button type="button" className="text-btn" onClick={() => setConfirmId(null)}>
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="pr-delete"
-                    onClick={() => {
-                      onDelete(row.id);
-                      setConfirmId(null);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ) : row.id !== "this" ? (
-              <button type="button" className="text-btn" onClick={() => setConfirmId(row.id)}>
-                Delete
-              </button>
-            ) : null}
           </article>
         ))}
       </div>

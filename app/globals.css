@@ -1512,6 +1512,9 @@ main { min-width: 0; }
 .pr-confirm h2 { margin: 0; }
 .pr-cards { display: flex; flex-direction: column; gap: 8px; }
 .pr-card { border: 1px solid var(--line); border-radius: 16px; background: var(--bg-elev); padding: 12px; }
+.pr-card-head { display: flex; align-items: center; gap: 8px; }
+.pr-card-head .pr-card-hit { flex: 1; min-width: 0; }
+.pr-card-delete { flex: none; min-height: 44px; }
 .pr-card-hit { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; min-height: 48px; padding: 0; }
 .pr-card-hit .pr-note { display: block; }
 .pr-kv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 10px 0 0; }
@@ -1537,6 +1540,8 @@ main { min-width: 0; }
   .pr-buy, .pr-sell { min-height: 44px; font-size: 15px; }
   .pr-bar { align-items: center; }
   .pr-ticker button { min-height: 48px; font-size: 18px; }
+  .pr-card-head { flex-wrap: wrap; }
+  .pr-card-delete { width: 100%; }
   .pr-book { font-size: 13px; }
 }
 

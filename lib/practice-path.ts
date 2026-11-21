@@ -177,6 +177,8 @@ type TapePlan = {
   wiggle: { m: number; a: number }[][];
   /** How bunched up each leg's travel is. 0 is even speed, 1 is fast in the middle. */
   ease: number[];
+  /** Small tick-to-tick chop, shared by TQQQ and SQQQ (mirrored), so the tape never sits still. */
+  chop: number[];
 };
 
 const plans = new Map<number, TapePlan>();
@@ -198,7 +200,14 @@ function planOf(seed: number): TapePlan {
     return Array.from({ length: count }, () => ({ m: 2 + Math.floor(rng() * 3), a: (rng() * 2 - 1) * (0.6 + rng() * 0.4) }));
   });
   const ease = [0, 1, 2].map(() => 0.3 + rng() * 0.6);
-  const plan = { early, late, sharpFlip, wiggle, ease };
+  const chop: number[] = [];
+  let drift = 0;
+  for (let k = 0; k <= n; k += 1) {
+    // Mean-reverting noise, roughly -1.5 to 1.5: a cent or two of back-and-forth around the trail.
+    drift = drift * 0.55 + (rng() + rng() + rng() - 1.5) * 1.1;
+    chop.push(drift);
+  }
+  const plan = { early, late, sharpFlip, wiggle, ease, chop };
   plans.set(key, plan);
   return plan;
 }
@@ -243,9 +252,27 @@ function onSide(price: number, side: number, open: number, low: number, high: nu
   return price;
 }
 
+/**
+ * Keep a price inside the bar and on its side of the open by bouncing off the limit instead of sticking to it,
+ * so the tape keeps moving near the open and near the wicks.
+ */
+function bounce(price: number, side: number, open: number, low: number, high: number): number {
+  let next = price;
+  if (next > high) next = high - (next - high);
+  if (next < low) next = low + (low - next);
+  // Touching the open is allowed (a doji for an instant); going through it to the other color is not.
+  // The floor is the first whole cent on this side of the open, so a half-cent open can't flicker either.
+  const floor = side > 0 ? Math.min(high, Math.ceil(open * 100 - 1e-6) / 100) : side < 0 ? Math.max(low, Math.floor(open * 100 + 1e-6) / 100) : 0;
+  if (side > 0 && next < floor) next = 2 * floor - next;
+  if (side < 0 && next > floor) next = 2 * floor - next;
+  next = cents(Math.min(high, Math.max(low, next)), low, high);
+  if ((side > 0 && next < floor - 1e-9) || (side < 0 && next > floor + 1e-9)) next = floor;
+  return next;
+}
+
 function sideOf(price: number, open: number): number {
-  if (price > open + 1e-9) return 1;
-  if (price < open - 1e-9) return -1;
+  if (price > open + 0.005) return 1;
+  if (price < open - 0.005) return -1;
   return 0;
 }
 
@@ -293,36 +320,44 @@ function fillLeg(
     }
   }
   const dir = Math.sign(end - start) || 1;
+  const span = high - low;
+  const chopAmp = Math.min(0.04, Math.max(0.01, span * 0.03));
   let prev = start;
+  let held = 0;
   for (let k = 1; k < steps; k += 1) {
     const u = k / steps;
     let wobble = 0;
     for (const { m, a } of shape) wobble += a * Math.sin(Math.PI * m * u);
     // The envelope keeps the leg's first and last prints heading toward their anchors.
     const envelope = Math.sin(Math.PI * u);
-    let price = start + (end - start) * warp(u, ease) + sign * amp * wobble * envelope * 0.6;
-    price = cents(price, low, high);
-    if (Math.abs(price - end) < 0.009) price = cents(end - dir * 0.01, low, high);
+    // Chop fades in over the first and last few prints so each anchor is still hit exactly.
+    const nearEdge = Math.min(1, Math.min(k, steps - k) / 3);
+    const chop = plan.chop[(from + k) % plan.chop.length] * chopAmp * nearEdge;
     const side = startSide === 0 ? endSide : endSide === 0 ? startSide : k < crossAt ? startSide : endSide;
-    price = onSide(price, side, open, low, high);
-    if (k === 1 && !moved(prev, price)) price = onSide(cents(prev + dir * 0.01, low, high), side, open, low, high);
+    let price = start + (end - start) * warp(u, ease) + sign * (amp * wobble * envelope * 0.6 + chop);
+    price = bounce(price, side, open, low, high);
+    if (k === steps - 1 && Math.abs(price - end) < 0.005) price = bounce(end - dir * 0.01, side, open, low, high);
+    if (!moved(prev, price)) {
+      held += 1;
+      if (held >= 2 || k === 1) {
+        // Never sit on one price for more than two prints: step a cent toward the target, or away if that is blocked.
+        const toward = Math.sign(end - prev) || dir;
+        for (const step of [toward, -toward]) {
+          const tried = bounce(prev + step * 0.01, side, open, low, high);
+          if (moved(prev, tried) && !(k < steps - 1 && Math.abs(tried - end) < 0.005 && (end === high || end === low))) {
+            price = tried;
+            break;
+          }
+        }
+        if (moved(prev, price)) held = 0;
+      }
+    } else {
+      held = 0;
+    }
     points[from + k] = price;
     prev = price;
   }
   points[to] = end;
-}
-
-/** Nudge a repeated print one cent toward the next print, without crossing the open. */
-function settle(points: number[], pins: Set<number>, open: number, low: number, high: number) {
-  for (let i = 1; i < points.length; i += 1) {
-    if (pins.has(i) || moved(points[i - 1], points[i])) continue;
-    const next = pins.has(i + 1) || i + 1 >= points.length ? points[i] : points[i + 1];
-    const dir = Math.sign(next - points[i - 1]);
-    if (dir === 0) continue;
-    const nudged = cents(points[i - 1] + dir * 0.01, low, high);
-    const side = sideOf(points[i], open) || sideOf(points[i - 1], open);
-    if (moved(points[i - 1], nudged) && (side === 0 || sideOf(nudged, open) !== -side)) points[i] = nudged;
-  }
 }
 
 /**
@@ -352,8 +387,18 @@ function makePath(bar: MinuteBar, seed: number, sign: number): number[] {
   const lowFirst = lowFirstOf(plan, bar.o, high, low, bar.c);
   let lo = lowFirst ? plan.early : plan.late;
   let hi = lowFirst ? plan.late : plan.early;
+  // A wick within a cent of the open is tagged on the very first print, so the tape doesn't stall trying to reach it.
+  // With under two cents of room there is nowhere to wander, so it is tagged within the first couple of prints.
   if (Math.abs(bar.o - low) < 1e-6) lo = 0;
+  else if (bar.o - low < 0.01) lo = 1;
+  else if (bar.o - low < 0.02 && lo === plan.early) lo = 2;
   if (Math.abs(bar.o - high) < 1e-6) hi = 0;
+  else if (high - bar.o < 0.01) hi = 1;
+  else if (high - bar.o < 0.02 && hi === plan.early) hi = 2;
+  if (lo === hi) {
+    if (lowFirst) hi = Math.max(hi + 1, plan.late);
+    else lo = Math.max(lo + 1, plan.late);
+  }
   const anchors = [
     { t: 0, p: bar.o },
     { t: lo, p: low },
@@ -370,11 +415,6 @@ function makePath(bar: MinuteBar, seed: number, sign: number): number[] {
     fillLeg(points, from.t, to.t, points[from.t] ?? from.p, to.p, shape, plan, leg, sign);
     leg += 1;
   }
-  points[0] = bar.o;
-  points[lo] = low;
-  points[hi] = high;
-  points[n] = bar.c;
-  settle(points, new Set([0, n, hi, lo]), bar.o, low, high);
   points[0] = bar.o;
   points[lo] = low;
   points[hi] = high;

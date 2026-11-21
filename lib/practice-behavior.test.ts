@@ -123,14 +123,20 @@ function realMinutesMatchTheFile() {
   assert.ok(path.every((price) => price >= bar.l - 1e-9 && price <= bar.h + 1e-9));
   assert.ok(Math.abs(path[1] - path[0]) >= 0.009, "the new candle moves on the first tick");
   let flats = 0;
+  for (let i = 1; i < path.length; i += 1) if (Math.abs(path[i] - path[i - 1]) < 0.009) flats += 1;
+  // Cent-sized chop is fine. A reversal counts once price has come back at least 5% of the bar's range off its last swing.
   let turns = 0;
-  for (let i = 1; i < path.length; i += 1) {
-    if (Math.abs(path[i] - path[i - 1]) < 0.009) flats += 1;
-    if (i > 1) {
-      const before = Math.sign(path[i - 1] - path[i - 2]);
-      const after = Math.sign(path[i] - path[i - 1]);
-      if (before !== 0 && after !== 0 && before !== after) turns += 1;
-    }
+  let pivot = path[0];
+  let trend = 0;
+  for (const price of path) {
+    const move = price - pivot;
+    if (trend >= 0 && move > 0) pivot = price;
+    else if (trend <= 0 && move < 0) pivot = price;
+    if (Math.abs(move) >= span * 0.05 && Math.sign(move) !== trend) {
+      if (trend !== 0) turns += 1;
+      trend = Math.sign(move);
+      pivot = price;
+    } else if (Math.sign(move) === trend) pivot = price;
   }
   assert.ok(flats < 12, `a calm tape can pause briefly, flats ${flats}`);
   assert.ok(turns < 12, `full reversals should be rare, turns ${turns}`);
@@ -182,8 +188,10 @@ function tapeMovesAndMirrors() {
   assert.equal(up[shape.lo], tqqq.l);
   const inverse = { t: 0, o: 18.65, h: 18.8, l: 17.4, c: 17.9 };
   const mirrored = subpath(inverse, 11, -1);
-  const tqqqFirst = Math.sign(Math.round((up[6] - up[0]) * 100));
-  const sqqqFirst = Math.sign(Math.round((mirrored[6] - mirrored[0]) * 100));
+  // Judge the opening direction by the first dozen prints, so cent-sized chop on any single print doesn't decide it.
+  const lean = (path: number[]) => path.slice(1, 13).reduce((sum, price) => sum + price - path[0], 0) / 12;
+  const tqqqFirst = Math.sign(Math.round(lean(up) * 100));
+  const sqqqFirst = Math.sign(Math.round(lean(mirrored) * 100));
   assert.ok(tqqqFirst !== 0 && sqqqFirst === -tqqqFirst, "an inverse SQQQ bar moves against TQQQ");
   assert.ok(mirrored.includes(inverse.h) && mirrored.includes(inverse.l));
   assert.equal(down[0], sqqq.o);

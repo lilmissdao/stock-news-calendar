@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { aggregate, avgCostLabel, axisLabelFits, buildSession, candleInView, chartBars, clock, keepAnchor, minuteSeed, priceWindow, progressiveRange, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
+import { SUBTICKS, aggregate, avgCostLabel, axisLabelFits, buildSession, candleInView, chartBars, clock, keepAnchor, minuteSeed, priceWindow, progressiveRange, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
 import { assemblePracticeDays, mergePracticeDays, morningBars, type Ohlc, type PracticeDay, type PracticeMarket, type TimedBar, type YahooChart } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { rowSlippage } from "./practice-history";
@@ -104,7 +104,7 @@ function realMinutesMatchTheFile() {
     const opened = chartBars(session.TQQQ, 0, 0, 99, 1, "1m");
     assert.equal(opened[0].o, day.tqqq[0][0]);
     assert.equal(opened[0].c, day.tqqq[0][0]);
-    const closed = chartBars(session.TQQQ, 0, 60, 99, 1, "1m");
+    const closed = chartBars(session.TQQQ, 0, SUBTICKS, 99, 1, "1m");
     assert.equal(closed[0].o, day.tqqq[0][0]);
     assert.equal(closed[0].h, day.tqqq[0][1]);
     assert.equal(closed[0].l, day.tqqq[0][2]);
@@ -118,8 +118,23 @@ function realMinutesMatchTheFile() {
   assert.equal(path[path.length - 1], bar.c);
   assert.equal(path[tape.hi], bar.h);
   assert.equal(path[tape.lo], bar.l);
-  assert.ok(Math.abs(path[tape.hi] - path[tape.hi - 1]) < span * 0.5, "the high is approached, not a one-tick spike");
-  assert.ok(Math.abs(path[tape.lo] - path[tape.lo - 1]) < span * 0.5, "the low is approached, not a one-tick spike");
+  assert.ok(Math.abs(path[tape.hi] - path[tape.hi - 1]) >= span * 0.2, "the high is a fast spike");
+  assert.ok(Math.abs(path[tape.lo] - path[tape.lo - 1]) >= span * 0.2, "the low is a fast spike");
+  assert.ok(path.every((price) => price >= bar.l - 1e-9 && price <= bar.h + 1e-9));
+  assert.ok(Math.abs(path[1] - path[0]) >= 0.01, "the new candle moves on the first tick");
+  let flats = 0;
+  let turns = 0;
+  for (let i = 1; i < path.length; i += 1) {
+    if (Math.abs(path[i] - path[i - 1]) < 0.009) flats += 1;
+    if (i > 1) {
+      const before = Math.sign(path[i - 1] - path[i - 2]);
+      const after = Math.sign(path[i] - path[i - 1]);
+      if (before !== 0 && after !== 0 && before !== after) turns += 1;
+    }
+  }
+  assert.equal(flats, 0, "no dead ticks");
+  assert.ok(turns > 80, `the path should chop, turns ${turns}`);
+  assert.deepEqual(subpath(bar, 11, 1), path);
 }
 
 function morningAssemblyDropsIncompleteDays() {
@@ -165,22 +180,45 @@ function tapeMovesAndMirrors() {
   assert.equal(up[shape.lo], tqqq.l);
   assert.equal(down[shape.hi], sqqq.l, "SQQQ mirrors the shared high");
   assert.equal(down[shape.lo], sqqq.h, "SQQQ mirrors the shared low");
-  const cents = up.map((value) => Math.round(value * 100));
-  let changes = 0;
-  for (let i = 1; i < cents.length; i += 1) if (cents[i] !== cents[i - 1]) changes += 1;
-  assert.ok(changes >= 40, `tape should tick almost every second, changed ${changes} times`);
+  let bursts = 0;
+  for (let i = 3; i < up.length; i += 1) if (Math.abs(up[i] - up[i - 3]) >= (tqqq.h - tqqq.l) * 0.25) bursts += 1;
+  assert.ok(bursts >= 4, `expected several fast jerks, saw ${bursts}`);
+  let opposite = 0;
+  let compared = 0;
+  for (let i = 1; i < up.length; i += 1) {
+    const left = Math.sign(Math.round((up[i] - up[i - 1]) * 100));
+    const right = Math.sign(Math.round((down[i] - down[i - 1]) * 100));
+    if (left === 0 || right === 0) continue;
+    compared += 1;
+    if (left === -right) opposite += 1;
+  }
+  assert.ok(opposite / compared > 0.45, `SQQQ should usually move opposite, ${opposite}/${compared}`);
 }
 
 function clockAndCatchUp() {
-  assert.equal(minuteLeft(18, 1), "0:42 left in this minute");
+  assert.equal(minuteLeft(120, 1), "0:42 left in this minute");
   assert.equal(minuteLeft(0, 1), "1:00 left in this minute");
-  assert.equal(ticksDue(5000, 1), 5);
   assert.equal(ticksDue(0, 1), 0);
+  const due = ticksDue(5000, 1);
+  assert.ok(due >= 28 && due <= 40, `five seconds should be several ticks a second, was ${due}`);
+  const gaps: number[] = [];
+  let lastAt = 0;
+  let seen = 0;
+  for (let ms = 1; ms <= 5000 && gaps.length < 20; ms += 1) {
+    const got = ticksDue(ms, 1);
+    if (got > seen) {
+      gaps.push(ms - lastAt);
+      lastAt = ms;
+      seen = got;
+    }
+  }
+  assert.ok(gaps.every((gap) => gap >= 100 && gap <= 220), `gaps left the 4–10Hz band: ${gaps.join(",")}`);
+  assert.ok(Math.max(...gaps) - Math.min(...gaps) >= 40, "tick spacing should be irregular");
   const game = fresh();
   const bars = Array.from({ length: 30 }, (_, index) => ({ t: index * 60, o: 10, h: 11, l: 9, c: 10.5 }));
-  const next = fastForward(game, ticksDue(5000, 1), bars, bars, "2026-11-18", 31000);
+  const next = fastForward(game, due, bars, bars, "2026-11-18", 31000);
   assert.equal(next.cursor, 0);
-  assert.equal(next.tick, 5);
+  assert.equal(next.tick, due);
   assert.equal(next.phase, "play");
 }
 
@@ -327,7 +365,7 @@ function flatBars() {
 }
 
 function playDay(game: GameState, date: string) {
-  return fastForward(game, 5000, flatBars(), flatBars(), date, 31_000);
+  return fastForward(game, 30 * (SUBTICKS + 1), flatBars(), flatBars(), date, 31_000);
 }
 
 function mulberry32(seed: number): () => number {

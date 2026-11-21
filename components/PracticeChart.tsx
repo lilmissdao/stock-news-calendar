@@ -351,6 +351,7 @@ function paint(
       });
     }
     applyCostLines(series, costs, costLines, host, candles, priorClose);
+    if (host) host.dataset.draw = "reset";
     if (!manual.current || switched) {
       manual.current = false;
       fitNow(chart, candles, priorClose, prices, host, applying);
@@ -369,6 +370,7 @@ function paint(
       series.setData(candles.map(toBar));
     }
     applyCostLines(series, costs, costLines, host, candles, priorClose);
+    if (host) host.dataset.draw = "update";
     if (!manual.current) {
       chart.priceScale("right").setAutoScale(true);
       const desired = progressiveRange(candles.length, plotWidth(host));

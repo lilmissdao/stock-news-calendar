@@ -227,6 +227,7 @@ export function PracticeApp() {
   realisticRef.current = realistic;
   const stageRef = useRef<HTMLDivElement>(null);
   const hydratedGame = useRef(false);
+  const persistTimer = useRef<number | null>(null);
   const hydratedHistory = useRef(false);
   const hydratedCycle = useRef(false);
 
@@ -319,18 +320,35 @@ export function PracticeApp() {
 
   useEffect(() => {
     if (!game) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(game));
-    } catch {
-      /* Private mode can refuse storage. The session still runs. */
-    }
-    if (!hydratedGame.current) {
-      hydratedGame.current = true;
+    const write = (sync: boolean) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(gameRef.current));
+      } catch {
+        /* Private mode can refuse storage. The session still runs. */
+      }
+      if (!hydratedGame.current) {
+        hydratedGame.current = true;
+        return;
+      }
+      if (!sync || isApplyingSync()) return;
+      const current = gameRef.current;
+      touchSection("game");
+      scheduleSync(current?.playing ? 8000 : 700);
+    };
+    if (!hydratedGame.current || !game.playing) {
+      if (persistTimer.current !== null) {
+        window.clearTimeout(persistTimer.current);
+        persistTimer.current = null;
+      }
+      write(true);
       return;
     }
-    if (isApplyingSync()) return;
-    touchSection("game");
-    scheduleSync(game.playing ? 8000 : 700);
+    if (persistTimer.current === null) {
+      persistTimer.current = window.setTimeout(() => {
+        persistTimer.current = null;
+        write(true);
+      }, 1000);
+    }
   }, [game]);
 
   useEffect(() => {
@@ -349,7 +367,7 @@ export function PracticeApp() {
   }, [history]);
 
   const pace = useRef({ playing: false, speed: 1 as Speed, phase: "play" as GameState["phase"] });
-  const clockRef = useRef<{ at: number; applied: number; speed: Speed } | null>(null);
+  const clockRef = useRef<{ at: number; applied: number; speed: Speed; drawn: number } | null>(null);
   pace.current = {
     playing: !!game?.playing,
     speed: game?.speed ?? 1,
@@ -363,11 +381,14 @@ export function PracticeApp() {
         clockRef.current = null;
         return;
       }
-      if (!clockRef.current || clockRef.current.speed !== speed) clockRef.current = { at: Date.now(), applied: 0, speed };
+      if (!clockRef.current || clockRef.current.speed !== speed) clockRef.current = { at: Date.now(), applied: 0, speed, drawn: 0 };
       const clock = clockRef.current;
       const due = ticksDue(Date.now() - clock.at, speed);
       const add = due - clock.applied;
       if (add > 0) {
+        const now = Date.now();
+        if (clock.drawn && now - clock.drawn < 90) return;
+        clock.drawn = now;
         clock.applied = due;
         setGame((current) => (current && current.playing && current.phase === "play" ? runForward(current, add) : current));
       }
@@ -820,7 +841,7 @@ export function PracticeApp() {
                     type="button"
                     className="text-btn"
                     onClick={() => {
-                      clockRef.current = { at: Date.now(), applied: 0, speed: game.speed };
+                      clockRef.current = { at: Date.now(), applied: 0, speed: game.speed, drawn: 0 };
                       setGame((current) => (current ? run(current, stepMinute) : current));
                     }}
                   >

@@ -18,15 +18,28 @@ export type Speed = 1 | 2 | 5 | 15;
 export const SPEEDS: Speed[] = [1, 2, 5, 15];
 const CANDLE_MS = 60_000;
 
-/** Milliseconds between live sub-ticks. 1x is one sub-tick per second. */
+/** Average milliseconds between live sub-ticks. The real gaps wobble around this. */
 export function tickMs(speed: Speed): number {
   return Math.round(CANDLE_MS / speed / SUBTICKS);
 }
 
+/** One-x gaps, in milliseconds. They average 150ms and stay inside about 4–10 updates a second. */
+const PACE_MS = [108, 195, 120, 188, 105, 165, 128, 203, 117, 171];
+const CYCLE_MS = 1500;
+
 /** How many sub-ticks belong in this much real time. */
 export function ticksDue(elapsedMs: number, speed: Speed): number {
   if (!(elapsedMs > 0)) return 0;
-  return Math.floor(elapsedMs / tickMs(speed));
+  const virtual = elapsedMs * speed;
+  const cycles = Math.floor(virtual / CYCLE_MS);
+  let left = virtual - cycles * CYCLE_MS;
+  let extra = 0;
+  for (const step of PACE_MS) {
+    if (left < step) break;
+    left -= step;
+    extra += 1;
+  }
+  return cycles * PACE_MS.length + extra;
 }
 
 /** Time left until the forming candle reaches its close. */
@@ -73,7 +86,7 @@ export type GameState = {
   day: number;
   seeds: number[];
   cursor: number;
-  /** 0–60. 60 means the current minute has reached its close. */
+  /** 0–SUBTICKS. SUBTICKS means the current minute has reached its close. */
   tick: number;
   startedAt: string;
   playing: boolean;
@@ -389,7 +402,7 @@ export function stepMinute(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[
 
 export function fastForward(state: GameState, steps: number, tqqq: MinuteBar[], sqqq: MinuteBar[], date: string, hold: number): GameState {
   let next = state;
-  const cap = Math.max(0, Math.min(Math.floor(steps), 8000));
+  const cap = Math.max(0, Math.min(Math.floor(steps), SESSION_MINUTES * (SUBTICKS + 1) + 50));
   for (let step = 0; step < cap && next.phase === "play"; step += 1) next = tickForward(next, tqqq, sqqq, date, hold);
   return next;
 }

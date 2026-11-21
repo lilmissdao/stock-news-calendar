@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cycle";
-import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
+import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, restartDay, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
 import { SUBTICKS, aggregate, avgCostLabel, axisLabelFits, buildSession, candleInView, chartBars, clock, keepAnchor, minuteSeed, priceWindow, progressiveRange, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
@@ -118,10 +118,10 @@ function realMinutesMatchTheFile() {
   assert.equal(path[path.length - 1], bar.c);
   assert.equal(path[tape.hi], bar.h);
   assert.equal(path[tape.lo], bar.l);
-  assert.ok(Math.abs(path[tape.hi] - path[tape.hi - 1]) >= span * 0.2, "the high is a fast spike");
-  assert.ok(Math.abs(path[tape.lo] - path[tape.lo - 1]) >= span * 0.2, "the low is a fast spike");
+  assert.ok(Math.abs(path[tape.hi] - path[tape.hi - 1]) >= span * 0.1, "the high is a fast spike");
+  assert.ok(Math.abs(path[tape.lo] - path[tape.lo - 1]) >= span * 0.1, "the low is a fast spike");
   assert.ok(path.every((price) => price >= bar.l - 1e-9 && price <= bar.h + 1e-9));
-  assert.ok(Math.abs(path[1] - path[0]) >= 0.01, "the new candle moves on the first tick");
+  assert.ok(Math.abs(path[1] - path[0]) >= 0.009, "the new candle moves on the first tick");
   let flats = 0;
   let turns = 0;
   for (let i = 1; i < path.length; i += 1) {
@@ -133,7 +133,9 @@ function realMinutesMatchTheFile() {
     }
   }
   assert.equal(flats, 0, "no dead ticks");
-  assert.ok(turns > 80, `the path should chop, turns ${turns}`);
+  assert.ok(turns > 20, `the path should chop, turns ${turns}`);
+  const big = path.filter((price, index) => index > 0 && Math.abs(price - path[index - 1]) >= span * 0.12).length;
+  assert.ok(big >= 2 && big <= 8, `spikes should be rare, saw ${big}`);
   assert.deepEqual(subpath(bar, 11, 1), path);
 }
 
@@ -180,9 +182,8 @@ function tapeMovesAndMirrors() {
   assert.equal(up[shape.lo], tqqq.l);
   assert.equal(down[shape.hi], sqqq.l, "SQQQ mirrors the shared high");
   assert.equal(down[shape.lo], sqqq.h, "SQQQ mirrors the shared low");
-  let bursts = 0;
-  for (let i = 3; i < up.length; i += 1) if (Math.abs(up[i] - up[i - 3]) >= (tqqq.h - tqqq.l) * 0.25) bursts += 1;
-  assert.ok(bursts >= 4, `expected several fast jerks, saw ${bursts}`);
+  const big = up.filter((price, index) => index > 0 && Math.abs(price - up[index - 1]) >= (tqqq.h - tqqq.l) * 0.12).length;
+  assert.ok(big >= 2 && big <= 8, `expected a couple of spikes, saw ${big}`);
   let opposite = 0;
   let compared = 0;
   for (let i = 1; i < up.length; i += 1) {
@@ -196,11 +197,14 @@ function tapeMovesAndMirrors() {
 }
 
 function clockAndCatchUp() {
-  assert.equal(minuteLeft(120, 1), "0:42 left in this minute");
+  assert.equal(minuteLeft(54, 1), "0:42 left in this minute");
   assert.equal(minuteLeft(0, 1), "1:00 left in this minute");
   assert.equal(ticksDue(0, 1), 0);
+  assert.equal(ticksDue(60_000, 1), SUBTICKS, "1x spends 60 real seconds on one candle");
+  assert.equal(ticksDue(30_000, 2), SUBTICKS, "2x spends 30 real seconds on one candle");
+  assert.equal(ticksDue(4_000, 15), SUBTICKS, "15x spends 4 real seconds on one candle");
   const due = ticksDue(5000, 1);
-  assert.ok(due >= 28 && due <= 40, `five seconds should be several ticks a second, was ${due}`);
+  assert.ok(due >= 10 && due <= 20, `five seconds should be a few ticks a second, was ${due}`);
   const gaps: number[] = [];
   let lastAt = 0;
   let seen = 0;
@@ -212,7 +216,7 @@ function clockAndCatchUp() {
       seen = got;
     }
   }
-  assert.ok(gaps.every((gap) => gap >= 100 && gap <= 220), `gaps left the 4–10Hz band: ${gaps.join(",")}`);
+  assert.ok(gaps.every((gap) => gap >= 250 && gap <= 500), `gaps left the 2–4Hz band: ${gaps.join(",")}`);
   assert.ok(Math.max(...gaps) - Math.min(...gaps) >= 40, "tick spacing should be irregular");
   const game = fresh();
   const bars = Array.from({ length: 30 }, (_, index) => ({ t: index * 60, o: 10, h: 11, l: 9, c: 10.5 }));
@@ -523,6 +527,33 @@ function sqqqAverageOnTheTqqqChart() {
   assert.equal(tqqq.positions.TQQQ.avgCost, 54.12);
 }
 
+function restartPutsTheDayBackAtTheOpen() {
+  let game = trade(fresh(), "TQQQ", "buy", 0.25, 50, "2026-09-01");
+  game = trade(game, "TQQQ", "sell", 0.5, 51, "2026-09-01");
+  game = { ...game, cursor: 12, tick: 40, day: 1, session: 4, batchDays: [{ date: "2026-09-01", dollars: 10, pct: 0, equity: 31010, drawdown: 0, fees: 0 }], history: { batches: [{ startDate: "old", endDate: "old", days: [], trades: [], fees: 0, startEquity: 31000, endEquity: 31000, holdTqqq: 0, winRate: null, best: null, worst: null, avgHold: null, maxDrawdown: 0 }], equity: [] }, tradeMark: 1 };
+  const earlier = game.batchTrades[0];
+  game = {
+    ...game,
+    batchTrades: [earlier, ...game.batchTrades],
+    tradeMark: 1,
+  };
+  const restarted = restartDay(game);
+  assert.equal(restarted.cursor, 0);
+  assert.equal(restarted.tick, 0);
+  assert.equal(restarted.session, 4);
+  assert.equal(restarted.day, 1);
+  assert.equal(restarted.cash, game.dayStartEquity);
+  assert.equal(restarted.positions.TQQQ.shares, 0);
+  assert.equal(restarted.positions.SQQQ.shares, 0);
+  assert.equal(restarted.sqqqGuide, null);
+  assert.equal(restarted.fills.length, 0);
+  assert.equal(restarted.markers.length, 0);
+  assert.equal(restarted.batchDays.length, 1);
+  assert.equal(restarted.history.batches.length, 1);
+  assert.equal(restarted.batchTrades.length, 1);
+  assert.equal(restarted.phase, "play");
+}
+
 function realisticFillMath() {
   assert.equal(slipPerShare(0, () => 0), 0.02);
   assert.equal(slipPerShare(4, () => 0.999), 0.03);
@@ -559,6 +590,7 @@ switchKeepsTheLiveCandle();
 progressiveFitShowsEveryCandleSoFar();
 scaleStaysOnTheTicker();
 clockAndCatchUp();
+restartPutsTheDayBackAtTheOpen();
 sqqqAverageOnTheTqqqChart();
 historyDeleteLeavesTheRest();
 console.log("practice behavior ok");

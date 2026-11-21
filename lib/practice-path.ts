@@ -5,10 +5,10 @@ export type Timeframe = "1m" | "5m" | "15m" | "30m" | "1D";
 
 const FRAME_MINUTES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 390 };
 /**
- * Sub-ticks inside one minute. About 7 a second at 1x, on an irregular cadence.
- * Tick 0 is the open. Tick SUBTICKS is the close.
+ * Sub-ticks inside one minute. About 3 a second at 1x, on an irregular cadence.
+ * Tick 0 is the open. Tick SUBTICKS is the close. A full minute is 60 real seconds at 1x.
  */
-export const SUBTICKS = 400;
+export const SUBTICKS = 180;
 /** 9:30–10:00 AM ET. Thirty real 1-minute bars. */
 export const SESSION_MINUTES = 30;
 
@@ -192,19 +192,20 @@ function planOf(seed: number): TapePlan {
   for (let i = 0; i < n; i += 1) noise.push(rng() * 2 - 1);
   const jerks: Jerk[] = [];
   const used = [lo, hi];
+  const extra = rng() < 0.5 ? 1 : 0;
   let guard = 0;
-  while (jerks.length < 5 && guard < 40) {
+  while (jerks.length < extra && guard < 20) {
     guard += 1;
-    const len = 2 + Math.floor(rng() * 3);
+    const len = 2 + Math.floor(rng() * 2);
     const at = 28 + Math.floor(rng() * (n - 80));
-    if (used.some((point) => Math.abs(point - at) < 10)) continue;
+    if (used.some((point) => Math.abs(point - at) < 12)) continue;
     used.push(at);
     jerks.push({
       at,
       dir: rng() < 0.5 ? -1 : 1,
-      size: 0.32 + rng() * 0.28,
+      size: 0.1 + rng() * 0.08,
       len,
-      reverse: rng() < 0.7,
+      reverse: rng() < 0.65,
     });
   }
   const plan = { hi, lo, noise, jerks };
@@ -229,7 +230,7 @@ function poke(points: number[], at: number, target: number, low: number, high: n
   const span = Math.max(high - low, 0.01);
   const len = 3;
   const origin = Math.max(1, at - len);
-  const away = target - Math.sign(target - (low + high) / 2 || 1) * span * 0.5;
+  const away = target - Math.sign(target - (low + high) / 2 || 1) * Math.max(0.04, span * 0.16);
   points[origin] = cents(away, low, high);
   const start = points[origin];
   const steps = at - origin;
@@ -331,7 +332,7 @@ function spread(points: number[], open: number, close: number, low: number, high
   ] as const) {
     const prev = at - 1;
     if (prev <= 0 || pins.has(prev)) continue;
-    const minJump = Math.max(0.02, span * 0.22);
+    const minJump = Math.max(0.03, span * 0.12);
     if (moved(points[prev], target) && Math.abs(target - points[prev]) >= minJump - 1e-9) continue;
     const away = target >= (low + high) / 2 ? target - minJump : target + minJump;
     points[prev] = Math.min(cap, Math.max(floor, Math.round(away * 100) / 100));
@@ -388,12 +389,12 @@ function makePath(bar: MinuteBar, seed: number, sign: number): number[] {
   const mid = (low + high) / 2;
   let prev = bar.o;
   for (let i = 1; i < n; i += 1) {
-    const pull = (mid - prev) * 0.16 + (bar.c - prev) * 0.05;
-    const noise = plan.noise[i] * flip * span * 0.1;
+    const pull = (mid - prev) * 0.07 + (bar.c - prev) * 0.035;
+    const noise = plan.noise[i] * flip * Math.min(span * 0.035, 0.04);
     const desired = pull + noise;
     let dir = desired === 0 ? flip : Math.sign(desired);
     if (dir === 0) dir = 1;
-    const steps = 1 + Math.floor(Math.abs(plan.noise[i]) * 3);
+    const steps = 1;
     let next = prev + dir * steps * 0.01;
     if (next > innerHigh || next < innerLow) {
       dir *= -1;

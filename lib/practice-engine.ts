@@ -23,9 +23,9 @@ export function tickMs(speed: Speed): number {
   return Math.round(CANDLE_MS / speed / SUBTICKS);
 }
 
-/** One-x gaps, in milliseconds. They average 150ms and stay inside about 4–10 updates a second. */
-const PACE_MS = [108, 195, 120, 188, 105, 165, 128, 203, 117, 171];
-const CYCLE_MS = 1500;
+/** One-x gaps, in milliseconds. They average a third of a second, about 2–4 updates a second. */
+const PACE_MS = [280, 420, 260, 480, 300, 260];
+const CYCLE_MS = 2000;
 
 /** How many sub-ticks belong in this much real time. */
 export function ticksDue(elapsedMs: number, speed: Speed): number {
@@ -112,6 +112,8 @@ export type GameState = {
   batchDaysTotal: number;
   /** Hold-TQQQ value for the whole batch, filled in when a day ends. */
   batchHold: number;
+  /** How many closed trades belonged to earlier days when this day opened. */
+  tradeMark: number;
   history: { batches: BatchSummary[]; equity: EquityPoint[] };
 };
 
@@ -166,6 +168,7 @@ function fresh(batchStart: number, cash: number, history: GameState["history"], 
     batchStartEquity: cash,
     batchDaysTotal: Math.max(1, Math.min(BATCH_LENGTH, dayCount)),
     batchHold: 0,
+    tradeMark: 0,
     history,
   };
 }
@@ -205,6 +208,7 @@ export function loadGame(raw: string | null, dayCount: number): GameState | null
       sqqqGuide: readSqqqGuide(parsed.sqqqGuide, parsed.positions.SQQQ),
       daySlippage: Number.isFinite(parsed.daySlippage) ? parsed.daySlippage : 0,
       batchSlippage: Number.isFinite(parsed.batchSlippage) ? parsed.batchSlippage : 0,
+      tradeMark: tradeMarkOf(parsed),
     };
   } catch {
     return null;
@@ -425,6 +429,13 @@ function closeBatch(state: GameState): GameState {
   };
 }
 
+function tradeMarkOf(parsed: GameState): number {
+  const trades = Array.isArray(parsed.batchTrades) ? parsed.batchTrades.length : 0;
+  const mark = Number(parsed.tradeMark);
+  if (Number.isInteger(mark) && mark >= 0 && mark <= trades) return mark;
+  return parsed.day > 0 ? trades : 0;
+}
+
 function resetDay(state: GameState, session: number, day: number): GameState {
   return {
     ...state,
@@ -441,6 +452,34 @@ function resetDay(state: GameState, session: number, day: number): GameState {
     dayDrawdown: 0,
     markers: [],
     fills: [],
+    tradeMark: state.batchTrades.length,
+  };
+}
+
+/** Replay the current day from 9:30. Today's trades disappear. Earlier days and saved games stay. */
+export function restartDay(state: GameState): GameState {
+  if (state.phase !== "play") return state;
+  const cash = state.dayStartEquity;
+  const mark = Math.max(0, Math.min(state.batchTrades.length, state.tradeMark || 0));
+  return {
+    ...state,
+    cash,
+    positions: { TQQQ: emptyPosition(), SQQQ: emptyPosition() },
+    cursor: 0,
+    tick: 0,
+    playing: false,
+    sqqqGuide: null,
+    markers: [],
+    fills: [],
+    dayFees: 0,
+    daySlippage: 0,
+    dayPeak: cash,
+    dayDrawdown: 0,
+    batchFees: Math.max(0, (state.batchFees || 0) - (state.dayFees || 0)),
+    batchSlippage: Math.max(0, (state.batchSlippage || 0) - (state.daySlippage || 0)),
+    batchTrades: state.batchTrades.slice(0, mark),
+    session: state.session,
+    day: state.day,
   };
 }
 

@@ -8,6 +8,7 @@ import { PracticeHistory } from "@/components/PracticeHistory";
 import {
   equityNow,
   fastForward,
+  restartDay,
   liveQuote,
   loadGame,
   minuteLeft,
@@ -212,6 +213,7 @@ export function PracticeApp() {
   const [theme, setTheme] = useState("light");
   const [tab, setTab] = useState<"play" | "history">("play");
   const [confirm, setConfirm] = useState(false);
+  const [resetAsk, setResetAsk] = useState(false);
   const [skipAsk, setSkipAsk] = useState(false);
   const [realistic, setRealistic] = useState(true);
   const [filling, setFilling] = useState(false);
@@ -387,7 +389,7 @@ export function PracticeApp() {
       const add = due - clock.applied;
       if (add > 0) {
         const now = Date.now();
-        if (clock.drawn && now - clock.drawn < 90) return;
+        if (clock.drawn && now - clock.drawn < 220) return;
         clock.drawn = now;
         clock.applied = due;
         setGame((current) => (current && current.playing && current.phase === "play" ? runForward(current, add) : current));
@@ -398,7 +400,9 @@ export function PracticeApp() {
       frame = window.requestAnimationFrame(loop);
     };
     frame = window.requestAnimationFrame(loop);
-    const timer = window.setInterval(pump, 200);
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "hidden") pump();
+    }, 500);
     const wake = () => pump();
     document.addEventListener("visibilitychange", wake);
     window.addEventListener("focus", wake);
@@ -508,7 +512,22 @@ export function PracticeApp() {
   function askNew() {
     setGame((current) => (current ? { ...current, playing: false } : current));
     setSkipAsk(false);
+    setResetAsk(false);
     setConfirm(true);
+  }
+
+  function askReset() {
+    if (!active || active.phase !== "play") return;
+    clearFill();
+    setSkipAsk(false);
+    setGame((current) => (current ? { ...current, playing: false } : current));
+    setResetAsk(true);
+  }
+
+  function resetNow() {
+    setResetAsk(false);
+    clearFill();
+    setGame((current) => (current ? restartDay(current) : current));
   }
 
   function skipNow() {
@@ -688,18 +707,27 @@ export function PracticeApp() {
               <strong className={today >= 0 ? "up" : "down"}>
                 {dollars(value - game.dayStartEquity)} {pct(today)}
               </strong>
-              {game.phase === "play" ? (
-                <button type="button" className="pr-play" onClick={() => setGame({ ...game, playing: !game.playing })}>
-                  {game.playing ? "Pause" : "Play"}
-                </button>
-              ) : null}
             </div>
-            {game.phase === "play" || game.phase === "day" ? (
+            {game.phase === "day" ? (
               <div className="pr-skiprow">
                 <button type="button" className="pr-skip" onClick={askSkip}>
                   Skip day
                 </button>
               </div>
+            ) : null}
+            {resetAsk ? (
+              <section className="pr-confirm">
+                <h2>Restart this day from 9:30?</h2>
+                <p className="pr-lead">Today's trades are wiped and cash goes back to the start of this day. Past games stay.</p>
+                <div className="pr-actions">
+                  <button type="button" className="text-btn" onClick={() => setResetAsk(false)}>
+                    Keep playing
+                  </button>
+                  <button type="button" className="pr-skip" onClick={resetNow}>
+                    Restart day
+                  </button>
+                </div>
+              </section>
             ) : null}
             {skipAsk ? (
               <section className="pr-confirm">
@@ -738,6 +766,24 @@ export function PracticeApp() {
                     ))}
                   </div>
                 ) : null}
+                <div className="pr-transport" aria-label="Playback">
+                  <button type="button" className="pr-play" onClick={() => setGame({ ...game, playing: !game.playing })}>
+                    {game.playing ? "Pause" : "Play"}
+                  </button>
+                  <div className="pr-speeds" role="group" aria-label="Speed">
+                    {SPEEDS.map((speed) => (
+                      <button key={speed} type="button" aria-pressed={game.speed === speed} onClick={() => chooseSpeed(speed)}>
+                        {speed}x
+                      </button>
+                    ))}
+                  </div>
+                  <button type="button" className="pr-skip" onClick={askSkip}>
+                    Skip
+                  </button>
+                  <button type="button" className="pr-reset" onClick={askReset}>
+                    Reset day
+                  </button>
+                </div>
                 <div className="pr-plot">
                 <PracticeChart
                   ref={chartRef}
@@ -748,11 +794,6 @@ export function PracticeApp() {
                   seriesId={game.timeframe}
                 />
                 <p className="pr-chart-label">Chart: TQQQ</p>
-                {full ? (
-                  <button type="button" className="pr-skip pr-fullskip" onClick={askSkip}>
-                    Skip day
-                  </button>
-                ) : null}
                 <div className="pr-chart-tools">
                   <button type="button" aria-label="Zoom in" onClick={() => chartRef.current?.zoom(0.75)}>
                     +
@@ -832,11 +873,6 @@ export function PracticeApp() {
                 <OrderPad filling={filling} shares={position.shares} onAct={act} />
                 </div>
                 <div className="pr-dock">
-                  {SPEEDS.map((speed) => (
-                    <button key={speed} type="button" className="text-btn" aria-pressed={game.speed === speed} onClick={() => chooseSpeed(speed)}>
-                      {speed}x
-                    </button>
-                  ))}
                   <button
                     type="button"
                     className="text-btn"

@@ -1317,6 +1317,30 @@ main { min-width: 0; }
 }
 .pr-toggle button[aria-pressed="true"], .pr-dock .text-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .pr-stage { position: relative; height: 520px; display: flex; flex-direction: column; gap: 6px; }
+.pr-transport { display: flex; flex: none; flex-wrap: wrap; align-items: center; gap: 6px; }
+.pr-speeds { display: flex; gap: 4px; }
+.pr-speeds button, .pr-transport .pr-skip {
+  min-height: 32px;
+  min-width: 36px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-elev);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+.pr-speeds button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.pr-reset {
+  margin-left: auto;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 600;
+}
 .pr-plot { position: relative; flex: 1; min-height: 0; }
 .pr-legend {
   display: flex;
@@ -1482,15 +1506,15 @@ main { min-width: 0; }
 }
 .pr-fullskip { position: absolute; z-index: 5; top: 8px; right: 8px; }
 .pr-play {
-  min-height: 52px;
-  min-width: 112px;
+  min-height: 36px;
+  min-width: 72px;
   border: 0;
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--ink);
   color: var(--bg);
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
-  padding: 0 18px;
+  padding: 0 12px;
 }
 .pr-ticker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
 .pr-ticker button { min-height: 52px; font-size: 20px; font-weight: 800; border-radius: 14px; }
@@ -1548,7 +1572,7 @@ main { min-width: 0; }
   .pr-shell .kicker { display: none; }
   .pr-shell .brand h1 { font-size: 1.45rem; }
   .pr-main { gap: 8px; margin-top: 8px; }
-  .pr-stage { height: 58vh; min-height: 380px; }
+  .pr-stage { height: 220px; min-height: 0; }
   .pr-stage-set { height: auto; min-height: 0; }
   .pr-dock, .pr-trade .pr-dock { position: static; background: transparent; padding: 0; }
   .pr-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }

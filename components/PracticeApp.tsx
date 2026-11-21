@@ -391,7 +391,7 @@ export function PracticeApp() {
       const add = due - clock.applied;
       if (add > 0) {
         const now = Date.now();
-        if (clock.drawn && now - clock.drawn < 220) return;
+        if (clock.drawn && now - clock.drawn < 100) return;
         clock.drawn = now;
         clock.applied = due;
         setGame((current) => (current && current.playing && current.phase === "play" ? runForward(current, add) : current));

@@ -121,9 +121,10 @@ function realMinutesMatchTheFile() {
   assert.ok(Math.abs(path[tape.hi] - path[tape.hi - 1]) <= span * 0.25, "the high is tagged gently");
   assert.ok(Math.abs(path[tape.lo] - path[tape.lo - 1]) <= span * 0.25, "the low is tagged gently");
   assert.ok(path.every((price) => price >= bar.l - 1e-9 && price <= bar.h + 1e-9));
-  assert.ok(Math.abs(path[1] - path[0]) >= 0.009, "the new candle moves on the first tick");
+  assert.ok(Math.abs(path[1] - path[0]) > 0, "the new candle moves on the first tick");
+  assert.ok(Math.abs(path[4] - path[0]) >= 0.005, "and has visibly moved within the first second");
   let flats = 0;
-  for (let i = 1; i < path.length; i += 1) if (Math.abs(path[i] - path[i - 1]) < 0.009) flats += 1;
+  for (let i = 1; i < path.length; i += 1) if (Math.abs(path[i] - path[i - 1]) < 1e-6) flats += 1;
   // Cent-sized chop is fine. A reversal counts once price has come back at least 5% of the bar's range off its last swing.
   let turns = 0;
   let pivot = path[0];
@@ -246,14 +247,14 @@ function candlesFormLikeATrail() {
 }
 
 function clockAndCatchUp() {
-  assert.equal(minuteLeft(36, 1), "0:42 left in this minute");
-  assert.equal(minuteLeft(0, 1), "1:00 left in this minute");
+  assert.equal(minuteLeft(SUBTICKS * 0.3, 1), "1:24 left in this minute");
+  assert.equal(minuteLeft(0, 1), "2:00 left in this minute");
   assert.equal(ticksDue(0, 1), 0);
-  assert.equal(ticksDue(60_000, 1), SUBTICKS, "1x spends 60 real seconds on one candle");
-  assert.equal(ticksDue(30_000, 2), SUBTICKS, "2x spends 30 real seconds on one candle");
-  assert.equal(ticksDue(4_000, 15), SUBTICKS, "15x spends 4 real seconds on one candle");
+  assert.equal(ticksDue(120_000, 1), SUBTICKS, "1x spends 120 real seconds on one candle");
+  assert.equal(ticksDue(60_000, 2), SUBTICKS, "2x spends 60 real seconds on one candle");
+  assert.equal(ticksDue(8_000, 15), SUBTICKS, "15x spends 8 real seconds on one candle");
   const due = ticksDue(5000, 1);
-  assert.ok(due >= 8 && due <= 12, `five seconds should be about two ticks a second, was ${due}`);
+  assert.equal(due, 20, `five seconds at 1x should be four ticks a second, was ${due}`);
   const gaps: number[] = [];
   let lastAt = 0;
   let seen = 0;
@@ -265,8 +266,8 @@ function clockAndCatchUp() {
       seen = got;
     }
   }
-  assert.ok(gaps.every((gap) => gap >= 350 && gap <= 700), `gaps left the ~2Hz band: ${gaps.join(",")}`);
-  assert.ok(Math.max(...gaps) - Math.min(...gaps) >= 40, "tick spacing should be irregular");
+  // Evenly spaced ticks, every quarter second at 1x, so the candle glides instead of stuttering.
+  assert.ok(gaps.slice(1).every((gap) => gap === 250), `ticks should be evenly spaced: ${gaps.join(",")}`);
   const game = fresh();
   const bars = Array.from({ length: 30 }, (_, index) => ({ t: index * 60, o: 10, h: 11, l: 9, c: 10.5 }));
   const next = fastForward(game, due, bars, bars, "2026-11-18", 31000);

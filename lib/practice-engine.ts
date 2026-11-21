@@ -16,36 +16,24 @@ import {
 
 export type Speed = 1 | 2 | 5 | 15;
 export const SPEEDS: Speed[] = [1, 2, 5, 15];
-const CANDLE_MS = 60_000;
+/** Real time one 1-minute candle takes at 1x: two minutes, half the speed of the market. */
+export const CANDLE_MS = 120_000;
 
 /** Average milliseconds between live sub-ticks. The real gaps wobble around this. */
 export function tickMs(speed: Speed): number {
   return Math.round(CANDLE_MS / speed / SUBTICKS);
 }
 
-/** One-x gaps, in milliseconds. They average half a second, about 2 updates a second. */
-const PACE_MS = [420, 580, 380, 640, 460, 520];
-const CYCLE_MS = 3000;
-
-/** How many sub-ticks belong in this much real time. */
+/** How many sub-ticks belong in this much real time. Ticks are evenly spaced, so the candle glides. */
 export function ticksDue(elapsedMs: number, speed: Speed): number {
   if (!(elapsedMs > 0)) return 0;
-  const virtual = elapsedMs * speed;
-  const cycles = Math.floor(virtual / CYCLE_MS);
-  let left = virtual - cycles * CYCLE_MS;
-  let extra = 0;
-  for (const step of PACE_MS) {
-    if (left < step) break;
-    left -= step;
-    extra += 1;
-  }
-  return cycles * PACE_MS.length + extra;
+  return Math.floor((elapsedMs * speed * SUBTICKS) / CANDLE_MS + 1e-9);
 }
 
 /** Time left until the forming candle reaches its close. */
 export function minuteLeft(tick: number, speed: Speed): string {
   const clamped = Math.max(0, Math.min(SUBTICKS, tick));
-  const seconds = Math.round(((SUBTICKS - clamped) * 60) / speed / SUBTICKS);
+  const seconds = Math.round(((SUBTICKS - clamped) * CANDLE_MS) / 1000 / speed / SUBTICKS);
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins}:${String(secs).padStart(2, "0")} left in this minute`;

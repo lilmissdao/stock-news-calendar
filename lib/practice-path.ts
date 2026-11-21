@@ -8,7 +8,7 @@ const FRAME_MINUTES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, 
  * Sub-ticks inside one minute. About 2 a second at 1x, on an irregular cadence.
  * Tick 0 is the open. Tick SUBTICKS is the close. A full minute is 60 real seconds at 1x.
  */
-export const SUBTICKS = 120;
+export const SUBTICKS = 480;
 /** 9:30–10:00 AM ET. Thirty real 1-minute bars. */
 export const SESSION_MINUTES = 30;
 
@@ -191,9 +191,10 @@ function planOf(seed: number): TapePlan {
   const rng = mulberry32(key);
   const n = SUBTICKS;
   // Most of a real minute's range prints early. The first wick lands in the first ~30%, the second by ~75%.
-  const early = 8 + Math.floor(rng() * Math.floor(n * 0.24));
+  const early = Math.round(n * 0.065) + Math.floor(rng() * Math.floor(n * 0.24));
   let late = Math.floor(n * 0.42) + Math.floor(rng() * Math.floor(n * 0.32));
-  if (late - early < 16) late = Math.min(n - 16, early + 16);
+  const gap = Math.round(n * 0.13);
+  if (late - early < gap) late = Math.min(n - gap, early + gap);
   const sharpFlip = rng() < 0.1;
   const wiggle = [0, 1, 2].map(() => {
     const count = 1 + Math.floor(rng() * 2);
@@ -203,8 +204,8 @@ function planOf(seed: number): TapePlan {
   const chop: number[] = [];
   let drift = 0;
   for (let k = 0; k <= n; k += 1) {
-    // Mean-reverting noise, roughly -1.5 to 1.5: a cent or two of back-and-forth around the trail.
-    drift = drift * 0.55 + (rng() + rng() + rng() - 1.5) * 1.1;
+    // Smooth mean-reverting noise (about -1.5 to 1.5): gentle back-and-forth around the trail, not tick-to-tick jitter.
+    drift = drift * 0.93 + (rng() + rng() + rng() - 1.5) * 0.5;
     chop.push(drift);
   }
   const plan = { early, late, sharpFlip, wiggle, ease, chop };
@@ -234,45 +235,30 @@ export function sharedTape(seed: number): SharedTape {
   return { lo: plan.early, hi: plan.late };
 }
 
-function cents(price: number, low: number, high: number): number {
-  const next = Math.round(price * 100) / 100;
-  if (next < low) return low;
-  if (next > high) return high;
-  return next;
-}
-
-function moved(left: number, right: number): boolean {
-  return Math.abs(right - left) >= 0.0095;
-}
-
-/** Keep a price on one side of the open, so the body only changes color where the path really crosses it. */
-function onSide(price: number, side: number, open: number, low: number, high: number): number {
-  if (side > 0 && price <= open) return Math.min(high, open + 0.01);
-  if (side < 0 && price >= open) return Math.max(low, open - 0.01);
-  return price;
+function inside(price: number, low: number, high: number): number {
+  return Math.min(high, Math.max(low, price));
 }
 
 /**
- * Keep a price inside the bar and on its side of the open by bouncing off the limit instead of sticking to it,
- * so the tape keeps moving near the open and near the wicks.
+ * Keep a price inside the bar and on its side of the open by bouncing off the limit instead of sticking to it.
+ * Touching the open is allowed (a doji for an instant); going through it to the other color is not.
  */
 function bounce(price: number, side: number, open: number, low: number, high: number): number {
   let next = price;
   if (next > high) next = high - (next - high);
   if (next < low) next = low + (low - next);
-  // Touching the open is allowed (a doji for an instant); going through it to the other color is not.
-  // The floor is the first whole cent on this side of the open, so a half-cent open can't flicker either.
-  const floor = side > 0 ? Math.min(high, Math.ceil(open * 100 - 1e-6) / 100) : side < 0 ? Math.max(low, Math.floor(open * 100 + 1e-6) / 100) : 0;
-  if (side > 0 && next < floor) next = 2 * floor - next;
-  if (side < 0 && next > floor) next = 2 * floor - next;
-  next = cents(Math.min(high, Math.max(low, next)), low, high);
-  if ((side > 0 && next < floor - 1e-9) || (side < 0 && next > floor + 1e-9)) next = floor;
+  if (side > 0 && next < open) next = 2 * open - next;
+  if (side < 0 && next > open) next = 2 * open - next;
+  next = inside(next, low, high);
+  if (side > 0 && next < open) next = Math.min(high, open);
+  if (side < 0 && next > open) next = Math.max(low, open);
   return next;
 }
 
+/** Which side of the open a price is on. Within a third of a cent counts as at the open, so a near-touch can't pin the tape. */
 function sideOf(price: number, open: number): number {
-  if (price > open + 0.005) return 1;
-  if (price < open - 0.005) return -1;
+  if (price > open + 0.003) return 1;
+  if (price < open - 0.003) return -1;
   return 0;
 }
 
@@ -283,8 +269,9 @@ function warp(u: number, ease: number): number {
 }
 
 /**
- * One leg between two anchors. It drifts toward the target with a couple of shallow pullbacks,
- * never crosses the open more than once, and only lands on the target at the last print.
+ * One leg between two anchors. Price glides toward the target with a couple of shallow pullbacks and gentle chop,
+ * never crosses the open more than once, and lands on the target exactly at the leg's last print.
+ * Prices are not snapped to cents, so the candle moves smoothly instead of stepping.
  */
 function fillLeg(
   points: number[],
@@ -303,59 +290,44 @@ function fillLeg(
     return;
   }
   const { open, low, high } = bar;
+  const span = high - low;
   const travel = Math.abs(end - start);
-  const amp = Math.min(travel * 0.16 + (high - low) * 0.08, (high - low) * 0.2);
+  const amp = Math.min(travel * 0.16 + span * 0.06, span * 0.2);
+  const chopAmp = Math.min(0.03, Math.max(0.006, span * 0.025));
   const shape = plan.wiggle[leg % plan.wiggle.length];
   const ease = plan.ease[leg % plan.ease.length];
   const startSide = sideOf(start, open);
   const endSide = sideOf(end, open);
-  // The one tick where this leg is allowed to switch sides of the open.
-  let crossAt = steps;
-  if (startSide !== 0 && endSide !== 0 && startSide !== endSide) {
-    for (let k = 1; k <= steps; k += 1) {
-      if (sideOf(start + (end - start) * warp(k / steps, ease), open) !== startSide) {
-        crossAt = k;
-        break;
-      }
-    }
-  }
-  const dir = Math.sign(end - start) || 1;
-  const span = high - low;
-  const chopAmp = Math.min(0.04, Math.max(0.01, span * 0.03));
-  let prev = start;
-  let held = 0;
+  const fade = Math.max(3, Math.round(steps * 0.08));
+  const raw: number[] = [];
   for (let k = 1; k < steps; k += 1) {
     const u = k / steps;
     let wobble = 0;
     for (const { m, a } of shape) wobble += a * Math.sin(Math.PI * m * u);
     // The envelope keeps the leg's first and last prints heading toward their anchors.
     const envelope = Math.sin(Math.PI * u);
-    // Chop fades in over the first and last few prints so each anchor is still hit exactly.
-    const nearEdge = Math.min(1, Math.min(k, steps - k) / 3);
+    // Chop fades in and out near the anchors so each one is still hit exactly and approached smoothly.
+    const nearEdge = Math.min(1, Math.min(k, steps - k) / fade);
     const chop = plan.chop[(from + k) % plan.chop.length] * chopAmp * nearEdge;
-    const side = startSide === 0 ? endSide : endSide === 0 ? startSide : k < crossAt ? startSide : endSide;
-    let price = start + (end - start) * warp(u, ease) + sign * (amp * wobble * envelope * 0.6 + chop);
-    price = bounce(price, side, open, low, high);
-    if (k === steps - 1 && Math.abs(price - end) < 0.005) price = bounce(end - dir * 0.01, side, open, low, high);
-    if (!moved(prev, price)) {
-      held += 1;
-      if (held >= 2 || k === 1) {
-        // Never sit on one price for more than two prints: step a cent toward the target, or away if that is blocked.
-        const toward = Math.sign(end - prev) || dir;
-        for (const step of [toward, -toward]) {
-          const tried = bounce(prev + step * 0.01, side, open, low, high);
-          if (moved(prev, tried) && !(k < steps - 1 && Math.abs(tried - end) < 0.005 && (end === high || end === low))) {
-            price = tried;
-            break;
-          }
-        }
-        if (moved(prev, price)) held = 0;
+    raw[k] = start + (end - start) * warp(u, ease) + sign * (amp * wobble * envelope * 0.6 + chop);
+  }
+  // A leg that changes color crosses the open once, at the print where the wiggling price itself last crosses it,
+  // so switching sides is seamless. Earlier dips past the open are mirrored back instead of flipping the color.
+  let crossAt = steps;
+  if (startSide !== 0 && endSide !== 0 && startSide !== endSide) {
+    crossAt = 1;
+    for (let k = steps - 1; k >= 1; k -= 1) {
+      if (sideOf(raw[k], open) === startSide) {
+        crossAt = k + 1;
+        break;
       }
-    } else {
-      held = 0;
     }
-    points[from + k] = price;
-    prev = price;
+  }
+  for (let k = 1; k < steps; k += 1) {
+    let side = startSide === 0 ? endSide : endSide === 0 ? startSide : k < crossAt ? startSide : endSide;
+    // Both ends sit at the open: hold to whichever side the leg leans, so it can't flicker across.
+    if (side === 0) side = Math.sign(end - open) || Math.sign(start - open) || Math.sign(raw[k] - open);
+    points[from + k] = bounce(raw[k], side, open, low, high);
   }
   points[to] = end;
 }
@@ -387,14 +359,14 @@ function makePath(bar: MinuteBar, seed: number, sign: number): number[] {
   const lowFirst = lowFirstOf(plan, bar.o, high, low, bar.c);
   let lo = lowFirst ? plan.early : plan.late;
   let hi = lowFirst ? plan.late : plan.early;
-  // A wick within a cent of the open is tagged on the very first print, so the tape doesn't stall trying to reach it.
-  // With under two cents of room there is nowhere to wander, so it is tagged within the first couple of prints.
+  // With under two cents between the open and the first wick there is nowhere to wander, so it is tagged within the first few seconds.
+  const quick = Math.max(2, Math.round(n / 40));
   if (Math.abs(bar.o - low) < 1e-6) lo = 0;
-  else if (bar.o - low < 0.01) lo = 1;
-  else if (bar.o - low < 0.02 && lo === plan.early) lo = 2;
+  else if (bar.o - low < 0.005) lo = 1;
+  else if (bar.o - low < 0.02 && lo === plan.early) lo = quick;
   if (Math.abs(bar.o - high) < 1e-6) hi = 0;
-  else if (high - bar.o < 0.01) hi = 1;
-  else if (high - bar.o < 0.02 && hi === plan.early) hi = 2;
+  else if (high - bar.o < 0.005) hi = 1;
+  else if (high - bar.o < 0.02 && hi === plan.early) hi = quick;
   if (lo === hi) {
     if (lowFirst) hi = Math.max(hi + 1, plan.late);
     else lo = Math.max(lo + 1, plan.late);

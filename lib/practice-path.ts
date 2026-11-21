@@ -5,10 +5,10 @@ export type Timeframe = "1m" | "5m" | "15m" | "30m" | "1D";
 
 const FRAME_MINUTES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 390 };
 /**
- * Sub-ticks inside one minute. About 3 a second at 1x, on an irregular cadence.
+ * Sub-ticks inside one minute. About 2 a second at 1x, on an irregular cadence.
  * Tick 0 is the open. Tick SUBTICKS is the close. A full minute is 60 real seconds at 1x.
  */
-export const SUBTICKS = 180;
+export const SUBTICKS = 120;
 /** 9:30–10:00 AM ET. Thirty real 1-minute bars. */
 export const SESSION_MINUTES = 30;
 
@@ -170,8 +170,7 @@ export function aggregate(minutes: MinuteBar[], timeframe: Timeframe, revealed: 
 
 export type SharedTape = { hi: number; lo: number };
 
-type Jerk = { at: number; dir: number; size: number; len: number; reverse: boolean };
-type TapePlan = { hi: number; lo: number; noise: number[]; jerks: Jerk[] };
+type TapePlan = { early: number; late: number; sharpFlip: boolean };
 
 const plans = new Map<number, TapePlan>();
 const paths = new Map<string, number[]>();
@@ -182,41 +181,24 @@ function planOf(seed: number): TapePlan {
   if (cached) return cached;
   const rng = mulberry32(key);
   const n = SUBTICKS;
-  const lowFirst = rng() < 0.5;
-  const early = 24 + Math.floor(rng() * Math.floor(n * 0.26));
-  let late = Math.floor(n * 0.5) + Math.floor(rng() * Math.floor(n * 0.26));
-  if (late - early < 28) late = Math.min(n - 36, early + 28);
-  const lo = lowFirst ? early : late;
-  const hi = lowFirst ? late : early;
-  const noise: number[] = [];
-  for (let i = 0; i < n; i += 1) noise.push(rng() * 2 - 1);
-  const jerks: Jerk[] = [];
-  const used = [lo, hi];
-  const extra = rng() < 0.5 ? 1 : 0;
-  let guard = 0;
-  while (jerks.length < extra && guard < 20) {
-    guard += 1;
-    const len = 2 + Math.floor(rng() * 2);
-    const at = 28 + Math.floor(rng() * (n - 80));
-    if (used.some((point) => Math.abs(point - at) < 12)) continue;
-    used.push(at);
-    jerks.push({
-      at,
-      dir: rng() < 0.5 ? -1 : 1,
-      size: 0.1 + rng() * 0.08,
-      len,
-      reverse: rng() < 0.65,
-    });
-  }
-  const plan = { hi, lo, noise, jerks };
+  const early = 10 + Math.floor(rng() * Math.floor(n * 0.28));
+  let late = Math.floor(n * 0.46) + Math.floor(rng() * Math.floor(n * 0.28));
+  if (late - early < 14) late = Math.min(n - 16, early + 14);
+  const sharpFlip = rng() < 0.16;
+  const plan = { early, late, sharpFlip };
   plans.set(key, plan);
   return plan;
 }
 
-/** Where this minute's shared tape tags the high and the low. SQQQ swaps the two. */
+function extremes(plan: TapePlan, low: number, high: number, open: number): { hi: number; lo: number } {
+  let lowFirst = Math.abs(open - low) <= Math.abs(open - high);
+  if (plan.sharpFlip) lowFirst = !lowFirst;
+  return { lo: lowFirst ? plan.early : plan.late, hi: lowFirst ? plan.late : plan.early };
+}
+
+/** Where this tape tags the high and the low when the open is nearer the low. */
 export function sharedTape(seed: number): SharedTape {
-  const plan = planOf(seed);
-  return { hi: plan.hi, lo: plan.lo };
+  return extremes(planOf(seed), 0, 1, 0);
 }
 
 function cents(price: number, low: number, high: number): number {
@@ -226,152 +208,72 @@ function cents(price: number, low: number, high: number): number {
   return next;
 }
 
-function poke(points: number[], at: number, target: number, low: number, high: number) {
-  const span = Math.max(high - low, 0.01);
-  const len = 3;
-  const origin = Math.max(1, at - len);
-  const away = target - Math.sign(target - (low + high) / 2 || 1) * Math.max(0.04, span * 0.16);
-  points[origin] = cents(away, low, high);
-  const start = points[origin];
-  const steps = at - origin;
+/** Walk from one anchor to the next in small steps. Only the last print sits on the anchor. */
+function fillSegment(points: number[], from: number, to: number, start: number, end: number, low: number, high: number) {
+  const steps = to - from;
+  if (steps <= 0) {
+    points[to] = end;
+    return;
+  }
+  const dir = Math.sign(end - start) || 1;
+  let prev = start;
+  let held = 0;
   for (let k = 1; k <= steps; k += 1) {
-    const eased = (k / steps) ** 2;
-    const idx = origin + k;
-    points[idx] = idx === at ? target : cents(start + (target - start) * eased, low, high);
-  }
-  points[at] = target;
-  if (at + 1 < points.length - 1) {
-    points[at + 1] = cents(target + (start - target) * 0.62, low, high);
-  }
-  if (at + 2 < points.length - 1) {
-    points[at + 2] = cents(target + (start - target) * 0.84, low, high);
-  }
-}
-
-function applyJerk(points: number[], jerk: Jerk, flip: number, low: number, high: number, innerLow: number, innerHigh: number) {
-  const len = jerk.len;
-  const at = jerk.at;
-  const from = at - len;
-  if (from < 2 || at + 2 >= points.length - 8) return;
-  const start = points[from];
-  const dir = jerk.dir * flip || flip;
-  let target = start + dir * (high - low) * jerk.size;
-  target = Math.min(innerHigh, Math.max(innerLow, target));
-  if (Math.abs(target - start) < 0.02) target = start + (dir > 0 ? 0.04 : -0.04) * Math.sign(dir || 1);
-  target = Math.min(innerHigh, Math.max(innerLow, target));
-  for (let k = 1; k <= len; k += 1) {
-    const eased = (k / len) ** 2;
-    points[from + k] = cents(start + (target - start) * eased, low, high);
-  }
-  if (jerk.reverse && at + 2 < points.length - 8) {
-    const back = start + (target - start) * 0.28;
-    points[at + 1] = cents(target + (back - target) * 0.55, low, high);
-    points[at + 2] = cents(back, low, high);
-  }
-}
-
-function land(points: number[], close: number, low: number, high: number) {
-  const n = points.length - 1;
-  const start = Math.max(1, n - 8);
-  let prev = points[start];
-  for (let i = start + 1; i < n; i += 1) {
-    const remain = n - i;
-    const need = close - prev;
-    const dir = need === 0 ? (prev > low ? -1 : 1) : Math.sign(need);
-    const step = Math.max(0.01, Math.min(Math.abs(need) / remain, 0.04));
-    let next = cents(prev + dir * step, low, high);
-    if (Math.abs(next - prev) < 0.009) {
-      const alt = prev + (prev - low >= high - prev ? -0.01 : 0.01);
-      next = cents(alt, low, high);
+    if (k === steps) {
+      points[to] = end;
+      continue;
     }
-    points[i] = next;
-    prev = next;
+    let price = cents(start + (end - start) * (k / steps), low, high);
+    if (Math.abs(price - end) < 0.009) price = cents(end - dir * 0.01, low, high);
+    if (!moved(prev, price)) {
+      held += 1;
+      if (held >= 3) {
+        let breath = cents(prev + dir * 0.01, low, high);
+        if (Math.abs(breath - prev) < 0.004) breath = cents(prev - dir * 0.01, low, high);
+        if (Math.abs(breath - prev) >= 0.004) {
+          price = breath;
+          held = 0;
+        }
+      }
+    } else held = 0;
+    points[from + k] = price;
+    prev = price;
   }
-  points[n] = close;
-  if (Math.abs(points[n] - points[n - 1]) < 0.009) {
-    const nudged = points[n] - 0.01 >= low ? points[n] - 0.01 : points[n] + 0.01;
-    if (nudged >= low && nudged <= high) points[n - 1] = Math.round(nudged * 100) / 100;
-  }
+  points[to] = end;
 }
 
 function moved(left: number, right: number): boolean {
   return Math.abs(right - left) >= 0.0095;
 }
 
-function pushAway(prev: number, dir: number, low: number, high: number, avoid: number[] = []): number {
-  for (const extra of [0.01, 0.015, 0.02, 0.03, 0.04, 0.05]) {
-    for (const way of [dir, -dir]) {
-      const next = Math.round((prev + way * extra) * 100) / 100;
-      if (next < low || next > high || !moved(prev, next)) continue;
-      if (avoid.every((price) => moved(price, next))) return next;
-    }
+/** Nudge a repeated print one cent toward the next anchor, without flipping direction. */
+function settle(points: number[], pins: Set<number>, low: number, high: number) {
+  for (let i = 1; i < points.length; i += 1) {
+    if (pins.has(i) || moved(points[i - 1], points[i])) continue;
+    const next = pins.has(i + 1) || i + 1 >= points.length ? points[i] : points[i + 1];
+    const dir = Math.sign(next - points[i - 1]);
+    if (dir === 0) continue;
+    const nudged = cents(points[i - 1] + dir * 0.01, low, high);
+    if (moved(points[i - 1], nudged)) points[i] = nudged;
   }
-  return Math.min(high, Math.max(low, prev));
-}
-
-/** Breaks up repeated prints without pulling the path outside the real bar. */
-function spread(points: number[], open: number, close: number, low: number, high: number, hi: number, lo: number) {
-  const n = points.length - 1;
-  const pins = new Set([0, n, hi, lo]);
-  points[0] = open;
-  points[n] = close;
-  points[hi] = high;
-  points[lo] = low;
-  const cap = high - low >= 0.02 ? high - 0.01 : high;
-  const floor = high - low >= 0.02 ? low + 0.01 : low;
-  for (let i = 1; i < n; i += 1) {
-    if (pins.has(i)) continue;
-    let price = Math.min(cap, Math.max(floor, points[i]));
-    if (!moved(points[i - 1], price)) price = pushAway(points[i - 1], points[i - 1] > (low + high) / 2 ? -1 : 1, floor, cap);
-    points[i] = price;
-  }
-  const span = Math.max(high - low, 0.01);
-  for (const [at, target] of [
-    [hi, high],
-    [lo, low],
-  ] as const) {
-    const prev = at - 1;
-    if (prev <= 0 || pins.has(prev)) continue;
-    const minJump = Math.max(0.03, span * 0.12);
-    if (moved(points[prev], target) && Math.abs(target - points[prev]) >= minJump - 1e-9) continue;
-    const away = target >= (low + high) / 2 ? target - minJump : target + minJump;
-    points[prev] = Math.min(cap, Math.max(floor, Math.round(away * 100) / 100));
-    if (!moved(points[prev - 1], points[prev])) points[prev - 1] = pushAway(points[prev], points[prev] > points[prev - 1] ? -1 : 1, floor, cap);
-  }
-  for (let pass = 0; pass < 3; pass += 1) {
-    for (let i = 1; i < n; i += 1) {
-      if (pins.has(i) || i === hi - 1 || i === lo - 1) continue;
-      const avoid = [points[i - 1], points[i + 1]];
-      if (avoid.some((price) => !moved(points[i], price))) {
-        points[i] = pushAway(points[i - 1], i % 2 === 0 ? -1 : 1, floor, cap, avoid);
-      }
-    }
-  }
-  if (!pins.has(n - 1) && !moved(points[n - 1], close)) {
-    points[n - 1] = pushAway(close, close > (low + high) / 2 ? -1 : 1, floor, cap, [points[n - 2]]);
-  }
-  points[0] = open;
-  points[n] = close;
-  points[hi] = high;
-  points[lo] = low;
 }
 
 /**
  * Prices inside one real 1-minute bar.
- * The walk is seeded by the minute, starts at the open, tags the real high and low with fast spikes,
- * and ends at the close. Sign −1 runs the same tape in the opposite direction for SQQQ.
+ * Most bars travel from the open to the nearer extreme, then the other, then the close.
+ * About one bar in eight runs to the far extreme first. SQQQ uses its own inverse bar, so it moves against TQQQ.
  */
-export function subpath(bar: MinuteBar, seed: number, sign = 1): number[] {
-  const key = `${seed >>> 0}:${sign < 0 ? 0 : 1}:${bar.o}:${bar.h}:${bar.l}:${bar.c}`;
+export function subpath(bar: MinuteBar, seed: number, _sign = 1): number[] {
+  const key = `${seed >>> 0}:${bar.o}:${bar.h}:${bar.l}:${bar.c}`;
   const hit = paths.get(key);
   if (hit) return hit;
-  const points = makePath(bar, seed, sign);
+  const points = makePath(bar, seed);
   if (paths.size > 48) paths.delete(paths.keys().next().value as string);
   paths.set(key, points);
   return points;
 }
 
-function makePath(bar: MinuteBar, seed: number, sign: number): number[] {
+function makePath(bar: MinuteBar, seed: number): number[] {
   const n = SUBTICKS;
   const low = Math.min(bar.l, bar.o, bar.c);
   const high = Math.max(bar.h, bar.o, bar.c);
@@ -380,41 +282,37 @@ function makePath(bar: MinuteBar, seed: number, sign: number): number[] {
   points[n] = bar.c;
   if (!(span >= 0.02)) return points;
   const plan = planOf(seed);
-  const flip = sign < 0 ? -1 : 1;
-  const hi = sign < 0 ? plan.lo : plan.hi;
-  const lo = sign < 0 ? plan.hi : plan.lo;
-  const pad = Math.min(0.01, span / 3);
-  const innerLow = low + pad;
-  const innerHigh = high - pad;
-  const mid = (low + high) / 2;
-  let prev = bar.o;
-  for (let i = 1; i < n; i += 1) {
-    const pull = (mid - prev) * 0.07 + (bar.c - prev) * 0.035;
-    const noise = plan.noise[i] * flip * Math.min(span * 0.035, 0.04);
-    const desired = pull + noise;
-    let dir = desired === 0 ? flip : Math.sign(desired);
-    if (dir === 0) dir = 1;
-    const steps = 1;
-    let next = prev + dir * steps * 0.01;
-    if (next > innerHigh || next < innerLow) {
-      dir *= -1;
-      next = prev + dir * 0.01;
-    }
-    next = cents(next, innerLow, innerHigh);
-    if (Math.abs(next - prev) < 0.009) {
-      const alt = prev + (prev - innerLow <= innerHigh - prev ? 0.01 : -0.01);
-      next = cents(alt, innerLow, innerHigh);
-    }
-    points[i] = Math.abs(next - prev) < 0.009 ? prev : next;
-    prev = points[i];
+  let { hi, lo } = extremes(plan, low, high, bar.o);
+  if (Math.abs(bar.o - low) < 1e-6) lo = 0;
+  if (Math.abs(bar.o - high) < 1e-6) hi = 0;
+  const anchors = [
+    { t: 0, p: bar.o },
+    { t: lo, p: low },
+    { t: hi, p: high },
+    { t: n, p: bar.c },
+  ].sort((a, b) => a.t - b.t || a.p - b.p);
+  points[0] = bar.o;
+  for (let i = 0; i < anchors.length - 1; i += 1) {
+    const from = anchors[i];
+    const to = anchors[i + 1];
+    if (to.t <= from.t) continue;
+    fillSegment(points, from.t, to.t, points[from.t] ?? from.p, to.p, low, high);
   }
   points[0] = bar.o;
+  points[lo] = low;
+  points[hi] = high;
   points[n] = bar.c;
-  for (const jerk of plan.jerks) applyJerk(points, jerk, flip, low, high, innerLow, innerHigh);
-  poke(points, hi, high, low, high);
-  poke(points, lo, low, low, high);
-  land(points, bar.c, low, high);
-  spread(points, bar.o, bar.c, low, high, hi, lo);
+  if (!moved(points[0], points[1])) {
+    const next = anchors.find((anchor) => anchor.t > 0);
+    const dir = Math.sign((next?.p ?? points[0]) - points[0]) || 1;
+    const nudged = cents(points[0] + dir * 0.01, low, high);
+    if (moved(points[0], nudged)) points[1] = nudged;
+  }
+  settle(points, new Set([0, n, hi, lo]), low, high);
+  points[0] = bar.o;
+  points[lo] = low;
+  points[hi] = high;
+  points[n] = bar.c;
   return points;
 }
 

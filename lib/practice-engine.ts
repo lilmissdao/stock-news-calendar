@@ -23,9 +23,9 @@ export function tickMs(speed: Speed): number {
   return Math.round(CANDLE_MS / speed / SUBTICKS);
 }
 
-/** One-x gaps, in milliseconds. They average a third of a second, about 2–4 updates a second. */
-const PACE_MS = [280, 420, 260, 480, 300, 260];
-const CYCLE_MS = 2000;
+/** One-x gaps, in milliseconds. They average half a second, about 2 updates a second. */
+const PACE_MS = [420, 580, 380, 640, 460, 520];
+const CYCLE_MS = 3000;
 
 /** How many sub-ticks belong in this much real time. */
 export function ticksDue(elapsedMs: number, speed: Speed): number {

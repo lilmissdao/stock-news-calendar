@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { aggregate, avgCostLabel, buildSession, candleInView, chartBars, clock, followRange, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
+import { aggregate, avgCostLabel, buildSession, candleInView, chartBars, clock, dayRange, minuteSeed, priceWindow, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
 import { assemblePracticeDays, mergePracticeDays, morningBars, type Ohlc, type PracticeDay, type PracticeMarket, type TimedBar, type YahooChart } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { rowSlippage } from "./practice-history";
@@ -240,16 +240,18 @@ function switchKeepsTheLiveCandle() {
   assert.equal(seriesNeedsReset("1m", "1m", before, before), false, "a TQQQ chart with a stable series id does not reset when the traded ticker changes");
 }
 
-function followKeepsTheLatestCandleInView() {
-  const first = followRange(1);
-  const firstPos = (0 - first.from) / (first.to - first.from);
-  assert.ok(firstPos > 0.28 && firstPos < 0.48, `first candle should sit middle-left, was ${firstPos}`);
-  assert.ok(first.to > 0, "empty space stays to the right of the first candle");
-  const later = followRange(10);
-  const last = 9;
-  assert.ok(last > later.from && last < later.to);
-  const laterPos = (last - later.from) / (later.to - later.from);
-  assert.ok(laterPos > 0.55 && laterPos < 0.75, `latest candle should sit center-right, was ${laterPos}`);
+function dayViewShowsTheWholeSession() {
+  for (const [frame, span] of [["1m", 30], ["5m", 6], ["15m", 2], ["30m", 1]] as const) {
+    const range = dayRange(frame);
+    assert.ok(range.from < 0, `${frame} leaves a little room before 9:30`);
+    assert.ok(range.to > span - 1, `${frame} includes the 10:00 edge`);
+    for (let index = 0; index < span; index += 1) {
+      assert.ok(index >= range.from && index <= range.to, `${frame} bar ${index} is outside the day`);
+    }
+  }
+  const oneMinute = dayRange("1m");
+  const firstPos = (0 - oneMinute.from) / (oneMinute.to - oneMinute.from);
+  assert.ok(firstPos < 0.08, `the first candle should sit at the left, was ${firstPos}`);
   const bars = [{ h: 51, l: 49, o: 50, c: 50.4 }];
   const withLine = priceWindow(bars, null, [52]);
   assert.ok(withLine && withLine.to > 52, "an average-cost line near the candle stays in the price window");
@@ -501,7 +503,7 @@ realMinutesMatchTheFile();
 morningAssemblyDropsIncompleteDays();
 tapeMovesAndMirrors();
 switchKeepsTheLiveCandle();
-followKeepsTheLatestCandleInView();
+dayViewShowsTheWholeSession();
 scaleStaysOnTheTicker();
 clockAndCatchUp();
 sqqqAverageOnTheTqqqChart();

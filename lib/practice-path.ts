@@ -69,12 +69,11 @@ export function priceWindow(
   return { from: low - pad, to: high + pad };
 }
 
-/** Where the latest bar sits while the chart is following. The first bar starts left of center, with room on the right. */
-export function followRange(count: number): { from: number; to: number } {
-  const last = Math.max(0, count - 1);
-  const span = 16;
-  const rightPad = count <= 2 ? 10 : 6;
-  return { from: last + rightPad - span, to: last + rightPad };
+/** The full 9:30–10:00 window for a timeframe. Index 0 is the first candle; the rest of the session is empty space until bars arrive. */
+export function dayRange(timeframe: string): { from: number; to: number } {
+  const span = timeframe === "5m" ? 6 : timeframe === "15m" ? 2 : timeframe === "30m" || timeframe === "1D" ? 1 : 30;
+  const pad = span <= 2 ? 0.75 : 0.5;
+  return { from: -pad, to: span - 1 + pad };
 }
 
 export function candleInView(range: PriceWindow, time: { from: number; to: number }, bar: { h: number; l: number; c: number }, index: number): boolean {

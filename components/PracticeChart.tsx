@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import type { IChartApi, IPriceLine, ISeriesApi, LineStyle, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
-import { clock, followRange, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
+import { clock, dayRange, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
 export type CostLine = { key: string; price: number; title: string };
@@ -77,16 +77,17 @@ function fitNow(
   candles: ChartCandle[],
   priorClose: number | null,
   anchors: number[],
+  timeframe: string,
   host: HTMLElement | null,
   applying: { current: boolean },
 ) {
   const scale = chart.priceScale("right");
   const window = priceWindow(candles, priorClose, anchors);
   holdApply(applying, () => {
-    chart.timeScale().applyOptions({ barSpacing: 12, rightOffset: 8, minBarSpacing: 4 });
+    chart.timeScale().applyOptions({ rightOffset: 0, minBarSpacing: 0.5, shiftVisibleRangeOnNewBar: false });
     scale.setAutoScale(true);
     if (window) scale.setVisibleRange({ from: window.from, to: window.to });
-    chart.timeScale().setVisibleLogicalRange(followRange(candles.length));
+    chart.timeScale().setVisibleLogicalRange(dayRange(timeframe));
   });
   publish(chart, candles, host, false);
 }
@@ -107,23 +108,11 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
   const seriesIdRef = useRef<string | null>(null);
   const manual = useRef(false);
   const applying = useRef(false);
-  const resume = useRef<number | null>(null);
   const latest = useRef({ candles, costLines, priorClose, seriesId });
   latest.current = { candles, costLines, priorClose, seriesId };
 
   function anchors() {
     return latest.current.costLines.map((line) => line.price);
-  }
-
-  function resumeFollow() {
-    if (resume.current !== null) window.clearTimeout(resume.current);
-    resume.current = window.setTimeout(() => {
-      resume.current = null;
-      const chart = chartRef.current;
-      if (!chart || !manual.current) return;
-      manual.current = false;
-      fitNow(chart, latest.current.candles, latest.current.priorClose, anchors(), host.current, applying);
-    }, 4000);
   }
 
   useImperativeHandle(ref, () => ({
@@ -133,7 +122,6 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       const range = chart.timeScale().getVisibleLogicalRange();
       if (!range) return;
       manual.current = true;
-      resumeFollow();
       chart.priceScale("right").setAutoScale(false);
       const center = (range.from + range.to) / 2;
       const half = Math.max(2, ((range.to - range.from) / 2) * factor);
@@ -145,9 +133,8 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
     auto() {
       const chart = chartRef.current;
       if (!chart) return;
-      if (resume.current !== null) window.clearTimeout(resume.current);
       manual.current = false;
-      fitNow(chart, latest.current.candles, latest.current.priorClose, anchors(), host.current, applying);
+      fitNow(chart, latest.current.candles, latest.current.priorClose, anchors(), latest.current.seriesId, host.current, applying);
       window.setTimeout(() => {
         manual.current = false;
         if (chartRef.current) publish(chartRef.current, latest.current.candles, host.current, false);
@@ -186,9 +173,9 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
           timeVisible: true,
           secondsVisible: false,
           barSpacing: 12,
-          minBarSpacing: 4,
-          rightOffset: 8,
-          shiftVisibleRangeOnNewBar: true,
+          minBarSpacing: 0.5,
+          rightOffset: 0,
+          shiftVisibleRangeOnNewBar: false,
           tickMarkFormatter: (time: Time) => clock(typeof time === "number" ? time : 0),
         },
         localization: { timeFormatter: (time: Time) => clock(typeof time === "number" ? time : 0) },
@@ -209,7 +196,6 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
         if (gesture.current && !applying.current) {
           manual.current = true;
           chart?.priceScale("right").setAutoScale(false);
-          resumeFollow();
         }
         if (chart) publish(chart, latest.current.candles, host.current, manual.current);
       };
@@ -244,7 +230,6 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       costRef.current = { sig: "", lines: [] };
       barsRef.current = null;
       seriesIdRef.current = null;
-      if (resume.current !== null) window.clearTimeout(resume.current);
     };
   }, [theme]);
 
@@ -258,7 +243,6 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       const box = el.getBoundingClientRect();
       if (event.clientX > box.right - 72) {
         manual.current = true;
-        resumeFollow();
         chartRef.current?.priceScale("right").setAutoScale(false);
         if (chartRef.current) publish(chartRef.current, latest.current.candles, el, true);
       }
@@ -317,8 +301,6 @@ function paint(
 ) {
   const { candles, costLines, priorClose, seriesId } = latest;
   const prices = costLines.map((line) => line.price);
-  const previousCount = previous.current?.length ?? 0;
-  if (manual.current && previousCount > 0 && candles.length > previousCount) manual.current = false;
   const replace = seriesNeedsReset(previousId.current, seriesId, previous.current, candles) || !candles.length;
   const savedTime: LogicalRange | null = manual.current ? chart.timeScale().getVisibleLogicalRange() : null;
   const savedPrice = manual.current ? chart.priceScale("right").getVisibleRange() : null;
@@ -343,7 +325,7 @@ function paint(
     applyCostLines(series, costs, costLines, host);
     if (!manual.current || switched) {
       manual.current = false;
-      fitNow(chart, candles, priorClose, prices, host, applying);
+      fitNow(chart, candles, priorClose, prices, seriesId, host, applying);
     } else {
       applying.current = true;
       if (savedTime) chart.timeScale().setVisibleLogicalRange(savedTime);
@@ -361,9 +343,9 @@ function paint(
     applyCostLines(series, costs, costLines, host);
     if (!manual.current) {
       chart.priceScale("right").setAutoScale(true);
-      const desired = followRange(candles.length);
+      const desired = dayRange(seriesId);
       const range = chart.timeScale().getVisibleLogicalRange();
-      if (!range || Math.abs(range.from - desired.from) > 0.35 || Math.abs(range.to - desired.to) > 0.35) {
+      if (!range || Math.abs(range.from - desired.from) > 0.2 || Math.abs(range.to - desired.to) > 0.2) {
         holdApply(applying, () => chart.timeScale().setVisibleLogicalRange(desired));
       }
     }

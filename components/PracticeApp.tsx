@@ -426,18 +426,20 @@ export function PracticeApp() {
     : null;
   const candles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, game.timeframe, daily);
   const costLines: CostLine[] = [];
-  const costNotes: string[] = [];
+  const costLegend: { key: string; text: string; placed: boolean }[] = [];
   if (game.positions.TQQQ.shares > 0 && game.positions.TQQQ.avgCost > 0) {
-    const title = avgCostLabel("tqqq", game.positions.TQQQ.avgCost);
-    if (keepAnchor(candles, game.positions.TQQQ.avgCost)) costLines.push({ key: "tqqq", price: game.positions.TQQQ.avgCost, title });
-    else costNotes.push(title);
+    const text = avgCostLabel("tqqq", game.positions.TQQQ.avgCost);
+    const placed = keepAnchor(candles, game.positions.TQQQ.avgCost);
+    if (placed) costLines.push({ key: "tqqq", price: game.positions.TQQQ.avgCost, title: "" });
+    costLegend.push({ key: "tqqq", text, placed });
   }
   if (game.positions.SQQQ.shares > 0 && game.positions.SQQQ.avgCost > 0) {
-    const title = avgCostLabel("sqqq", game.positions.SQQQ.avgCost);
+    const text = avgCostLabel("sqqq", game.positions.SQQQ.avgCost);
     const guide = game.sqqqGuide;
     const level = guide && Math.abs(guide.avg - game.positions.SQQQ.avgCost) < 1e-6 ? guide.level : null;
-    if (level !== null && keepAnchor(candles, level)) costLines.push({ key: "sqqq", price: level, title });
-    else costNotes.push(title);
+    const placed = level !== null && keepAnchor(candles, level);
+    if (placed && level !== null) costLines.push({ key: "sqqq", price: level, title: "" });
+    costLegend.push({ key: "sqqq", text, placed });
   }
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
@@ -706,6 +708,16 @@ export function PracticeApp() {
             ) : null}
             {game.phase === "play" ? (
               <div ref={stageRef} className={full ? "pr-full" : chartH ? "pr-stage pr-stage-set" : "pr-stage"} style={!full && chartH ? { height: chartH } : undefined}>
+                {costLegend.length ? (
+                  <div className="pr-legend" aria-label="Average cost">
+                    {costLegend.map((note) => (
+                      <span key={note.key} data-kind={note.key} data-placed={note.placed ? "1" : "0"}>
+                        {note.text}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <div className="pr-plot">
                 <PracticeChart
                   ref={chartRef}
                   candles={candles as ChartCandle[]}
@@ -715,11 +727,6 @@ export function PracticeApp() {
                   seriesId={game.timeframe}
                 />
                 <p className="pr-chart-label">Chart: TQQQ</p>
-                {costNotes.map((note, index) => (
-                  <p key={note} className="pr-sqqq-avg" style={{ top: 84 + index * 28 }}>
-                    {note}
-                  </p>
-                ))}
                 {full ? (
                   <button type="button" className="pr-skip pr-fullskip" onClick={askSkip}>
                     Skip day
@@ -738,6 +745,7 @@ export function PracticeApp() {
                   <button type="button" onClick={() => setFull((value) => !value)}>
                     {full ? "Close" : "Full"}
                   </button>
+                </div>
                 </div>
                 {!full ? (
                   <div

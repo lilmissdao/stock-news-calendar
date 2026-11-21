@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import type { IChartApi, IPriceLine, ISeriesApi, LineStyle, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
-import { clock, priceWindow, progressiveRange, seriesNeedsReset } from "@/lib/practice-path";
+import { axisLabelFits, clock, priceWindow, progressiveRange, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
 export type CostLine = { key: string; price: number; title: string };
@@ -17,13 +17,38 @@ function toBar(bar: ChartCandle) {
 
 function applyCostLines(
   series: ISeriesApi<"Candlestick">,
-  bag: { current: { sig: string; lines: IPriceLine[] } },
+  bag: { current: { sig: string; flags: string; lines: IPriceLine[] } },
   lines: CostLine[],
   host: HTMLElement | null,
+  candles: ChartCandle[],
+  priorClose: number | null,
 ) {
-  const sig = lines.map((line) => `${line.key}:${line.price}:${line.title}`).join("|");
-  if (host) host.dataset.costs = sig;
-  if (bag.current.sig === sig) return;
+  const style = getComputedStyle(document.documentElement);
+  const pick = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback;
+  const ink = pick("--ink-soft", "#5e584e");
+  const accent = pick("--accent", "#8f3d32");
+  const paper = pick("--bg", "#f7f3ea");
+  const window = priceWindow(candles, priorClose, lines.map((line) => line.price));
+  const span = window ? window.to - window.from : 0;
+  const plotHeight = Math.max((host?.clientHeight ?? 480) - 28, 120);
+  const occupied: number[] = [];
+  const last = candles.length ? candles[candles.length - 1].c : null;
+  if (last !== null) occupied.push(last);
+  if (priorClose !== null && window && priorClose >= window.from && priorClose <= window.to) occupied.push(priorClose);
+  const shown = lines.map((line) => {
+    const fits = axisLabelFits(line.price, occupied, span, plotHeight);
+    if (fits) occupied.push(line.price);
+    return fits;
+  });
+  const sig = lines.map((line) => `${line.key}:${line.price}`).join("|");
+  const flags = shown.map((fit) => (fit ? "1" : "0")).join("");
+  if (host) host.dataset.costs = lines.map((line, index) => `${line.key}:${line.price}:${shown[index] ? "axis" : "line"}`).join("|");
+  if (bag.current.sig === sig && bag.current.flags === flags) return;
+  if (bag.current.sig === sig && bag.current.lines.length === lines.length) {
+    shown.forEach((fit, index) => bag.current.lines[index]?.applyOptions({ axisLabelVisible: fit, title: "" }));
+    bag.current.flags = flags;
+    return;
+  }
   for (const line of bag.current.lines) {
     try {
       series.removePriceLine(line);
@@ -31,20 +56,20 @@ function applyCostLines(
       /* A replaced series has already dropped its lines. */
     }
   }
-  const style = getComputedStyle(document.documentElement);
-  const ink = style.getPropertyValue("--ink").trim() || "#241f1a";
-  const accent = style.getPropertyValue("--accent").trim() || "#8f3d32";
-  bag.current.lines = lines.map((line) =>
+  bag.current.lines = lines.map((line, index) =>
     series.createPriceLine({
       price: line.price,
       color: line.key === "sqqq" ? accent : ink,
       lineWidth: 1,
       lineStyle: 2 as LineStyle,
-      axisLabelVisible: true,
-      title: line.title,
+      axisLabelVisible: shown[index],
+      axisLabelColor: line.key === "sqqq" ? accent : ink,
+      axisLabelTextColor: paper,
+      title: "",
     }),
   );
   bag.current.sig = sig;
+  bag.current.flags = flags;
 }
 
 function publish(chart: IChartApi, candles: ChartCandle[], host: HTMLElement | null, manual: boolean) {
@@ -106,7 +131,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const lineRef = useRef<IPriceLine | null>(null);
-  const costRef = useRef<{ sig: string; lines: IPriceLine[] }>({ sig: "", lines: [] });
+  const costRef = useRef<{ sig: string; flags: string; lines: IPriceLine[] }>({ sig: "", flags: "", lines: [] });
   const barsRef = useRef<ChartCandle[] | null>(null);
   const seriesIdRef = useRef<string | null>(null);
   const manual = useRef(false);
@@ -220,7 +245,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       seriesRef.current = series;
       barsRef.current = null;
       seriesIdRef.current = null;
-      costRef.current = { sig: "", lines: [] };
+      costRef.current = { sig: "", flags: "", lines: [] };
       manual.current = false;
       paint(series, chart, lineRef, costRef, latest.current, host.current, true, barsRef, seriesIdRef, manual, applying);
     });
@@ -230,7 +255,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       chartRef.current = null;
       seriesRef.current = null;
       lineRef.current = null;
-      costRef.current = { sig: "", lines: [] };
+      costRef.current = { sig: "", flags: "", lines: [] };
       barsRef.current = null;
       seriesIdRef.current = null;
     };
@@ -293,7 +318,7 @@ function paint(
   series: ISeriesApi<"Candlestick">,
   chart: IChartApi,
   line: { current: IPriceLine | null },
-  costs: { current: { sig: string; lines: IPriceLine[] } },
+  costs: { current: { sig: string; flags: string; lines: IPriceLine[] } },
   latest: { candles: ChartCandle[]; costLines: CostLine[]; priorClose: number | null; seriesId: string },
   host: HTMLElement | null,
   switched: boolean,
@@ -325,7 +350,7 @@ function paint(
         title: "Prior",
       });
     }
-    applyCostLines(series, costs, costLines, host);
+    applyCostLines(series, costs, costLines, host, candles, priorClose);
     if (!manual.current || switched) {
       manual.current = false;
       fitNow(chart, candles, priorClose, prices, host, applying);
@@ -343,7 +368,7 @@ function paint(
     } catch {
       series.setData(candles.map(toBar));
     }
-    applyCostLines(series, costs, costLines, host);
+    applyCostLines(series, costs, costLines, host, candles, priorClose);
     if (!manual.current) {
       chart.priceScale("right").setAutoScale(true);
       const desired = progressiveRange(candles.length, plotWidth(host));

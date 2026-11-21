@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { aggregate, avgCostLabel, buildSession, candleInView, chartBars, clock, keepAnchor, minuteSeed, priceWindow, progressiveRange, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
+import { aggregate, avgCostLabel, axisLabelFits, buildSession, candleInView, chartBars, clock, keepAnchor, minuteSeed, priceWindow, progressiveRange, seriesNeedsReset, sharedTape, sqqqBreakevenTqqq, subpath, type Timeframe } from "./practice-path";
 import { assemblePracticeDays, mergePracticeDays, morningBars, type Ohlc, type PracticeDay, type PracticeMarket, type TimedBar, type YahooChart } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { rowSlippage } from "./practice-history";
@@ -456,8 +456,10 @@ function skipAfterTheCloseDoesNotDoubleCount() {
 }
 
 function sqqqAverageOnTheTqqqChart() {
-  assert.equal(avgCostLabel("tqqq", 54.1), "Avg 54.10");
-  assert.equal(avgCostLabel("sqqq", 21.4), "SQQQ avg 21.40");
+  assert.equal(avgCostLabel("tqqq", 54.1), "TQQQ 54.10");
+  assert.equal(avgCostLabel("sqqq", 21.4), "SQQQ 21.40");
+  assert.equal(axisLabelFits(54.1, [54.12], 2, 400), false, "an average sitting on the last price hides its axis tag");
+  assert.equal(axisLabelFits(52, [54.12], 2, 400), true);
   assert.equal(sqqqBreakevenTqqq(80, 20, 20), 80);
   assert.equal(sqqqBreakevenTqqq(80, 20, 22), 72);
   assert.equal(sqqqBreakevenTqqq(80, 20, 10), null, "a breakeven far from the TQQQ price is not drawn as a line");

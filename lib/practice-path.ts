@@ -229,7 +229,14 @@ export function formingBar(bar: MinuteBar, path: number[], tick: number): Minute
 
 export function avgCostLabel(kind: "tqqq" | "sqqq", avg: number): string {
   const text = avg.toFixed(2);
-  return kind === "sqqq" ? `SQQQ avg ${text}` : `Avg ${text}`;
+  return kind === "sqqq" ? `SQQQ ${text}` : `TQQQ ${text}`;
+}
+
+/** True when a price-scale tag has room beside the prices already labeled there. */
+export function axisLabelFits(price: number, occupied: number[], span: number, plotHeight: number): boolean {
+  if (!Number.isFinite(price) || !(span > 0) || !(plotHeight > 0)) return true;
+  const gap = (22 / plotHeight) * span;
+  return occupied.every((other) => !Number.isFinite(other) || Math.abs(other - price) >= gap);
 }
 
 /**

@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import type { IChartApi, IPriceLine, ISeriesApi, LineStyle, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
-import { clock, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
+import { clock, followRange, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
 export type CostLine = { key: string; price: number; title: string };
@@ -72,17 +72,21 @@ function holdApply(applying: { current: boolean }, run: () => void) {
   }, 120);
 }
 
-function fitNow(chart: IChartApi, candles: ChartCandle[], priorClose: number | null, host: HTMLElement | null, applying: { current: boolean }) {
+function fitNow(
+  chart: IChartApi,
+  candles: ChartCandle[],
+  priorClose: number | null,
+  anchors: number[],
+  host: HTMLElement | null,
+  applying: { current: boolean },
+) {
   const scale = chart.priceScale("right");
-  const window = priceWindow(candles, priorClose);
+  const window = priceWindow(candles, priorClose, anchors);
   holdApply(applying, () => {
-    chart.timeScale().applyOptions({ barSpacing: 16, rightOffset: 5, minBarSpacing: 8 });
-    if (window) {
-      scale.setVisibleRange({ from: window.from, to: window.to });
-      scale.setAutoScale(true);
-    }
-    const last = Math.max(candles.length - 1, 0);
-    chart.timeScale().setVisibleLogicalRange({ from: last - 14, to: last + 5 });
+    chart.timeScale().applyOptions({ barSpacing: 12, rightOffset: 8, minBarSpacing: 4 });
+    scale.setAutoScale(true);
+    if (window) scale.setVisibleRange({ from: window.from, to: window.to });
+    chart.timeScale().setVisibleLogicalRange(followRange(candles.length));
   });
   publish(chart, candles, host, false);
 }
@@ -103,8 +107,24 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
   const seriesIdRef = useRef<string | null>(null);
   const manual = useRef(false);
   const applying = useRef(false);
+  const resume = useRef<number | null>(null);
   const latest = useRef({ candles, costLines, priorClose, seriesId });
   latest.current = { candles, costLines, priorClose, seriesId };
+
+  function anchors() {
+    return latest.current.costLines.map((line) => line.price);
+  }
+
+  function resumeFollow() {
+    if (resume.current !== null) window.clearTimeout(resume.current);
+    resume.current = window.setTimeout(() => {
+      resume.current = null;
+      const chart = chartRef.current;
+      if (!chart || !manual.current) return;
+      manual.current = false;
+      fitNow(chart, latest.current.candles, latest.current.priorClose, anchors(), host.current, applying);
+    }, 4000);
+  }
 
   useImperativeHandle(ref, () => ({
     zoom(factor: number) {
@@ -113,6 +133,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       const range = chart.timeScale().getVisibleLogicalRange();
       if (!range) return;
       manual.current = true;
+      resumeFollow();
       chart.priceScale("right").setAutoScale(false);
       const center = (range.from + range.to) / 2;
       const half = Math.max(2, ((range.to - range.from) / 2) * factor);
@@ -124,8 +145,9 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
     auto() {
       const chart = chartRef.current;
       if (!chart) return;
+      if (resume.current !== null) window.clearTimeout(resume.current);
       manual.current = false;
-      fitNow(chart, latest.current.candles, latest.current.priorClose, host.current, applying);
+      fitNow(chart, latest.current.candles, latest.current.priorClose, anchors(), host.current, applying);
       window.setTimeout(() => {
         manual.current = false;
         if (chartRef.current) publish(chartRef.current, latest.current.candles, host.current, false);
@@ -152,7 +174,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
         },
         grid: { vertLines: { color: pick("--line") }, horzLines: { color: pick("--line") } },
         rightPriceScale: { borderColor: pick("--line") },
-        handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
+        handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
         handleScale: {
           mouseWheel: true,
           pinch: true,
@@ -163,9 +185,9 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
           borderColor: pick("--line"),
           timeVisible: true,
           secondsVisible: false,
-          barSpacing: 16,
-          minBarSpacing: 8,
-          rightOffset: 5,
+          barSpacing: 12,
+          minBarSpacing: 4,
+          rightOffset: 8,
           shiftVisibleRangeOnNewBar: true,
           tickMarkFormatter: (time: Time) => clock(typeof time === "number" ? time : 0),
         },
@@ -187,6 +209,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
         if (gesture.current && !applying.current) {
           manual.current = true;
           chart?.priceScale("right").setAutoScale(false);
+          resumeFollow();
         }
         if (chart) publish(chart, latest.current.candles, host.current, manual.current);
       };
@@ -199,7 +222,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
         borderVisible: false,
         autoscaleInfoProvider: () => {
           const data = latest.current.candles;
-          const window = priceWindow(data, latest.current.priorClose);
+          const window = priceWindow(data, latest.current.priorClose, latest.current.costLines.map((line) => line.price));
           if (!window) return null;
           return { priceRange: { minValue: window.from, maxValue: window.to } };
         },
@@ -221,22 +244,31 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       costRef.current = { sig: "", lines: [] };
       barsRef.current = null;
       seriesIdRef.current = null;
+      if (resume.current !== null) window.clearTimeout(resume.current);
     };
   }, [theme]);
 
   useEffect(() => {
     const el = host.current;
     if (!el) return;
+    const blockScroll = (event: TouchEvent) => {
+      if (event.cancelable) event.preventDefault();
+    };
     const down = (event: PointerEvent) => {
       const box = el.getBoundingClientRect();
       if (event.clientX > box.right - 72) {
         manual.current = true;
+        resumeFollow();
         chartRef.current?.priceScale("right").setAutoScale(false);
         if (chartRef.current) publish(chartRef.current, latest.current.candles, el, true);
       }
     };
+    el.addEventListener("touchmove", blockScroll, { passive: false, capture: true });
     el.addEventListener("pointerdown", down);
-    return () => el.removeEventListener("pointerdown", down);
+    return () => {
+      el.removeEventListener("touchmove", blockScroll, true);
+      el.removeEventListener("pointerdown", down);
+    };
   }, []);
 
   useEffect(() => {
@@ -284,6 +316,9 @@ function paint(
   applying: { current: boolean },
 ) {
   const { candles, costLines, priorClose, seriesId } = latest;
+  const prices = costLines.map((line) => line.price);
+  const previousCount = previous.current?.length ?? 0;
+  if (manual.current && previousCount > 0 && candles.length > previousCount) manual.current = false;
   const replace = seriesNeedsReset(previousId.current, seriesId, previous.current, candles) || !candles.length;
   const savedTime: LogicalRange | null = manual.current ? chart.timeScale().getVisibleLogicalRange() : null;
   const savedPrice = manual.current ? chart.priceScale("right").getVisibleRange() : null;
@@ -293,7 +328,7 @@ function paint(
       line.current = null;
     }
     series.setData(candles.map(toBar));
-    const window = priceWindow(candles, priorClose);
+    const window = priceWindow(candles, priorClose, prices);
     if (priorClose !== null && window && priorClose >= window.from && priorClose <= window.to) {
       const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink-soft").trim();
       line.current = series.createPriceLine({
@@ -308,7 +343,7 @@ function paint(
     applyCostLines(series, costs, costLines, host);
     if (!manual.current || switched) {
       manual.current = false;
-      fitNow(chart, candles, priorClose, host, applying);
+      fitNow(chart, candles, priorClose, prices, host, applying);
     } else {
       applying.current = true;
       if (savedTime) chart.timeScale().setVisibleLogicalRange(savedTime);
@@ -326,10 +361,10 @@ function paint(
     applyCostLines(series, costs, costLines, host);
     if (!manual.current) {
       chart.priceScale("right").setAutoScale(true);
+      const desired = followRange(candles.length);
       const range = chart.timeScale().getVisibleLogicalRange();
-      const last = candles.length - 1;
-      if (!range || last > range.to - 1 || last < range.from) {
-        holdApply(applying, () => chart.timeScale().setVisibleLogicalRange({ from: last - 14, to: last + 5 }));
+      if (!range || Math.abs(range.from - desired.from) > 0.35 || Math.abs(range.to - desired.to) > 0.35) {
+        holdApply(applying, () => chart.timeScale().setVisibleLogicalRange(desired));
       }
     }
     publish(chart, candles, host, manual.current);

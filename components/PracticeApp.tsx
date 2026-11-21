@@ -728,8 +728,8 @@ export function PracticeApp() {
                   <button type="button" aria-label="Zoom out" onClick={() => chartRef.current?.zoom(1.35)}>
                     −
                   </button>
-                  <button type="button" onClick={() => chartRef.current?.auto()}>
-                    Auto
+                  <button type="button" aria-label="Follow the latest candle" onClick={() => chartRef.current?.auto()}>
+                    Follow
                   </button>
                   <button type="button" onClick={() => setFull((value) => !value)}>
                     {full ? "Close" : "Full"}

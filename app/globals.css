@@ -1317,6 +1317,10 @@ main { min-width: 0; }
 }
 .pr-toggle button[aria-pressed="true"], .pr-dock .text-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .pr-stage { position: relative; height: 520px; }
+.pr-chart, .pr-chart canvas {
+  touch-action: none;
+  overscroll-behavior: contain;
+}
 .pr-chart { height: 520px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg-elev); overflow: hidden; }
 .pr-stage .pr-chart, .pr-stage-set .pr-chart { height: 100%; min-height: 0; }
 .pr-stage-set { min-height: 0; }

@@ -44,20 +44,37 @@ export function minuteSeed(daySeed: number, minute: number): number {
 
 export type PriceWindow = { from: number; to: number };
 
-/** Visible price range for the candles on screen. A prior close from the other ticker is left out. */
-export function priceWindow(bars: { h: number; l: number; o?: number; c?: number }[], priorClose: number | null): PriceWindow | null {
+/** Visible price range. A far prior close is left out. Nearby anchors, such as average-cost lines, are kept. */
+export function priceWindow(
+  bars: { h: number; l: number; o?: number; c?: number }[],
+  priorClose: number | null,
+  anchors: number[] = [],
+): PriceWindow | null {
   if (!bars.length) return null;
   let high = Math.max(...bars.map((bar) => Math.max(bar.h, bar.o ?? bar.h, bar.c ?? bar.h)));
   let low = Math.min(...bars.map((bar) => Math.min(bar.l, bar.o ?? bar.l, bar.c ?? bar.l)));
   if (!Number.isFinite(high) || !Number.isFinite(low)) return null;
   if (high < low) [high, low] = [low, high];
   const mid = (high + low) / 2 || Math.abs(high) || 1;
-  if (priorClose !== null && Number.isFinite(priorClose) && Math.abs(priorClose - mid) / mid <= 0.04) {
-    high = Math.max(high, priorClose);
-    low = Math.min(low, priorClose);
-  }
+  const take = (price: number | null, limit: number) => {
+    if (price === null || !Number.isFinite(price)) return;
+    if (Math.abs(price - mid) / mid <= limit) {
+      high = Math.max(high, price);
+      low = Math.min(low, price);
+    }
+  };
+  take(priorClose, 0.04);
+  for (const price of anchors) take(price, 0.25);
   const pad = Math.max((high - low) * 0.2, Math.abs(mid) * 0.004, 0.05);
   return { from: low - pad, to: high + pad };
+}
+
+/** Where the latest bar sits while the chart is following. The first bar starts left of center, with room on the right. */
+export function followRange(count: number): { from: number; to: number } {
+  const last = Math.max(0, count - 1);
+  const span = 16;
+  const rightPad = count <= 2 ? 10 : 6;
+  return { from: last + rightPad - span, to: last + rightPad };
 }
 
 export function candleInView(range: PriceWindow, time: { from: number; to: number }, bar: { h: number; l: number; c: number }, index: number): boolean {

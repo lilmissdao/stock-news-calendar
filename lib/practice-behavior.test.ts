@@ -4,6 +4,7 @@ import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchRevi
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
 import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
+import { addDayEntry, attemptNumbers, deleteDayEntry, emptyDayLog, parseDayLog } from "./practice-daylog";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { rowSlippage } from "./practice-history";
@@ -33,6 +34,20 @@ function resetReplaysTheDay() {
   // A game saved before Reset existed has no day-start marker; today's trades are still found from today's sells.
   const older = { ...game, dayTradesFrom: undefined };
   assert.equal(restartDay(older).batchTrades.length, 0);
+}
+
+function dayLogKeepsEveryAttempt() {
+  const base = { date: "2026-11-18", stoppedAt: "9:42:15", startCash: 31000, endEquity: 31050, dollars: 50, pct: 50 / 31000, fees: 0.5, slippage: 3, fills: [], open: [] };
+  let log = addDayEntry(emptyDayLog(), { ...base, outcome: "reset" }, new Date(1));
+  log = addDayEntry(log, { ...base, outcome: "finished", stoppedAt: "10:00:00" }, new Date(2));
+  assert.equal(log.entries.length, 2, "a reset and the replay are two entries");
+  assert.deepEqual(log.entries.map((entry) => entry.date), ["2026-11-18", "2026-11-18"]);
+  const numbers = attemptNumbers(log.entries);
+  assert.deepEqual(log.entries.map((entry) => numbers.get(entry.id)), [1, 2]);
+  const back = parseDayLog(JSON.stringify(log));
+  assert.equal(back.entries.length, 2);
+  assert.equal(parseDayLog("{oops").entries.length, 0);
+  assert.equal(deleteDayEntry(back, back.entries[0].id).entries.length, 1);
 }
 
 function buyThenSellAll() {
@@ -406,6 +421,7 @@ realMinutesAreUsedAsIs();
 shuffleUsesEveryDayBeforeRepeating();
 dealtSessionAdvancesTheBatch();
 buyThenSellAll();
+dayLogKeepsEveryAttempt();
 resetReplaysTheDay();
 partialSellsThenAll();
 sellWithNoCash();

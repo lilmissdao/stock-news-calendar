@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import market from "@/data/practice-market.json";
 import { PracticeChart, type ChartCandle, type ChartMark, type PracticeChartHandle } from "@/components/PracticeChart";
 import { PracticeHistory } from "@/components/PracticeHistory";
+import { addDayEntry, DAYLOG_KEY, deleteDayEntry, parseDayLog, type DayLog } from "@/lib/practice-daylog";
 import {
   equityNow,
   fastForward,
@@ -256,6 +257,7 @@ function historyRows(game: GameState, history: HistoryFile, ending: number): Gam
 export function PracticeApp() {
   const [game, setGame] = useState<GameState | null>(null);
   const [history, setHistory] = useState<HistoryFile | null>(null);
+  const [dayLog, setDayLog] = useState<DayLog | null>(null);
   const [theme, setTheme] = useState("light");
   const [tab, setTab] = useState<"play" | "history">("play");
   const [confirm, setConfirm] = useState(false);
@@ -288,6 +290,7 @@ export function PracticeApp() {
     setRealistic(realisticOn);
     realisticRef.current = realisticOn;
     const savedHistory = parseHistory(localStorage.getItem(HISTORY_KEY));
+    setDayLog(parseDayLog(localStorage.getItem(DAYLOG_KEY)));
     const loaded = loadGame(localStorage.getItem(STORAGE_KEY), BOOK.days.length);
     let nextCycle = parseCycle(localStorage.getItem(CYCLE_KEY));
     let game = loaded;
@@ -342,6 +345,45 @@ export function PracticeApp() {
       /* Private mode can refuse storage. The session still runs. */
     }
   }, [game]);
+
+  useEffect(() => {
+    if (!dayLog) return;
+    try {
+      localStorage.setItem(DAYLOG_KEY, JSON.stringify(dayLog));
+    } catch {
+      /* ignore */
+    }
+  }, [dayLog]);
+
+  // A day played to 10:00 goes into the day log once, with its real session date.
+  const finishedKey =
+    game && game.phase === "day" && game.batchDays.length
+      ? `${game.startedAt}|${game.batchStart}|${game.day}|${game.batchDays[game.batchDays.length - 1].date}|${game.batchDays.length}`
+      : "";
+  useEffect(() => {
+    if (!finishedKey || !game || !dayLog || dayLog.lastFinishedKey === finishedKey) return;
+    const last = game.batchDays[game.batchDays.length - 1];
+    setDayLog((log) =>
+      log && log.lastFinishedKey !== finishedKey
+        ? addDayEntry(
+            { ...log, lastFinishedKey: finishedKey },
+            {
+              date: last.date,
+              outcome: "finished",
+              stoppedAt: "10:00:00",
+              startCash: game.dayStartEquity,
+              endEquity: last.equity,
+              dollars: last.dollars,
+              pct: last.pct,
+              fees: last.fees,
+              slippage: last.slippage ?? 0,
+              fills: game.fills,
+              open: [],
+            },
+          )
+        : log,
+    );
+  }, [finishedKey, dayLog?.lastFinishedKey]);
 
   useEffect(() => {
     if (!history) return;
@@ -408,7 +450,7 @@ export function PracticeApp() {
     return { day, TQQQ: paths.TQQQ.slice(0, SESSION_MINUTES), SQQQ: paths.SQQQ.slice(0, SESSION_MINUTES) };
   }, [pathKey]);
 
-  if (!game || !session || !history) {
+  if (!game || !session || !history || !dayLog) {
     return (
       <div className="shell">
         <p className="pr-loading">Loading practice…</p>
@@ -624,7 +666,12 @@ export function PracticeApp() {
             onImport={(file) => void importHistory(file)}
             onNewGame={askNew}
             onDelete={removeGame}
-            onDeleteAll={() => setHistory(deleteAllHistory())}
+            onDeleteAll={() => {
+              setHistory(deleteAllHistory());
+              setDayLog((log) => (log ? { v: 1, entries: [], lastFinishedKey: log.lastFinishedKey } : log));
+            }}
+            dayLog={dayLog.entries}
+            onDeleteDay={(id) => setDayLog((log) => (log ? deleteDayEntry(log, id) : log))}
             notice={notice}
           />
         ) : null}
@@ -683,6 +730,25 @@ export function PracticeApp() {
                     }
                     setResetArmed(false);
                     clearFill();
+                    // Save this attempt before replaying the day, so it shows up in History with its date.
+                    if (game.cursor > 0 || game.tick > 0 || game.fills.length > 0) {
+                      const stopped = {
+                        date: session.day.date,
+                        outcome: "reset" as const,
+                        stoppedAt: liveTime,
+                        startCash: game.dayStartEquity,
+                        endEquity: value,
+                        dollars: value - game.dayStartEquity,
+                        pct: today,
+                        fees: game.dayFees,
+                        slippage: game.daySlippage,
+                        fills: game.fills,
+                        open: (["TQQQ", "SQQQ"] as const)
+                          .filter((ticker) => game.positions[ticker].shares > 0)
+                          .map((ticker) => ({ ticker, shares: game.positions[ticker].shares })),
+                      };
+                      setDayLog((log) => (log ? addDayEntry(log, stopped) : log));
+                    }
                     clockRef.current = null;
                     setGame((current) => (current ? restartDay(current) : current));
                   }}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { HistoryFile } from "@/lib/practice-history";
+import { attemptNumbers, type DayLogEntry } from "@/lib/practice-daylog";
 import { progressPoints, summarizeProgress, type GameRow } from "@/lib/practice-history";
 import type { BatchSummary, DayResult, GameState } from "@/lib/practice-engine";
 import { formatCents, formatSignedPercent, formatWholeDollars } from "@/lib/simulator";
@@ -39,6 +40,8 @@ export function PracticeHistory({
   onDelete,
   onDeleteAll,
   notice,
+  dayLog,
+  onDeleteDay,
 }: {
   history: HistoryFile;
   game: GameState;
@@ -50,6 +53,8 @@ export function PracticeHistory({
   onDelete: (id: string) => void;
   onDeleteAll: () => void;
   notice: string | null;
+  dayLog: DayLogEntry[];
+  onDeleteDay: (id: string) => void;
 }) {
   const [mode, setMode] = useState<"return" | "win">("return");
   const [open, setOpen] = useState<string | null>("this");
@@ -80,6 +85,7 @@ export function PracticeHistory({
         </button>
       </div>
       <ProgressChart points={points} mode={mode} />
+      <DaysPlayed entries={dayLog} onDelete={onDeleteDay} />
       {rows.length === 0 ? <p className="pr-note">Finish a 5-day batch and it will show up here.</p> : null}
       <div className="pr-cards">
         {rows.map((row) => (
@@ -292,5 +298,104 @@ function Stat({ label, value, tone = 0 }: { label: string; value: string; tone?:
       <dt>{label}</dt>
       <dd className={tone > 0 ? "up" : tone < 0 ? "down" : undefined}>{value}</dd>
     </div>
+  );
+}
+
+function longDate(iso: string): string {
+  const [year, month, day] = iso.split("-").map(Number);
+  if (!year || !month || !day) return iso;
+  return new Date(year, month - 1, day).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+}
+
+function signedCents(value: number): string {
+  const text = formatCents(Math.abs(value));
+  return value > 0 ? `+${text}` : value < 0 ? `-${text}` : text;
+}
+
+/** Every attempt at a practice day, newest first: days played to 10:00 and days stopped with Reset. */
+function DaysPlayed({ entries, onDelete }: { entries: DayLogEntry[]; onDelete: (id: string) => void }) {
+  const [open, setOpen] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<string | null>(null);
+  const attempts = attemptNumbers(entries);
+  const newest = [...entries].reverse();
+  return (
+    <>
+      <h3>Days played</h3>
+      {newest.length === 0 ? <p className="pr-note">Each day you finish or reset is saved here with its market date.</p> : null}
+      <div className="pr-cards">
+        {newest.map((entry) => {
+          const attempt = attempts.get(entry.id) ?? 1;
+          return (
+            <article key={entry.id} className="pr-card">
+              <button type="button" className="pr-card-hit" aria-expanded={open === entry.id} onClick={() => setOpen(open === entry.id ? null : entry.id)}>
+                <span>
+                  <strong>{longDate(entry.date)}</strong>
+                  <span className="pr-note">
+                    {entry.outcome === "finished" ? "Played to 10:00" : `Reset at ${entry.stoppedAt}`}
+                    {attempt > 1 ? ` · attempt ${attempt}` : ""} · played {prettyPlayed(entry.recordedAt)}
+                  </span>
+                </span>
+                <strong className={entry.dollars >= 0 ? "up" : "down"}>{formatSignedPercent(entry.pct)}</strong>
+              </button>
+              <dl className="pr-kv">
+                <div>
+                  <dt>P/L</dt>
+                  <dd className={entry.dollars >= 0 ? "up" : "down"}>{signedCents(entry.dollars)}</dd>
+                </div>
+                <div>
+                  <dt>Start</dt>
+                  <dd>{formatCents(entry.startCash)}</dd>
+                </div>
+                <div>
+                  <dt>End</dt>
+                  <dd>{formatCents(entry.endEquity)}</dd>
+                </div>
+                <div>
+                  <dt>Fills</dt>
+                  <dd>{entry.fills.length}</dd>
+                </div>
+                <div>
+                  <dt>Fees</dt>
+                  <dd>{formatCents(entry.fees)}</dd>
+                </div>
+                <div>
+                  <dt>Slippage</dt>
+                  <dd>{formatCents(entry.slippage)}</dd>
+                </div>
+              </dl>
+              {open === entry.id ? (
+                <>
+                  {entry.fills.length === 0 ? <p className="pr-note">No trades.</p> : null}
+                  <ul className="pr-days">
+                    {entry.fills.map((fill, index) => (
+                      <li key={index}>
+                        9:{String(30 + fill.minute).padStart(2, "0")} · {fill.side === "buy" ? "Buy" : "Sell"} {fill.shares} {fill.ticker} at {formatCents(fill.price)} · slippage {formatCents(fill.slippage)}
+                      </li>
+                    ))}
+                  </ul>
+                  {entry.open.length ? (
+                    <p className="pr-note">Still held at reset: {entry.open.map((held) => `${held.shares} ${held.ticker}`).join(", ")} (valued at the last price).</p>
+                  ) : null}
+                  {confirm === entry.id ? (
+                    <div className="pr-actions">
+                      <button type="button" className="pr-delete" onClick={() => onDelete(entry.id)}>
+                        Delete this day
+                      </button>
+                      <button type="button" className="text-btn" onClick={() => setConfirm(null)}>
+                        Keep
+                      </button>
+                    </div>
+                  ) : (
+                    <button type="button" className="text-btn" onClick={() => setConfirm(entry.id)}>
+                      Delete
+                    </button>
+                  )}
+                </>
+              ) : null}
+            </article>
+          );
+        })}
+      </div>
+    </>
   );
 }

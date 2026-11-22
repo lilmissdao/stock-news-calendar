@@ -63,7 +63,34 @@ function shape(tuple: Ohlc, noise: number[], sign: number): number[] {
   if (Math.min(...points) > bar.l) points[minAt] = bar.l;
   points[0] = bar.o;
   points[5] = bar.c;
+  // Two neighbouring points parked on the same extreme make a candle that opens and closes at its high or low
+  // (a "T"), which real 1-minute candles almost never do. Pull the spare one back inside the range.
+  for (let i = 1; i < 5; i += 1) {
+    for (const extreme of [bar.h, bar.l]) {
+      const touchesPrev = Math.abs(points[i - 1] - extreme) < 1e-9;
+      const touchesNext = Math.abs(points[i + 1] - extreme) < 1e-9;
+      if (Math.abs(points[i] - extreme) < 1e-9 && (touchesPrev || touchesNext) && i !== maxAt && i !== minAt) {
+        const pull = 0.3 + 0.25 * Math.abs(noise[i] % 1);
+        points[i] = extreme + (extreme === bar.h ? -1 : 1) * span * pull;
+      }
+    }
+  }
+  for (let i = 1; i < 5; i += 1) {
+    if (i === maxAt || i === minAt) continue;
+    for (const [j, extreme] of [[i - 1, bar.h], [i + 1, bar.h], [i - 1, bar.l], [i + 1, bar.l]] as const) {
+      // An end point (the 5-minute open or close) sitting on an extreme next to a designated extreme point.
+      if (Math.abs(points[j] - extreme) < 1e-9 && Math.abs(points[i] - extreme) < 1e-9) {
+        points[i] = extreme + (extreme === bar.h ? -1 : 1) * span * 0.35;
+      }
+    }
+  }
   return points;
+}
+
+/** Deterministic 0..1 value from a candle's own numbers, so wick lengths vary but replay identically. */
+function wobble(open: number, close: number, index: number, salt: number): number {
+  const x = Math.sin(open * 12.9898 + close * 78.233 + index * 37.719 + salt * 11.13) * 43758.5453;
+  return x - Math.floor(x);
 }
 
 function candles(points: number[], origin: number, minuteBase: number, high: number, low: number): MinuteBar[] {
@@ -73,8 +100,11 @@ function candles(points: number[], origin: number, minuteBase: number, high: num
     const close = points[i + 1];
     const bodyHigh = Math.max(open, close);
     const bodyLow = Math.min(open, close);
-    let top = bodyHigh + Math.max(0, high - bodyHigh) * 0.72;
-    let bottom = bodyLow - Math.max(0, bodyLow - low) * 0.72;
+    // Wicks reach a little past the body, scaled to the move, not most of the way to the 5-minute extremes.
+    const body = bodyHigh - bodyLow;
+    const unit = Math.max(body, (high - low) * 0.12);
+    let top = bodyHigh + Math.min(Math.max(0, high - bodyHigh), unit * (0.2 + 1.3 * wobble(open, close, i, 1)));
+    let bottom = bodyLow - Math.min(Math.max(0, bodyLow - low), unit * (0.2 + 1.3 * wobble(open, close, i, 2)));
     if (Math.abs(open - high) < 1e-8 || Math.abs(close - high) < 1e-8) top = high;
     if (Math.abs(open - low) < 1e-8 || Math.abs(close - low) < 1e-8) bottom = low;
     top = Math.min(high, Math.max(top, bodyHigh));

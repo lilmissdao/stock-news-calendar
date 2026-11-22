@@ -636,10 +636,6 @@ export function PracticeApp() {
                 <button type="button" className="pr-play" onClick={() => setGame((current) => (current ? { ...current, playing: !current.playing } : current))}>
                   {game.playing ? "Pause" : "Play"}
                 </button>
-                <span className="pr-timer" aria-live="off" title="Market time · real time left in this candle">
-                  <span className="pr-timer-clock">{liveTime}</span>
-                  <span className="pr-timer-left">{secondsLeft(game.tick, game.speed)}</span>
-                </span>
                 <div className="pr-toggle" role="group" aria-label="Timeframe">
                   {FRAMES.map((frame) => (
                     <button key={frame} type="button" aria-pressed={game.timeframe === frame} onClick={() => setGame({ ...game, timeframe: frame })}>
@@ -659,6 +655,10 @@ export function PracticeApp() {
             ) : null}
             {game.phase === "play" ? (
               <div ref={stageRef} className={full ? "pr-full" : chartH ? "pr-stage pr-stage-set" : "pr-stage"} style={!full && chartH ? { height: chartH } : undefined}>
+                <span className="pr-timer" aria-hidden="true" title="Market time · real time left in this candle">
+                  <span className="pr-timer-clock">{liveTime}</span>
+                  <span className="pr-timer-left">{secondsLeft(game.tick, game.speed)}</span>
+                </span>
                 <PracticeChart
                   ref={chartRef}
                   candles={candles as ChartCandle[]}

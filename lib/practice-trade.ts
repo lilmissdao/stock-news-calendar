@@ -40,11 +40,13 @@ export function fillDelayMs(random: () => number = Math.random): number {
   return Math.round(500 + Math.min(1, Math.max(0, random())) * 700);
 }
 
-/** Cents of slippage per share. 2–3¢ from 9:30 to 9:35, then 1¢ through 10:00. */
+/**
+ * Cents of slippage per share on a market order. TQQQ and SQQQ trade with a 1¢ spread, so a few hundred shares
+ * usually fill within a penny of the last print: 1–2¢ in the opening five minutes while spreads are wider, then 0–1¢.
+ */
 export function slipPerShare(minute: number, random: () => number = Math.random): number {
-  if (minute >= 5) return 0.01;
-  const cents = 2 + Math.floor(Math.min(0.999999, Math.max(0, random())) * 2);
-  return cents / 100;
+  const roll = Math.floor(Math.min(0.999999, Math.max(0, random())) * 2);
+  return (minute < 5 ? 1 + roll : roll) / 100;
 }
 
 /** Buys pay above the print. Sells receive below it. */

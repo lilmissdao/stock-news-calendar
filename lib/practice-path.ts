@@ -348,9 +348,9 @@ function fillLeg(
   const { open, low, high } = bar;
   const span = high - low;
   const travel = Math.abs(end - start);
-  // Kept small: real 1-minute tape mostly trends between its wicks with shallow pullbacks.
-  const amp = Math.min(travel * 0.06 + span * 0.015, span * 0.08);
-  const chopAmp = Math.min(0.008, Math.max(0.002, span * 0.007));
+  // Real 1-minute tape trends between its wicks with a few visible pullbacks along the way.
+  const amp = Math.min(travel * 0.13 + span * 0.025, span * 0.13);
+  const chopAmp = Math.min(0.01, Math.max(0.002, span * 0.009));
   const shape = plan.wiggle[leg % plan.wiggle.length];
   const ease = plan.ease[leg % plan.ease.length];
   const startSide = sideOf(start, open);

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cycle";
-import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState } from "./practice-engine";
+import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState, restartDay } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
 import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
@@ -12,6 +12,27 @@ const price = 50;
 
 function fresh() {
   return { ...newGame(10, () => 0.2), ticker: "TQQQ" as const };
+}
+
+function resetReplaysTheDay() {
+  const start = fresh();
+  let game = trade(start, "TQQQ", "buy", 0.5, price, "", 0.01, price);
+  game = trade(game, "TQQQ", "sell", 1, price - 0.3, "2026-11-18", 0.01, price - 0.3);
+  game = { ...game, cursor: 12, tick: 40 };
+  assert.ok(game.cash < start.cash && game.batchTrades.length > 0 && game.batchFees > 0);
+  const again = restartDay(game);
+  assert.equal(again.cash, start.dayStartEquity, "cash is back to where the day started");
+  assert.equal(again.positions.TQQQ.shares, 0);
+  assert.equal(again.cursor, 0);
+  assert.equal(again.tick, 0);
+  assert.equal(again.session, game.session, "same session");
+  assert.equal(again.fills.length, 0);
+  assert.equal(again.batchTrades.length, 0, "today's closed trades are dropped");
+  assert.equal(again.batchFees, 0);
+  assert.equal(again.batchSlippage, 0);
+  // A game saved before Reset existed has no day-start marker; today's trades are still found from today's sells.
+  const older = { ...game, dayTradesFrom: undefined };
+  assert.equal(restartDay(older).batchTrades.length, 0);
 }
 
 function buyThenSellAll() {
@@ -385,6 +406,7 @@ realMinutesAreUsedAsIs();
 shuffleUsesEveryDayBeforeRepeating();
 dealtSessionAdvancesTheBatch();
 buyThenSellAll();
+resetReplaysTheDay();
 partialSellsThenAll();
 sellWithNoCash();
 switchTickerThenSell();

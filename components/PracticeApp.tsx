@@ -26,6 +26,7 @@ import {
   coerceSpeed,
   type EquityPoint,
   type GameState,
+  restartDay,
   type Speed,
 } from "@/lib/practice-engine";
 import {
@@ -268,10 +269,17 @@ export function PracticeApp() {
   const [cycle, setCycle] = useState<CycleFile | null>(null);
   const [chartH, setChartH] = useState<number | null>(null);
   const [full, setFull] = useState(false);
+  const [resetArmed, setResetArmed] = useState(false);
   const chartRef = useRef<PracticeChartHandle>(null);
   gameRef.current = game;
   realisticRef.current = realistic;
   const stageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!resetArmed) return;
+    const timer = window.setTimeout(() => setResetArmed(false), 3000);
+    return () => window.clearTimeout(timer);
+  }, [resetArmed]);
 
   useEffect(() => {
     const speed = coerceSpeed(typeof localStorage !== "undefined" ? localStorage.getItem(SPEED_KEY) : 1);
@@ -664,6 +672,22 @@ export function PracticeApp() {
               <div className="pr-chartbar">
                 <button type="button" className="pr-play" onClick={() => setGame((current) => (current ? { ...current, playing: !current.playing } : current))}>
                   {game.playing ? "Pause" : "Play"}
+                </button>
+                <button
+                  type="button"
+                  className={resetArmed ? "pr-reset pr-reset-armed" : "pr-reset"}
+                  onClick={() => {
+                    if (!resetArmed) {
+                      setResetArmed(true);
+                      return;
+                    }
+                    setResetArmed(false);
+                    clearFill();
+                    clockRef.current = null;
+                    setGame((current) => (current ? restartDay(current) : current));
+                  }}
+                >
+                  {resetArmed ? "Tap again to reset" : "Reset"}
                 </button>
                 <div className="pr-toggle" role="group" aria-label="Timeframe">
                   {FRAMES.map((frame) => (

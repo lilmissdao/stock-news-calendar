@@ -84,6 +84,8 @@ export type GameState = {
   markers: Marker[];
   fills: FillNote[];
   batchTrades: ClosedTrade[];
+  /** How many batch trades existed when the day on screen started, so Reset can drop just today's. */
+  dayTradesFrom?: number;
   batchDays: DayResult[];
   batchFees: number;
   batchSlippage: number;
@@ -132,6 +134,7 @@ function fresh(batchStart: number, cash: number, history: GameState["history"], 
     ticker: "TQQQ",
     phase: "play",
     dayStartEquity: cash,
+    dayTradesFrom: 0,
     dayFees: 0,
     daySlippage: 0,
     dayPeak: cash,
@@ -379,6 +382,45 @@ function closeBatch(state: GameState): GameState {
   };
 }
 
+/**
+ * Replay the day on screen from 9:30: the same session, the cash it started with, and everything from this
+ * attempt (trades, fees, slippage) taken back out of the batch. Finished days and history are untouched.
+ */
+export function restartDay(state: GameState): GameState {
+  if (state.phase !== "play") return state;
+  const from = Math.max(0, Math.min(state.dayTradesFrom ?? tradesBeforeToday(state), state.batchTrades.length));
+  return {
+    ...state,
+    cash: state.dayStartEquity,
+    positions: { TQQQ: emptyPosition(), SQQQ: emptyPosition() },
+    batchTrades: state.batchTrades.slice(0, from),
+    batchFees: Math.max(0, state.batchFees - state.dayFees),
+    batchSlippage: Math.max(0, state.batchSlippage - state.daySlippage),
+    cursor: 0,
+    tick: 0,
+    playing: false,
+    dayFees: 0,
+    daySlippage: 0,
+    dayPeak: state.dayStartEquity,
+    dayDrawdown: 0,
+    markers: [],
+    fills: [],
+  };
+}
+
+/** For games saved before the day's start was recorded: peel off trailing trades that match today's sells. */
+function tradesBeforeToday(state: GameState): number {
+  const sells = state.fills.filter((fill) => fill.side === "sell");
+  let end = state.batchTrades.length;
+  while (end > 0) {
+    const trade = state.batchTrades[end - 1];
+    const match = sells.some((fill) => fill.ticker === trade.ticker && fill.minute === trade.exitMinute && Math.abs(fill.price - trade.exit) < 1e-9);
+    if (!match) break;
+    end -= 1;
+  }
+  return end;
+}
+
 function resetDay(state: GameState, session: number, day: number): GameState {
   return {
     ...state,
@@ -389,6 +431,7 @@ function resetDay(state: GameState, session: number, day: number): GameState {
     playing: false,
     phase: "play",
     dayStartEquity: state.cash,
+    dayTradesFrom: state.batchTrades.length,
     dayFees: 0,
     daySlippage: 0,
     dayPeak: state.cash,

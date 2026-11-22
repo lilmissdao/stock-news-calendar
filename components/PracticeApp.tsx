@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import market from "@/data/practice-market.json";
 import { PracticeChart, type ChartCandle, type ChartMark, type PracticeChartHandle } from "@/components/PracticeChart";
 import { PracticeHistory } from "@/components/PracticeHistory";
+import { MiniFiveChart } from "@/components/MiniFiveChart";
 import { addDayEntry, DAYLOG_KEY, deleteDayEntry, parseDayLog, type DayLog } from "@/lib/practice-daylog";
 import {
   equityNow,
@@ -466,6 +467,7 @@ export function PracticeApp() {
   const today = game.dayStartEquity > 0 ? value / game.dayStartEquity - 1 : 0;
   // The chart is always TQQQ; SQQQ is traded against the same tape.
   const candles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, game.timeframe);
+  const fiveCandles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, "5m");
   const costLines = entryLines(session, game.positions, game.fills);
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
@@ -778,6 +780,7 @@ export function PracticeApp() {
                   <span className="pr-timer-clock">{liveTime}</span>
                   <span className="pr-timer-left">{secondsLeft(game.tick, game.speed)}</span>
                 </span>
+                <MiniFiveChart candles={fiveCandles as ChartCandle[]} />
                 <PracticeChart
                   ref={chartRef}
                   candles={candles as ChartCandle[]}
@@ -971,14 +974,14 @@ function OrderPad({ filling, shares, onAct }: { filling: boolean; shares: number
   return (
     <div className="pr-pad">
       <div>
-        {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
+        {([0.5, 1] as const).map((fraction) => (
           <button key={fraction} type="button" className="pr-buy" disabled={filling} onClick={() => onAct("buy", fraction)}>
             {filling ? "Filling…" : `Buy ${fraction * 100}%`}
           </button>
         ))}
       </div>
       <div>
-        {([0.25, 0.5, 0.75, 1] as const).map((fraction) => (
+        {([0.5, 1] as const).map((fraction) => (
           <button key={fraction} type="button" className="pr-sell" disabled={filling || shares <= 0} onClick={() => onAct("sell", fraction)}>
             {filling ? "Filling…" : `Sell ${fraction * 100}%`}
           </button>

@@ -122,17 +122,30 @@ function candles(points: number[], origin: number, minuteBase: number, high: num
   return bars;
 }
 
+/**
+ * The session's real 1-minute bars (9:30–9:59 ET), joined so each candle opens at the previous close.
+ * Older books held 5-minute bars; those are still split into 1-minute candles, with SQQQ mirroring TQQQ.
+ * `seed` only matters for the 5-minute fallback.
+ */
 export function buildSession(day: PracticeDay, seed: number): { TQQQ: MinuteBar[]; SQQQ: MinuteBar[] } {
+  if (day.tqqq.length <= SESSION_MINUTES) {
+    const real = (bars: Ohlc[]) =>
+      bars.slice(0, SESSION_MINUTES).map((tuple, index) => {
+        const bar = barOf(tuple);
+        return { t: day.start + index * 60, o: bar.o, h: Math.max(bar.h, bar.o, bar.c), l: Math.min(bar.l, bar.o, bar.c), c: bar.c };
+      });
+    return { TQQQ: joined(real(day.tqqq)), SQQQ: joined(real(day.sqqq)) };
+  }
   const rng = mulberry32(seed);
   const tqqq: MinuteBar[] = [];
   const sqqq: MinuteBar[] = [];
-  for (let i = 0; i < day.tqqq.length; i += 1) {
+  for (let i = 0; i < Math.ceil(SESSION_MINUTES / 5); i += 1) {
     const noise = bridge(rng);
     const tBar = barOf(day.tqqq[i]);
     const sBar = barOf(day.sqqq[i]);
     const tMinutes = candles(shape(day.tqqq[i], noise, 1), day.start, i * 5, tBar.h, tBar.l);
     tqqq.push(...tMinutes);
-    sqqq.push(...mirrorMinutes(tMinutes, tBar, sBar) ?? candles(shape(day.sqqq[i], noise, -1), day.start, i * 5, sBar.h, sBar.l));
+    sqqq.push(...(mirrorMinutes(tMinutes, tBar, sBar) ?? candles(shape(day.sqqq[i], noise, -1), day.start, i * 5, sBar.h, sBar.l)));
   }
   return { TQQQ: joined(tqqq), SQQQ: joined(sqqq) };
 }
@@ -257,6 +270,10 @@ type TapePlan = {
   ease: number[];
   /** Small tick-to-tick chop, shared by TQQQ and SQQQ (mirrored), so the tape never sits still. */
   chop: number[];
+  /** How busy the tape is at each print (always > 0): bursts of fast trading, then quiet drifts. */
+  activity: number[];
+  /** A random walk over the minute, stepped by activity, for up-and-down swings of every size. */
+  walk: number[];
 };
 
 const plans = new Map<number, TapePlan>();
@@ -286,7 +303,19 @@ function planOf(seed: number): TapePlan {
     drift = drift * 0.93 + (rng() + rng() + rng() - 1.5) * 0.5;
     chop.push(drift);
   }
-  const plan = { early, late, sharpFlip, wiggle, ease, chop };
+  const activity: number[] = [];
+  const walk: number[] = [0];
+  let mood = 0;
+  let velocity = 0;
+  for (let k = 0; k <= n; k += 1) {
+    // Slowly changing mood: a burst lasts a few seconds, so speed comes in spurts instead of a steady glide.
+    mood = mood * 0.97 + (rng() + rng() + rng() - 1.5) * 0.42;
+    activity.push(Math.exp(1.15 * mood));
+    // The walk has momentum, so it makes clean swings (some quick, some slow) rather than tick-to-tick jitter.
+    velocity = velocity * 0.94 + (rng() + rng() + rng() - 1.5) * Math.sqrt(activity[k]);
+    if (k > 0) walk.push(walk[k - 1] + velocity);
+  }
+  const plan = { early, late, sharpFlip, wiggle, ease, chop, activity, walk };
   plans.set(key, plan);
   return plan;
 }
@@ -322,15 +351,14 @@ function inside(price: number, low: number, high: number): number {
  * Touching the open is allowed (a doji for an instant); going through it to the other color is not.
  */
 function bounce(price: number, side: number, open: number, low: number, high: number): number {
-  let next = price;
-  if (next > high) next = high - (next - high);
-  if (next < low) next = low + (low - next);
-  if (side > 0 && next < open) next = 2 * open - next;
-  if (side < 0 && next > open) next = 2 * open - next;
-  next = inside(next, low, high);
-  if (side > 0 && next < open) next = Math.min(high, open);
-  if (side < 0 && next > open) next = Math.max(low, open);
-  return next;
+  // The allowed band: the whole bar, or just its own side of the open while the color must hold.
+  const lo = side > 0 ? Math.min(high, Math.max(low, open)) : low;
+  const hi = side < 0 ? Math.max(low, Math.min(high, open)) : high;
+  const width = hi - lo;
+  if (!(width > 1e-9)) return inside(lo, low, high);
+  // Fold an overshoot back into the band like a ball off a wall, so price never parks on an edge.
+  const phase = (((price - lo) / width) % 2 + 2) % 2;
+  return inside(lo + (phase <= 1 ? phase : 2 - phase) * width, low, high);
 }
 
 /** Which side of the open a price is on. Within a third of a cent counts as at the open, so a near-touch can't pin the tape. */
@@ -340,16 +368,12 @@ function sideOf(price: number, open: number): number {
   return 0;
 }
 
-/** Monotone 0→1 time warp. Higher `ease` moves faster mid-leg and slower near the anchors. */
-function warp(u: number, ease: number): number {
-  const s = u * u * (3 - 2 * u);
-  return (1 - ease) * u + ease * s;
-}
 
 /**
- * One leg between two anchors. Price glides toward the target with a couple of shallow pullbacks and gentle chop,
- * never crosses the open more than once, and lands on the target exactly at the leg's last print.
- * Prices are not snapped to cents, so the candle moves smoothly instead of stepping.
+ * One leg between two anchors (open, a wick, the other wick, the close). Price works toward the target on a
+ * busy-time clock, so it moves in quick bursts and slow drifts, and a random walk pinned to zero at both anchors
+ * adds up-and-down swings of different sizes. It never crosses the open more than once, folds back off the
+ * wicks instead of parking on them, and lands on the target exactly. `leg` is the leg's position in the bar.
  */
 function fillLeg(
   points: number[],
@@ -370,25 +394,35 @@ function fillLeg(
   const { open, low, high } = bar;
   const span = high - low;
   const travel = Math.abs(end - start);
-  // Real 1-minute tape trends between its wicks with a few visible pullbacks along the way.
-  const amp = Math.min(travel * 0.13 + span * 0.025, span * 0.13);
+  // Small cent-level chop on top of the swings below.
   const chopAmp = Math.min(0.01, Math.max(0.002, span * 0.009));
-  const shape = plan.wiggle[leg % plan.wiggle.length];
-  const ease = plan.ease[leg % plan.ease.length];
   const startSide = sideOf(start, open);
   const endSide = sideOf(end, open);
   const fade = Math.max(3, Math.round(steps * 0.08));
+  // Busy-time clock for this leg: progress runs fast during bursts and crawls when the tape is quiet.
+  const busy: number[] = [0];
+  for (let k = 1; k <= steps; k += 1) busy.push(busy[k - 1] + plan.activity[(from + k) % plan.activity.length]);
+  const total = busy[steps] || 1;
+  // A random walk pinned to zero at both anchors (a Brownian bridge), scaled to the leg: real swings up and down.
+  const w0 = plan.walk[from % plan.walk.length];
+  const w1 = plan.walk[to % plan.walk.length];
+  const swing = Math.min(travel * 0.28 + span * 0.05, span * 0.24);
+  const pinned: number[] = [0];
+  let reach = 0;
+  for (let k = 1; k < steps; k += 1) {
+    const value = plan.walk[(from + k) % plan.walk.length] - w0 - (busy[k] / total) * (w1 - w0);
+    pinned.push(value);
+    reach = Math.max(reach, Math.abs(value));
+  }
   const raw: number[] = [];
   for (let k = 1; k < steps; k += 1) {
-    const u = k / steps;
-    let wobble = 0;
-    for (const { m, a } of shape) wobble += a * Math.sin(Math.PI * m * u);
-    // The envelope keeps the leg's first and last prints heading toward their anchors.
-    const envelope = Math.sin(Math.PI * u);
+    const tau = busy[k] / total;
+    // Scaled so the leg's biggest swing is about `swing`; smaller ones come and go along the way.
+    const bridge = reach > 0 ? pinned[k] / reach : 0;
     // Chop fades in and out near the anchors so each one is still hit exactly and approached smoothly.
     const nearEdge = Math.min(1, Math.min(k, steps - k) / fade);
     const chop = plan.chop[(from + k) % plan.chop.length] * chopAmp * nearEdge;
-    raw[k] = start + (end - start) * warp(u, ease) + sign * (amp * wobble * envelope * 0.6 + chop);
+    raw[k] = start + (end - start) * tau + sign * (swing * bridge + chop);
   }
   // A leg that changes color crosses the open once, at the print where the wiggling price itself last crosses it,
   // so switching sides is seamless. Earlier dips past the open are mirrored back instead of flipping the color.

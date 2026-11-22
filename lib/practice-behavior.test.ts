@@ -229,9 +229,24 @@ function mulberry32(seed: number): () => number {
   };
 }
 
+function realMinutesAreUsedAsIs() {
+  const book = market as PracticeMarket;
+  for (const day of book.days) {
+    assert.equal(day.tqqq.length, 30, `${day.date} has thirty real 1-minute bars`);
+    const session = buildSession(day, 1);
+    session.TQQQ.forEach((bar, index) => {
+      assert.equal(bar.c, day.tqqq[index][3], `${day.date} ${index} TQQQ close is the real close`);
+      assert.equal(bar.t, day.start + index * 60);
+      assert.equal(bar.o, index === 0 ? day.tqqq[0][0] : session.TQQQ[index - 1].c, "each candle opens at the previous close");
+    });
+    session.SQQQ.forEach((bar, index) => assert.equal(bar.c, day.sqqq[index][3], `${day.date} ${index} SQQQ close is the real close`));
+  }
+}
+
 function shuffleUsesEveryDayBeforeRepeating() {
   const book = market as PracticeMarket;
-  assert.equal(book.days.length, 60);
+  const total = book.days.length;
+  assert.ok(total >= 20, `the book holds the real 1-minute sessions Yahoo keeps, ${total}`);
   const dates = book.days.map((day) => day.date);
   const history = dates.slice(0, 10);
   let cycle = emptyCycle();
@@ -244,12 +259,12 @@ function shuffleUsesEveryDayBeforeRepeating() {
     cycle = draw.cycle;
     assert.equal(freshLeft(dates, history, cycle, draw.date), dates.length - history.length - dealt.length + 1);
   }
-  assert.equal(new Set([...history, ...dealt]).size, 60);
+  assert.equal(new Set([...history, ...dealt]).size, total);
   const again = drawSession(dates, history, cycle, dealt[dealt.length - 1], next);
   assert.equal(again.cycle.generation, 1);
   assert.notEqual(again.date, dealt[dealt.length - 1]);
   assert.equal(again.cycle.dates.length, 1);
-  assert.equal(freshLeft(dates, history, again.cycle, again.date), 60);
+  assert.equal(freshLeft(dates, history, again.cycle, again.date), total);
   const counts = Array.from({ length: 60 }, () => 0);
   const roll = mulberry32(3);
   for (let sample = 0; sample < 12000; sample += 1) counts[uniformIndex(60, roll)] += 1;
@@ -366,6 +381,7 @@ function realisticFillMath() {
 }
 
 regulatoryFeesOnly();
+realMinutesAreUsedAsIs();
 shuffleUsesEveryDayBeforeRepeating();
 dealtSessionAdvancesTheBatch();
 buyThenSellAll();

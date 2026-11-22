@@ -1,11 +1,11 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { fetchPracticeMarket, mergePracticeDays, type PracticeMarket } from "../lib/practice-market";
+import { fetchPracticeMarket, isPlayableDay, mergePracticeDays, type PracticeMarket } from "../lib/practice-market";
 
 async function main() {
   const path = new URL("../data/practice-market.json", import.meta.url);
   let previous: PracticeMarket["days"] = [];
   try {
-    previous = (JSON.parse(await readFile(path, "utf8")) as PracticeMarket).days ?? [];
+    previous = ((JSON.parse(await readFile(path, "utf8")) as PracticeMarket).days ?? []).filter(isPlayableDay);
   } catch {
     previous = [];
   }

@@ -91,7 +91,8 @@ function dayStarted(state: GameState): boolean {
 }
 
 function sessionWindow(day: (typeof BOOK.days)[number]): { open: number; close: number; date: string } {
-  const closeBar = day.tqqq[5] ?? day.tqqq[day.tqqq.length - 1];
+  // The 10:00 close: the 30th real 1-minute bar, or the 6th bar of an older 5-minute book.
+  const closeBar = (day.tqqq.length <= SESSION_MINUTES ? day.tqqq[day.tqqq.length - 1] : day.tqqq[5]) ?? day.tqqq[day.tqqq.length - 1];
   return { open: day.tqqq[0][0], close: closeBar[3], date: day.date };
 }
 
@@ -197,7 +198,11 @@ function fallbackLevel(session: ReturnType<typeof buildSession>, ticker: Ticker,
 
 function priorClose(index: number, ticker: Ticker): number | null {
   if (index <= 0) return null;
-  const bars = ticker === "TQQQ" ? BOOK.days[index - 1].tqqq : BOOK.days[index - 1].sqqq;
+  const before = BOOK.days[index - 1];
+  // The prior day's real 4:00 PM close, from its daily bar; older 5-minute books ran to the close.
+  const daily = ticker === "TQQQ" ? before.daily?.tqqq : before.daily?.sqqq;
+  if (daily) return daily[3];
+  const bars = ticker === "TQQQ" ? before.tqqq : before.sqqq;
   return bars[bars.length - 1]?.[3] ?? null;
 }
 
@@ -842,7 +847,7 @@ export function PracticeApp() {
               <BatchReview game={game} onNext={goNext} onReset={askNew} />
             ) : null}
             <p className="chart-note">
-              {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. The wiggle inside each 5-minute bar is randomized; the bar’s open, high, low, and close are real.
+              {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. Every 1-minute candle’s close, high, and low are real; the price path inside each minute is simulated, and each candle opens at the previous close.
             </p>
             <p className="pr-stamp">
               Build {process.env.NEXT_PUBLIC_COMMIT_SHA || "local"} · {process.env.NEXT_PUBLIC_BUILD_TIME || "dev"} ·{" "}

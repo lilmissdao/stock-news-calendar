@@ -217,16 +217,17 @@ function track(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[]): GameStat
   return { ...state, dayPeak: peak, dayDrawdown: Math.max(state.dayDrawdown, drop) };
 }
 
-function noteFill(state: GameState, ticker: Ticker, side: "buy" | "sell", shares: number, price: number, slipPerShare: number): Pick<GameState, "fills" | "daySlippage" | "batchSlippage"> {
+function noteFill(state: GameState, ticker: Ticker, side: "buy" | "sell", shares: number, price: number, slipPerShare: number, tqqqAt?: number): Pick<GameState, "fills" | "daySlippage" | "batchSlippage"> {
   const slippage = shares * Math.max(0, slipPerShare);
+  const note = { minute: state.cursor, ticker, side, shares, price, slippage, ...(tqqqAt && tqqqAt > 0 ? { tqqqAt } : {}) };
   return {
-    fills: [...state.fills, { minute: state.cursor, ticker, side, shares, price, slippage }],
+    fills: [...state.fills, note],
     daySlippage: state.daySlippage + slippage,
     batchSlippage: state.batchSlippage + slippage,
   };
 }
 
-export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fraction: number, price: number, date = "", slipPerShare = 0): GameState {
+export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fraction: number, price: number, date = "", slipPerShare = 0, tqqqAt?: number): GameState {
   if (state.phase !== "play" || !(price > 0)) return state;
   if (side === "buy") {
     const fill = buyShares(state.cash, price, fraction);
@@ -236,7 +237,7 @@ export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fr
       cash: fill.cash,
       dayFees: state.dayFees + fill.fee,
       batchFees: state.batchFees + fill.fee,
-      ...noteFill(state, ticker, "buy", fill.shares, price, slipPerShare),
+      ...noteFill(state, ticker, "buy", fill.shares, price, slipPerShare, tqqqAt),
       positions: { ...state.positions, [ticker]: addLots(state.positions[ticker], fill.shares, price, state.cursor) },
       markers: [...state.markers, { minute: state.cursor, ticker, side: "buy" }],
     };
@@ -250,7 +251,7 @@ export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fr
     cash: state.cash + fill.proceeds,
     dayFees: state.dayFees + fill.fee,
     batchFees: state.batchFees + fill.fee,
-    ...noteFill(state, ticker, "sell", fill.shares, price, slipPerShare),
+    ...noteFill(state, ticker, "sell", fill.shares, price, slipPerShare, tqqqAt),
     positions: { ...state.positions, [ticker]: closed.position },
     batchTrades: [...state.batchTrades, ...closed.trades],
     markers: [...state.markers, { minute: state.cursor, ticker, side: "sell" }],

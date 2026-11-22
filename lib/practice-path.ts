@@ -130,10 +130,32 @@ export function buildSession(day: PracticeDay, seed: number): { TQQQ: MinuteBar[
     const noise = bridge(rng);
     const tBar = barOf(day.tqqq[i]);
     const sBar = barOf(day.sqqq[i]);
-    tqqq.push(...candles(shape(day.tqqq[i], noise, 1), day.start, i * 5, tBar.h, tBar.l));
-    sqqq.push(...candles(shape(day.sqqq[i], noise, -1), day.start, i * 5, sBar.h, sBar.l));
+    const tMinutes = candles(shape(day.tqqq[i], noise, 1), day.start, i * 5, tBar.h, tBar.l);
+    tqqq.push(...tMinutes);
+    sqqq.push(...mirrorMinutes(tMinutes, tBar, sBar) ?? candles(shape(day.sqqq[i], noise, -1), day.start, i * 5, sBar.h, sBar.l));
   }
   return { TQQQ: joined(tqqq), SQQQ: joined(sqqq) };
+}
+
+/**
+ * SQQQ's 1-minute candles inside one real 5-minute bar, as the mirror image of TQQQ's: when TQQQ is at its 5-minute
+ * high, SQQQ is at its 5-minute low, and every price in between maps linearly. The 5-minute open and close stay real.
+ * Without this the two were split separately and could hit their extremes in different minutes.
+ */
+function mirrorMinutes(tMinutes: MinuteBar[], tBar: { o: number; h: number; l: number; c: number }, sBar: { o: number; h: number; l: number; c: number }): MinuteBar[] | null {
+  const tSpan = tBar.h - tBar.l;
+  const sSpan = sBar.h - sBar.l;
+  if (!(tSpan > 1e-9) || !(sSpan > 1e-9)) return null;
+  const map = (price: number) => Math.min(sBar.h, Math.max(sBar.l, sBar.h - ((price - tBar.l) / tSpan) * sSpan));
+  const last = tMinutes.length - 1;
+  return tMinutes.map((bar, index) => {
+    const o = index === 0 ? sBar.o : map(bar.o);
+    const c = index === last ? sBar.c : map(bar.c);
+    // TQQQ's low is SQQQ's high and the other way round.
+    const h = Math.max(map(bar.l), o, c);
+    const l = Math.min(map(bar.h), o, c);
+    return { t: bar.t, o, h, l, c };
+  });
 }
 
 /**

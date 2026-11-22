@@ -145,30 +145,54 @@ function applyFill(state: GameState, side: "buy" | "sell", fraction: number, tic
   if (state.phase !== "play") return state;
   const day = bookDay(state);
   const paths = buildSession(day, state.seeds[state.day] || 1);
-  const quote = liveQuote(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES))[ticker];
+  const quotes = liveQuote(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES));
+  const quote = quotes[ticker];
   const price = slip > 0 ? slippedPrice(quote, side, slip) : quote;
-  return trade(state, ticker, side, fraction, price, day?.date ?? "", slip);
+  // Remember where TQQQ was on the chart at this fill, so the entry line can be drawn right there.
+  return trade(state, ticker, side, fraction, price, day?.date ?? "", slip, quotes.TQQQ);
 }
 
 type EntryLine = { kind: "tqqq" | "sqqq"; price: number; avg: number };
 
 /**
- * Where to draw each open position's average entry on the TQQQ chart.
- * TQQQ sits at its average cost. SQQQ sits at the TQQQ price that puts SQQQ back at its average:
- * the two move opposite in percent from the session open, so that level is open × (2 − SQQQ avg ÷ SQQQ open).
+ * Where to draw each open position's average entry on the TQQQ chart: at the TQQQ chart price at the moment of
+ * each buy, weighted by shares, the same way an average cost works (sells don't move it; going flat resets it).
+ * So a SQQQ buy made when TQQQ was at the top of a candle draws its line at that top.
  */
-function entryLines(session: ReturnType<typeof buildSession>, positions: Record<Ticker, { shares: number; avgCost: number }>): EntryLine[] {
+function entryLines(session: ReturnType<typeof buildSession>, positions: Record<Ticker, { shares: number; avgCost: number }>, fills: FillNote[]): EntryLine[] {
   const lines: EntryLine[] = [];
-  const tqqq = positions.TQQQ;
-  if (tqqq.shares > 0 && tqqq.avgCost > 0) lines.push({ kind: "tqqq", price: tqqq.avgCost, avg: tqqq.avgCost });
-  const sqqq = positions.SQQQ;
-  const tOpen = session.TQQQ[0]?.o ?? 0;
-  const sOpen = session.SQQQ[0]?.o ?? 0;
-  if (sqqq.shares > 0 && sqqq.avgCost > 0 && tOpen > 0 && sOpen > 0) {
-    const level = tOpen * (2 - sqqq.avgCost / sOpen);
-    if (Number.isFinite(level) && level > 0) lines.push({ kind: "sqqq", price: level, avg: sqqq.avgCost });
+  for (const ticker of ["TQQQ", "SQQQ"] as const) {
+    const position = positions[ticker];
+    if (!(position.shares > 0 && position.avgCost > 0)) continue;
+    let held = 0;
+    let level = 0;
+    let known = true;
+    for (const fill of fills) {
+      if (fill.ticker !== ticker) continue;
+      if (fill.side === "buy") {
+        if (!(fill.tqqqAt && fill.tqqqAt > 0)) known = false;
+        level = held + fill.shares > 0 ? (level * held + (fill.tqqqAt ?? 0) * fill.shares) / (held + fill.shares) : 0;
+        held += fill.shares;
+      } else {
+        held = Math.max(0, held - fill.shares);
+        if (held === 0) {
+          level = 0;
+          known = true;
+        }
+      }
+    }
+    if (!known || !(level > 0)) level = fallbackLevel(session, ticker, position.avgCost);
+    if (Number.isFinite(level) && level > 0) lines.push({ kind: ticker === "TQQQ" ? "tqqq" : "sqqq", price: level, avg: position.avgCost });
   }
   return lines;
+}
+
+/** For fills saved before TQQQ prices were recorded: TQQQ at its cost, SQQQ mapped through the session open. */
+function fallbackLevel(session: ReturnType<typeof buildSession>, ticker: Ticker, avgCost: number): number {
+  if (ticker === "TQQQ") return avgCost;
+  const tOpen = session.TQQQ[0]?.o ?? 0;
+  const sOpen = session.SQQQ[0]?.o ?? 0;
+  return tOpen > 0 && sOpen > 0 ? tOpen * (2 - avgCost / sOpen) : 0;
 }
 
 function priorClose(index: number, ticker: Ticker): number | null {
@@ -387,7 +411,7 @@ export function PracticeApp() {
   const today = game.dayStartEquity > 0 ? value / game.dayStartEquity - 1 : 0;
   // The chart is always TQQQ; SQQQ is traded against the same tape.
   const candles = chartBars(session.TQQQ, game.cursor, game.tick, game.seeds[game.day] || 1, 1, game.timeframe);
-  const costLines = entryLines(session, game.positions);
+  const costLines = entryLines(session, game.positions, game.fills);
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
   const liveTime = shown ? clockSeconds(shown.t + (Math.min(game.tick, SUBTICKS) * 60) / SUBTICKS) : "";

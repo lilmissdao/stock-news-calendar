@@ -33,6 +33,8 @@ export type FillNote = {
   shares: number;
   price: number;
   slippage: number;
+  /** TQQQ's chart price at the moment of the fill, so SQQQ entries can be drawn on the TQQQ chart. */
+  tqqqAt?: number;
 };
 
 /** Marketable delay, 0.5s to 1.2s. */

@@ -22,6 +22,10 @@ function buyThenSellAll() {
   game = trade(game, "TQQQ", "sell", 1, price);
   assert.equal(game.positions.TQQQ.shares, 0, "sell 100% closes every share");
   assert.equal(game.positions.SQQQ.shares, 0);
+  // Every fill remembers where TQQQ was on the chart, so a SQQQ entry line can be drawn at that spot.
+  const sqqq = trade(fresh(), "SQQQ", "buy", 0.5, 40.12, "", 0.01, 65.99);
+  assert.equal(sqqq.fills[0].tqqqAt, 65.99);
+  assert.equal(sqqq.fills[0].ticker, "SQQQ");
 }
 
 function partialSellsThenAll() {

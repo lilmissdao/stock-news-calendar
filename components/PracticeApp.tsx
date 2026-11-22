@@ -932,7 +932,6 @@ export function PracticeApp() {
                       TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
                     </p>
                     {filling ? <p className="pr-note">Filling…</p> : null}
-                    <OrderPad filling={filling} shares={position.shares} onAct={act} />
                     <HotkeyBar preset={preset} onPreset={choosePreset} />
                   </div>
                 )}
@@ -952,7 +951,6 @@ export function PracticeApp() {
                   TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
                 </p>
                 {filling ? <p className="pr-note">Filling…</p> : null}
-                <OrderPad filling={filling} shares={position.shares} onAct={act} />
                 <HotkeyBar preset={preset} onPreset={choosePreset} />
                 </div>
                 <div className="pr-dock">
@@ -1051,26 +1049,6 @@ function slippageText(value: number | undefined): string {
   return typeof value === "number" && Number.isFinite(value) ? formatCents(value) : "—";
 }
 
-function OrderPad({ filling, shares, onAct }: { filling: boolean; shares: number; onAct: (side: "buy" | "sell", fraction: number) => void }) {
-  return (
-    <div className="pr-pad">
-      <div>
-        {([0.5, 1] as const).map((fraction) => (
-          <button key={fraction} type="button" className="pr-buy" disabled={filling} onClick={() => onAct("buy", fraction)}>
-            {filling ? "Filling…" : `Buy ${fraction * 100}%`}
-          </button>
-        ))}
-      </div>
-      <div>
-        {([0.5, 1] as const).map((fraction) => (
-          <button key={fraction} type="button" className="pr-sell" disabled={filling || shares <= 0} onClick={() => onAct("sell", fraction)}>
-            {filling ? "Filling…" : `Sell ${fraction * 100}%`}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function HotkeyBar({ preset, onPreset }: { preset: number; onPreset: (value: number) => void }) {
   const [draft, setDraft] = useState(String(preset));

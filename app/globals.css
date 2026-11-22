@@ -1450,8 +1450,8 @@ main { min-width: 0; }
 .pr-chartbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 6px; }
 .pr-chartbar .pr-toggle button { min-height: 36px; padding: 4px 10px; }
 .pr-chartnote { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600; }
-/* The clock floats in the chart's top-left corner, small and see-through, and never blocks taps on the chart. */
-.pr-timer { position: absolute; top: 8px; left: 8px; z-index: 3; display: inline-flex; align-items: baseline; gap: 8px; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--bg-elev) 80%, transparent); border: 1px solid var(--line); font-size: 13px; line-height: 1.3; font-variant-numeric: tabular-nums; pointer-events: none; }
+/* The clock floats just under the chart buttons in the top-left corner, small and see-through, and never blocks taps. */
+.pr-timer { position: absolute; top: 52px; left: 8px; z-index: 3; display: inline-flex; align-items: baseline; gap: 8px; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--bg-elev) 80%, transparent); border: 1px solid var(--line); font-size: 13px; line-height: 1.3; font-variant-numeric: tabular-nums; pointer-events: none; }
 .pr-timer-clock { font-weight: 700; }
 .pr-timer-left { color: var(--accent); font-weight: 700; }
 .pr-timer-left::before { content: "⏱ "; }

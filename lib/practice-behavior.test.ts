@@ -50,6 +50,19 @@ function dayLogKeepsEveryAttempt() {
   assert.equal(deleteDayEntry(back, back.entries[0].id).entries.length, 1);
 }
 
+function exactShareHotkeys() {
+  let game = trade(fresh(), "TQQQ", "buy", { shares: 100 }, price);
+  assert.equal(game.positions.TQQQ.shares, 100, "Shift+B buys exactly the preset");
+  assert.equal(game.cash, 31000 - 100 * price);
+  game = trade(game, "TQQQ", "sell", { shares: 40 }, price, "2026-11-18");
+  assert.equal(game.positions.TQQQ.shares, 60, "Shift+S sells exactly the preset");
+  game = trade(game, "TQQQ", "sell", { shares: 100 }, price, "2026-11-18");
+  assert.equal(game.positions.TQQQ.shares, 0, "a preset bigger than the position sells what's held");
+  const capped = trade(fresh(), "TQQQ", "buy", { shares: 1_000_000 }, price);
+  assert.equal(capped.positions.TQQQ.shares, Math.floor(31000 / price), "a preset bigger than cash buys what cash covers");
+  assert.ok(capped.cash >= 0);
+}
+
 function buyThenSellAll() {
   let game = trade(fresh(), "TQQQ", "buy", 0.25, price);
   const bought = game.positions.TQQQ.shares;
@@ -421,6 +434,7 @@ realMinutesAreUsedAsIs();
 shuffleUsesEveryDayBeforeRepeating();
 dealtSessionAdvancesTheBatch();
 buyThenSellAll();
+exactShareHotkeys();
 dayLogKeepsEveryAttempt();
 resetReplaysTheDay();
 partialSellsThenAll();

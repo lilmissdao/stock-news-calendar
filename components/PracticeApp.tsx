@@ -28,6 +28,7 @@ import {
   coerceSpeed,
   type EquityPoint,
   type GameState,
+  type TradeSize,
   restartDay,
   type Speed,
 } from "@/lib/practice-engine";
@@ -55,6 +56,19 @@ import { fillDelayMs, slipPerShare, slippedPrice, type FillNote, type Ticker } f
 const REALISTIC_KEY = "snc-practice-realistic";
 const STORAGE_KEY = "snc-practice:v1";
 const CHART_KEY = "snc-practice-chart-h";
+const PRESET_KEY = "snc-practice-hotkey-shares";
+const DEFAULT_PRESET = 100;
+
+function coercePreset(raw: unknown): number {
+  const value = Math.floor(Number(raw));
+  return Number.isFinite(value) && value >= 1 ? Math.min(value, 1_000_000) : DEFAULT_PRESET;
+}
+
+/** True when the key press is meant for a text box, so hotkeys stay out of the way. */
+function typingInField(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.isContentEditable || target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT";
+}
 const BOOK = market as PracticeMarket;
 const SESSION_DATES = BOOK.days.map((day) => day.date);
 const FRAMES: Timeframe[] = ["1m", "5m", "15m", "30m", "1D"];
@@ -145,7 +159,7 @@ function runForward(state: GameState, steps: number): GameState {
   return fastForward(state, steps, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES), day.date, holdSoFar(state));
 }
 
-function applyFill(state: GameState, side: "buy" | "sell", fraction: number, ticker: Ticker, slip: number): GameState {
+function applyFill(state: GameState, side: "buy" | "sell", fraction: TradeSize, ticker: Ticker, slip: number): GameState {
   if (state.phase !== "play") return state;
   const day = bookDay(state);
   const paths = buildSession(day, state.seeds[state.day] || 1);
@@ -273,10 +287,41 @@ export function PracticeApp() {
   const [chartH, setChartH] = useState<number | null>(null);
   const [full, setFull] = useState(false);
   const [resetArmed, setResetArmed] = useState(false);
+  const [preset, setPreset] = useState(DEFAULT_PRESET);
+  const hotkeys = useRef<{ act: (side: "buy" | "sell", size: TradeSize) => void; flatten: () => void; preset: number } | null>(null);
   const chartRef = useRef<PracticeChartHandle>(null);
   gameRef.current = game;
   realisticRef.current = realistic;
   const stageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      setPreset(coercePreset(localStorage.getItem(PRESET_KEY) ?? DEFAULT_PRESET));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  // Robinhood Legend–style hotkeys: Shift+B buy preset, Shift+S sell preset, Shift+Alt+F close all.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!event.shiftKey || event.ctrlKey || event.metaKey || event.repeat || typingInField(event.target)) return;
+      const keys = hotkeys.current;
+      if (!keys) return;
+      if (event.altKey && event.code === "KeyF") {
+        event.preventDefault();
+        keys.flatten();
+      } else if (!event.altKey && event.code === "KeyB") {
+        event.preventDefault();
+        keys.act("buy", { shares: keys.preset });
+      } else if (!event.altKey && event.code === "KeyS") {
+        event.preventDefault();
+        keys.act("sell", { shares: keys.preset });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
     if (!resetArmed) return;
@@ -486,7 +531,39 @@ export function PracticeApp() {
     setFilling(false);
   }
 
-  function act(side: "buy" | "sell", fraction: number) {
+  /** Sell everything in both TQQQ and SQQQ at once. */
+  function flatten() {
+    const snapshot = gameRef.current;
+    if (!snapshot || snapshot.phase !== "play" || filling) return;
+    if (snapshot.positions.TQQQ.shares + snapshot.positions.SQQQ.shares <= 0) return;
+    const sellAll = (state: GameState, slip: number) =>
+      (["TQQQ", "SQQQ"] as Ticker[]).reduce((next, ticker) => (next.positions[ticker].shares > 0 ? applyFill(next, "sell", 1, ticker, slip) : next), state);
+    if (!realisticRef.current) {
+      setGame((state) => (state ? sellAll(state, 0) : state));
+      return;
+    }
+    setFilling(true);
+    fillTimer.current = window.setTimeout(() => {
+      fillTimer.current = null;
+      setFilling(false);
+      setGame((state) => {
+        if (!state || state.phase !== "play") return state;
+        return sellAll(state, realisticRef.current ? slipPerShare(state.cursor) : 0);
+      });
+    }, fillDelayMs());
+  }
+
+  function choosePreset(value: number) {
+    const next = coercePreset(value);
+    setPreset(next);
+    try {
+      localStorage.setItem(PRESET_KEY, String(next));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function act(side: "buy" | "sell", fraction: TradeSize) {
     const snapshot = gameRef.current;
     if (!snapshot || snapshot.phase !== "play" || filling) return;
     const ticker = snapshot.ticker;
@@ -505,6 +582,8 @@ export function PracticeApp() {
       });
     }, fillDelayMs());
   }
+
+  hotkeys.current = { act, flatten, preset };
 
   function chooseSpeed(speed: Speed) {
     rememberSpeed(speed);
@@ -854,6 +933,7 @@ export function PracticeApp() {
                     </p>
                     {filling ? <p className="pr-note">Filling…</p> : null}
                     <OrderPad filling={filling} shares={position.shares} onAct={act} />
+                    <HotkeyBar preset={preset} onPreset={choosePreset} />
                   </div>
                 )}
               </div>
@@ -873,6 +953,7 @@ export function PracticeApp() {
                 </p>
                 {filling ? <p className="pr-note">Filling…</p> : null}
                 <OrderPad filling={filling} shares={position.shares} onAct={act} />
+                <HotkeyBar preset={preset} onPreset={choosePreset} />
                 </div>
                 <div className="pr-dock">
                   {SPEEDS.map((speed) => (
@@ -987,6 +1068,37 @@ function OrderPad({ filling, shares, onAct }: { filling: boolean; shares: number
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function HotkeyBar({ preset, onPreset }: { preset: number; onPreset: (value: number) => void }) {
+  const [draft, setDraft] = useState(String(preset));
+  useEffect(() => setDraft(String(preset)), [preset]);
+  const commit = () => onPreset(Number(draft));
+  return (
+    <div className="pr-hotkeys">
+      <label>
+        Hotkey shares
+        <input
+          type="number"
+          inputMode="numeric"
+          min={1}
+          step={1}
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onBlur={commit}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              commit();
+              event.currentTarget.blur();
+            }
+          }}
+        />
+      </label>
+      <span className="pr-hotkeys-keys">
+        <kbd>Shift</kbd>+<kbd>B</kbd> buy · <kbd>Shift</kbd>+<kbd>S</kbd> sell · <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd> close all
+      </span>
     </div>
   );
 }

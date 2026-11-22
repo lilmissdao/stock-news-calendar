@@ -3,9 +3,11 @@ import {
   STARTING_CASH,
   accountValue,
   addLots,
+  buyCount,
   buyShares,
   closeLots,
   emptyPosition,
+  sellCount,
   sellFees,
   sellShares,
   type ClosedTrade,
@@ -230,10 +232,13 @@ function noteFill(state: GameState, ticker: Ticker, side: "buy" | "sell", shares
   };
 }
 
-export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fraction: number, price: number, date = "", slipPerShare = 0, tqqqAt?: number): GameState {
+/** How much to trade: a fraction (of cash for buys, of shares held for sells), or an exact share count. */
+export type TradeSize = number | { shares: number };
+
+export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", size: TradeSize, price: number, date = "", slipPerShare = 0, tqqqAt?: number): GameState {
   if (state.phase !== "play" || !(price > 0)) return state;
   if (side === "buy") {
-    const fill = buyShares(state.cash, price, fraction);
+    const fill = typeof size === "number" ? buyShares(state.cash, price, size) : buyCount(state.cash, price, size.shares);
     if (fill.shares <= 0) return state;
     return {
       ...state,
@@ -246,7 +251,7 @@ export function trade(state: GameState, ticker: Ticker, side: "buy" | "sell", fr
     };
   }
   const held = state.positions[ticker].shares;
-  const fill = sellShares(held, price, fraction, date);
+  const fill = typeof size === "number" ? sellShares(held, price, size, date) : sellCount(held, price, size.shares, date);
   if (fill.shares <= 0) return state;
   const closed = closeLots(state.positions[ticker], fill.shares, price, state.cursor, ticker, fill.fee);
   return {

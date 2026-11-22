@@ -1457,6 +1457,11 @@ main { min-width: 0; }
 .pr-timer-clock { font-weight: 700; }
 .pr-mini { position: absolute; top: 84px; left: 8px; z-index: 3; width: 150px; height: 92px; border-radius: 10px; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg-elev) 85%, transparent); overflow: hidden; pointer-events: none; }
 .pr-mini svg { display: block; }
+.pr-hotkeys { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
+.pr-hotkeys label { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.pr-hotkeys input { width: 84px; min-height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-elev); color: var(--ink); font: inherit; font-variant-numeric: tabular-nums; }
+.pr-hotkeys kbd { padding: 1px 5px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg-elev); color: var(--ink); font: inherit; font-size: 12px; }
+@media (hover: none) { .pr-hotkeys-keys { display: none; } }
 .pr-mini-label { fill: var(--ink-soft); font-size: 10px; font-weight: 700; }
 @media (max-width: 640px) { .pr-mini { width: 120px; height: 74px; } .pr-mini svg { width: 120px; height: 74px; } }
 .pr-timer-left { color: var(--accent); font-weight: 700; }

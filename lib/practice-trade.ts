@@ -91,6 +91,24 @@ export function buyShares(cash: number, price: number, fraction: number): { shar
   return { shares, cash: cash - shares * price, fee: 0 };
 }
 
+/** Buy an exact number of shares, or as many as the cash covers if that's fewer. */
+export function buyCount(cash: number, price: number, want: number): { shares: number; cash: number; fee: number } {
+  if (!(price > 0) || !(cash > 0) || !(want > 0)) return { shares: 0, cash, fee: 0 };
+  const shares = Math.min(Math.floor(want), Math.floor(cash / price));
+  if (shares <= 0) return { shares: 0, cash, fee: 0 };
+  return { shares, cash: cash - shares * price, fee: 0 };
+}
+
+/** Sell an exact number of shares, or everything held if that's fewer. */
+export function sellCount(held: number, price: number, want: number, date = ""): { shares: number; proceeds: number; fee: number } {
+  if (!(price > 0) || held <= 0 || !(want > 0)) return { shares: 0, proceeds: 0, fee: 0 };
+  const shares = Math.min(held, Math.floor(want));
+  if (shares <= 0) return { shares: 0, proceeds: 0, fee: 0 };
+  const gross = shares * price;
+  const fee = sellFees(shares, price, date);
+  return { shares, proceeds: gross - fee, fee };
+}
+
 /** Sell a fraction of the shares she already holds. Buys are free; sells pay Robinhood's regulatory fees only. */
 export function sellShares(held: number, price: number, fraction: number, date = ""): { shares: number; proceeds: number; fee: number } {
   if (!(price > 0) || held <= 0 || !(fraction > 0)) return { shares: 0, proceeds: 0, fee: 0 };

@@ -159,11 +159,19 @@ function runForward(state: GameState, steps: number): GameState {
   return fastForward(state, steps, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES), day.date, holdSoFar(state));
 }
 
-function applyFill(state: GameState, side: "buy" | "sell", fraction: TradeSize, ticker: Ticker, slip: number): GameState {
-  if (state.phase !== "play") return state;
+type Quotes = { TQQQ: number; SQQQ: number };
+
+/** The prices on screen right now. Captured when a key is pressed so the order fills where you saw it. */
+function quotesNow(state: GameState): Quotes {
   const day = bookDay(state);
   const paths = buildSession(day, state.seeds[state.day] || 1);
-  const quotes = liveQuote(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES));
+  return liveQuote(state, paths.TQQQ.slice(0, SESSION_MINUTES), paths.SQQQ.slice(0, SESSION_MINUTES));
+}
+
+function applyFill(state: GameState, side: "buy" | "sell", fraction: TradeSize, ticker: Ticker, slip: number, at?: Quotes): GameState {
+  if (state.phase !== "play") return state;
+  const day = bookDay(state);
+  const quotes = at && at.TQQQ > 0 && at.SQQQ > 0 ? at : quotesNow(state);
   const quote = quotes[ticker];
   const price = slip > 0 ? slippedPrice(quote, side, slip) : quote;
   // Remember where TQQQ was on the chart at this fill, so the entry line can be drawn right there.
@@ -282,6 +290,8 @@ export function PracticeApp() {
   const gameRef = useRef<GameState | null>(null);
   const realisticRef = useRef(true);
   const fillTimer = useRef<number | null>(null);
+  /** The order waiting out the fill delay, so close-all can run it first instead of being ignored. */
+  const pendingFill = useRef<((state: GameState) => GameState) | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [cycle, setCycle] = useState<CycleFile | null>(null);
   const [chartH, setChartH] = useState<number | null>(null);
@@ -307,19 +317,21 @@ export function PracticeApp() {
     }
   }, []);
 
-  // Robinhood Legend–style hotkeys: Shift+B buy preset, Shift+S sell preset, Shift+Alt+F close all.
+  // Robinhood Legend–style hotkeys: Shift+B buy preset, Shift+S sell preset, Shift+Alt+F or Ctrl+Alt+F close all.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (!event.shiftKey || event.ctrlKey || event.metaKey || event.repeat || typingInField(event.target)) return;
+      if (event.metaKey || event.repeat || typingInField(event.target)) return;
       const keys = hotkeys.current;
       if (!keys) return;
-      if (event.altKey && event.code === "KeyF") {
+      const closeAll = event.code === "KeyF" && event.altKey && (event.shiftKey || event.ctrlKey);
+      const plainShift = event.shiftKey && !event.altKey && !event.ctrlKey;
+      if (closeAll) {
         event.preventDefault();
         keys.flatten();
-      } else if (!event.altKey && event.code === "KeyB") {
+      } else if (plainShift && event.code === "KeyB") {
         event.preventDefault();
         keys.act("buy", { shares: keys.preset });
-      } else if (!event.altKey && event.code === "KeyS") {
+      } else if (plainShift && event.code === "KeyS") {
         event.preventDefault();
         keys.act("sell", { shares: keys.preset });
       }
@@ -533,18 +545,28 @@ export function PracticeApp() {
       window.clearTimeout(fillTimer.current);
       fillTimer.current = null;
     }
+    pendingFill.current = null;
     setFilling(false);
   }
 
-  /** Sell everything in both TQQQ and SQQQ at once. */
+  /**
+   * Sell everything in both TQQQ and SQQQ at once, at the prices showing when the key was pressed.
+   * A buy or sell still filling goes through first, then everything is sold, so close-all is never ignored.
+   */
   function flatten() {
     const snapshot = gameRef.current;
-    if (!snapshot || snapshot.phase !== "play" || filling) return;
-    if (snapshot.positions.TQQQ.shares + snapshot.positions.SQQQ.shares <= 0) return;
+    if (!snapshot || snapshot.phase !== "play") return;
+    const at = quotesNow(snapshot);
+    const pending = pendingFill.current;
+    if (fillTimer.current !== null) window.clearTimeout(fillTimer.current);
+    fillTimer.current = null;
+    pendingFill.current = null;
     const sellAll = (state: GameState, slip: number) =>
-      (["TQQQ", "SQQQ"] as Ticker[]).reduce((next, ticker) => (next.positions[ticker].shares > 0 ? applyFill(next, "sell", 1, ticker, slip) : next), state);
+      (["TQQQ", "SQQQ"] as Ticker[]).reduce((next, ticker) => (next.positions[ticker].shares > 0 ? applyFill(next, "sell", 1, ticker, slip, at) : next), state);
+    const run = (state: GameState, slip: number) => sellAll(pending ? pending(state) : state, slip);
     if (!realisticRef.current) {
-      setGame((state) => (state ? sellAll(state, 0) : state));
+      setFilling(false);
+      setGame((state) => (state && state.phase === "play" ? run(state, 0) : state));
       return;
     }
     setFilling(true);
@@ -553,7 +575,7 @@ export function PracticeApp() {
       setFilling(false);
       setGame((state) => {
         if (!state || state.phase !== "play") return state;
-        return sellAll(state, realisticRef.current ? slipPerShare(state.cursor) : 0);
+        return run(state, realisticRef.current ? slipPerShare(state.cursor) : 0);
       });
     }, fillDelayMs());
   }
@@ -572,19 +594,21 @@ export function PracticeApp() {
     const snapshot = gameRef.current;
     if (!snapshot || snapshot.phase !== "play" || filling) return;
     const ticker = snapshot.ticker;
+    // Lock the price on screen at the key press; the fill delay no longer lets the price run away.
+    const at = quotesNow(snapshot);
     if (!realisticRef.current) {
-      setGame((state) => (state ? applyFill(state, side, fraction, ticker, 0) : state));
+      setGame((state) => (state ? applyFill(state, side, fraction, ticker, 0, at) : state));
       return;
     }
+    const slip = slipPerShare(snapshot.cursor);
+    const fill = (state: GameState) => applyFill(state, side, fraction, ticker, slip, at);
+    pendingFill.current = fill;
     setFilling(true);
     fillTimer.current = window.setTimeout(() => {
       fillTimer.current = null;
+      pendingFill.current = null;
       setFilling(false);
-      setGame((state) => {
-        if (!state || state.phase !== "play") return state;
-        const slip = realisticRef.current ? slipPerShare(state.cursor) : 0;
-        return applyFill(state, side, fraction, ticker, slip);
-      });
+      setGame((state) => (state && state.phase === "play" ? fill(state) : state));
     }, fillDelayMs());
   }
 
@@ -1081,7 +1105,7 @@ function HotkeyBar({ preset, onPreset }: { preset: number; onPreset: (value: num
         />
       </label>
       <span className="pr-hotkeys-keys">
-        <kbd>Shift</kbd>+<kbd>B</kbd> buy · <kbd>Shift</kbd>+<kbd>S</kbd> sell · <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd> close all
+        <kbd>Shift</kbd>+<kbd>B</kbd> buy · <kbd>Shift</kbd>+<kbd>S</kbd> sell · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd> or <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd> close all
       </span>
     </div>
   );

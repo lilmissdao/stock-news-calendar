@@ -51,7 +51,7 @@ import { CYCLE_KEY, drawSession, freshLeft, parseCycle, type CycleFile } from "@
 import type { PracticeMarket } from "@/lib/practice-market";
 import { chartBars, clock, clockSeconds, secondsLeft, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
-import { fillDelayMs, slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
+import { slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
 
 const REALISTIC_KEY = "snc-practice-realistic";
 const STORAGE_KEY = "snc-practice:v1";
@@ -286,12 +286,10 @@ export function PracticeApp() {
   const [confirm, setConfirm] = useState(false);
   const [skipAsk, setSkipAsk] = useState(false);
   const [realistic, setRealistic] = useState(true);
-  const [filling, setFilling] = useState(false);
+  /** Why the last hotkey order didn't go through, shown under the ticker for a few seconds. */
+  const [orderNote, setOrderNote] = useState<string | null>(null);
   const gameRef = useRef<GameState | null>(null);
   const realisticRef = useRef(true);
-  const fillTimer = useRef<number | null>(null);
-  /** The order waiting out the fill delay, so close-all can run it first instead of being ignored. */
-  const pendingFill = useRef<((state: GameState) => GameState) | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [cycle, setCycle] = useState<CycleFile | null>(null);
   const [chartH, setChartH] = useState<number | null>(null);
@@ -386,10 +384,10 @@ export function PracticeApp() {
   }, []);
 
   useEffect(() => {
-    return () => {
-      if (fillTimer.current !== null) window.clearTimeout(fillTimer.current);
-    };
-  }, []);
+    if (!orderNote) return;
+    const timer = window.setTimeout(() => setOrderNote(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [orderNote]);
 
   useEffect(() => {
     if (!cycle) return;
@@ -541,43 +539,25 @@ export function PracticeApp() {
   const saved = history;
 
   function clearFill() {
-    if (fillTimer.current !== null) {
-      window.clearTimeout(fillTimer.current);
-      fillTimer.current = null;
-    }
-    pendingFill.current = null;
-    setFilling(false);
+    setOrderNote(null);
   }
 
-  /**
-   * Sell everything in both TQQQ and SQQQ at once, at the prices showing when the key was pressed.
-   * A buy or sell still filling goes through first, then everything is sold, so close-all is never ignored.
-   */
+  /** Sell everything in both TQQQ and SQQQ at once, filled immediately at the prices showing when the key was pressed. */
   function flatten() {
     const snapshot = gameRef.current;
     if (!snapshot || snapshot.phase !== "play") return;
-    const at = quotesNow(snapshot);
-    const pending = pendingFill.current;
-    if (fillTimer.current !== null) window.clearTimeout(fillTimer.current);
-    fillTimer.current = null;
-    pendingFill.current = null;
-    const sellAll = (state: GameState, slip: number) =>
-      (["TQQQ", "SQQQ"] as Ticker[]).reduce((next, ticker) => (next.positions[ticker].shares > 0 ? applyFill(next, "sell", 1, ticker, slip, at) : next), state);
-    const run = (state: GameState, slip: number) => sellAll(pending ? pending(state) : state, slip);
-    if (!realisticRef.current) {
-      setFilling(false);
-      setGame((state) => (state && state.phase === "play" ? run(state, 0) : state));
+    if (snapshot.positions.TQQQ.shares <= 0 && snapshot.positions.SQQQ.shares <= 0) {
+      setOrderNote("Nothing to close. You don’t hold any TQQQ or SQQQ.");
       return;
     }
-    setFilling(true);
-    fillTimer.current = window.setTimeout(() => {
-      fillTimer.current = null;
-      setFilling(false);
-      setGame((state) => {
-        if (!state || state.phase !== "play") return state;
-        return run(state, realisticRef.current ? slipPerShare(state.cursor) : 0);
-      });
-    }, fillDelayMs());
+    const at = quotesNow(snapshot);
+    const slip = realisticRef.current ? slipPerShare(snapshot.cursor) : 0;
+    setOrderNote(null);
+    setGame((state) =>
+      state && state.phase === "play"
+        ? (["TQQQ", "SQQQ"] as Ticker[]).reduce((next, ticker) => (next.positions[ticker].shares > 0 ? applyFill(next, "sell", 1, ticker, slip, at) : next), state)
+        : state,
+    );
   }
 
   function choosePreset(value: number) {
@@ -592,24 +572,28 @@ export function PracticeApp() {
 
   function act(side: "buy" | "sell", fraction: TradeSize) {
     const snapshot = gameRef.current;
-    if (!snapshot || snapshot.phase !== "play" || filling) return;
+    if (!snapshot || snapshot.phase !== "play") return;
     const ticker = snapshot.ticker;
-    // Lock the price on screen at the key press; the fill delay no longer lets the price run away.
     const at = quotesNow(snapshot);
-    if (!realisticRef.current) {
-      setGame((state) => (state ? applyFill(state, side, fraction, ticker, 0, at) : state));
+    // Say why an order can't fill instead of silently doing nothing.
+    if (side === "sell" && snapshot.positions[ticker].shares <= 0) {
+      const other = ticker === "TQQQ" ? "SQQQ" : "TQQQ";
+      const held = snapshot.positions[other].shares;
+      setOrderNote(
+        held > 0
+          ? `You don’t hold any ${ticker}. You hold ${held} ${other}, so switch the ticker to ${other} to sell it.`
+          : `You don’t hold any ${ticker}, so there’s nothing to sell. Practice can’t short. To bet on TQQQ falling, buy SQQQ.`,
+      );
       return;
     }
-    const slip = slipPerShare(snapshot.cursor);
-    const fill = (state: GameState) => applyFill(state, side, fraction, ticker, slip, at);
-    pendingFill.current = fill;
-    setFilling(true);
-    fillTimer.current = window.setTimeout(() => {
-      fillTimer.current = null;
-      pendingFill.current = null;
-      setFilling(false);
-      setGame((state) => (state && state.phase === "play" ? fill(state) : state));
-    }, fillDelayMs());
+    if (side === "buy" && !(at[ticker] > 0 && snapshot.cash >= at[ticker])) {
+      setOrderNote(`Not enough cash to buy ${ticker}.`);
+      return;
+    }
+    // Fill right away at the price on screen when the key was pressed (plus the usual 0–2¢ slippage).
+    const slip = realisticRef.current ? slipPerShare(snapshot.cursor) : 0;
+    setOrderNote(null);
+    setGame((state) => (state ? applyFill(state, side, fraction, ticker, slip, at) : state));
   }
 
   hotkeys.current = { act, flatten, preset };
@@ -961,7 +945,7 @@ export function PracticeApp() {
                     <p className="pr-book">
                       TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
                     </p>
-                    {filling ? <p className="pr-note">Filling…</p> : null}
+                    {orderNote ? <p className="pr-note pr-order-note" role="status">{orderNote}</p> : null}
                     <HotkeyBar preset={preset} onPreset={choosePreset} />
                   </div>
                 )}
@@ -980,7 +964,7 @@ export function PracticeApp() {
                 <p className="pr-book">
                   TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
                 </p>
-                {filling ? <p className="pr-note">Filling…</p> : null}
+                {orderNote ? <p className="pr-note pr-order-note" role="status">{orderNote}</p> : null}
                 <HotkeyBar preset={preset} onPreset={choosePreset} />
                 </div>
                 <div className="pr-dock">

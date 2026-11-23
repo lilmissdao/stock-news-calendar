@@ -612,9 +612,14 @@ export function clockSeconds(unix: number): string {
     .replace(/^0/, "");
 }
 
+/** Every replay speed plays at this fraction of its label: 1x takes about 2:51 of real time per one-minute candle. */
+export const PLAYBACK_PACE = 0.35;
+/** Real milliseconds one candle takes at 1x. */
+export const REAL_CANDLE_MS = 60_000 / PLAYBACK_PACE;
+
 /** Real seconds left until the forming candle closes, as m:ss. */
 export function secondsLeft(tick: number, speed: number): string {
-  const left = Math.max(0, Math.ceil(((SUBTICKS - Math.max(0, Math.min(SUBTICKS, tick))) * 60) / speed / SUBTICKS));
+  const left = Math.max(0, Math.ceil(((SUBTICKS - Math.max(0, Math.min(SUBTICKS, tick))) * (REAL_CANDLE_MS / 1000)) / speed / SUBTICKS - 1e-6));
   return `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
 }
 

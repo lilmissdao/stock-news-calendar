@@ -1,4 +1,4 @@
-import { minuteSeed, SESSION_MINUTES, SUBTICKS, subpath, type MinuteBar, type Timeframe } from "./practice-path";
+import { minuteSeed, REAL_CANDLE_MS, SESSION_MINUTES, SUBTICKS, subpath, type MinuteBar, type Timeframe } from "./practice-path";
 import {
   STARTING_CASH,
   accountValue,
@@ -18,9 +18,9 @@ import {
 
 export type Speed = 1 | 2 | 5 | 15;
 export const SPEEDS: Speed[] = [1, 2, 5, 15];
-const CANDLE_MS = 60_000;
+const CANDLE_MS = REAL_CANDLE_MS;
 
-/** Milliseconds between live sub-ticks. 1x is eight sub-ticks per second. */
+/** Milliseconds between live sub-ticks, slowed by PLAYBACK_PACE. */
 export function tickMs(speed: Speed): number {
   return Math.round(CANDLE_MS / speed / SUBTICKS);
 }
@@ -34,7 +34,7 @@ export function ticksDue(elapsedMs: number, speed: Speed): number {
 /** Time left until the forming candle reaches its close. */
 export function minuteLeft(tick: number, speed: Speed): string {
   const clamped = Math.max(0, Math.min(SUBTICKS, tick));
-  const seconds = Math.round(((SUBTICKS - clamped) * 60) / speed / SUBTICKS);
+  const seconds = Math.max(0, Math.ceil(((SUBTICKS - clamped) * (CANDLE_MS / 1000)) / speed / SUBTICKS - 1e-6));
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins}:${String(secs).padStart(2, "0")} left in this minute`;

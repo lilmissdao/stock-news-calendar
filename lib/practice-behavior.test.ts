@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState, restartDay } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { buildSession, candleInView, chartBars, clock, growToInclude, minuteSeed, openingPlan, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
+import { buildSession, candleInView, chartBars, clock, growToInclude, minuteSeed, secondsLeft, openingPlan, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
 import { addDayEntry, attemptNumbers, deleteDayEntry, emptyDayLog, parseDayLog } from "./practice-daylog";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
@@ -143,15 +143,20 @@ function tapeMovesAndMirrors() {
 }
 
 function clockAndCatchUp() {
-  assert.equal(minuteLeft(SUBTICKS * 0.3, 1), "0:42 left in this minute");
-  assert.equal(minuteLeft(0, 1), "1:00 left in this minute");
-  assert.equal(ticksDue(5000, 1), 40, "1x is eight evenly spaced ticks a second");
+  // Playback runs at 35%: a 1x candle lasts 60 / 0.35 ≈ 171 real seconds.
+  assert.equal(minuteLeft(SUBTICKS * 0.3, 1), "2:00 left in this minute");
+  assert.equal(minuteLeft(0, 1), "2:52 left in this minute");
+  assert.equal(minuteLeft(0, 15), "0:12 left in this minute");
+  assert.equal(secondsLeft(0, 1), "2:52", "chart timer agrees with the header");
+  assert.equal(secondsLeft(SUBTICKS * 0.3, 1), "2:00");
+  assert.equal(ticksDue(10_000, 1), 28, "1x is 2.8 evenly spaced ticks a second");
+  assert.equal(ticksDue(10_000, 2), 56, "2x is twice 1x");
   assert.equal(ticksDue(0, 1), 0);
   const game = fresh();
   const bars = Array.from({ length: 30 }, (_, index) => ({ t: index * 60, o: 10, h: 11, l: 9, c: 10.5 }));
-  const next = fastForward(game, ticksDue(5000, 1), bars, bars, "2026-11-18", 31000);
+  const next = fastForward(game, ticksDue(10_000, 1), bars, bars, "2026-11-18", 31000);
   assert.equal(next.cursor, 0);
-  assert.equal(next.tick, 40);
+  assert.equal(next.tick, 28);
   assert.equal(next.phase, "play");
 }
 

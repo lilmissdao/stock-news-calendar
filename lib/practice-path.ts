@@ -292,9 +292,10 @@ function planOf(seed: number): TapePlan {
   if (cached) return cached;
   const rng = mulberry32(key);
   const n = SUBTICKS;
-  // Most of a real minute's range prints early. The first wick lands in the first ~30%, the second by ~75%.
+  // The first wick lands in the first ~30%. The second lands late (72–92%), so the short trip from it to the close
+  // doesn't stretch over a long stretch of the slowed-down candle and leave the price sitting still.
   const early = Math.round(n * 0.065) + Math.floor(rng() * Math.floor(n * 0.24));
-  let late = Math.floor(n * 0.42) + Math.floor(rng() * Math.floor(n * 0.32));
+  let late = Math.floor(n * 0.72) + Math.floor(rng() * Math.floor(n * 0.2));
   const gap = Math.round(n * 0.13);
   if (late - early < gap) late = Math.min(n - gap, early + gap);
   const sharpFlip = rng() < 0.1;
@@ -315,9 +316,9 @@ function planOf(seed: number): TapePlan {
   let mood = 0;
   let velocity = 0;
   for (let k = 0; k <= n; k += 1) {
-    // Slowly changing mood: a burst lasts a few seconds, so speed comes in spurts instead of a steady glide.
+    // Slowly changing mood: speed rises and falls a little, but stays fairly steady so the price doesn't stall.
     mood = mood * 0.97 + (rng() + rng() + rng() - 1.5) * 0.42;
-    activity.push(Math.exp(1.15 * mood));
+    activity.push(Math.exp(0.3 * mood));
     // The walk has momentum, so it makes clean swings (some quick, some slow) rather than tick-to-tick jitter.
     velocity = velocity * 0.94 + (rng() + rng() + rng() - 1.5) * Math.sqrt(activity[k]);
     if (k > 0) walk.push(walk[k - 1] + velocity);
@@ -414,7 +415,8 @@ function fillLeg(
   // A random walk pinned to zero at both anchors (a Brownian bridge), scaled to the leg: real swings up and down.
   const w0 = plan.walk[from % plan.walk.length];
   const w1 = plan.walk[to % plan.walk.length];
-  const swing = Math.min((travel * 0.28 + span * 0.05) * swingScale, span * 0.24 * Math.max(1, swingScale));
+  // Kept small so each leg heads to its target with only mild pullbacks.
+  const swing = Math.min((travel * 0.08 + span * 0.015) * swingScale, span * 0.08 * Math.max(1, swingScale));
   const pinned: number[] = [0];
   let reach = 0;
   for (let k = 1; k < steps; k += 1) {

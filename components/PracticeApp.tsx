@@ -49,7 +49,7 @@ import {
 } from "@/lib/practice-history";
 import { CYCLE_KEY, drawSession, freshLeft, parseCycle, type CycleFile } from "@/lib/practice-cycle";
 import type { PracticeMarket } from "@/lib/practice-market";
-import { chartBars, clock, clockSeconds, secondsLeft, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
+import { chartBars, clock, clockSeconds, playClock, secondsLeft, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
 import { slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
 
@@ -532,6 +532,8 @@ export function PracticeApp() {
   const shown = session.TQQQ[Math.min(game.cursor, session.TQQQ.length - 1)];
   const asOf = shown ? clock(shown.t + (game.tick >= SUBTICKS ? 60 : 0)) : "";
   const liveTime = shown ? clockSeconds(shown.t + (Math.min(game.tick, SUBTICKS) * 60) / SUBTICKS) : "";
+  const opening = session.TQQQ[0];
+  const wallTime = opening ? clockSeconds(playClock(opening.t, game.cursor, game.tick)) : "";
   const prior = priorClose(game.session, "TQQQ");
   const rows = historyRows(game, history, value);
   const active = game;
@@ -868,8 +870,8 @@ export function PracticeApp() {
             ) : null}
             {game.phase === "play" ? (
               <div ref={stageRef} className={full ? "pr-full" : chartH ? "pr-stage pr-stage-set" : "pr-stage"} style={!full && chartH ? { height: chartH } : undefined}>
-                <span className="pr-timer" aria-hidden="true" title="Market time · real time left in this candle">
-                  <span className="pr-timer-clock">{liveTime}</span>
+                <span className="pr-timer" aria-hidden="true" title="Clock (real seconds at 1x) · real time left in this candle">
+                  <span className="pr-timer-clock">{wallTime}</span>
                   <span className="pr-timer-left">{secondsLeft(game.tick, game.speed)}</span>
                 </span>
                 <MiniFiveChart candles={fiveCandles as ChartCandle[]} pxPerDollar={pxPerDollar} />
@@ -1004,7 +1006,7 @@ export function PracticeApp() {
                     Realistic fills
                   </button>
                 </div>
-                <p className="pr-note">1x is real time. One minute on the chart takes one minute.</p>
+                <p className="pr-note">At 1x each 1-minute candle takes about {secondsLeft(0, 1)} to form, and the clock ticks in real seconds.</p>
                 <dl className="pr-stats">
                   <Stat label="Cash" value={formatWholeDollars(game.cash)} />
                   <Stat label="Value" value={formatWholeDollars(value)} />

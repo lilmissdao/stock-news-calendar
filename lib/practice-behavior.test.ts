@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState, restartDay } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { buildSession, candleInView, chartBars, clock, growToInclude, minuteSeed, secondsLeft, openingPlan, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
+import { buildSession, playClock, REAL_CANDLE_MS, candleInView, chartBars, clock, growToInclude, minuteSeed, secondsLeft, openingPlan, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
 import { addDayEntry, attemptNumbers, deleteDayEntry, emptyDayLog, parseDayLog } from "./practice-daylog";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
@@ -501,6 +501,17 @@ function realisticFillMath() {
   assert.equal(rowSlippage([{ slippage: 0.2 } as never, { slippage: 0.3 } as never]), 0.5);
 }
 
+function clockTicksInRealSeconds() {
+  const open = 1_000_000;
+  assert.equal(playClock(open, 0, 0), open);
+  // One real second at 1x moves the clock one second, even though the candle covers far less market time.
+  const perTick = REAL_CANDLE_MS / 1000 / SUBTICKS;
+  assert.ok(Math.abs(playClock(open, 0, Math.round(1 / perTick)) - open - 1) < perTick);
+  // A whole candle advances the clock by its real duration (about 2:51 at 1x), not by one minute.
+  assert.equal(playClock(open, 1, 0), open + REAL_CANDLE_MS / 1000);
+  assert.equal(playClock(open, 0, SUBTICKS), playClock(open, 1, 0));
+}
+
 regulatoryFeesOnly();
 realMinutesAreUsedAsIs();
 shuffleUsesEveryDayBeforeRepeating();
@@ -520,4 +531,5 @@ scaleFramesTheCandleNotThePriorClose();
 frameGrowsWhenTheCandleLeavesIt();
 clockAndCatchUp();
 historyDeleteLeavesTheRest();
+clockTicksInRealSeconds();
 console.log("practice behavior ok");

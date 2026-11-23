@@ -4,6 +4,8 @@ export const TRADING_DAYS_PER_YEAR = 252;
 export const TRADING_DAYS_PER_MONTH = 21;
 export const STORAGE_KEY = "snc-simulator:v1";
 export const MILLION = 1_000_000;
+/** Default most you can put into one trade before your own orders widen the spread and move the price. */
+export const DEFAULT_MAX_TRADE = 7_000_000;
 /** SEC Section 31 fee rate per dollar of sell value. */
 const SEC_FEE_RATE = 0.0000206;
 /** Robinhood options regulatory/OCC fee per contract, charged on the buy and the sell. */
@@ -24,6 +26,12 @@ export type Scenario = {
   optionPrice: number;
   shareSpread: number;
   optionSpread: number;
+  /**
+   * Most money put into a single day's trade. Above this, size moves the market, so the rest of the balance
+   * sits in cash and growth turns from compounding to a steady gain of about maxTrade × daily return per day.
+   * 0 means no cap.
+   */
+  maxTrade: number;
 };
 
 export type MonthPoint = {
@@ -56,6 +64,10 @@ export type Simulation = {
   /** Trading day the balance first reaches $1M. 0 if it starts there. Null if it never does. */
   millionDay: number | null;
   years: number;
+  /** Trading day the balance first reaches the max trade size, so every trade after it is capped. Null if never. */
+  capDay: number | null;
+  /** Gross gain on a normal (non-drawdown) day once trading at the cap: maxTrade × daily return. Null with no cap. */
+  cappedDailyGain: number | null;
 };
 
 export const DEFAULT_SCENARIOS: Scenario[] = [
@@ -72,6 +84,7 @@ export const DEFAULT_SCENARIOS: Scenario[] = [
     optionPrice: 2,
     shareSpread: 0.01,
     optionSpread: 0.05,
+    maxTrade: DEFAULT_MAX_TRADE,
   },
   {
     id: "ira-plus-25k",
@@ -86,6 +99,7 @@ export const DEFAULT_SCENARIOS: Scenario[] = [
     optionPrice: 2,
     shareSpread: 0.01,
     optionSpread: 0.05,
+    maxTrade: DEFAULT_MAX_TRADE,
   },
 ];
 
@@ -108,6 +122,7 @@ export function createScenario(source: Scenario | undefined, index: number): Sce
     optionPrice: source?.optionPrice ?? 2,
     shareSpread: source?.shareSpread ?? 0.01,
     optionSpread: source?.optionSpread ?? 0.05,
+    maxTrade: source?.maxTrade ?? DEFAULT_MAX_TRADE,
   };
 }
 
@@ -150,11 +165,15 @@ export function simulate(input: Scenario): Simulation {
   const drawdown = finite(input.drawdownPct, 0) / 100;
   const perMonth = Math.max(0, finite(input.drawdownsPerMonth, 0));
   const hits = drawdownHitsByDay(tradingDays, perMonth);
-  const opening = roundTrip(start, 1, input);
+  const cap = Math.max(0, finite(input.maxTrade, 0));
+  // Trade as much as allowed (the whole balance up to the cap) every day; anything above the cap waits in cash.
+  const sized = (balance: number) => (cap > 0 ? Math.min(balance, cap) : balance);
+  const opening = roundTrip(sized(start), 1, input);
 
   let balance = start;
   const points: MonthPoint[] = [{ month: 0, balance }];
   let millionDay: number | null = start >= MILLION ? 0 : null;
+  let capDay: number | null = cap > 0 && start >= cap ? 0 : null;
   let drawdownDays = 0;
   let tradeDays = 0;
   let feesPaid = 0;
@@ -164,11 +183,13 @@ export function simulate(input: Scenario): Simulation {
     const multiplier = count > 0 ? (1 - drawdown) ** count : 1 + daily;
     if (count > 0) drawdownDays += 1;
     else tradeDays += 1;
-    const traded = roundTrip(balance, multiplier, input);
-    balance = traded.balance;
+    const stake = sized(balance);
+    const traded = roundTrip(stake, multiplier, input);
+    balance = balance - stake + traded.balance;
     feesPaid += traded.cost;
     if (day % TRADING_DAYS_PER_MONTH === 0) points.push({ month: day / TRADING_DAYS_PER_MONTH, balance });
     if (millionDay === null && balance >= MILLION) millionDay = day;
+    if (capDay === null && cap > 0 && balance >= cap) capDay = day;
   }
 
   const avgNetMonthly = compoundRate(start, balance, months);
@@ -195,6 +216,8 @@ export function simulate(input: Scenario): Simulation {
     dayOneContracts: opening.contracts,
     millionDay,
     years,
+    capDay,
+    cappedDailyGain: cap > 0 ? cap * daily : null,
   };
 }
 
@@ -390,7 +413,12 @@ export function formatSignedPercent(rate: number | null): string {
 }
 
 export function formatTimeToMillion(day: number | null, years: number, startingCapital: number): string {
-  if (startingCapital >= MILLION) return "Already there";
+  return formatTimeTo(day, years, startingCapital, MILLION);
+}
+
+/** How long until the balance first reaches `target`, as years, months and trading days. */
+export function formatTimeTo(day: number | null, years: number, startingCapital: number, target: number): string {
+  if (startingCapital >= target) return "Already there";
   if (day === null) return `Not within ${years} ${years === 1 ? "year" : "years"}`;
   const wholeYears = Math.floor(day / TRADING_DAYS_PER_YEAR);
   const remainder = day % TRADING_DAYS_PER_YEAR;
@@ -454,6 +482,7 @@ function sanitizeScenario(value: unknown, used: Set<string>): Scenario | null {
     optionPrice: readNonNegative(row.optionPrice, 2),
     shareSpread: readNonNegative(row.shareSpread, 0.01),
     optionSpread: readNonNegative(row.optionSpread, 0.05),
+    maxTrade: readNonNegative(row.maxTrade, DEFAULT_MAX_TRADE),
   };
 }
 

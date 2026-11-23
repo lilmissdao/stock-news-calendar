@@ -16,6 +16,8 @@ import {
   formatMonthLabel,
   formatPercent,
   formatSignedPercent,
+  formatTimeTo,
+  TRADING_DAYS_PER_MONTH,
   formatTimeToMillion,
   formatWholeDollars,
   loadScenarios,
@@ -215,7 +217,7 @@ function axisTicks(min: number, max: number): number[] {
   return ticks.length > 0 ? ticks : [min, max];
 }
 
-function BalanceChart({ name, result }: { name: string; result: Simulation }) {
+function BalanceChart({ name, result, cap = 0 }: { name: string; result: Simulation; cap?: number }) {
   const [hover, setHover] = useState<number | null>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const [viewWidth, setViewWidth] = useState(960);
@@ -279,6 +281,11 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
   const tipX = hover === null ? 0 : xOf(hover);
   const tipY = hoverPoint ? yOf(hoverPoint.balance) : 0;
   const plotRight = left + plotWidth;
+  // Where the balance first reaches the max trade size, so trades stop growing.
+  const capX =
+    cap > 0 && result.capDay !== null && result.capDay > 0
+      ? left + (result.capDay / TRADING_DAYS_PER_MONTH / (points.length - 1)) * plotWidth
+      : null;
 
   function nearest(event: ReactPointerEvent<SVGSVGElement>): number {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -338,6 +345,14 @@ function BalanceChart({ name, result }: { name: string; result: Simulation }) {
             </text>
           );
         })}
+        {capX !== null ? (
+          <g>
+            <line className="sim-cap" x1={capX} y1={top} x2={capX} y2={top + plotHeight} />
+            <text className="tick sim-cap-label" x={capX + (capX > left + plotWidth * 0.75 ? -6 : 6)} y={top + 14} textAnchor={capX > left + plotWidth * 0.75 ? "end" : "start"}>
+              Capped at {formatMoney(cap)}
+            </text>
+          </g>
+        ) : null}
         <polyline className="series" points={line} />
         {hoverPoint ? (
           <g>
@@ -535,6 +550,11 @@ function ScenarioCard({
             )
           }
         />
+        <DollarField
+          label="Max trade size ($0 = no cap)"
+          value={scenario.maxTrade}
+          onChange={(maxTrade) => onChange(scenario.id, { maxTrade: Math.max(0, maxTrade) })}
+        />
         <label className="field">
           <span>Time span</span>
           <select
@@ -566,6 +586,18 @@ function ScenarioCard({
           <dt>Time to $1M</dt>
           <dd>{formatTimeToMillion(result.millionDay, result.years, scenario.startingCapital)}</dd>
         </div>
+        {scenario.maxTrade > 0 ? (
+          <>
+            <div className="sim-stat">
+              <dt>Time to max trade size</dt>
+              <dd>{formatTimeTo(result.capDay, result.years, scenario.startingCapital, scenario.maxTrade)}</dd>
+            </div>
+            <div className="sim-stat">
+              <dt>Gain per good day at the cap</dt>
+              <dd>{result.cappedDailyGain === null ? "—" : formatMoney(result.cappedDailyGain)}</dd>
+            </div>
+          </>
+        ) : null}
         <div className="sim-stat">
           <dt>Est. fees & spread paid</dt>
           <dd>{formatMoney(result.feesPaid)}</dd>
@@ -587,7 +619,14 @@ function ScenarioCard({
           </span>
         ))}
       </p>
-      <BalanceChart name={scenario.name} result={result} />
+      {scenario.maxTrade > 0 ? (
+        <p className="sim-years">
+          Each day trades your whole balance up to {formatMoney(scenario.maxTrade)}, the most you can put in without moving the
+          market. Past that, the rest sits in cash, so growth slows from compounding to about{" "}
+          {result.cappedDailyGain === null ? "—" : formatMoney(result.cappedDailyGain)} per good day.
+        </p>
+      ) : null}
+      <BalanceChart name={scenario.name} result={result} cap={scenario.maxTrade} />
     </article>
   );
 }

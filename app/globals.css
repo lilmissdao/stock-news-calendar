@@ -1268,6 +1268,14 @@ main { min-width: 0; }
   stroke-dasharray: 4 3;
 }
 
+.sim-cap {
+  stroke: var(--down);
+  stroke-dasharray: 6 4;
+  stroke-width: 1.5;
+}
+
+.sim-cap-label { fill: var(--down); font-weight: 600; }
+
 .sim-tip {
   position: absolute;
   z-index: 2;

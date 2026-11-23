@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { DEFAULT_SCENARIOS, formatAxisMoney, formatMoney, simulate } from "./simulator";
+import { DEFAULT_SCENARIOS, formatAxisMoney, formatMoney, simulate, TRADING_DAYS_PER_YEAR } from "./simulator";
 
 function moneyScale() {
   assert.equal(formatMoney(31000), "$31,000.00");
@@ -24,6 +24,7 @@ function iraTenYearScenario() {
     sharePrice: 50,
     shareSpread: 0.01,
     tradeWith: "shares" as const,
+    maxTrade: 0,
   };
   const result = simulate(scenario);
   assert.equal(result.dayOneShares, 620);
@@ -40,6 +41,26 @@ function iraTenYearScenario() {
   }
 }
 
+function tradeSizeIsCapped() {
+  const base = { ...DEFAULT_SCENARIOS[0], dailyReturnPct: 1, drawdownPct: 0, drawdownsPerMonth: 0, years: 3, shareSpread: 0, sharePrice: 50 };
+  const free = simulate({ ...base, maxTrade: 0 });
+  const capped = simulate({ ...base, maxTrade: 7_000_000 });
+  assert.equal(free.capDay, null);
+  assert.ok(capped.capDay !== null && capped.capDay > 0, "the balance reaches the cap");
+  assert.ok(capped.ending < free.ending / 2, "capping stops the exponential blow-up");
+  // Past the cap, every good day adds about cap × daily return (less the SEC fee), not balance × daily return.
+  const day = TRADING_DAYS_PER_YEAR * 3;
+  const perDay = (capped.ending - capped.points[capped.points.length - 2].balance) / 21;
+  assert.ok(Math.abs(perDay - 70_000) < 200, `about $70K a day at the cap, got ${perDay}`);
+  assert.equal(capped.cappedDailyGain, 70_000);
+  assert.ok(day > capped.capDay!);
+  // Below the cap nothing changes.
+  const small = simulate({ ...base, years: 1, dailyReturnPct: 0.1 });
+  assert.equal(small.capDay, null);
+  assert.equal(small.ending, simulate({ ...base, years: 1, dailyReturnPct: 0.1, maxTrade: 0 }).ending);
+}
+
 moneyScale();
 iraTenYearScenario();
+tradeSizeIsCapped();
 console.log("simulator display ok");

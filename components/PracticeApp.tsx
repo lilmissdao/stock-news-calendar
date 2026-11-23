@@ -695,8 +695,16 @@ export function PracticeApp() {
   }
 
   function removeGame(id: string) {
-    if (id === "this") return;
-    setHistory((current) => (current ? deleteGame(current, id) : current));
+    if (id !== "this") {
+      setHistory((current) => (current ? deleteGame(current, id) : current));
+      return;
+    }
+    // Throw away the game in progress without saving it, and deal a fresh one.
+    clearFill();
+    const speed = coerceSpeed(localStorage.getItem(SPEED_KEY) ?? active.speed);
+    const dealt = deal(playedDates(saved, null), cycle ?? { v: 1, generation: 0, dates: [] }, tape.day.date);
+    setCycle(dealt.cycle);
+    setGame(newGame(BOOK.days.length, Math.random, speed, dealt.index));
   }
 
   return (

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { HistoryFile } from "@/lib/practice-history";
 import { attemptNumbers, type DayLogEntry } from "@/lib/practice-daylog";
-import { progressPoints, summarizeProgress, type GameRow } from "@/lib/practice-history";
+import { avgDailyReturn, progressPoints, summarizeProgress, type GameRow } from "@/lib/practice-history";
 import type { BatchSummary, DayResult, GameState } from "@/lib/practice-engine";
 import { formatCents, formatSignedPercent, formatWholeDollars } from "@/lib/simulator";
 
@@ -70,12 +70,15 @@ export function PracticeHistory({
       <dl className="pr-stats">
         <Stat label="Games" value={String(summary.games)} />
         <Stat label="Batches" value={String(summary.batches)} />
-        <Stat label="Avg batch" value={formatSignedPercent(summary.avgReturn)} tone={summary.avgReturn ?? 0} />
+        <Stat label="Avg batch return" value={formatSignedPercent(summary.avgReturn)} tone={summary.avgReturn ?? 0} />
+        <Stat label="Avg daily return" value={formatSignedPercent(summary.avgDaily)} tone={summary.avgDaily ?? 0} />
         <Stat label="Best batch" value={formatSignedPercent(summary.bestReturn)} tone={summary.bestReturn ?? 0} />
         <Stat label="Improvement" value={formatSignedPercent(summary.improvement)} tone={summary.improvement ?? 0} />
         <Stat label="Day streak" value={summary.streak === null ? "—" : String(summary.streak)} tone={summary.streak ?? 0} />
       </dl>
-      <p className="pr-note">Improvement is the last 5 batch returns minus the first 5. The streak is positive days in a row, latest first.</p>
+      <p className="pr-note">
+        Avg batch return is the average total return of finished 5-day batches. Avg daily return is the average of every day’s % change. Improvement is the last 5 batch returns minus the first 5. The streak is positive days in a row, latest first.
+      </p>
       <div className="pr-toggle" role="group" aria-label="Progress chart">
         <button type="button" aria-pressed={mode === "return"} onClick={() => setMode("return")}>
           Return %
@@ -105,8 +108,14 @@ export function PracticeHistory({
                 <dd>{formatWholeDollars(row.ending)}</dd>
               </div>
               <div>
-                <dt>Return</dt>
-                <dd className={row.returnPct >= 0 ? "up" : "down"}>{formatSignedPercent(row.returnPct)}</dd>
+                <dt>Total return</dt>
+                <dd className={row.returnPct >= 0 ? "up" : "down"}>
+                  {signedDollars(row.ending - row.start)} {formatSignedPercent(row.returnPct)}
+                </dd>
+              </div>
+              <div>
+                <dt>Avg daily return</dt>
+                <dd className={(row.avgDaily ?? 0) >= 0 ? "up" : "down"}>{formatSignedPercent(row.avgDaily)}</dd>
               </div>
               <div>
                 <dt>Win rate</dt>
@@ -130,9 +139,11 @@ export function PracticeHistory({
               </div>
             </dl>
             {open === row.id ? <BatchList batches={row.batches} /> : null}
-            {row.id !== "this" && confirmId === row.id ? (
+            {confirmId === row.id ? (
               <div className="pr-confirm">
-                <p className="pr-lead">Delete Game #{row.number}? This can't be undone.</p>
+                <p className="pr-lead">
+                  {row.id === "this" ? "Delete the game in progress? It won't be saved, and a new game starts." : `Delete Game #${row.number}?`} This can't be undone.
+                </p>
                 <div className="pr-actions">
                   <button type="button" className="text-btn" onClick={() => setConfirmId(null)}>
                     Cancel
@@ -149,11 +160,11 @@ export function PracticeHistory({
                   </button>
                 </div>
               </div>
-            ) : row.id !== "this" ? (
-              <button type="button" className="text-btn" onClick={() => setConfirmId(row.id)}>
+            ) : (
+              <button type="button" className="text-btn pr-delete-btn" onClick={() => setConfirmId(row.id)}>
                 Delete
               </button>
-            ) : null}
+            )}
           </article>
         ))}
       </div>
@@ -216,11 +227,28 @@ function BatchList({ batches }: { batches: BatchSummary[] }) {
       {batches.map((batch, index) => {
         const ret = batch.startEquity ? batch.endEquity / batch.startEquity - 1 : 0;
         const hold = batch.holdTqqq - batch.startEquity;
+        const avgDaily = avgDailyReturn([batch]);
         return (
           <div key={`${batch.startDate}-${index}`}>
             <p className="pr-lead">
-              Batch {index + 1} · {prettyDate(batch.startDate)} – {prettyDate(batch.endDate)} · {signedDollars(batch.endEquity - batch.startEquity)} {formatSignedPercent(ret)}
+              Batch {index + 1} · {prettyDate(batch.startDate)} – {prettyDate(batch.endDate)}
             </p>
+            <dl className="pr-kv">
+              <div>
+                <dt>Total return</dt>
+                <dd className={ret >= 0 ? "up" : "down"}>
+                  {signedDollars(batch.endEquity - batch.startEquity)} {formatSignedPercent(ret)}
+                </dd>
+              </div>
+              <div>
+                <dt>Avg daily return</dt>
+                <dd className={(avgDaily ?? 0) >= 0 ? "up" : "down"}>{formatSignedPercent(avgDaily)}</dd>
+              </div>
+              <div>
+                <dt>Days</dt>
+                <dd>{batch.days.length}</dd>
+              </div>
+            </dl>
             <ul className="pr-days">
               {batch.days.map((day, dayIndex) => (
                 <li key={`${day.date}-${dayIndex}`}>
@@ -376,7 +404,9 @@ function DaysPlayed({ entries, onDelete }: { entries: DayLogEntry[]; onDelete: (
                   {entry.open.length ? (
                     <p className="pr-note">Still held at reset: {entry.open.map((held) => `${held.shares} ${held.ticker}`).join(", ")} (valued at the last price).</p>
                   ) : null}
-                  {confirm === entry.id ? (
+                </>
+              ) : null}
+              {confirm === entry.id ? (
                     <div className="pr-actions">
                       <button type="button" className="pr-delete" onClick={() => onDelete(entry.id)}>
                         Delete this day
@@ -386,12 +416,10 @@ function DaysPlayed({ entries, onDelete }: { entries: DayLogEntry[]; onDelete: (
                       </button>
                     </div>
                   ) : (
-                    <button type="button" className="text-btn" onClick={() => setConfirm(entry.id)}>
+                    <button type="button" className="text-btn pr-delete-btn" onClick={() => setConfirm(entry.id)}>
                       Delete
                     </button>
                   )}
-                </>
-              ) : null}
             </article>
           );
         })}

@@ -178,6 +178,8 @@ export type HistorySummary = {
   bestReturn: number | null;
   improvement: number | null;
   streak: number | null;
+  /** Mean daily return across every day played, in every game. */
+  avgDaily: number | null;
 };
 
 export function summarizeProgress(history: HistoryFile, currentBatches: BatchSummary[], pending: DayResult[], countCurrentGame: boolean): HistorySummary {
@@ -196,6 +198,7 @@ export function summarizeProgress(history: HistoryFile, currentBatches: BatchSum
     bestReturn: returns.length ? Math.max(...returns) : null,
     improvement: batchImprovement(returns),
     streak: days.length ? streak : null,
+    avgDaily: average(days.map((day) => day.pct)),
   };
 }
 
@@ -241,6 +244,8 @@ export type GameRow = {
   /** Null when the saved game predates slippage tracking. */
   slippage: number | null;
   vsHold: number;
+  /** Mean of the daily returns across every day played in the game; null before the first day. */
+  avgDaily: number | null;
 };
 
 export function deleteGame(history: HistoryFile, id: string): HistoryFile {
@@ -263,6 +268,11 @@ export function playedDates(history: HistoryFile, game: GameState | null): strin
     take(game.batchDays);
   }
   return [...dates];
+}
+
+/** Mean daily return (each day's % change, averaged) across the given batches' days. */
+export function avgDailyReturn(batches: BatchSummary[]): number | null {
+  return average(batches.flatMap((batch) => batch.days.map((day) => day.pct)));
 }
 
 export function rowSlippage(batches: BatchSummary[]): number | null {
@@ -288,5 +298,6 @@ export function rowFromGame(game: ArchivedGame, title = `Game ${game.number}`): 
     fees: game.batches.reduce((sum, batch) => sum + (batch.fees || 0), 0),
     slippage: rowSlippage(game.batches),
     vsHold: holdGap(game.batches, game.endingBalance, game.startBalance),
+    avgDaily: avgDailyReturn(game.batches),
   };
 }

@@ -7,7 +7,7 @@ import { buildSession, playClock, REAL_CANDLE_MS, candleInView, chartBars, clock
 import { addDayEntry, attemptNumbers, deleteDayEntry, emptyDayLog, parseDayLog } from "./practice-daylog";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
-import { rowSlippage } from "./practice-history";
+import { avgDailyReturn, rowFromGame, rowSlippage } from "./practice-history";
 
 const price = 50;
 
@@ -512,6 +512,16 @@ function clockTicksInRealSeconds() {
   assert.equal(playClock(open, 0, SUBTICKS), playClock(open, 1, 0));
 }
 
+function avgDailyAndTotalReturn() {
+  const day = (pct: number) => ({ date: "2026-10-01", dollars: 0, pct, equity: 0, drawdown: 0, fees: 0 });
+  const batch = { days: [day(0.01), day(-0.004), day(0.006)], startEquity: 1000, endEquity: 1012 } as never;
+  assert.ok(Math.abs((avgDailyReturn([batch]) ?? 0) - 0.004) < 1e-12);
+  assert.equal(avgDailyReturn([]), null);
+  const row = rowFromGame({ id: "g", number: 1, playedAt: "", endedAt: "", batches: [batch], endingBalance: 1012, startBalance: 1000 } as never);
+  assert.ok(Math.abs(row.returnPct - 0.012) < 1e-12);
+  assert.ok(Math.abs((row.avgDaily ?? 0) - 0.004) < 1e-12);
+}
+
 regulatoryFeesOnly();
 realMinutesAreUsedAsIs();
 shuffleUsesEveryDayBeforeRepeating();
@@ -531,5 +541,6 @@ scaleFramesTheCandleNotThePriorClose();
 frameGrowsWhenTheCandleLeavesIt();
 clockAndCatchUp();
 historyDeleteLeavesTheRest();
+avgDailyAndTotalReturn();
 clockTicksInRealSeconds();
 console.log("practice behavior ok");

@@ -2792,7 +2792,8 @@
       "2026-11-18-asia",
       "2026-11-18-spcx-bond",
       "2026-11-18-nvda-fade",
-      "2026-11-19-nvda-ceo"
+      "2026-11-19-nvda-ceo",
+      "2026-11-20-nvda"
     ],
     "connection_notes": "Oct 28 digest confirms Tuesday, Nov 17, after the close, for Q3 FY27. Oct 29 digest: the call is at 5 PM ET, and the print is the biggest AI-trade catalyst of the quarter. Oct 30 digest: Q3 fiscal 2027, call at 5 PM ET, the quarter's biggest AI catalyst, just past the window. Nov 3 digest: the results time is 4:20 PM ET, and the print is the biggest test of the AI trade. The earlier 5 PM call time stays in the summary. Nov 4 digest: Q3 FY2027, after the close, call at 5 PM ET, the biggest AI-trade test of the month. The Nov 3 note had the results at 4:20 PM. Nov 5 digest ties the print to the Hong Kong H200 stockpile and the permitting selloff. The call time stays about 5 PM ET. Prior key number: Q3 FY2027 after the close; call 5 PM ET Nov 17 Nov 9 digest. The probe, the China-sales report, the Apollo talks and the SPIL financing are linked. Prior key number: FY Q3 after the close Nov 17; call about 5 PM ET; test after H200 and data-center permitting. Nov 10 digest. The scandal, the export-control risk and the AMD upgrade are linked. Prior key number: After the close Nov 17; first report since the Huang scandal broke. Nov 11 digest. The probe, Tuesday's drop, retail sales, Home Depot, Disney and JD.com are linked. Nov 12 digest. The about $2.49 EPS estimate is new. The CEO crisis, Thursday's premarket drop, the remote-chip rule and the neocloud prints are linked. Home Depot, Disney and October retail sales stay on the same day. Prior key number: After the close Nov 17; EPS est. about $2.49; overshadowed by the CEO crisis. Nov 13 digest. Prior key number: About 4:20 PM ET Nov 17; EPS est. $2.49; first report after Huang resigned. Nov 17 digest. Monday's 4.1% drop and the premarket range of roughly flat to +1% are different figures, so move_pct stays unset. Status stays upcoming because the report is after the close. Prior key number: About 4:20 pm, call 5 pm; consensus about $2.48 to $2.49 EPS on about $109B revenue; Monday -4.1%; premarket roughly flat to +1%. Nov 18 digest. The report was after Tuesday's close, so the row stays on Nov 17. The about +2.6% and around $159.5 are Wednesday premarket. Status is happened. Nov 19 digest. The stored move stays the earlier premarket figure on the earnings row. Wednesday's close is the linked fade row."
   },
@@ -2951,7 +2952,8 @@
       "2026-10-26-orcl-chip-vehicle",
       "2026-10-28-orcl-investor-day",
       "2026-10-29-nvda-stargate-ohio",
-      "2026-10-30-openai-shortfall"
+      "2026-10-30-openai-shortfall",
+      "2026-11-20-orcl"
     ],
     "connection_notes": ""
   },
@@ -6424,7 +6426,7 @@
     "date_precision": "day",
     "status": "developing",
     "title": "Congress and Commerce weigh tighter China chip rules",
-    "summary": "The Nov 20 digest says Congress is moving on stricter AI chip export laws after the House approval data. Huang's interview is Dec 1, Nvidia's general counsel is Dec 2, and Huang and Lutnick have agreed to testify to the Senate Banking Committee. The note calls that headline risk for China revenue of about 9.5% of Nvidia's. The Nov 19 digest says the interim final rule is now in the Nov 19 Federal Register. The published terms are on the linked Commerce rule row. The Nov 13 digest says Commerce is finalizing a rule blocking Chinese firms from renting advanced AI chips in overseas data centers, extending controls to seven more countries including Malaysia, Singapore and Thailand, and it could come this month. That would cut Chinese AI firms off from rented Nvidia capacity abroad. The Nov 12 digest says Commerce is set to finalize rules, possibly this month, blocking Chinese AI firms from remotely using advanced chips in overseas data centers and expanding controls to 7 more countries, including Malaysia, Singapore and Thailand. Congress is pushing tighter limits on chip-tool sales and servicing in China, and Commerce is reportedly drafting AI-chip export rules that would tie licenses to US investment. That would hit China revenue for equipment makers. The Nov 10 digest says The Information reports the White House may let new Nvidia-to-China export controls into the defense bill, the NDAA, including limits on Chinese remote access to advanced AI chips and on lithography tooling. That is a risk for Nvidia and AMD China sales and for chip-equipment names. Commerce staff are pushing rules on remote chip access and lithography tooling, and the controls could be written into this year's defense bill.",
+    "summary": "The Nov 23 digest says Bessent, on Sunday, still has no Treasury answers from Nvidia on chip sales to China, with a Nov 25 deadline. Sen. Kennedy wants Commerce Secretary Lutnick questioned over Nvidia. The California attorney general subpoenaed Nvidia last Thursday. The Nov 20 digest says Congress is moving on stricter AI chip export laws after the House approval data. Huang's interview is Dec 1, Nvidia's general counsel is Dec 2, and Huang and Lutnick have agreed to testify to the Senate Banking Committee. The note calls that headline risk for China revenue of about 9.5% of Nvidia's. The Nov 19 digest says the interim final rule is now in the Nov 19 Federal Register. The published terms are on the linked Commerce rule row. The Nov 13 digest says Commerce is finalizing a rule blocking Chinese firms from renting advanced AI chips in overseas data centers, extending controls to seven more countries including Malaysia, Singapore and Thailand, and it could come this month. That would cut Chinese AI firms off from rented Nvidia capacity abroad. The Nov 12 digest says Commerce is set to finalize rules, possibly this month, blocking Chinese AI firms from remotely using advanced chips in overseas data centers and expanding controls to 7 more countries, including Malaysia, Singapore and Thailand. Congress is pushing tighter limits on chip-tool sales and servicing in China, and Commerce is reportedly drafting AI-chip export rules that would tie licenses to US investment. That would hit China revenue for equipment makers. The Nov 10 digest says The Information reports the White House may let new Nvidia-to-China export controls into the defense bill, the NDAA, including limits on Chinese remote access to advanced AI chips and on lithography tooling. That is a risk for Nvidia and AMD China sales and for chip-equipment names. Commerce staff are pushing rules on remote chip access and lithography tooling, and the controls could be written into this year's defense bill.",
     "tickers": [
       "AMAT",
       "LRCX",
@@ -6444,10 +6446,10 @@
     ],
     "industry": "Policy",
     "event_type": "policy",
-    "key_number": "Stricter AI chip export laws in motion; Huang House interview Dec 1; Nvidia general counsel Dec 2; Huang and Lutnick to the Senate Banking Committee; China about 9.5% of Nvidia revenue",
+    "key_number": "Bessent: no Nvidia China answers, deadline Nov 25. Kennedy wants Lutnick questioned. California AG subpoenaed Nvidia Thursday",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-10-affiliates-rule",
       "2026-11-17-nvda-earnings",
@@ -6474,9 +6476,12 @@
       "2026-11-20-house-chips",
       "2026-11-19-amd-hunterbrook",
       "2026-12-01-huang-house",
-      "2026-12-02-crm-teter"
+      "2026-12-02-crm-teter",
+      "2026-11-19-nvda-ca-subpoena",
+      "2026-11-22-bessent-nvda",
+      "2026-11-25-nvda-treasury"
     ],
-    "connection_notes": "Nov 20 digest. The laws are not final, so this stays developing. The House data release and the Dec 1 and Dec 2 dates are linked. No Senate date was stated. Equipment names are Applied Materials, Lam Research, KLA and ASML, with Nvidia on the chip-export side. No rule text or date was stated. Nov 10 digest keeps this developing. The government-section report and the in-the-works defense-bill effort are the same open rules, so they stay on this row. The Huang scandal, the AMD upgrade, Nvidia's Nov 17 report and Applied Materials are linked. Nov 12 digest. Still developing. Alibaba's Hong Kong drop, Nvidia's premarket drop and Thursday's earnings are linked. No stock percent is stored on this row. Prior key number: Remote-chip rules possibly this month; 7 more countries, including Malaysia, Singapore and Thailand. Nov 13 digest. Nov 19 digest. This preview row stays on its original day. The published rule is the linked item."
+    "connection_notes": "Nov 20 digest. The laws are not final, so this stays developing. The House data release and the Dec 1 and Dec 2 dates are linked. No Senate date was stated. Equipment names are Applied Materials, Lam Research, KLA and ASML, with Nvidia on the chip-export side. No rule text or date was stated. Nov 10 digest keeps this developing. The government-section report and the in-the-works defense-bill effort are the same open rules, so they stay on this row. The Huang scandal, the AMD upgrade, Nvidia's Nov 17 report and Applied Materials are linked. Nov 12 digest. Still developing. Alibaba's Hong Kong drop, Nvidia's premarket drop and Thursday's earnings are linked. No stock percent is stored on this row. Prior key number: Remote-chip rules possibly this month; 7 more countries, including Malaysia, Singapore and Thailand. Nov 13 digest. Nov 19 digest. This preview row stays on its original day. The published rule is the linked item. Nov 23 digest."
   },
   {
     "id": "2026-10-28-canada-no-timeline",
@@ -6779,17 +6784,17 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "Funding runs out Dec 11; a short patch looks most likely",
-    "summary": "The Nov 20 digest says the Dec 11 deadline fight is now about funding for the Iran war. Senate Democrats are split on forcing a shutdown, House Democrats are mostly steering clear of the threat, and Republicans keep the majority until January. The Nov 19 digest says the continuing resolution runs out Dec 11 and leaders are still far from a deal. A short-term patch looks most likely. Democrats are targeting Iran war funding. The note says the midterm results have complicated the talks. The Nov 18 digest says shutdown odds are rising. Funding runs out Dec 11, and Senate aides say most spending bills will slip. Democrats want a short stopgap until they take majorities in January. The Nov 17 digest says shutdown risk is rising. Government funding expires Dec 11, Congress has passed none of the 12 spending bills, and Democrats are emboldened after the midterms. The note says this weighs on defense, contractors and the broader market. Democrats are demanding provisions such as action on the Iran war in exchange for a deal before the deadline. A shutdown would delay economic data and FDA work. The Nov 13 digest says the Dec 11 government funding deadline is still open, with appropriators far apart. Democrats take both chambers in January and are expected to target tariffs, AI rules and data center power costs. A shutdown could delay data and weigh on defense and government contractors. The Nov 12 digest says current government funding expires Dec 11, the NDAA defense bill still has to pass, and shutdown risk returns in December. A shutdown is possible at 12:01 AM Dec 12. The lame-duck fight starts now with Democrats emboldened. The government funding deadline is Dec 11. The stopgap runs to that date, so the lame-duck session decides whether there is a shutdown fight. A shutdown is possible starting Dec 12 without another bill. Congress is out for the campaign recess and has passed only 3 of the 12 full-year spending bills, so another stopgap looks likely. Control of Congress after the Nov 3 midterms shapes this fight. The Nov 5 note says funding under the current continuing resolution runs through Dec 11, 2026, and without new appropriations a funding gap can begin Dec 12. Shutdown risk runs into year-end, with a lame-duck session and new Democratic majorities. The Nov 9 note says Congress must fund the government by Dec 11. Democrats are weighing blocking money for the Iran war in the year-end deal, while Republicans eye one last reconciliation bill before they lose control. Shutdown risk runs to defense names and the broad market.",
+    "summary": "The Nov 23 digest says the Washington Post reports Senate GOP leaders are open to Democrats' demand to fund the Pentagon but not the Iran war. Defense names are exposed. Senate Democratic leadership elections are Dec 1. The Nov 20 digest says the Dec 11 deadline fight is now about funding for the Iran war. Senate Democrats are split on forcing a shutdown, House Democrats are mostly steering clear of the threat, and Republicans keep the majority until January. The Nov 19 digest says the continuing resolution runs out Dec 11 and leaders are still far from a deal. A short-term patch looks most likely. Democrats are targeting Iran war funding. The note says the midterm results have complicated the talks. The Nov 18 digest says shutdown odds are rising. Funding runs out Dec 11, and Senate aides say most spending bills will slip. Democrats want a short stopgap until they take majorities in January. The Nov 17 digest says shutdown risk is rising. Government funding expires Dec 11, Congress has passed none of the 12 spending bills, and Democrats are emboldened after the midterms. The note says this weighs on defense, contractors and the broader market. Democrats are demanding provisions such as action on the Iran war in exchange for a deal before the deadline. A shutdown would delay economic data and FDA work. The Nov 13 digest says the Dec 11 government funding deadline is still open, with appropriators far apart. Democrats take both chambers in January and are expected to target tariffs, AI rules and data center power costs. A shutdown could delay data and weigh on defense and government contractors. The Nov 12 digest says current government funding expires Dec 11, the NDAA defense bill still has to pass, and shutdown risk returns in December. A shutdown is possible at 12:01 AM Dec 12. The lame-duck fight starts now with Democrats emboldened. The government funding deadline is Dec 11. The stopgap runs to that date, so the lame-duck session decides whether there is a shutdown fight. A shutdown is possible starting Dec 12 without another bill. Congress is out for the campaign recess and has passed only 3 of the 12 full-year spending bills, so another stopgap looks likely. Control of Congress after the Nov 3 midterms shapes this fight. The Nov 5 note says funding under the current continuing resolution runs through Dec 11, 2026, and without new appropriations a funding gap can begin Dec 12. Shutdown risk runs into year-end, with a lame-duck session and new Democratic majorities. The Nov 9 note says Congress must fund the government by Dec 11. Democrats are weighing blocking money for the Iran war in the year-end deal, while Republicans eye one last reconciliation bill before they lose control. Shutdown risk runs to defense names and the broad market.",
     "tickers": [],
     "companies": [
       "Congress"
     ],
     "industry": "Policy",
     "event_type": "policy",
-    "key_number": "Dec 11 fight is now Iran-war funding; Senate Democrats split on a shutdown; House Democrats mostly steering clear; Republicans keep the majority until January",
+    "key_number": "WaPo: Senate GOP open to funding the Pentagon but not the Iran war; leadership elections Dec 1",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-10-29-funding-stopgap",
       "2026-11-03-midterms",
@@ -6801,9 +6806,10 @@
       "2026-10-28-chip-export-rules",
       "2026-12-09-fomc",
       "2026-11-17-rcat",
-      "2026-11-18-hpe-faa"
+      "2026-11-18-hpe-faa",
+      "2026-12-01-senate-dems"
     ],
-    "connection_notes": "Nov 20 digest. The deadline has not arrived, so this stays upcoming. The stopgap that funds the government through this date is the linked item. Oct 30 digest: another stopgap looks likely, and the midterm result shapes the fight. The shutdown risk from Dec 12 was already on this item. Nov 2 digest: the lame-duck session after the midterms is what decides the shutdown fight. The stopgap still runs to this date. Nov 3 digest restates the Dec 11 stopgap and the lame-duck decision. No new date was given. Nov 4 digest: shutdown possible at 12:01 AM Dec 12, and the lame-duck fight starts now with Democrats emboldened. The Dec 11 date was already on this row. Nov 5 digest restates the Dec 11 expiration and a possible gap from Dec 12, now with new Democratic majorities in the lame duck. Prior key number: Shutdown possible 12:01 AM Dec 12; lame-duck fight starts now Nov 9 digest. Status stays upcoming. The plan to choke off war funding is the linked developing item. No new clock time was stated. Prior key number: CR through Dec 11, 2026; funding gap can begin Dec 12; year-end shutdown risk with new Democratic majorities. Nov 12 digest. Democrats' sweep of both houses is already on the midterms item. The remote-chip rule could still be written into the NDAA. Prior key number: Funding expires Dec 11; NDAA still has to pass; shutdown risk returns in December. Nov 13 digest. Prior key number: Dec 11 funding deadline; appropriators far apart; Democrats take both chambers in January. Nov 17 digest. An earlier note said 3 of 12 spending bills had passed. This note says none of the 12 have been passed. Status stays upcoming because the deadline has not arrived. The funding fight in the same note is this deadline, not a second event. Prior key number: Dec 11 deadline; none of the 12 spending bills passed; Democrats want Iran-war provisions. Nov 18 digest. Nov 18 digest. The deadline has not arrived, so this stays upcoming. Nov 19 digest. Status stays upcoming."
+    "connection_notes": "Nov 20 digest. The deadline has not arrived, so this stays upcoming. The stopgap that funds the government through this date is the linked item. Oct 30 digest: another stopgap looks likely, and the midterm result shapes the fight. The shutdown risk from Dec 12 was already on this item. Nov 2 digest: the lame-duck session after the midterms is what decides the shutdown fight. The stopgap still runs to this date. Nov 3 digest restates the Dec 11 stopgap and the lame-duck decision. No new date was given. Nov 4 digest: shutdown possible at 12:01 AM Dec 12, and the lame-duck fight starts now with Democrats emboldened. The Dec 11 date was already on this row. Nov 5 digest restates the Dec 11 expiration and a possible gap from Dec 12, now with new Democratic majorities in the lame duck. Prior key number: Shutdown possible 12:01 AM Dec 12; lame-duck fight starts now Nov 9 digest. Status stays upcoming. The plan to choke off war funding is the linked developing item. No new clock time was stated. Prior key number: CR through Dec 11, 2026; funding gap can begin Dec 12; year-end shutdown risk with new Democratic majorities. Nov 12 digest. Democrats' sweep of both houses is already on the midterms item. The remote-chip rule could still be written into the NDAA. Prior key number: Funding expires Dec 11; NDAA still has to pass; shutdown risk returns in December. Nov 13 digest. Prior key number: Dec 11 funding deadline; appropriators far apart; Democrats take both chambers in January. Nov 17 digest. An earlier note said 3 of 12 spending bills had passed. This note says none of the 12 have been passed. Status stays upcoming because the deadline has not arrived. The funding fight in the same note is this deadline, not a second event. Prior key number: Dec 11 deadline; none of the 12 spending bills passed; Democrats want Iran-war provisions. Nov 18 digest. Nov 18 digest. The deadline has not arrived, so this stays upcoming. Nov 19 digest. Status stays upcoming. Nov 23 digest."
   },
   {
     "id": "2026-10-28-baba-bidu",
@@ -7398,17 +7404,17 @@
     "date_precision": "day",
     "status": "developing",
     "title": "Futures price a December hike; more hikes in 2027 are possible",
-    "summary": "The Nov 18 digest says the Fed is turning more hawkish. Waller told CNBC that a 50 bp December hike is \"probably necessary\" unless the Fed signals a January move, and that it may need to \"shock people.\" Musalem floated as many as four hikes by spring 2027. Williams said \"no dramatic action.\" Futures fully price a 25 bp hike on Dec 9. The Nov 13 digest says CME FedWatch prices a 100% chance of a hike at the Dec 9 meeting, about 87% for 25 bp, and NY Fed's John Williams said more hikes are likely to get inflation back down. Futures see a strong chance of a hike at the December meeting, and a couple more hikes in 2027 are possible. Q3 GDP grew 3.4% and September PCE was 3.6%, and strong growth plus inflation above 3% keeps a December hike in play. The Nov 6 jobs report and Nov 10 CPI are the next inputs. As of the Nov 5 morning note, CME FedWatch showed about an 80.7% chance of at least a 25 bp hike in December, up from 77.4%. The Bank of England has just raised Bank Rate 25 bp to 4.0%. The December meeting is Dec 8-9, with the decision typically Wednesday Dec 9 around 2 PM, and minutes of the Oct 27-28 meeting are due Nov 18 at 2:00 PM ET. The Nov 6 morning note says markets price roughly a 65-70% chance of a December hike.",
+    "summary": "The Nov 23 digest says FedWatch puts the odds of a December hike at about 96%. The FOMC meets Dec 8-9. The Nov 18 digest says the Fed is turning more hawkish. Waller told CNBC that a 50 bp December hike is \"probably necessary\" unless the Fed signals a January move, and that it may need to \"shock people.\" Musalem floated as many as four hikes by spring 2027. Williams said \"no dramatic action.\" Futures fully price a 25 bp hike on Dec 9. The Nov 13 digest says CME FedWatch prices a 100% chance of a hike at the Dec 9 meeting, about 87% for 25 bp, and NY Fed's John Williams said more hikes are likely to get inflation back down. Futures see a strong chance of a hike at the December meeting, and a couple more hikes in 2027 are possible. Q3 GDP grew 3.4% and September PCE was 3.6%, and strong growth plus inflation above 3% keeps a December hike in play. The Nov 6 jobs report and Nov 10 CPI are the next inputs. As of the Nov 5 morning note, CME FedWatch showed about an 80.7% chance of at least a 25 bp hike in December, up from 77.4%. The Bank of England has just raised Bank Rate 25 bp to 4.0%. The December meeting is Dec 8-9, with the decision typically Wednesday Dec 9 around 2 PM, and minutes of the Oct 27-28 meeting are due Nov 18 at 2:00 PM ET. The Nov 6 morning note says markets price roughly a 65-70% chance of a December hike.",
     "tickers": [],
     "companies": [
       "Federal Reserve"
     ],
     "industry": "Macro",
     "event_type": "fed",
-    "key_number": "Futures fully price a 25 bp hike on Dec 9; Waller says 50 bp is probably necessary unless January is signaled",
+    "key_number": "FedWatch December hike about 96%; meeting Dec 8-9",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-18",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-10-28-fed-decision",
       "2026-10-29-gdp-pce",
@@ -7429,7 +7435,7 @@
       "2026-11-17-fed-hike",
       "2026-11-18-fed-hawkish"
     ],
-    "connection_notes": "Forward odds after Wednesday's hold. Earlier notes had at least three more hikes by late 2027 priced in. PCE is Oct 29 and the jobs report is Nov 6. Oct 30 digest: strong growth plus inflation above 3% keeps a December hike in play. Earlier notes had a strong chance of a December hike and a couple more hikes possible in 2027. Nov 5 digest: FedWatch about 80.7%, up from 77.4%. The December meeting, the Nov 18 minutes, and the Bank of England hike are the linked items. Prior key number: GDP +3.4%; PCE 3.6%; December hike still in play Prior key number: FedWatch about 80.7% for at least a 25 bp December hike, up from 77.4%. Nov 6 digest replaces the prior morning's FedWatch snapshot as the latest stated odds. The 80.7% figure remains the Nov 5 FedWatch print. Prior key number: Nov 6 note: markets price roughly a 65-70% chance of a December hike. Nov 13 digest. Prior key number: FedWatch 100% for a Dec 9 hike; about 87% for 25 bp. Nov 18 digest. Nov 18 digest. This stays the running hike-path row. Today's speeches and the minutes are their own rows."
+    "connection_notes": "Forward odds after Wednesday's hold. Earlier notes had at least three more hikes by late 2027 priced in. PCE is Oct 29 and the jobs report is Nov 6. Oct 30 digest: strong growth plus inflation above 3% keeps a December hike in play. Earlier notes had a strong chance of a December hike and a couple more hikes possible in 2027. Nov 5 digest: FedWatch about 80.7%, up from 77.4%. The December meeting, the Nov 18 minutes, and the Bank of England hike are the linked items. Prior key number: GDP +3.4%; PCE 3.6%; December hike still in play Prior key number: FedWatch about 80.7% for at least a 25 bp December hike, up from 77.4%. Nov 6 digest replaces the prior morning's FedWatch snapshot as the latest stated odds. The 80.7% figure remains the Nov 5 FedWatch print. Prior key number: Nov 6 note: markets price roughly a 65-70% chance of a December hike. Nov 13 digest. Prior key number: FedWatch 100% for a Dec 9 hike; about 87% for 25 bp. Nov 18 digest. Nov 18 digest. This stays the running hike-path row. Today's speeches and the minutes are their own rows. Nov 23 digest."
   },
   {
     "id": "2026-10-29-intc-earnings",
@@ -7510,17 +7516,17 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "Q3 GDP second estimate, October personal income and PCE",
-    "summary": "The Nov 20 digest says Wednesday, Nov 25 at 8:30 brings the Q3 GDP second estimate and October PCE, with core PCE seen at 3.2% year over year, and calls it the last big inflation read before the Fed. The Nov 19 digest keeps the second estimate of third-quarter GDP and October PCE inflation at 8:30 am on Wednesday, Nov 25. Sanofi's venglustat, which had shared that morning, was approved Nov 18. The Nov 18 digest says the Q3 GDP second estimate and October PCE inflation, at 8:30 am on Nov 25, are the key input on whether December's hike is 25 or 50 bp. Today's minutes are the other input. The Nov 17 digest says the Q3 GDP second estimate plus October personal income and PCE inflation are at 8:30 am on Wednesday, Nov 25, and calls them a big input for the December hike. The Nov 13 digest says October PCE, the Fed's preferred inflation gauge, and jobless claims are at 8:30 AM ET on Wednesday, Nov 25, before Thanksgiving. October PCE and the second estimate of Q3 GDP are out at 8:30 AM ET on Nov 25. The Nov 5 note also puts the Beige Book at 2:00 PM ET on Nov 25, the same morning as the second estimate of Q3 GDP and October PCE at 8:30 AM.",
+    "summary": "The Nov 23 digest says Wednesday at 8:30 brings October PCE, with core expected at +0.3% month over month, the Q3 GDP second estimate at about 3.4% to 3.5%, jobless claims, and durable goods. New home sales are at 10:00 and the Beige Book at 2:00. Deere reports before the open. Nvidia's Treasury deadline is the same day. The Nov 20 digest says Wednesday, Nov 25 at 8:30 brings the Q3 GDP second estimate and October PCE, with core PCE seen at 3.2% year over year, and calls it the last big inflation read before the Fed. The Nov 19 digest keeps the second estimate of third-quarter GDP and October PCE inflation at 8:30 am on Wednesday, Nov 25. Sanofi's venglustat, which had shared that morning, was approved Nov 18. The Nov 18 digest says the Q3 GDP second estimate and October PCE inflation, at 8:30 am on Nov 25, are the key input on whether December's hike is 25 or 50 bp. Today's minutes are the other input. The Nov 17 digest says the Q3 GDP second estimate plus October personal income and PCE inflation are at 8:30 am on Wednesday, Nov 25, and calls them a big input for the December hike. The Nov 13 digest says October PCE, the Fed's preferred inflation gauge, and jobless claims are at 8:30 AM ET on Wednesday, Nov 25, before Thanksgiving. October PCE and the second estimate of Q3 GDP are out at 8:30 AM ET on Nov 25. The Nov 5 note also puts the Beige Book at 2:00 PM ET on Nov 25, the same morning as the second estimate of Q3 GDP and October PCE at 8:30 AM.",
     "tickers": [],
     "companies": [
       "US economy"
     ],
     "industry": "Macro",
     "event_type": "macro_data",
-    "key_number": "Nov 25, 8:30: Q3 GDP second estimate and October PCE; core PCE seen at 3.2% y/y; last big inflation read before the Fed",
+    "key_number": "Nov 25, 8:30: core PCE +0.3% m/m expected; GDP second estimate about 3.4-3.5%; claims and durable goods. New home sales 10:00; Beige Book 2:00",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-10-28-fed-decision",
       "2026-10-29-fed-hike-odds",
@@ -7537,9 +7543,12 @@
       "2026-11-18-fed-barr",
       "2026-11-18-fed-williams",
       "2026-11-18-fed-kashkari",
-      "2026-11-26-thanksgiving"
+      "2026-11-26-thanksgiving",
+      "2026-11-23-pmi-williams",
+      "2026-11-25-nvda-treasury",
+      "2026-11-25-deere"
     ],
-    "connection_notes": "Nov 20 digest. Status stays upcoming. Follows the Oct 29 GDP and September PCE prints, and sits with the December hike debate. Oct 30 digest: the first Q3 GDP estimate was 3.4% and September PCE was 3.6% year over year. Nov 5 digest adds the 2:00 PM Beige Book to the existing 8:30 AM GDP and PCE release. Prior key number: 8:30 AM ET Prior key number: Beige Book 2:00 PM ET; Q3 GDP second estimate and October PCE at 8:30 AM. Nov 13 digest. Prior key number: October PCE and jobless claims 8:30 AM ET Nov 25; PCE is the Fed's preferred gauge. Nov 17 digest. Personal income is new on this row. Sanofi's FDA decision is the same morning. Prior key number: Q3 GDP second estimate, October personal income and PCE at 8:30 am Nov 25; input for the December hike. Nov 18 digest. Nov 18 digest. Status stays upcoming. Nov 19 digest. Status stays upcoming. The venglustat approval is no longer an event on this morning."
+    "connection_notes": "Nov 20 digest. Status stays upcoming. Follows the Oct 29 GDP and September PCE prints, and sits with the December hike debate. Oct 30 digest: the first Q3 GDP estimate was 3.4% and September PCE was 3.6% year over year. Nov 5 digest adds the 2:00 PM Beige Book to the existing 8:30 AM GDP and PCE release. Prior key number: 8:30 AM ET Prior key number: Beige Book 2:00 PM ET; Q3 GDP second estimate and October PCE at 8:30 AM. Nov 13 digest. Prior key number: October PCE and jobless claims 8:30 AM ET Nov 25; PCE is the Fed's preferred gauge. Nov 17 digest. Personal income is new on this row. Sanofi's FDA decision is the same morning. Prior key number: Q3 GDP second estimate, October personal income and PCE at 8:30 am Nov 25; input for the December hike. Nov 18 digest. Nov 18 digest. Status stays upcoming. Nov 19 digest. Status stays upcoming. The venglustat approval is no longer an event on this morning. Nov 23 digest."
   },
   {
     "id": "2026-10-30-futures",
@@ -9603,11 +9612,11 @@
   },
   {
     "id": "2026-11-22-savara-molgramostim",
-    "date": "2026-11-22",
+    "date": "2026-11-20",
     "date_precision": "day",
-    "status": "upcoming",
-    "title": "PDUFA: Savara molgramostim",
-    "summary": "The Nov 20 digest keeps Sunday, Nov 22 as the FDA decision on Savara's Molbreevi, inhaled molgramostim for autoimmune pulmonary alveolar proteinosis. The review was already extended once. The stock is $5.21. The Nov 19 digest keeps Savara's Molbreevi PDUFA on Nov 22 for autoimmune pulmonary alveolar proteinosis and flags it as an early warning. The stock is about $4.72. It is the company's only program, and it got priority review after a 3-month extension. JPM is Overweight with a $12 price target. Cash plus investments were about $130 million on Sep 30 against a third-quarter net loss of $43 million, under one year of runway on the note's estimate, so the note says to expect a raise after the decision either way. The Nov 18 digest flags Sunday, Nov 22 as the FDA decision on Savara's Molbreevi for autoimmune pulmonary alveolar proteinosis, after a 3-month extension for a major amendment. Cash is about $130 million against a $43 million quarterly loss, roughly 3 quarters, and Savara has already built its launch team. The note says a rejection likely forces a raise. The Nov 17 digest lists Sunday, Nov 22 as the FDA decision for Savara's molgramostim. The Nov 13 digest restates Sunday, Nov 22 as the FDA decision on Savara's Molbreevi (SVRA). First-ever-treatment FDA decision date for Savara's molgramostim. No rival was named. Reliance and market cap were not stated. The Nov 9 note lists Sunday, Nov 22 as an FDA goal date for Savara's Molbreevi. The Nov 10 digest lists Sunday, Nov 22 as an FDA decision date for molgramostim (Savara, SVRA).",
+    "status": "developing",
+    "title": "FDA misses Savara's Nov 22 Molbreevi date",
+    "summary": "The Nov 23 digest says Savara fell 18% Friday to $4.26 after the FDA said it would miss the Nov 22 decision date for Molbreevi. No new date was given and there is no rejection letter. Analysts blame FDA bandwidth, so it is still a binary and the timing is now unknown. The Nov 20 digest keeps Sunday, Nov 22 as the FDA decision on Savara's Molbreevi, inhaled molgramostim for autoimmune pulmonary alveolar proteinosis. The review was already extended once. The stock is $5.21. The Nov 19 digest keeps Savara's Molbreevi PDUFA on Nov 22 for autoimmune pulmonary alveolar proteinosis and flags it as an early warning. The stock is about $4.72. It is the company's only program, and it got priority review after a 3-month extension. JPM is Overweight with a $12 price target. Cash plus investments were about $130 million on Sep 30 against a third-quarter net loss of $43 million, under one year of runway on the note's estimate, so the note says to expect a raise after the decision either way. The Nov 18 digest flags Sunday, Nov 22 as the FDA decision on Savara's Molbreevi for autoimmune pulmonary alveolar proteinosis, after a 3-month extension for a major amendment. Cash is about $130 million against a $43 million quarterly loss, roughly 3 quarters, and Savara has already built its launch team. The note says a rejection likely forces a raise. The Nov 17 digest lists Sunday, Nov 22 as the FDA decision for Savara's molgramostim. The Nov 13 digest restates Sunday, Nov 22 as the FDA decision on Savara's Molbreevi (SVRA). First-ever-treatment FDA decision date for Savara's molgramostim. No rival was named. Reliance and market cap were not stated. The Nov 9 note lists Sunday, Nov 22 as an FDA goal date for Savara's Molbreevi. The Nov 10 digest lists Sunday, Nov 22 as an FDA decision date for molgramostim (Savara, SVRA).",
     "tickers": [
       "SVRA"
     ],
@@ -9616,15 +9625,19 @@
     ],
     "industry": "Pharma/Biotech",
     "event_type": "fda",
-    "key_number": "PDUFA Sun Nov 22; Molbreevi, inhaled molgramostim, autoimmune PAP; already extended once; stock $5.21",
-    "price_mentioned": null,
-    "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "key_number": "FDA missed the Nov 22 Molbreevi date. No new date and no rejection letter. Friday -18% to $4.26",
+    "price_mentioned": {
+      "ticker": "SVRA",
+      "price": 4.26
+    },
+    "move_pct": -18,
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-22-capricor-deramiocel",
-      "2026-11-25-sny-venglustat"
+      "2026-11-25-sny-venglustat",
+      "2026-11-20-close"
     ],
-    "connection_notes": "Nov 20 digest. Status stays upcoming. The earlier about-$4.72 price stays in the older text. This note's price is $5.21. Nov 9 digest names Molbreevi and the SVRA ticker. The earlier molgramostim wording stays. Nov 10 digest restates the decision date and the molgramostim name. The earlier Molbreevi wording stays. Nov 13 digest. Nov 17 digest. Status stays upcoming. Prior key number: Nov 22 FDA goal date: Savara's Molbreevi. Nov 18 digest. Nov 18 digest. Status stays upcoming. The binary-bets card keeps the filing cash figure. Nov 19 digest. Status stays upcoming. The earlier roughly-3-quarters line stays in the older text. This note says under one year, estimated, and a raise either way.",
+    "connection_notes": "Nov 20 digest. Status stays upcoming. The earlier about-$4.72 price stays in the older text. This note's price is $5.21. Nov 9 digest names Molbreevi and the SVRA ticker. The earlier molgramostim wording stays. Nov 10 digest restates the decision date and the molgramostim name. The earlier Molbreevi wording stays. Nov 13 digest. Nov 17 digest. Status stays upcoming. Prior key number: Nov 22 FDA goal date: Savara's Molbreevi. Nov 18 digest. Nov 18 digest. Status stays upcoming. The binary-bets card keeps the filing cash figure. Nov 19 digest. Status stays upcoming. The earlier roughly-3-quarters line stays in the older text. This note says under one year, estimated, and a raise either way. Nov 23 digest.",
     "graph_node": {
       "label": "Savara",
       "drug": "molgramostim",
@@ -9639,11 +9652,11 @@
   },
   {
     "id": "2026-11-22-capricor-deramiocel",
-    "date": "2026-11-22",
+    "date": "2026-11-20",
     "date_precision": "day",
-    "status": "upcoming",
-    "title": "FDA decision: Capricor deramiocel for Duchenne",
-    "summary": "The Nov 20 digest keeps Sunday, Nov 22 as the FDA decision on Capricor's deramiocel for Duchenne. It follows a 2025 rejection on CMC issues and a 9-3 advisory committee vote against in July. The stock is $7.53. The note calls the CRL risk high. The Nov 19 digest keeps Capricor's deramiocel PDUFA on Nov 22 for Duchenne muscular dystrophy and flags it as an early warning, three days out. The stock is about $8 and the estimated market cap is about $470 million. It calls this the second try after a July 2025 complete response letter and a 9-3 negative advisory committee in July on the cardiomyopathy question. The FDA inspection 483 had one observation. Roth puts approval odds at 25%, and Oppenheimer has a $54 price target. Cash was $199 million as of Sep 30 against a third-quarter operating loss of $44.7 million, about four quarters of runway on the note's estimate. Short interest was not verified. The note infers that because Nov 22 is a Sunday, an earlier action is possible. The Nov 18 digest flags Sunday, Nov 22 as the FDA decision on Capricor's deramiocel for Duchenne. It says the review was extended after a major amendment that narrowed the label to arm impairment in patients over 9, and that an FDA trial inspection left one Form 483 observation. Cash is about $199 million, or roughly 4 to 5 quarters at a $44.7 million quarterly operating loss. Short interest is about 36% of float, the stock is up 5% premarket, and the market cap is about $522 million. The note calls it a squeeze-or-crater setup. The Nov 17 digest lists Sunday, Nov 22 as the FDA decision for Capricor's deramiocel. The Nov 13 digest says Sunday, Nov 22 is the FDA decision on Capricor's deramiocel (CAPR) and calls the review contested. The FDA decision on Sunday, Nov 22 is on Capricor's deramiocel for Duchenne. The note calls it binary for the stock, which is down 69% year to date. First-ever-treatment FDA decision date for Capricor's deramiocel. No rival was named. Reliance and market cap were not stated. The Nov 9 note lists Sunday, Nov 22 as an FDA goal date for Capricor's deramiocel. The Nov 10 digest lists Sunday, Nov 22 as an FDA decision date for deramiocel (Capricor, CAPR).",
+    "status": "happened",
+    "title": "FDA rejects Capricor deramiocel a second time",
+    "summary": "The Nov 23 digest says the FDA rejected deramiocel a second time Friday night, citing serious data-integrity problems in the HOPE-3 trial: unauthorized changes to the analysis plan and blinding breaches. The stock is -75% premarket at $1.86, from $7.59. Cash is $198.5 million, about 12 months of runway. A call is set for Monday, time not yet set. The Nov 20 digest keeps Sunday, Nov 22 as the FDA decision on Capricor's deramiocel for Duchenne. It follows a 2025 rejection on CMC issues and a 9-3 advisory committee vote against in July. The stock is $7.53. The note calls the CRL risk high. The Nov 19 digest keeps Capricor's deramiocel PDUFA on Nov 22 for Duchenne muscular dystrophy and flags it as an early warning, three days out. The stock is about $8 and the estimated market cap is about $470 million. It calls this the second try after a July 2025 complete response letter and a 9-3 negative advisory committee in July on the cardiomyopathy question. The FDA inspection 483 had one observation. Roth puts approval odds at 25%, and Oppenheimer has a $54 price target. Cash was $199 million as of Sep 30 against a third-quarter operating loss of $44.7 million, about four quarters of runway on the note's estimate. Short interest was not verified. The note infers that because Nov 22 is a Sunday, an earlier action is possible. The Nov 18 digest flags Sunday, Nov 22 as the FDA decision on Capricor's deramiocel for Duchenne. It says the review was extended after a major amendment that narrowed the label to arm impairment in patients over 9, and that an FDA trial inspection left one Form 483 observation. Cash is about $199 million, or roughly 4 to 5 quarters at a $44.7 million quarterly operating loss. Short interest is about 36% of float, the stock is up 5% premarket, and the market cap is about $522 million. The note calls it a squeeze-or-crater setup. The Nov 17 digest lists Sunday, Nov 22 as the FDA decision for Capricor's deramiocel. The Nov 13 digest says Sunday, Nov 22 is the FDA decision on Capricor's deramiocel (CAPR) and calls the review contested. The FDA decision on Sunday, Nov 22 is on Capricor's deramiocel for Duchenne. The note calls it binary for the stock, which is down 69% year to date. First-ever-treatment FDA decision date for Capricor's deramiocel. No rival was named. Reliance and market cap were not stated. The Nov 9 note lists Sunday, Nov 22 as an FDA goal date for Capricor's deramiocel. The Nov 10 digest lists Sunday, Nov 22 as an FDA decision date for deramiocel (Capricor, CAPR).",
     "tickers": [
       "CAPR"
     ],
@@ -9652,16 +9665,21 @@
     ],
     "industry": "Pharma/Biotech",
     "event_type": "fda",
-    "key_number": "PDUFA Sun Nov 22; stock $7.53; 2025 rejection on CMC issues; 9-3 adcomm vote against in July; high CRL risk",
-    "price_mentioned": null,
-    "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "key_number": "Rejected Friday night. -75% premarket, from $7.59 to $1.86. HOPE-3 data-integrity CRL. Cash $198.5M, about 12 months of runway",
+    "price_mentioned": {
+      "ticker": "CAPR",
+      "price": 1.86
+    },
+    "move_pct": -75,
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-22-savara-molgramostim",
       "2026-11-25-sny-venglustat",
-      "2026-11-27-bridgebio-bbp418"
+      "2026-11-27-bridgebio-bbp418",
+      "2026-11-23-earnings",
+      "2026-11-23-futures"
     ],
-    "connection_notes": "Nov 20 digest. Status stays upcoming. The earlier about-$8 price stays in the older text. This note's price is $7.53. Nov 9 digest restates the Nov 22 goal date and gives the CAPR ticker. Nov 10 digest restates the Nov 22 decision date. Prior key number: Nov 22 FDA goal date: Capricor's deramiocel. Nov 11 digest. The 69% figure is year to date, not a one-day move, so move_pct stays unset. Prior key number: Nov 22 FDA decision on deramiocel for Duchenne; stock down 69% YTD. Nov 13 digest. Nov 17 digest. Status stays upcoming. Prior key number: Nov 22 FDA decision on deramiocel; contested review. Nov 18 digest. Nov 18 digest. The decision is still ahead, so this stays upcoming. The +5% is premarket and the row also carries the review facts, so move_pct stays unset. The sourced binary-bets card keeps the filing cash and the FINRA short-interest print. Nov 19 digest. Status stays upcoming. The Sunday-earlier-action line is the note's inference. The earlier about-$522 million market cap and about-36% short interest stay in the older text. This note does not verify short interest.",
+    "connection_notes": "Nov 20 digest. Status stays upcoming. The earlier about-$8 price stays in the older text. This note's price is $7.53. Nov 9 digest restates the Nov 22 goal date and gives the CAPR ticker. Nov 10 digest restates the Nov 22 decision date. Prior key number: Nov 22 FDA goal date: Capricor's deramiocel. Nov 11 digest. The 69% figure is year to date, not a one-day move, so move_pct stays unset. Prior key number: Nov 22 FDA decision on deramiocel for Duchenne; stock down 69% YTD. Nov 13 digest. Nov 17 digest. Status stays upcoming. Prior key number: Nov 22 FDA decision on deramiocel; contested review. Nov 18 digest. Nov 18 digest. The decision is still ahead, so this stays upcoming. The +5% is premarket and the row also carries the review facts, so move_pct stays unset. The sourced binary-bets card keeps the filing cash and the FINRA short-interest print. Nov 19 digest. Status stays upcoming. The Sunday-earlier-action line is the note's inference. The earlier about-$522 million market cap and about-36% short interest stay in the older text. This note does not verify short interest. Nov 23 digest. The -75% is Monday premarket. The rejection was Friday night, so this row is dated Nov 20.",
     "graph_node": {
       "label": "Capricor",
       "drug": "deramiocel",
@@ -9680,7 +9698,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "PDUFA: BridgeBio BBP-418",
-    "summary": "The Nov 20 digest keeps Friday, Nov 27 as the FDA decision on BridgeBio's BBP-418 for LGMD2I, under priority review with no advisory committee, and says the company is launch-ready. The Nov 18 digest keeps Friday, Nov 27 as the FDA decision for BridgeBio's BBP-418 in limb-girdle muscular dystrophy type 2I, under priority review. GSK and Nuvalent's neladalkib, which had shared that date, was approved early. The Nov 17 digest lists Friday, Nov 27 as FDA decisions for BridgeBio's BBP-418 and for GSK's neladalkib. The Nov 13 digest says Friday, Nov 27 is the FDA decision on BridgeBio's BBP-418 (BBIO). First-ever-treatment FDA decision date for BridgeBio's BBP-418. No rival was named. Reliance and market cap were not stated.",
+    "summary": "The Nov 23 digest keeps Friday, Nov 27 as the BBP-418 decision under priority review and says the company is launch-ready with about 16 quarters of cash. The Nov 20 digest keeps Friday, Nov 27 as the FDA decision on BridgeBio's BBP-418 for LGMD2I, under priority review with no advisory committee, and says the company is launch-ready. The Nov 18 digest keeps Friday, Nov 27 as the FDA decision for BridgeBio's BBP-418 in limb-girdle muscular dystrophy type 2I, under priority review. GSK and Nuvalent's neladalkib, which had shared that date, was approved early. The Nov 17 digest lists Friday, Nov 27 as FDA decisions for BridgeBio's BBP-418 and for GSK's neladalkib. The Nov 13 digest says Friday, Nov 27 is the FDA decision on BridgeBio's BBP-418 (BBIO). First-ever-treatment FDA decision date for BridgeBio's BBP-418. No rival was named. Reliance and market cap were not stated.",
     "tickers": [
       "BBIO"
     ],
@@ -9689,15 +9707,16 @@
     ],
     "industry": "Pharma/Biotech",
     "event_type": "fda",
-    "key_number": "FDA decision Fri Nov 27; BBP-418 for LGMD2I; priority review; no adcomm; company says launch-ready",
+    "key_number": "FDA decision Fri Nov 27. Priority review. Launch-ready. About 16 quarters of cash",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-22-capricor-deramiocel",
-      "2026-11-27-gsk-neladalkib"
+      "2026-11-27-gsk-neladalkib",
+      "2026-11-27-early-close"
     ],
-    "connection_notes": "Nov 20 digest. Status stays upcoming. Prior key number: First-ever-treatment PDUFA Nov 27, 2026. Nov 13 digest. Nov 17 digest. GSK's neladalkib is the linked same-day decision. Status stays upcoming. Prior key number: FDA decision Nov 27 on BridgeBio BBP-418 (BBIO). Nov 18 digest. Nov 18 digest. BBP-418 is still ahead, so this stays upcoming. Neladalkib is now the linked happened approval.",
+    "connection_notes": "Nov 20 digest. Status stays upcoming. Prior key number: First-ever-treatment PDUFA Nov 27, 2026. Nov 13 digest. Nov 17 digest. GSK's neladalkib is the linked same-day decision. Status stays upcoming. Prior key number: FDA decision Nov 27 on BridgeBio BBP-418 (BBIO). Nov 18 digest. Nov 18 digest. BBP-418 is still ahead, so this stays upcoming. Neladalkib is now the linked happened approval. Nov 23 digest.",
     "graph_node": {
       "label": "BridgeBio",
       "drug": "BBP-418",
@@ -11152,7 +11171,8 @@
     "move_pct": null,
     "source_digest_date": "2026-11-03",
     "related_ids": [
-      "2026-11-02-crwd-rivn-upgrades"
+      "2026-11-02-crwd-rivn-upgrades",
+      "2026-11-23-crwd-zs"
     ],
     "connection_notes": "Tuesday deals. No stock moves were stated. Cresta's price is reported, not confirmed as closed. CrowdStrike's Monday upgrade is the linked item."
   },
@@ -11291,7 +11311,8 @@
       "2026-11-05-orcl-tencent-lease",
       "2026-11-05-ai-cds-attrition",
       "2026-11-05-nasdaq-correction",
-      "2026-11-04-texas-moratorium"
+      "2026-11-04-texas-moratorium",
+      "2026-11-20-orcl"
     ],
     "connection_notes": "Forward plan from the same note as Monday's priced deal. OpenAI's raise and CoreWeave's Nov 10 report are the other financing links. The older debt stock is the linked Oracle debt item. No calendar day was given for the cash-flow turn, so this stays on the note date. Nov 4 digest: the path is vendor financing, customer-supplied hardware and prepayments, and capex peaks this fiscal year and next. Free cash flow turning positive in the second half of FY2028 was already on this row. Prior key number: Final raise of the cycle; spending peaks FY27-28; FCF positive 2H FY2028; about $125B senior debt. Nov 6 digest. No Thursday percent was stated for Oracle, so move_pct stays unset. The earlier $20B stock-and-bond raise stays on the linked offering item. This note's words are a $20B ATM equity raise."
   },
@@ -12644,7 +12665,7 @@
     "date_precision": "day",
     "status": "developing",
     "title": "Tariff repeal looks blocked; Section 301 probe stays open",
-    "summary": "A near-term tariff repeal is unlikely, because a veto override needs 67 senators and 290 House votes. An open Section 301 probe on excess industrial capacity could still yield new duties on China, India, Vietnam, and others. The election does not stop that probe. The Nov 6 note says tariffs stay mostly executive-led. Analysts expect little near-term repeal, more oversight, and harder new tariff shocks.",
+    "summary": "The Nov 23 digest says USTR's Greer says the Section 301 overcapacity probes into 16 economies, including China, the EU, Japan, Korea, Taiwan, Mexico, and Vietnam, will certainly finish by year-end. A near-term tariff repeal is unlikely, because a veto override needs 67 senators and 290 House votes. An open Section 301 probe on excess industrial capacity could still yield new duties on China, India, Vietnam, and others. The election does not stop that probe. The Nov 6 note says tariffs stay mostly executive-led. Analysts expect little near-term repeal, more oversight, and harder new tariff shocks.",
     "tickers": [],
     "companies": [
       "China",
@@ -12653,16 +12674,17 @@
     ],
     "industry": "Policy",
     "event_type": "policy",
-    "key_number": "Tariffs stay mostly executive-led; little near-term repeal; more oversight and harder new tariff shocks",
+    "key_number": "Greer: Section 301 overcapacity probes of 16 economies will certainly finish by year-end",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-06",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-03-midterms",
       "2026-10-22-mexico-steel-tariffs",
-      "2026-11-02-defense-budget"
+      "2026-11-02-defense-budget",
+      "2027-01-us-china-truce"
     ],
-    "connection_notes": "Developing because the probe is open and no new duty has been announced. The sweep is the linked election result. Prior key number: Veto override needs 67 senators and 290 House votes; Section 301 excess-capacity probe still open. Nov 6 digest. Defense funding and Iran war appropriations are the linked defense item, not a second tariff row."
+    "connection_notes": "Developing because the probe is open and no new duty has been announced. The sweep is the linked election result. Prior key number: Veto override needs 67 senators and 290 House votes; Section 301 excess-capacity probe still open. Nov 6 digest. Defense funding and Iran war appropriations are the linked defense item, not a second tariff row. Nov 23 digest."
   },
   {
     "id": "2026-11-05-openai-dc-compact",
@@ -13654,7 +13676,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "FOMC Dec 8-9, about 98% odds of a hike",
-    "summary": "The Nov 20 digest says FedWatch puts the odds of a December hike at about 98%. The Nov 19 digest says FedWatch shows about 95% odds of a 25 bp hike on Dec 9 and only about 5% to 8% for 50 bp. Roughly 61 bp of hikes is priced over three meetings. Waller is pushing 50 bp. The meeting is Tuesday and Wednesday, Dec 8-9. The note calls that a higher-for-longer cost of capital for leveraged AI builders. The Nov 18 digest says a hike on Dec 9 is fully priced and the size is in question. Futures fully price 25 bp. Waller says a 50 bp hike is probably necessary unless the Fed signals a January move. Musalem floated as many as four hikes by spring 2027. Williams said no dramatic action. Today's minutes and the Nov 25 PCE decide December's size. The Nov 17 digest says CME FedWatch prices a 100% chance of a rate hike at the December meeting. The coming-up line restates that futures price a 100% chance of a hike on Dec 9. The Nov 13 digest says CME FedWatch prices a 100% chance of a hike at the Dec 9 meeting, about 87% for 25 bp, and that a 50 bp move is the tail risk for rate-sensitive stocks. NY Fed's John Williams said more hikes are likely to get inflation back down. The Nov 12 digest frames the December decision as a choice between a 25 and a 50 bp hike. The November jobs report on Dec 4 and the funding deadline on Dec 11 sit just past the two-week window. The Nov 11 digest says a hike is about 88% priced for the Dec 8-9 meeting, with the decision at 2:00 PM ET on Dec 9. Governor Waller favors a December rate hike, and the core CPI print met his bar for considering a half-point move. The FOMC meets Dec 8-9 with the Summary of Economic Projections. The decision is typically Wednesday, Dec 9, around 2 PM. FedWatch on Nov 5 showed about an 80.7% chance of at least a 25 bp hike, up from 77.4%. Friday's jobs report and Nov 10 CPI are the main inputs. The Nov 6 note says the next meeting is Dec 8-9 and that markets currently lean toward another hike if the data stay hot. The Nov 9 note puts the meeting on Dec 8-9 with hike odds about 77%. The same morning note says October payrolls pushed those odds to roughly 77% to 80%. The Nov 10 digest says markets price better than 80% odds of a quarter-point rate hike on Dec 8-9. A hot CPI print hurts high-valuation tech most.",
+    "summary": "The Nov 23 digest says FedWatch puts the odds of a December hike at about 96%. The FOMC meets Dec 8-9. The Nov 20 digest says FedWatch puts the odds of a December hike at about 98%. The Nov 19 digest says FedWatch shows about 95% odds of a 25 bp hike on Dec 9 and only about 5% to 8% for 50 bp. Roughly 61 bp of hikes is priced over three meetings. Waller is pushing 50 bp. The meeting is Tuesday and Wednesday, Dec 8-9. The note calls that a higher-for-longer cost of capital for leveraged AI builders. The Nov 18 digest says a hike on Dec 9 is fully priced and the size is in question. Futures fully price 25 bp. Waller says a 50 bp hike is probably necessary unless the Fed signals a January move. Musalem floated as many as four hikes by spring 2027. Williams said no dramatic action. Today's minutes and the Nov 25 PCE decide December's size. The Nov 17 digest says CME FedWatch prices a 100% chance of a rate hike at the December meeting. The coming-up line restates that futures price a 100% chance of a hike on Dec 9. The Nov 13 digest says CME FedWatch prices a 100% chance of a hike at the Dec 9 meeting, about 87% for 25 bp, and that a 50 bp move is the tail risk for rate-sensitive stocks. NY Fed's John Williams said more hikes are likely to get inflation back down. The Nov 12 digest frames the December decision as a choice between a 25 and a 50 bp hike. The November jobs report on Dec 4 and the funding deadline on Dec 11 sit just past the two-week window. The Nov 11 digest says a hike is about 88% priced for the Dec 8-9 meeting, with the decision at 2:00 PM ET on Dec 9. Governor Waller favors a December rate hike, and the core CPI print met his bar for considering a half-point move. The FOMC meets Dec 8-9 with the Summary of Economic Projections. The decision is typically Wednesday, Dec 9, around 2 PM. FedWatch on Nov 5 showed about an 80.7% chance of at least a 25 bp hike, up from 77.4%. Friday's jobs report and Nov 10 CPI are the main inputs. The Nov 6 note says the next meeting is Dec 8-9 and that markets currently lean toward another hike if the data stay hot. The Nov 9 note puts the meeting on Dec 8-9 with hike odds about 77%. The same morning note says October payrolls pushed those odds to roughly 77% to 80%. The Nov 10 digest says markets price better than 80% odds of a quarter-point rate hike on Dec 8-9. A hot CPI print hurts high-valuation tech most.",
     "tickers": [
       "SPY",
       "QQQ"
@@ -13665,10 +13687,10 @@
     ],
     "industry": "Macro",
     "event_type": "fed",
-    "key_number": "FedWatch December hike about 98%; meeting Dec 8-9",
+    "key_number": "FedWatch December hike about 96%; FOMC meets Dec 8-9",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-05-dollar-fedwatch",
       "2026-11-05-boe-hike",
@@ -13696,9 +13718,10 @@
       "2026-11-19-fed-speakers",
       "2026-11-20-yields",
       "2026-11-20-paulson",
-      "2026-11-20-fed-speakers"
+      "2026-11-20-fed-speakers",
+      "2026-11-23-pmi-williams"
     ],
-    "connection_notes": "Nov 20 digest. The 98% figure is a hike, and this note does not split 25 bp from 50 bp. The older 95% line stays in the text. Status stays upcoming. The meeting spans Dec 8-9. The date is the usual decision day. The odds row, the Bank of England hike, jobs, and CPI are linked. Prior key number: Decision typically Dec 9 around 2 PM; FedWatch about 80.7% for at least a 25 bp hike. Nov 6 digest. The earlier FedWatch figure stays in the summary. No new odds percentage was given on this line. Nov 9 digest. The meeting still spans Dec 8-9 and the row stays on the usual decision day. Prior key number: Dec 8-9 meeting; markets lean toward another hike if the data stay hot. Nov 10 digest. The meeting still spans Dec 8-9 and the row stays on the usual decision day. CPI, Goolsbee and PPI are linked. Prior odds stay in the summary. Prior key number: Dec 8-9; quarter-point hike odds better than 80%. Nov 11 digest. The 88% figure is from LSEG. Waller and October CPI are linked. The meeting still spans Dec 8-9 and the row stays on the decision day. Nov 12 digest. No new odds percentage was stated. The earlier about-88% figure stays in the summary. Jobs and the funding deadline are linked. Prior key number: Dec 8-9 decision on a 25 vs 50 bp hike; November jobs Dec 4; funding deadline Dec 11. Nov 13 digest. Prior key number: Dec 9 hike 100% priced; about 87% for 25 bp; 50 bp is the tail risk. Nov 17 digest. The new note states a 100% chance of a hike and does not restate the 25 bp split. That earlier split stays in the summary. Prior key number: Dec 9; futures price a 100% chance of a hike. Nov 18 digest. Nov 18 digest. The meeting is still ahead, so this stays upcoming. Nov 19 digest. Status stays upcoming. The earlier 100% wording stays in the older text. This note's odds are about 95% for 25 bp."
+    "connection_notes": "Nov 20 digest. The 98% figure is a hike, and this note does not split 25 bp from 50 bp. The older 95% line stays in the text. Status stays upcoming. The meeting spans Dec 8-9. The date is the usual decision day. The odds row, the Bank of England hike, jobs, and CPI are linked. Prior key number: Decision typically Dec 9 around 2 PM; FedWatch about 80.7% for at least a 25 bp hike. Nov 6 digest. The earlier FedWatch figure stays in the summary. No new odds percentage was given on this line. Nov 9 digest. The meeting still spans Dec 8-9 and the row stays on the usual decision day. Prior key number: Dec 8-9 meeting; markets lean toward another hike if the data stay hot. Nov 10 digest. The meeting still spans Dec 8-9 and the row stays on the usual decision day. CPI, Goolsbee and PPI are linked. Prior odds stay in the summary. Prior key number: Dec 8-9; quarter-point hike odds better than 80%. Nov 11 digest. The 88% figure is from LSEG. Waller and October CPI are linked. The meeting still spans Dec 8-9 and the row stays on the decision day. Nov 12 digest. No new odds percentage was stated. The earlier about-88% figure stays in the summary. Jobs and the funding deadline are linked. Prior key number: Dec 8-9 decision on a 25 vs 50 bp hike; November jobs Dec 4; funding deadline Dec 11. Nov 13 digest. Prior key number: Dec 9 hike 100% priced; about 87% for 25 bp; 50 bp is the tail risk. Nov 17 digest. The new note states a 100% chance of a hike and does not restate the 25 bp split. That earlier split stays in the summary. Prior key number: Dec 9; futures price a 100% chance of a hike. Nov 18 digest. Nov 18 digest. The meeting is still ahead, so this stays upcoming. Nov 19 digest. Status stays upcoming. The earlier 100% wording stays in the older text. This note's odds are about 95% for 25 bp. Nov 23 digest."
   },
   {
     "id": "2026-11-04-vance-war",
@@ -16214,7 +16237,8 @@
       "2026-11-10-nvda-slide",
       "2026-11-12-nvda-premarket",
       "2026-11-12-nvda-huang-resigns",
-      "2026-11-17-megaspeed"
+      "2026-11-17-megaspeed",
+      "2026-11-20-nvda"
     ],
     "connection_notes": "Still developing. Trump's comments, the San Jose class action, Monday's close and the Nov 17 report are linked. Prior key number: Stephen Neal is lead independent director. Nov 11 digest. Still developing. Tuesday's drop, the premarket bounce and the Nov 17 report are linked. No new share price is on this row. Nov 12 digest. This stays the open succession, which the note lists as still in the works. Thursday's premarket drop is the linked tape. The earlier Joon Kim and Wachtell hire stays in the summary. The resignation happened, and the search is still open, so this stays developing. Thursday's close is the linked happened item. Prior key number: Outside successor search underway; Ian Buck and the CFO named as likely candidates; no decision announced. Nov 13 digest. Prior key number: Kress interim; outside CEO search still open after Huang resigned. Nov 17 digest. Still developing. The row stays on Nov 10, where this search was logged. Wednesday's employee meeting is Nov 18. Prior key number: Wachtell probe continues; board is not bringing Huang back; Kress employee meeting Wednesday; permanent CEO still open. Nov 18 digest. Nov 18 digest. The search is still open, so this stays developing. The row stays on Nov 10, where the search was logged."
   },
@@ -16532,7 +16556,8 @@
       "2026-11-19-treasuries",
       "2026-11-19-close",
       "2026-11-20-futures",
-      "2026-11-12-wulf-anthropic"
+      "2026-11-12-wulf-anthropic",
+      "2026-11-20-ant"
     ],
     "connection_notes": "Nov 20 digest. The debut is in, so this stays happened. move_pct is the close versus the IPO price. The -9.6% is Friday premarket. The coming-up line groups the first trade with Walmart's earnings and the GTA VI release. The terms and the Nov 18 pricing are linked. No open price was stated. Prior key number: Expected to start trading Nov 19. Nov 11 digest. Walmart, Alibaba and NetEase earnings are the same morning. The Nov 18 pricing is linked. Nov 12 digest adds around midday. Walmart, Alibaba and Intuit report the same day, and jobless claims are out. Nov 13 digest. Nov 17 digest. The first trade is still ahead, so this stays upcoming. PDD, Ross and Gap are new on the same-day list. Prior key number: ANT starts trading on Nasdaq around midday Nov 19. Nov 18 digest. Nov 18 digest. The first trade is still ahead, so this stays upcoming. Nov 19 digest. The debut is today's first trade, so this is happened. The 25% figure is a perpetual-futures indication, not a print, so move_pct stays empty."
   },
@@ -17704,7 +17729,8 @@
       "2026-11-19-pdd",
       "2026-11-19-trump-xi-putin",
       "2026-11-18-tencent-earnings",
-      "2026-11-20-asia"
+      "2026-11-20-asia",
+      "2026-11-23-vnet"
     ],
     "connection_notes": "Nov 20 digest. The report stays happened. The +3.9% is Friday in Hong Kong. The stored -1.7% remains the earlier US premarket figure in the older text. No consensus figure was stated. This is the earnings report, not the T-Head listing. Anthropic's first trade, Walmart and NetEase are the same morning. Nov 17 digest. The earnings report is still ahead, so this stays upcoming. The Hong Kong drop is on the linked tape, and the 5.6% figure is an intraday 'as much as' move, so move_pct stays unset. Prior key number: Before the open Nov 19. Nov 18 digest. Nov 18 digest. Status stays upcoming. Nov 19 digest. The report is in, so this is happened. The -1.7% is the premarket move."
   },
@@ -17789,21 +17815,24 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "Thanksgiving; US markets closed",
-    "summary": "The Nov 20 digest keeps Thursday, Nov 26 as Thanksgiving, with US markets closed. Thursday, Nov 26 is Thanksgiving, and US markets are closed.",
+    "summary": "The Nov 23 digest says Thanksgiving week has markets closed Thursday and a 1:00 close on Friday. The Nov 20 digest keeps Thursday, Nov 26 as Thanksgiving, with US markets closed. Thursday, Nov 26 is Thanksgiving, and US markets are closed.",
     "tickers": [],
     "companies": [
       "US markets"
     ],
     "industry": "Macro",
     "event_type": "other",
-    "key_number": "US markets closed",
+    "key_number": "Closed Thursday Nov 26; 1:00 close Friday Nov 27",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
-      "2026-11-25-pce-gdp"
+      "2026-11-25-pce-gdp",
+      "2026-11-23-futures",
+      "2026-11-23-gas",
+      "2026-11-27-early-close"
     ],
-    "connection_notes": "Nov 20 digest. Status stays upcoming."
+    "connection_notes": "Nov 20 digest. Status stays upcoming. Nov 23 digest."
   },
   {
     "id": "2026-12-04-jobs",
@@ -18811,25 +18840,27 @@
     "id": "2026-11-20-umich",
     "date": "2026-11-20",
     "date_precision": "day",
-    "status": "upcoming",
-    "title": "UMich final November sentiment at 10:00",
-    "summary": "The Nov 20 digest says the final November University of Michigan sentiment reading is out at 10:00, the preliminary reading was 51.0 with 1-year inflation expectations at 4.3%, and gas is now under $4. The Nov 19 digest says the preliminary University of Michigan sentiment reading is Friday, Nov 20. Earlier notes in this row called the same morning the final November reading at 10 am. The Nov 17 digest restates final November consumer sentiment at 10 am on Friday, Nov 20. The Nov 13 digest says November consumer sentiment is at 10 AM ET on Friday, Nov 20. The final November University of Michigan consumer sentiment reading is released at 10am on Friday, Nov 20.",
+    "status": "happened",
+    "title": "UMich final sentiment 51.5; inflation expectations 3.7%",
+    "summary": "The Nov 23 digest says the final University of Michigan reading was 51.5, and 1-year inflation expectations fell to 3.7% from 4.3%. The Nov 20 digest says the final November University of Michigan sentiment reading is out at 10:00, the preliminary reading was 51.0 with 1-year inflation expectations at 4.3%, and gas is now under $4. The Nov 19 digest says the preliminary University of Michigan sentiment reading is Friday, Nov 20. Earlier notes in this row called the same morning the final November reading at 10 am. The Nov 17 digest restates final November consumer sentiment at 10 am on Friday, Nov 20. The Nov 13 digest says November consumer sentiment is at 10 AM ET on Friday, Nov 20. The final November University of Michigan consumer sentiment reading is released at 10am on Friday, Nov 20.",
     "tickers": [],
     "companies": [
       "University of Michigan"
     ],
     "industry": "Macro",
     "event_type": "macro_data",
-    "key_number": "Final November sentiment at 10:00; preliminary was 51.0; 1-year inflation expectations 4.3%; gas under $4",
+    "key_number": "Final sentiment 51.5; 1-year inflation expectations 3.7%, down from 4.3%",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-20-opex",
       "2026-11-20-offerings-close",
-      "2026-11-20-fed-speakers"
+      "2026-11-20-fed-speakers",
+      "2026-11-23-pmi-williams",
+      "2026-11-23-gas"
     ],
-    "connection_notes": "Nov 20 digest. The 10:00 release is still ahead, so this stays upcoming. This note calls that release the final reading. The 51.0 figure is the preliminary reading. No consensus figure was stated. Monthly options expiration is the same day. Nov 13 digest. Nov 17 digest. Status stays upcoming. Nov 19 digest. Status stays upcoming. The preliminary wording is this note. The final wording is what earlier notes said."
+    "connection_notes": "Nov 20 digest. The 10:00 release is still ahead, so this stays upcoming. This note calls that release the final reading. The 51.0 figure is the preliminary reading. No consensus figure was stated. Monthly options expiration is the same day. Nov 13 digest. Nov 17 digest. Status stays upcoming. Nov 19 digest. Status stays upcoming. The preliminary wording is this note. The final wording is what earlier notes said. Nov 23 digest."
   },
   {
     "id": "2026-11-30-msci",
@@ -19698,7 +19729,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "FDA decision: Cogent bezuclastinib in GIST",
-    "summary": "The Nov 20 digest says Monday, Nov 30 is confirmed as the FDA decision for Cogent's bezuclastinib in GIST, a second decision in non-advanced systemic mastocytosis is Dec 30, and Cogent presented at UBS on Nov 17. The Nov 18 digest says Monday, Nov 30 is the FDA decision for Cogent's bezuclastinib in GIST. That date covers GIST only. The non-advanced systemic mastocytosis decision is Dec 30. The Nov 17 digest restates Monday, Nov 30 as the FDA decision for Cogent's bezuclastinib, the same day as Vertex and Zai Lab's povetacicept. Monday, Nov 30 is an FDA decision date for Cogent's bezuclastinib, the same day as Vertex's povetacicept decision and MSCI's removal of Strategy.",
+    "summary": "The Nov 23 digest lists Cogent's bezuclastinib decisions as Nov 30 for GIST and Dec 30 for AdvSM. The Nov 20 digest says Monday, Nov 30 is confirmed as the FDA decision for Cogent's bezuclastinib in GIST, a second decision in non-advanced systemic mastocytosis is Dec 30, and Cogent presented at UBS on Nov 17. The Nov 18 digest says Monday, Nov 30 is the FDA decision for Cogent's bezuclastinib in GIST. That date covers GIST only. The non-advanced systemic mastocytosis decision is Dec 30. The Nov 17 digest restates Monday, Nov 30 as the FDA decision for Cogent's bezuclastinib, the same day as Vertex and Zai Lab's povetacicept. Monday, Nov 30 is an FDA decision date for Cogent's bezuclastinib, the same day as Vertex's povetacicept decision and MSCI's removal of Strategy.",
     "tickers": [
       "COGT"
     ],
@@ -19707,16 +19738,16 @@
     ],
     "industry": "Pharma/Biotech",
     "event_type": "fda",
-    "key_number": "GIST decision Nov 30 confirmed; NonAdvSM decision Dec 30; presented at UBS on Nov 17",
+    "key_number": "Nov 23 digest: Nov 30 GIST and Dec 30 AdvSM",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-30-vrtx-povetacicept",
       "2026-11-30-msci",
       "2026-12-03-exel-zanzalintinib"
     ],
-    "connection_notes": "Nov 20 digest. Status stays upcoming. The Dec 30 date stays in this summary. The binary-bets file has the separate mastocytosis card. No review outcome or stock move was stated. Vertex's decision and the MSCI removal are the same day. Nov 17 digest. Status stays upcoming. Prior key number: FDA decision Nov 30 on bezuclastinib. Nov 18 digest. Nov 18 digest. The Nov 30 row is GIST only. Non-advanced systemic mastocytosis stays on Dec 30 in the binary-bets file. Status stays upcoming."
+    "connection_notes": "Nov 20 digest. Status stays upcoming. The Dec 30 date stays in this summary. The binary-bets file has the separate mastocytosis card. No review outcome or stock move was stated. Vertex's decision and the MSCI removal are the same day. Nov 17 digest. Status stays upcoming. Prior key number: FDA decision Nov 30 on bezuclastinib. Nov 18 digest. Nov 18 digest. The Nov 30 row is GIST only. Non-advanced systemic mastocytosis stays on Dec 30 in the binary-bets file. Status stays upcoming. Nov 23 digest."
   },
   {
     "id": "2026-11-16-ai-selloff",
@@ -20051,7 +20082,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "US-China trade truce expires Jan 10",
-    "summary": "The Nov 20 digest says the two sides agreed to draft a Board of Trade action plan, a 30-for-30 tariff framework, and there is no truce extension yet ahead of Jan 10. The Nov 19 digest says the trade truce still expires Jan 10 and no extension was announced. The Shenzhen talks centered on a Board of Trade 30-for-30 tariff framework covering about $30 billion of imports each way. Xi is expected in Florida for the G20 in December. The Nov 18 digest says the US-China truce expires in January, and an extension plus a rare-earths deal are on the table at the Shenzhen meetings Thursday. Trump wants a truce beyond January. The US-China trade truce expires in January. Soybean growers are pushing to drop the remaining 10% China tariff. The note says to watch for an extension at APEC. It names soybeans, Boeing and retail importers.",
+    "summary": "The Nov 23 digest says extending the China truce past Jan 10 depends on rare-earth deliveries. The Nov 20 digest says the two sides agreed to draft a Board of Trade action plan, a 30-for-30 tariff framework, and there is no truce extension yet ahead of Jan 10. The Nov 19 digest says the trade truce still expires Jan 10 and no extension was announced. The Shenzhen talks centered on a Board of Trade 30-for-30 tariff framework covering about $30 billion of imports each way. Xi is expected in Florida for the G20 in December. The Nov 18 digest says the US-China truce expires in January, and an extension plus a rare-earths deal are on the table at the Shenzhen meetings Thursday. Trump wants a truce beyond January. The US-China trade truce expires in January. Soybean growers are pushing to drop the remaining 10% China tariff. The note says to watch for an extension at APEC. It names soybeans, Boeing and retail importers.",
     "tickers": [
       "BA"
     ],
@@ -20060,16 +20091,17 @@
     ],
     "industry": "Geopolitics",
     "event_type": "geopolitics",
-    "key_number": "Board of Trade action plan still to be drafted; 30-for-30 tariff framework; no truce extension ahead of Jan 10",
+    "key_number": "Extending the truce past Jan 10 depends on rare-earth deliveries",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-19-trump-xi-putin",
       "2026-11-17-china-chip-licenses",
-      "2026-11-17-bis-rule"
+      "2026-11-17-bis-rule",
+      "2026-11-05-section-301"
     ],
-    "connection_notes": "Nov 20 digest. The Jan 10 date has not moved, so this stays upcoming. The Shenzhen declaration is the linked happened item. January is a month, not a day, so the date is the first of the month and the precision is month. The reported Nov 19 summit is the linked item. Status stays developing. Prior key number: Truce expires in January; growers want the remaining 10% China tariff dropped. Nov 18 digest. Nov 18 digest. January is still a month, so the precision stays month and the status stays developing. Nov 19 digest. The expiry is now a day, Jan 10, so this is upcoming on that day. The earlier January-month wording stays in the older text."
+    "connection_notes": "Nov 20 digest. The Jan 10 date has not moved, so this stays upcoming. The Shenzhen declaration is the linked happened item. January is a month, not a day, so the date is the first of the month and the precision is month. The reported Nov 19 summit is the linked item. Status stays developing. Prior key number: Truce expires in January; growers want the remaining 10% China tariff dropped. Nov 18 digest. Nov 18 digest. January is still a month, so the precision stays month and the status stays developing. Nov 19 digest. The expiry is now a day, Jan 10, so this is upcoming on that day. The earlier January-month wording stays in the older text. Nov 23 digest."
   },
   {
     "id": "2026-11-16-pltr-nhs",
@@ -20132,7 +20164,8 @@
       "2026-11-16-neoclouds",
       "2026-11-02-datacenter-power-bill",
       "2026-11-16-ai-selloff",
-      "2026-11-17-orcl-close"
+      "2026-11-17-orcl-close",
+      "2026-11-20-orcl"
     ],
     "connection_notes": "move_pct is Monday's about 5% drop. The around-$120 level is the stated price. The 44% figure is the decline from the $250 high, not Monday's move. The guarantee demand is also the linked developing lease item. The Nov 18 meeting is linked."
   },
@@ -20786,26 +20819,30 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "Dell reports Q3 fiscal 2027 after the close",
-    "summary": "The Nov 20 digest keeps Dell on Tuesday, Nov 24 as a check on the AI-server backlog, with Analog Devices and Medtronic before the open and HP later the same day. The Nov 19 digest keeps Dell's fiscal Q3 2027 report after the close on Tuesday, Nov 24, and calls it an AI server backlog check. The Nov 18 digest says Dell expanded its AI Factory with Nvidia at Supercomputing 2026, ahead of earnings after the close on Nov 24. The note calls that report a read on AI servers and enterprise AI. Dell reports Q3 fiscal 2027 earnings after the close on Tuesday, Nov 24. The note calls it a key read on AI servers and enterprise AI demand.",
+    "summary": "The Nov 23 digest says Dell reports Tuesday after the close, with EPS of $6.63 expected on $50.63 billion of revenue, and calls it the AI-server test. Workday, Autodesk, and HP report after the close the same day. The Nov 20 digest keeps Dell on Tuesday, Nov 24 as a check on the AI-server backlog, with Analog Devices and Medtronic before the open and HP later the same day. The Nov 19 digest keeps Dell's fiscal Q3 2027 report after the close on Tuesday, Nov 24, and calls it an AI server backlog check. The Nov 18 digest says Dell expanded its AI Factory with Nvidia at Supercomputing 2026, ahead of earnings after the close on Nov 24. The note calls that report a read on AI servers and enterprise AI. Dell reports Q3 fiscal 2027 earnings after the close on Tuesday, Nov 24. The note calls it a key read on AI servers and enterprise AI demand.",
     "tickers": [
       "DELL"
     ],
     "companies": [
-      "Dell"
+      "Dell",
+      "Workday",
+      "Autodesk",
+      "HP"
     ],
     "industry": "AI/Cloud",
     "event_type": "earnings",
-    "key_number": "Dell Nov 24, a check on the AI-server backlog; ADI and MDT before the open; HPQ later the same day",
+    "key_number": "Dell after the close Nov 24: EPS $6.63 on $50.63B, the AI-server test. Workday, Autodesk, and HP also after the close",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-17-nvda-earnings",
       "2026-11-24-cost-record",
       "2026-11-18-amd-dell",
-      "2026-11-24-adi-mdt-hpq"
+      "2026-11-24-adi-mdt-hpq",
+      "2026-11-24-confidence"
     ],
-    "connection_notes": "Nov 20 digest. Status stays upcoming. ADI, Medtronic and HP are the linked same-day row. No consensus figure was stated. Nvidia's report is the linked AI-demand item. Costco's record date is the same day. Nov 18 digest. Earnings are still ahead, so this stays upcoming. Nov 19 digest. Status stays upcoming."
+    "connection_notes": "Nov 20 digest. Status stays upcoming. ADI, Medtronic and HP are the linked same-day row. No consensus figure was stated. Nvidia's report is the linked AI-demand item. Costco's record date is the same day. Nov 18 digest. Earnings are still ahead, so this stays upcoming. Nov 19 digest. Status stays upcoming. Nov 23 digest."
   },
   {
     "id": "2026-11-27-gsk-neladalkib",
@@ -20864,7 +20901,7 @@
     "date_precision": "day",
     "status": "upcoming",
     "title": "SpaceX lock-up can unlock up to 797.6 million shares on Dec 8",
-    "summary": "The Nov 20 digest says SpaceX has an AI compute buildout plan, Bernstein is at Outperform with a $268 target, and the lock-up overhang hits Dec 8. The Nov 19 digest says the SpaceX 180-day lock-up on Tuesday, Dec 8 can unlock up to 797.6 million shares, and that the unlock is conditional per the prospectus. The note calls it a supply overhang. SpaceX's lock-up expires Tuesday, Dec 8, with up to about 797.6 million shares becoming sellable.",
+    "summary": "The Nov 23 digest says SpaceX closed Friday at $127.79, below its $135 IPO price, with the GPU buildout on about $44 billion of new debt. The lock-up expires Dec 8. The Nov 20 digest says SpaceX has an AI compute buildout plan, Bernstein is at Outperform with a $268 target, and the lock-up overhang hits Dec 8. The Nov 19 digest says the SpaceX 180-day lock-up on Tuesday, Dec 8 can unlock up to 797.6 million shares, and that the unlock is conditional per the prospectus. The note calls it a supply overhang. SpaceX's lock-up expires Tuesday, Dec 8, with up to about 797.6 million shares becoming sellable.",
     "tickers": [
       "SPCX"
     ],
@@ -20873,18 +20910,20 @@
     ],
     "industry": "Space",
     "event_type": "lockup",
-    "key_number": "Lock-up overhang Dec 8; Bernstein Outperform, target $268; AI compute buildout plan",
+    "key_number": "Lock-up Dec 8. Friday close $127.79, below the $135 IPO price. About $44B of new GPU debt",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-anthropic-ipo",
       "2026-11-10-spcx",
       "2026-11-18-spcx-bond",
       "2026-11-20-ai-premarket",
-      "2026-11-20-futures"
+      "2026-11-20-futures",
+      "2026-11-20-spcx",
+      "2026-11-23-spcx"
     ],
-    "connection_notes": "Nov 20 digest. Status stays upcoming. The $268 figure is a target, not a traded price. Friday's premarket drop is on the AI tape. No opening price was stated. Anthropic's IPO, which the note says could beat SpaceX's record $86 billion deal, is linked. Nov 19 digest. Status stays upcoming. The conditional wording is new."
+    "connection_notes": "Nov 20 digest. Status stays upcoming. The $268 figure is a target, not a traded price. Friday's premarket drop is on the AI tape. No opening price was stated. Anthropic's IPO, which the note says could beat SpaceX's record $86 billion deal, is linked. Nov 19 digest. Status stays upcoming. The conditional wording is new. Nov 23 digest."
   },
   {
     "id": "2026-11-17-close",
@@ -21200,7 +21239,8 @@
       "2026-11-18-fed-fsr",
       "2026-11-18-orcl-meeting",
       "2026-11-16-orcl-drop",
-      "2026-11-17-orcl-leases"
+      "2026-11-17-orcl-leases",
+      "2026-11-20-orcl"
     ],
     "connection_notes": "move_pct is Tuesday's about 3.4% drop. The about +1.4% is Wednesday premarket and stays in the summary. The meeting is the linked upcoming row."
   },
@@ -21389,7 +21429,9 @@
     "price_mentioned": null,
     "move_pct": null,
     "source_digest_date": "2026-11-18",
-    "related_ids": [],
+    "related_ids": [
+      "2026-11-23-nvs-orion4"
+    ],
     "connection_notes": "No stock move was stated."
   },
   {
@@ -21418,9 +21460,9 @@
     "id": "2026-11-18-spcx-bond",
     "date": "2026-11-18",
     "date_precision": "day",
-    "status": "developing",
+    "status": "happened",
     "title": "SpaceX $40 billion AI chip financing could start selling",
-    "summary": "The Nov 19 digest says a $40 billion SpaceX AI chip financing run by Apollo and Goldman could start selling this week, with about $4 billion of bonds first, according to Bloomberg. Semafor says it sits in an off-balance-sheet SPV, and most of it prices at 7.75% to 8.3%. The note calls it another off-balance-sheet AI debt structure of the kind the Fed minutes flagged. SpaceX is up 1.4% premarket. SpaceX rose about 2% to 3% on a Bloomberg report of a roughly $4 billion bond sale this week, underwritten by Goldman and Apollo, to fund Nvidia chips. The note calls it the first big debt test for the newly public SpaceX and says it funds an AI chip build-out.",
+    "summary": "The Nov 23 digest says Apollo and Goldman priced a record about $44 billion debt package for SpaceX's GPU buildout. Friday's close was $127.79. The Nov 19 digest says a $40 billion SpaceX AI chip financing run by Apollo and Goldman could start selling this week, with about $4 billion of bonds first, according to Bloomberg. Semafor says it sits in an off-balance-sheet SPV, and most of it prices at 7.75% to 8.3%. The note calls it another off-balance-sheet AI debt structure of the kind the Fed minutes flagged. SpaceX is up 1.4% premarket. SpaceX rose about 2% to 3% on a Bloomberg report of a roughly $4 billion bond sale this week, underwritten by Goldman and Apollo, to fund Nvidia chips. The note calls it the first big debt test for the newly public SpaceX and says it funds an AI chip build-out.",
     "tickers": [
       "SPCX",
       "NVDA"
@@ -21435,17 +21477,18 @@
     ],
     "industry": "Space",
     "event_type": "deal",
-    "key_number": "$40B AI chip financing, Apollo and Goldman; about $4B of bonds first; off-balance-sheet SPV; most at 7.75%-8.3%; premarket +1.4%",
+    "key_number": "About $44B GPU debt package priced by Apollo and Goldman",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-19",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-12-08-spcx-lockup",
       "2026-11-17-nvda-earnings",
       "2026-11-18-fomc-minutes",
-      "2026-11-19-neoclouds"
+      "2026-11-19-neoclouds",
+      "2026-11-20-spcx"
     ],
-    "connection_notes": "The about 2% to 3% rise is a range, and Nvidia is also on the row, so move_pct stays unset. The sale is reported for this week and is not described as closed, so this stays developing. Nov 19 digest. The sale has not started, so this stays developing. The +1.4% is Thursday premarket and is not stored as move_pct because the row's earlier tape was a different session."
+    "connection_notes": "The about 2% to 3% rise is a range, and Nvidia is also on the row, so move_pct stays unset. The sale is reported for this week and is not described as closed, so this stays developing. Nov 19 digest. The sale has not started, so this stays developing. The +1.4% is Thursday premarket and is not stored as move_pct because the row's earlier tape was a different session. Nov 23 digest."
   },
   {
     "id": "2026-11-18-deals",
@@ -21585,7 +21628,8 @@
       "2026-12-09-fomc",
       "2026-11-25-pce-gdp",
       "2026-11-18-fomc-minutes",
-      "2026-11-18-fed-hawkish"
+      "2026-11-18-fed-hawkish",
+      "2026-11-23-pmi-williams"
     ],
     "connection_notes": "The 2:30 pm speech is still ahead, so this stays upcoming. This morning's \"no dramatic action\" line is also on the hawkish-Fed row. Nov 19 digest. The speaking slot was Wednesday, so this is no longer upcoming. The only stated comment remains the earlier no-dramatic-action line."
   },
@@ -21775,7 +21819,7 @@
     "date_precision": "day",
     "status": "developing",
     "title": "Nvidia's CEO search stays open; Huang will not return",
-    "summary": "The Nov 20 digest says Nvidia's CEO search is still ongoing, with Colette Kress interim, and that who gets named is a big sentiment swing. Colette Kress is interim CEO, and Chair Harvey Jones says Jensen Huang will not return. Morgan Stanley cut its Nvidia deployment forecast to 4 GW from 5 GW. The note calls it leadership limbo plus less neocloud backstopping. Neocloud commitments fell to $32 billion from $36 billion.",
+    "summary": "The Nov 23 digest says Arm's Rene Haas is reported as the lead candidate, while Trump is pushing for Jensen Huang's return. The board has said no. The Nov 20 digest says Nvidia's CEO search is still ongoing, with Colette Kress interim, and that who gets named is a big sentiment swing. Colette Kress is interim CEO, and Chair Harvey Jones says Jensen Huang will not return. Morgan Stanley cut its Nvidia deployment forecast to 4 GW from 5 GW. The note calls it leadership limbo plus less neocloud backstopping. Neocloud commitments fell to $32 billion from $36 billion.",
     "tickers": [
       "NVDA"
     ],
@@ -21788,17 +21832,19 @@
     ],
     "industry": "Semiconductors",
     "event_type": "other",
-    "key_number": "CEO search still ongoing; Colette Kress interim; the name is a big sentiment swing",
+    "key_number": "Rene Haas reported as the lead candidate; Trump wants Huang back; the board has said no",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-12-nvda-huang-resigns",
       "2026-11-18-nvda-fade",
       "2026-11-17-nvda-earnings",
-      "2026-12-01-huang-house"
+      "2026-12-01-huang-house",
+      "2026-11-20-nvda",
+      "2026-11-22-nvda-trump"
     ],
-    "connection_notes": "Nov 20 digest. The search is still open, so this stays developing. The search is still open, so this stays developing. No new stock move is stored on this row."
+    "connection_notes": "Nov 20 digest. The search is still open, so this stays developing. The search is still open, so this stays developing. No new stock move is stored on this row. Nov 23 digest."
   },
   {
     "id": "2026-11-19-neoclouds",
@@ -22063,7 +22109,8 @@
     "source_digest_date": "2026-11-19",
     "related_ids": [
       "2026-11-12-be-ntt",
-      "2026-11-20-analysts"
+      "2026-11-20-analysts",
+      "2026-11-23-upgrades"
     ],
     "connection_notes": "Three names are on the row, so move_pct stays empty. The +6.9% is Bloom only."
   },
@@ -22236,7 +22283,8 @@
       "2026-11-20-futures",
       "2026-11-19-ant-trading",
       "2026-11-20-ai-premarket",
-      "2026-11-20-asia"
+      "2026-11-20-asia",
+      "2026-11-20-close"
     ],
     "connection_notes": "Three indexes, so move_pct stays empty. Friday's futures are the linked item."
   },
@@ -22268,7 +22316,9 @@
       "2026-11-20-vix-btc-gold",
       "2026-11-20-yields",
       "2026-11-20-opex",
-      "2026-12-08-spcx-lockup"
+      "2026-12-08-spcx-lockup",
+      "2026-11-20-close",
+      "2026-11-20-ant"
     ],
     "connection_notes": "The -9.6% is Friday premarket for ANT, not the index move, so move_pct stays empty. Thursday's close and the debut print are linked."
   },
@@ -22300,7 +22350,8 @@
     "related_ids": [
       "2026-11-19-close",
       "2026-11-11-openai-q3",
-      "2026-11-19-baba-earnings"
+      "2026-11-19-baba-earnings",
+      "2026-11-23-asia"
     ],
     "connection_notes": "Several markets, so move_pct stays empty. SoftBank's OpenAI stake is the linked stress gauge."
   },
@@ -22368,7 +22419,7 @@
     "date_precision": "day",
     "status": "happened",
     "title": "VIX is above 30; bitcoin is under $62,000",
-    "summary": "The VIX is above 30, the highest since March. Bitcoin is under $62,000, the lowest since July. Gold futures fell about 3%, per Yahoo, and the dollar is near a 20-month high.",
+    "summary": "The Nov 23 digest says bitcoin is about $61,000 after dipping under $60,000 Friday for the first time since July. The VIX is above 30, the highest since March. Bitcoin is under $62,000, the lowest since July. Gold futures fell about 3%, per Yahoo, and the dollar is near a 20-month high.",
     "tickers": [],
     "companies": [
       "VIX",
@@ -22377,15 +22428,17 @@
     ],
     "industry": "Macro",
     "event_type": "market_move",
-    "key_number": "VIX above 30, highest since March; bitcoin under $62K, lowest since July; gold futures about -3%; dollar near a 20-month high",
+    "key_number": "Bitcoin about $61,000 after a Friday dip under $60,000, first time under $60,000 since July",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-20-futures",
-      "2026-11-20-opex"
+      "2026-11-20-opex",
+      "2026-11-20-close",
+      "2026-11-23-mstr"
     ],
-    "connection_notes": "No single stock move, so move_pct stays empty. Options expiration is the same day."
+    "connection_notes": "No single stock move, so move_pct stays empty. Options expiration is the same day. Nov 23 digest."
   },
   {
     "id": "2026-11-20-yields",
@@ -22393,22 +22446,24 @@
     "date_precision": "day",
     "status": "happened",
     "title": "The 10-year yield falls below 5%",
-    "summary": "The 10-year yield fell below 5%, a fifth straight decline, as money moved into bonds. The note calls that a small relief for rate-sensitive growth stocks.",
+    "summary": "The Nov 23 digest says the 10-year yield ended Friday around 4.91% on a rush into bonds. The 10-year yield fell below 5%, a fifth straight decline, as money moved into bonds. The note calls that a small relief for rate-sensitive growth stocks.",
     "tickers": [],
     "companies": [],
     "industry": "Macro",
     "event_type": "macro_data",
-    "key_number": "10-year yield below 5%, 5th straight decline",
+    "key_number": "10-year ended Friday around 4.91% on a rush into bonds",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-20-futures",
       "2026-11-19-treasuries",
       "2026-12-09-fomc",
-      "2026-11-20-hyperscaler-capex"
+      "2026-11-20-hyperscaler-capex",
+      "2026-11-20-close",
+      "2026-11-20-goldman-panic"
     ],
-    "connection_notes": "A yield is not a stock move, so move_pct stays empty. Thursday's 5.10% print is the prior row."
+    "connection_notes": "A yield is not a stock move, so move_pct stays empty. Thursday's 5.10% print is the prior row. Nov 23 digest."
   },
   {
     "id": "2026-11-20-brent",
@@ -22432,7 +22487,8 @@
     "related_ids": [
       "2026-11-19-oil-gulf",
       "2026-11-29-opec",
-      "2026-11-11-brent"
+      "2026-11-11-brent",
+      "2026-11-23-brent"
     ],
     "connection_notes": "The oil percent is not a stock move, so move_pct stays empty. OPEC+ on Nov 29 is the linked upcoming item."
   },
@@ -22466,9 +22522,9 @@
     "id": "2026-11-20-fed-speakers",
     "date": "2026-11-20",
     "date_precision": "day",
-    "status": "upcoming",
-    "title": "Fed speakers Friday: Waller, Jefferson, Cook and Barr",
-    "summary": "Waller is at 8:25 ET for a College Fed Challenge welcome, which the note says is probably not policy. Jefferson is at 9:25, Cook at 12:15, and Barr speaks on AI at 2:15. The morning quotes were checked at about 8:17 ET, before those times.",
+    "status": "happened",
+    "title": "Cook warned Friday against falling behind on inflation",
+    "summary": "The Nov 23 digest says Gov. Cook warned Friday against falling behind on inflation. It does not add remarks for Waller, Jefferson, or Barr. Waller is at 8:25 ET for a College Fed Challenge welcome, which the note says is probably not policy. Jefferson is at 9:25, Cook at 12:15, and Barr speaks on AI at 2:15. The morning quotes were checked at about 8:17 ET, before those times.",
     "tickers": [],
     "companies": [
       "Federal Reserve",
@@ -22479,17 +22535,17 @@
     ],
     "industry": "Macro",
     "event_type": "fed",
-    "key_number": "Waller 8:25 ET, probably not policy; Jefferson 9:25; Cook 12:15; Barr on AI at 2:15",
+    "key_number": "Cook warned Friday against falling behind on inflation",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-20-paulson",
       "2026-11-19-fed-speakers",
       "2026-11-20-umich",
       "2026-12-09-fomc"
     ],
-    "connection_notes": "Times are ET. These remarks are still ahead of the 8:17 ET note. Thursday's unnamed speakers are a different row."
+    "connection_notes": "Times are ET. These remarks are still ahead of the 8:17 ET note. Thursday's unnamed speakers are a different row. Nov 23 digest."
   },
   {
     "id": "2026-11-20-house-chips",
@@ -22581,7 +22637,9 @@
       "2026-11-20-ai-premarket",
       "2026-11-19-neoclouds",
       "2026-12-16-commerce-savings",
-      "2026-11-20-hyperscaler-capex"
+      "2026-11-20-hyperscaler-capex",
+      "2026-11-23-chips",
+      "2026-11-23-apld"
     ],
     "connection_notes": "Two names, so move_pct stays empty. Thursday's bounce row is the prior neocloud tape."
   },
@@ -22718,7 +22776,8 @@
     "related_ids": [
       "2026-11-19-upgrades",
       "2026-12-01-huang-house",
-      "2026-11-20-ai-premarket"
+      "2026-11-20-ai-premarket",
+      "2026-11-20-hum"
     ],
     "connection_notes": "Five names, so move_pct stays empty. Targets are not traded prices. Bloom's prior upgrade and MongoDB's Dec 1 report are linked."
   },
@@ -22765,7 +22824,8 @@
     "source_digest_date": "2026-11-20",
     "related_ids": [
       "2026-11-20-neoclouds",
-      "2026-11-20-yields"
+      "2026-11-20-yields",
+      "2026-11-20-datacenter-tax"
     ],
     "connection_notes": "Still a spending and bond-market watch, so this stays developing. No single stock move was stated."
   },
@@ -22848,12 +22908,11 @@
     "date": "2026-12-01",
     "date_precision": "day",
     "status": "upcoming",
-    "title": "Huang's House interview; Marvell, CrowdStrike and MongoDB report",
-    "summary": "Jensen Huang's closed-door House interview is Dec 1. Marvell, CrowdStrike and MongoDB report the same day. UBS upgraded MongoDB to Buy with a $450 target ahead of that report. Nvidia's general counsel is before the House panels on Dec 2.",
+    "title": "Huang's House interview and Marvell earnings",
+    "summary": "The Nov 23 digest says Dec 1 is Huang's House interview and Marvell earnings, and that CrowdStrike already reported on Nov 23. Jensen Huang's closed-door House interview is Dec 1. Marvell, CrowdStrike and MongoDB report the same day. UBS upgraded MongoDB to Buy with a $450 target ahead of that report. Nvidia's general counsel is before the House panels on Dec 2.",
     "tickers": [
       "NVDA",
       "MRVL",
-      "CRWD",
       "MDB"
     ],
     "companies": [
@@ -22866,18 +22925,21 @@
     ],
     "industry": "Semiconductors",
     "event_type": "other",
-    "key_number": "Huang House interview Dec 1; MRVL, CRWD and MDB earnings the same day",
+    "key_number": "Huang House interview Dec 1; Marvell earnings the same day; CrowdStrike already reported Nov 23",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
       "2026-11-20-house-chips",
       "2026-11-20-analysts",
       "2026-10-28-chip-export-rules",
       "2026-12-02-crm-teter",
-      "2026-11-19-nvda-ceo"
+      "2026-11-19-nvda-ceo",
+      "2026-11-25-nvda-treasury",
+      "2026-11-23-crwd-zs",
+      "2026-12-01-senate-dems"
     ],
-    "connection_notes": "The interview and three earnings share the coming-up line, so they are one row. The chip-export release, the Dec 2 appearance and the MongoDB upgrade are linked. Status stays upcoming."
+    "connection_notes": "The interview and three earnings share the coming-up line, so they are one row. The chip-export release, the Dec 2 appearance and the MongoDB upgrade are linked. Status stays upcoming. Nov 23 digest."
   },
   {
     "id": "2026-12-02-crm-teter",
@@ -22913,56 +22975,66 @@
     "date": "2026-11-23",
     "date_precision": "day",
     "status": "upcoming",
-    "title": "Zoom, HPE and Agilent report Monday",
-    "summary": "Zoom, HPE and Agilent report on Monday, Nov 23. No times or consensus figures were stated.",
+    "title": "HPE, Zoom, Agilent, Symbotic, Jacobs, and Semtech report after the close",
+    "summary": "The Nov 23 digest says HPE, Zoom, Agilent, Symbotic, Jacobs, and Semtech report after the close. HPE is down 25% this month and options imply about a 14% move. Zoom is expected to earn $1.49 on $1.28 billion of revenue. A Capricor call is the same day, time not yet set. Zoom, HPE and Agilent report on Monday, Nov 23. No times or consensus figures were stated.",
     "tickers": [
       "ZM",
       "HPE",
-      "A"
+      "A",
+      "SYM",
+      "J",
+      "SMTC"
     ],
     "companies": [
       "Zoom",
       "HPE",
-      "Agilent"
+      "Agilent",
+      "Symbotic",
+      "Jacobs",
+      "Semtech"
     ],
     "industry": "Tech",
     "event_type": "earnings",
-    "key_number": "ZM, HPE and Agilent earnings Monday, Nov 23",
+    "key_number": "After the close: HPE, ZM, A, SYM, J, SMTC. HPE down 25% this month; options imply about a 14% move. Zoom EPS $1.49 on $1.28B",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
-      "2026-11-18-hpe-faa"
+      "2026-11-18-hpe-faa",
+      "2026-11-22-capricor-deramiocel"
     ],
-    "connection_notes": "No clock times were stated. Status stays upcoming."
+    "connection_notes": "No clock times were stated. Status stays upcoming. Nov 23 digest."
   },
   {
     "id": "2026-11-24-adi-mdt-hpq",
     "date": "2026-11-24",
     "date_precision": "day",
     "status": "upcoming",
-    "title": "ADI and Medtronic report before the open; HP reports later",
-    "summary": "Analog Devices and Medtronic report before the open on Tuesday, Nov 24. HP reports later that day. Dell, the same afternoon, is the linked AI-server check.",
+    "title": "ADI, Medtronic, and Best Buy report before the open; HP reports later",
+    "summary": "The Nov 23 digest adds Best Buy before the open on Tuesday, with Analog Devices and Medtronic. Conference Board confidence is at 10:00 the same morning. Analog Devices and Medtronic report before the open on Tuesday, Nov 24. HP reports later that day. Dell, the same afternoon, is the linked AI-server check.",
     "tickers": [
       "ADI",
       "MDT",
-      "HPQ"
+      "HPQ",
+      "BBY"
     ],
     "companies": [
       "Analog Devices",
       "Medtronic",
-      "HP"
+      "HP",
+      "Best Buy"
     ],
     "industry": "Tech",
     "event_type": "earnings",
-    "key_number": "ADI and MDT before the open Nov 24; HPQ later the same day",
+    "key_number": "ADI, MDT, and BBY before the open Nov 24; HPQ later the same day",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [
-      "2026-11-24-dell"
+      "2026-11-24-dell",
+      "2026-11-24-confidence"
     ],
-    "connection_notes": "Dell's report is the linked same-day item. No consensus figures were stated. Status stays upcoming."
+    "connection_notes": "Dell's report is the linked same-day item. No consensus figures were stated. Status stays upcoming. Nov 23 digest."
   },
   {
     "id": "2026-11-29-opec",
@@ -22982,7 +23054,8 @@
     "move_pct": null,
     "source_digest_date": "2026-11-20",
     "related_ids": [
-      "2026-11-20-brent"
+      "2026-11-20-brent",
+      "2026-11-23-brent"
     ],
     "connection_notes": "Friday's Brent print is linked. Status stays upcoming."
   },
@@ -22992,7 +23065,7 @@
     "date_precision": "month",
     "status": "upcoming",
     "title": "Sol-Gel Phase 3 topline guided for late November",
-    "summary": "Sol-Gel's topline from the pivotal Phase 3 of SGT-610, patidegib gel, in Gorlin syndrome is guided for late November, so the note says it could come any day. 102 of 113 patients completed. The primary endpoint is new facial basal-cell carcinomas at month 12. The stock is about $54, the market cap is roughly $177 million, and cash was $45.7 million with runway into the first quarter of 2028. The note calls it a single-asset binary. No day was stated.",
+    "summary": "The Nov 23 digest says Sol-Gel's Phase 3 patidegib topline in Gorlin is still guided for late November, with 8 days left, and is not out yet. The stock closed Friday at $55.17. Runway lasts into Q1 2028. Sol-Gel's topline from the pivotal Phase 3 of SGT-610, patidegib gel, in Gorlin syndrome is guided for late November, so the note says it could come any day. 102 of 113 patients completed. The primary endpoint is new facial basal-cell carcinomas at month 12. The stock is about $54, the market cap is roughly $177 million, and cash was $45.7 million with runway into the first quarter of 2028. The note calls it a single-asset binary. No day was stated.",
     "tickers": [
       "SLGL"
     ],
@@ -23001,12 +23074,12 @@
     ],
     "industry": "Pharma/Biotech",
     "event_type": "trial",
-    "key_number": "Late November; 102 of 113 patients completed; about $54 a share; market cap roughly $177M; cash $45.7M, runway into Q1 2028",
+    "key_number": "Still late November, not out, 8 days left. Closed Friday at $55.17. Runway into Q1 2028",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [],
-    "connection_notes": "Late November is not a day, so this stays off the calendar grid. The binary-bets card is the sourced catalyst row."
+    "connection_notes": "Late November is not a day, so this stays off the calendar grid. The binary-bets card is the sourced catalyst row. Nov 23 digest."
   },
   {
     "id": "2026-12-cris-takeaim",
@@ -23083,7 +23156,7 @@
     "date_precision": "month",
     "status": "upcoming",
     "title": "Kodiak's KSI-101 topline is still guided for December",
-    "summary": "Kodiak's PEAK pivotal analysis 1 topline for KSI-101 is still guided for December. The third-quarter filing flagged substantial going-concern doubt. The note calls it a do-or-die readout with dilution likely either way. No day inside December was stated.",
+    "summary": "The Nov 23 digest says Kodiak's PEAK topline is still guided for December, with a going-concern flag, and that dilution is likely either way. Kodiak's PEAK pivotal analysis 1 topline for KSI-101 is still guided for December. The third-quarter filing flagged substantial going-concern doubt. The note calls it a do-or-die readout with dilution likely either way. No day inside December was stated.",
     "tickers": [
       "KOD"
     ],
@@ -23092,20 +23165,20 @@
     ],
     "industry": "Pharma/Biotech",
     "event_type": "trial",
-    "key_number": "Still guided for December; Q3 filing flagged substantial going-concern doubt; dilution likely either way",
+    "key_number": "Still guided for December. Going-concern flag. Dilution likely either way",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [],
-    "connection_notes": "December is not a day, so this stays off the calendar grid. The binary-bets card keeps the filing cash figure."
+    "connection_notes": "December is not a day, so this stays off the calendar grid. The binary-bets card keeps the filing cash figure. Nov 23 digest."
   },
   {
     "id": "2026-11-ivvd-declaration",
-    "date": "2026-11-01",
-    "date_precision": "month",
-    "status": "upcoming",
-    "title": "Invivyd's Phase 3 DECLARATION data are called imminent",
-    "summary": "Invivyd's Phase 3 DECLARATION data on VYD2311 are imminent, on Nov 16 guidance. The stock is about $0.45, so the note says delisting and dilution risk is high. No day was stated.",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Invivyd VYD2311 meets interim Phase 3 endpoints",
+    "summary": "The Nov 23 digest says Invivyd's VYD2311 COVID antibody met all interim Phase 3 endpoints. The stock is +18% premarket at $0.49. A BLA filing is planned for Q1 2027. At under $1, delisting and dilution risk remains. Invivyd's Phase 3 DECLARATION data on VYD2311 are imminent, on Nov 16 guidance. The stock is about $0.45, so the note says delisting and dilution risk is high. No day was stated.",
     "tickers": [
       "IVVD"
     ],
@@ -23114,12 +23187,18 @@
     ],
     "industry": "Pharma/Biotech",
     "event_type": "trial",
-    "key_number": "Imminent, Nov 16 guidance; stock about $0.45; delisting and dilution risk high",
-    "price_mentioned": null,
-    "move_pct": null,
-    "source_digest_date": "2026-11-20",
-    "related_ids": [],
-    "connection_notes": "Imminent is not a day, so this stays off the calendar grid. The binary-bets card is the sourced catalyst row."
+    "key_number": "Interim Phase 3 met all endpoints. +18% premarket at $0.49. BLA filing planned for Q1 2027. Delisting and dilution risk remains under $1",
+    "price_mentioned": {
+      "ticker": "IVVD",
+      "price": 0.49
+    },
+    "move_pct": 18,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2027-01-01-ivvd-bla",
+      "2026-11-23-futures"
+    ],
+    "connection_notes": "Imminent is not a day, so this stays off the calendar grid. The binary-bets card is the sourced catalyst row. Nov 23 digest."
   },
   {
     "id": "2026-12-imux-ensure",
@@ -23127,7 +23206,7 @@
     "date_precision": "month",
     "status": "upcoming",
     "title": "Immunic's ENSURE Phase 3 toplines are still guided for December 2026",
-    "summary": "Immunic's ENSURE-1 and ENSURE-2 Phase 3 relapsing-MS topline is still guided for December 2026. No day inside December was stated.",
+    "summary": "The Nov 23 digest says Immunic's Phase 3 relapsing-MS topline is still guided for December. Immunic's ENSURE-1 and ENSURE-2 Phase 3 relapsing-MS topline is still guided for December 2026. No day inside December was stated.",
     "tickers": [
       "IMUX"
     ],
@@ -23136,11 +23215,1097 @@
     ],
     "industry": "Pharma/Biotech",
     "event_type": "trial",
-    "key_number": "ENSURE-1 and ENSURE-2 still guided for December 2026",
+    "key_number": "Phase 3 relapsing-MS topline still guided for December",
     "price_mentioned": null,
     "move_pct": null,
-    "source_digest_date": "2026-11-20",
+    "source_digest_date": "2026-11-23",
     "related_ids": [],
-    "connection_notes": "December 2026 is not a day, so this stays off the calendar grid. The binary-bets card is the sourced catalyst row."
+    "connection_notes": "December 2026 is not a day, so this stays off the calendar grid. The binary-bets card is the sourced catalyst row. Nov 23 digest."
+  },
+  {
+    "id": "2026-11-20-close",
+    "date": "2026-11-20",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "S&P falls 3.7% and the Nasdaq turns negative for 2026",
+    "summary": "On Friday the S&P fell 3.7% to 6,910.39, the Nasdaq fell 5.28% to 22,617.73 and is now negative for 2026, and the Dow fell 950 points, or 1.93%, to 48,147.33. The S&P and Dow both closed in correction. The Nasdaq-100 is 19.8% off its Oct 6 high, just shy of a bear market. For the week the S&P lost 8.6%, its worst week since April 2025, and the Nasdaq, down 10%, and the Dow, down 8%, had their worst weeks since 2020.",
+    "tickers": [],
+    "companies": [
+      "S&P 500",
+      "Nasdaq",
+      "Dow",
+      "Nasdaq-100"
+    ],
+    "industry": "Macro",
+    "event_type": "market_move",
+    "key_number": "S&P -3.7% to 6,910.39; Nasdaq -5.28% to 22,617.73, negative for 2026; Dow -950 (-1.93%) to 48,147.33. Week: S&P -8.6%, Nasdaq -10%, Dow -8%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-futures",
+      "2026-11-19-close",
+      "2026-11-23-futures",
+      "2026-11-20-nvda",
+      "2026-11-20-ant",
+      "2026-11-20-orcl",
+      "2026-11-20-spcx",
+      "2026-11-20-goldman-panic",
+      "2026-11-20-yields",
+      "2026-11-20-vix-btc-gold",
+      "2026-11-22-savara-molgramostim"
+    ],
+    "connection_notes": "Index moves, so move_pct stays empty. Friday's morning futures are the linked tape."
+  },
+  {
+    "id": "2026-11-23-futures",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Futures bounce after Friday's rout",
+    "summary": "S&P futures are +2.6%, Nasdaq-100 futures +3.4%, and Dow futures +1.9% against Friday's settle, as of about 8:10 ET. Premarket stock quotes were checked at about 8:20 ET. Thanksgiving week has markets closed Thursday and a 1:00 close Friday.",
+    "tickers": [],
+    "companies": [
+      "S&P 500",
+      "Nasdaq-100",
+      "Dow"
+    ],
+    "industry": "Macro",
+    "event_type": "market_move",
+    "key_number": "S&P futures +2.6%; Nasdaq-100 +3.4%; Dow +1.9%, as of about 8:10 ET",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-close",
+      "2026-11-26-thanksgiving",
+      "2026-11-27-early-close",
+      "2026-11-23-chips",
+      "2026-11-23-megacaps",
+      "2026-11-23-nvda",
+      "2026-11-23-mstr",
+      "2026-11-22-capricor-deramiocel",
+      "2026-11-23-gm",
+      "2026-11-23-kymr",
+      "2026-11-23-nvs-orion4",
+      "2026-11-ivvd-declaration"
+    ],
+    "connection_notes": "Index futures, so move_pct stays empty. Quotes are against Friday's settle."
+  },
+  {
+    "id": "2026-11-20-nvda",
+    "date": "2026-11-20",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Nvidia falls 14% after a report of an SEC accounting probe",
+    "summary": "Nvidia fell 14% Friday to $125.53 after Reuters reported the SEC is probing its accounting. That is its seventh straight weekly loss and its longest losing streak since 2008.",
+    "tickers": [
+      "NVDA"
+    ],
+    "companies": [
+      "Nvidia"
+    ],
+    "industry": "Semiconductors",
+    "event_type": "market_move",
+    "key_number": "Friday -14% to $125.53. SEC accounting probe. 7th straight weekly loss, longest since 2008",
+    "price_mentioned": {
+      "ticker": "NVDA",
+      "price": 125.53
+    },
+    "move_pct": -14,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-close",
+      "2026-11-23-nvda",
+      "2026-11-22-nvda-trump",
+      "2026-11-19-nvda-ceo",
+      "2026-11-10-nvda-probe",
+      "2026-11-17-nvda-earnings",
+      "2026-11-19-nvda-ca-subpoena",
+      "2026-11-22-bessent-nvda",
+      "2026-11-25-nvda-treasury"
+    ],
+    "connection_notes": "The -14% and $125.53 are Friday's close."
+  },
+  {
+    "id": "2026-11-22-nvda-trump",
+    "date": "2026-11-22",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Trump says he hopes Nvidia's board rehires Jensen Huang",
+    "summary": "Trump posted Sunday night that he hopes the board rehires Jensen Huang. The board has said no. Arm's Rene Haas is reported as the lead candidate in the CEO search.",
+    "tickers": [
+      "NVDA"
+    ],
+    "companies": [
+      "Nvidia"
+    ],
+    "industry": "Semiconductors",
+    "event_type": "other",
+    "key_number": "Sunday post: Trump wants Huang back. The board has said no. Rene Haas is reported as the lead candidate",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-nvda",
+      "2026-11-23-nvda",
+      "2026-11-19-nvda-ceo"
+    ],
+    "connection_notes": "Sunday post. No traded price was stated. Monday's premarket is the linked row."
+  },
+  {
+    "id": "2026-11-23-nvda",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Nvidia is up 8.7% premarket after Trump's Huang post",
+    "summary": "Nvidia is +8.7% premarket at $136.43 after Trump's Sunday post urging the board to rehire Jensen Huang. The board has said no.",
+    "tickers": [
+      "NVDA"
+    ],
+    "companies": [
+      "Nvidia"
+    ],
+    "industry": "Semiconductors",
+    "event_type": "market_move",
+    "key_number": "Premarket +8.7% at $136.43. Board has said no to bringing Huang back",
+    "price_mentioned": {
+      "ticker": "NVDA",
+      "price": 136.43
+    },
+    "move_pct": 8.7,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-futures",
+      "2026-11-20-nvda",
+      "2026-11-22-nvda-trump",
+      "2026-11-23-chips"
+    ],
+    "connection_notes": "The +8.7% and $136.43 are Monday premarket, checked at about 8:20 ET."
+  },
+  {
+    "id": "2026-11-23-chips",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Chips and neoclouds bounce premarket",
+    "summary": "Premarket, AMD is +4.9%, Broadcom +4.9%, Micron +5.6%, TSMC +6.5%, and Texas Instruments +4.5% after a Cantor upgrade to Overweight with a $385 target. CoreWeave is +6.9%, Nebius +8.6%, and IREN +8.1%.",
+    "tickers": [
+      "AMD",
+      "AVGO",
+      "MU",
+      "TSM",
+      "TXN",
+      "CRWV",
+      "NBIS",
+      "IREN"
+    ],
+    "companies": [
+      "AMD",
+      "Broadcom",
+      "Micron",
+      "TSMC",
+      "Texas Instruments",
+      "CoreWeave",
+      "Nebius",
+      "IREN"
+    ],
+    "industry": "Semiconductors",
+    "event_type": "market_move",
+    "key_number": "AMD +4.9%, AVGO +4.9%, MU +5.6%, TSM +6.5%, TXN +4.5% (Cantor Overweight, $385). CRWV +6.9%, NBIS +8.6%, IREN +8.1%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-futures",
+      "2026-11-23-nvda",
+      "2026-11-23-megacaps",
+      "2026-11-20-neoclouds",
+      "2026-11-23-apld"
+    ],
+    "connection_notes": "Several different premarket moves, so move_pct stays empty. The $385 figure is Cantor's Texas Instruments target."
+  },
+  {
+    "id": "2026-11-23-megacaps",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Megacaps and power names rebound premarket",
+    "summary": "Premarket, Alphabet is +5.5%, Meta +3.9%, Amazon +3.4%, Microsoft +3.1%, Apple +1.4%, Oracle +4.9%, and Palantir +4.6%. Vertiv is +5.3%, Vistra +4.0%, and Constellation Energy +3.6%.",
+    "tickers": [
+      "GOOGL",
+      "META",
+      "AMZN",
+      "MSFT",
+      "AAPL",
+      "ORCL",
+      "PLTR",
+      "VRT",
+      "VST",
+      "CEG"
+    ],
+    "companies": [
+      "Alphabet",
+      "Meta",
+      "Amazon",
+      "Microsoft",
+      "Apple",
+      "Oracle",
+      "Palantir",
+      "Vertiv",
+      "Vistra",
+      "Constellation Energy"
+    ],
+    "industry": "Tech",
+    "event_type": "market_move",
+    "key_number": "GOOGL +5.5%, META +3.9%, AMZN +3.4%, MSFT +3.1%, AAPL +1.4%, ORCL +4.9%, PLTR +4.6%. VRT +5.3%, VST +4.0%, CEG +3.6%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-futures",
+      "2026-11-23-chips",
+      "2026-11-20-datacenter-tax",
+      "2026-11-20-orcl"
+    ],
+    "connection_notes": "Several different premarket moves, so move_pct stays empty."
+  },
+  {
+    "id": "2026-11-20-ant",
+    "date": "2026-11-20",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Anthropic falls 8.5% to $88.91, near its IPO price",
+    "summary": "Anthropic fell 8.5% Friday to $88.91, close to its $83 IPO price.",
+    "tickers": [
+      "ANT"
+    ],
+    "companies": [
+      "Anthropic"
+    ],
+    "industry": "Tech",
+    "event_type": "market_move",
+    "key_number": "Friday -8.5% to $88.91, close to the $83 IPO price",
+    "price_mentioned": {
+      "ticker": "ANT",
+      "price": 88.91
+    },
+    "move_pct": -8.5,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-close",
+      "2026-11-23-ant",
+      "2026-11-19-ant-trading",
+      "2026-11-20-futures"
+    ],
+    "connection_notes": "Friday's close."
+  },
+  {
+    "id": "2026-11-23-ant",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Anthropic is only up 0.4% premarket",
+    "summary": "Anthropic is only +0.4% premarket after being up about 4% earlier.",
+    "tickers": [
+      "ANT"
+    ],
+    "companies": [
+      "Anthropic"
+    ],
+    "industry": "Tech",
+    "event_type": "market_move",
+    "key_number": "Premarket +0.4% after being up about 4% earlier",
+    "price_mentioned": null,
+    "move_pct": 0.4,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-ant"
+    ],
+    "connection_notes": "The stored move is the later +0.4% premarket print. No Monday price was stated."
+  },
+  {
+    "id": "2026-11-20-goldman-panic",
+    "date": "2026-11-20",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Goldman's panic index hits 9 out of 10",
+    "summary": "Goldman's panic index hit 9 out of 10 on Friday. Its desk warns of up to about $80 billion more selling this week, and trend-following funds are net short about $19 billion.",
+    "tickers": [],
+    "companies": [
+      "Goldman Sachs"
+    ],
+    "industry": "Macro",
+    "event_type": "market_move",
+    "key_number": "Panic index 9 out of 10. Desk warns of up to about $80B more selling this week. Trend-following funds net short about $19B",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-close",
+      "2026-11-20-yields"
+    ],
+    "connection_notes": "No single stock move was stated."
+  },
+  {
+    "id": "2026-11-23-mstr",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Strategy is up 8.1% premarket with bitcoin",
+    "summary": "Strategy is +8.1% premarket. Bitcoin is about $61,000 after dipping under $60,000 Friday.",
+    "tickers": [
+      "MSTR"
+    ],
+    "companies": [
+      "Strategy"
+    ],
+    "industry": "Crypto",
+    "event_type": "market_move",
+    "key_number": "MSTR +8.1% premarket. Bitcoin about $61,000",
+    "price_mentioned": null,
+    "move_pct": 8.1,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-vix-btc-gold",
+      "2026-11-23-futures"
+    ],
+    "connection_notes": "The +8.1% is Monday premarket. No Strategy price was stated. Friday's bitcoin print is the linked row."
+  },
+  {
+    "id": "2026-11-23-asia",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Kospi falls another 3.3%; Japan is closed",
+    "summary": "The Kospi fell another 3.3% and is down about 46% from its June peak. Korea readied a 10.76 trillion won market fund, about $8 billion, its first use since 2008. Taiwan banned short sales below the prior close. Japan was closed for a holiday. China's margin-requirement cut starts Nov 30, and Korea's buyback limits ease from Nov 24.",
+    "tickers": [],
+    "companies": [
+      "Kospi",
+      "Korea",
+      "Taiwan",
+      "China",
+      "Japan"
+    ],
+    "industry": "Macro",
+    "event_type": "geopolitics",
+    "key_number": "Kospi -3.3%, about -46% from the June peak. Korea fund 10.76T won, about $8B, first use since 2008. Taiwan bans short sales below the prior close",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-asia",
+      "2026-11-24-korea-buybacks",
+      "2026-11-30-china-margin"
+    ],
+    "connection_notes": "The Kospi percent is not a U.S. stock move. Nov 24 and Nov 30 are the linked policy dates."
+  },
+  {
+    "id": "2026-11-24-korea-buybacks",
+    "date": "2026-11-24",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "Korea eases buyback limits",
+    "summary": "Korea's buyback limits ease from Nov 24. The 10.76 trillion won market fund, about $8 billion, is ready to deploy.",
+    "tickers": [],
+    "companies": [
+      "Korea"
+    ],
+    "industry": "Macro",
+    "event_type": "policy",
+    "key_number": "Buyback limits ease Nov 24. Fund of 10.76T won, about $8B, is ready",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-asia",
+      "2026-11-30-china-margin"
+    ],
+    "connection_notes": "Status stays upcoming."
+  },
+  {
+    "id": "2026-11-30-china-margin",
+    "date": "2026-11-30",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "China's margin-requirement cut takes effect",
+    "summary": "China cuts margin requirements starting Nov 30.",
+    "tickers": [],
+    "companies": [
+      "China"
+    ],
+    "industry": "Macro",
+    "event_type": "policy",
+    "key_number": "Margin-requirement cut starts Nov 30",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-asia",
+      "2026-11-24-korea-buybacks"
+    ],
+    "connection_notes": "Status stays upcoming. No cut size was stated."
+  },
+  {
+    "id": "2026-11-23-brent",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Brent is about $92 as Gulf exports hold up",
+    "summary": "Brent is about $92, down 0.7%, as Gulf exports hold up despite continued shipping attacks.",
+    "tickers": [],
+    "companies": [
+      "Brent"
+    ],
+    "industry": "Energy",
+    "event_type": "geopolitics",
+    "key_number": "Brent about $92, -0.7%. Gulf exports holding up despite continued shipping attacks",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-brent",
+      "2026-11-29-opec"
+    ],
+    "connection_notes": "The oil percent is not a stock move, so move_pct stays empty."
+  },
+  {
+    "id": "2026-11-23-pmi-williams",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "Flash PMIs at 9:45 and Williams at 4:00",
+    "summary": "Flash PMIs are at 9:45, with manufacturing seen at 54.5 and services at 55.7. New York Fed president Williams speaks at 4:00. The morning note was checked at about 8:20 ET, before both.",
+    "tickers": [],
+    "companies": [
+      "S&P Global",
+      "New York Fed"
+    ],
+    "industry": "Macro",
+    "event_type": "macro_data",
+    "key_number": "Flash PMIs 9:45 ET, manufacturing seen at 54.5 and services at 55.7. Williams at 4:00",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-12-09-fomc",
+      "2026-11-18-fed-williams",
+      "2026-11-25-pce-gdp",
+      "2026-11-20-umich"
+    ],
+    "connection_notes": "Both are still ahead of the 8:20 ET note, so this stays upcoming."
+  },
+  {
+    "id": "2026-11-19-nvda-ca-subpoena",
+    "date": "2026-11-19",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "California attorney general subpoenas Nvidia",
+    "summary": "The California attorney general subpoenaed Nvidia last Thursday. The digest does not state the subpoena's demands.",
+    "tickers": [
+      "NVDA"
+    ],
+    "companies": [
+      "Nvidia",
+      "California attorney general"
+    ],
+    "industry": "Policy",
+    "event_type": "policy",
+    "key_number": "California AG subpoenaed Nvidia on Thursday",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-nvda",
+      "2026-11-22-bessent-nvda",
+      "2026-10-28-chip-export-rules"
+    ],
+    "connection_notes": "Thursday was Nov 19. No further subpoena detail was stated."
+  },
+  {
+    "id": "2026-11-22-bessent-nvda",
+    "date": "2026-11-22",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Bessent says Treasury still has no Nvidia answers on China",
+    "summary": "Bessent said Sunday that Treasury still has no answers from Nvidia on chip sales to China. He wants to know who ran compliance, and the deadline is Nov 25. Sen. Kennedy wants Commerce Secretary Lutnick questioned over Nvidia. The digest does not date Kennedy's request.",
+    "tickers": [
+      "NVDA"
+    ],
+    "companies": [
+      "Nvidia",
+      "Treasury",
+      "Commerce Department"
+    ],
+    "industry": "Policy",
+    "event_type": "policy",
+    "key_number": "No Treasury answers on China chip sales. Compliance deadline Nov 25. Kennedy wants Lutnick questioned",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-nvda",
+      "2026-11-19-nvda-ca-subpoena",
+      "2026-11-25-nvda-treasury",
+      "2026-10-28-chip-export-rules"
+    ],
+    "connection_notes": "Bessent's comments were Sunday. Kennedy's request was not given its own day."
+  },
+  {
+    "id": "2026-11-25-nvda-treasury",
+    "date": "2026-11-25",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "Nvidia's Treasury compliance deadline",
+    "summary": "Nvidia's deadline to answer Treasury on China chip sales, including who ran compliance, is Nov 25. Bessent said Sunday that Treasury still has no answers.",
+    "tickers": [
+      "NVDA"
+    ],
+    "companies": [
+      "Nvidia",
+      "Treasury"
+    ],
+    "industry": "Policy",
+    "event_type": "policy",
+    "key_number": "Treasury compliance deadline Nov 25",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-nvda",
+      "2026-11-22-bessent-nvda",
+      "2026-11-25-pce-gdp",
+      "2026-10-28-chip-export-rules",
+      "2026-12-01-huang-house"
+    ],
+    "connection_notes": "Status stays upcoming. October PCE and the GDP second estimate are the same morning."
+  },
+  {
+    "id": "2026-11-20-datacenter-tax",
+    "date": "2026-11-20",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Trump floats a ban or tax on data centers built abroad",
+    "summary": "Trump said Friday that U.S. companies would be banned from building data centers abroad or face a tremendous tax. He gave no details. The digest calls it a risk for Microsoft, Alphabet, Amazon, Meta, and Oracle's overseas buildouts, and says to watch for an executive order.",
+    "tickers": [
+      "MSFT",
+      "GOOGL",
+      "AMZN",
+      "META",
+      "ORCL"
+    ],
+    "companies": [
+      "Microsoft",
+      "Alphabet",
+      "Amazon",
+      "Meta",
+      "Oracle"
+    ],
+    "industry": "Policy",
+    "event_type": "policy",
+    "key_number": "Ban or tremendous tax on building data centers abroad. No details. Watch for an executive order",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-megacaps",
+      "2026-11-20-orcl",
+      "2026-11-20-hyperscaler-capex"
+    ],
+    "connection_notes": "Said Friday. No rule text was stated, so this stays developing."
+  },
+  {
+    "id": "2026-11-20-orcl",
+    "date": "2026-11-20",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Oracle closes at $101.19, a one-year low",
+    "summary": "Oracle says its OpenAI contract is now fully funded after a final capital raise. The stock closed Friday at $101.19, down 8.5%, a one-year low. The next test the digest names is whether OpenAI keeps paying as its losses mount.",
+    "tickers": [
+      "ORCL"
+    ],
+    "companies": [
+      "Oracle",
+      "OpenAI"
+    ],
+    "industry": "AI/Cloud",
+    "event_type": "market_move",
+    "key_number": "Friday close $101.19, -8.5%, a 1-year low. OpenAI contract now fully funded after a final capital raise",
+    "price_mentioned": {
+      "ticker": "ORCL",
+      "price": 101.19
+    },
+    "move_pct": -8.5,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-close",
+      "2026-11-23-megacaps",
+      "2026-11-20-datacenter-tax",
+      "2026-11-16-orcl-drop",
+      "2026-11-17-orcl-close",
+      "2026-11-03-orcl-funding",
+      "2027-orcl-openai-payments"
+    ],
+    "connection_notes": "The close is Friday. The digest does not give a separate clock time for the funding statement. Whether OpenAI keeps paying is still open and is on the linked payments row."
+  },
+  {
+    "id": "2026-11-20-spcx",
+    "date": "2026-11-20",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "SpaceX closes at $127.79, below its IPO price",
+    "summary": "SpaceX closed Friday at $127.79, down 7.7%, below its $135 IPO price, after Apollo and Goldman priced a record about $44 billion debt package for its GPU buildout.",
+    "tickers": [
+      "SPCX"
+    ],
+    "companies": [
+      "SpaceX"
+    ],
+    "industry": "Space",
+    "event_type": "market_move",
+    "key_number": "Friday close $127.79, -7.7%, below the $135 IPO price. About $44B GPU debt package priced",
+    "price_mentioned": {
+      "ticker": "SPCX",
+      "price": 127.79
+    },
+    "move_pct": -7.7,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-close",
+      "2026-11-18-spcx-bond",
+      "2026-12-08-spcx-lockup",
+      "2026-11-23-spcx"
+    ],
+    "connection_notes": "Friday's close. The debt package is the same financing that had been in talks."
+  },
+  {
+    "id": "2026-11-23-spcx",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "SpaceX is up 3.1% premarket",
+    "summary": "SpaceX is +3.1% premarket. It closed Friday at $127.79, below its $135 IPO price.",
+    "tickers": [
+      "SPCX"
+    ],
+    "companies": [
+      "SpaceX"
+    ],
+    "industry": "Space",
+    "event_type": "market_move",
+    "key_number": "Premarket +3.1%. Friday close $127.79 versus a $135 IPO price",
+    "price_mentioned": null,
+    "move_pct": 3.1,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-spcx",
+      "2026-12-08-spcx-lockup"
+    ],
+    "connection_notes": "The +3.1% is Monday premarket. No Monday price was stated."
+  },
+  {
+    "id": "2026-11-23-apld",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Applied Digital signs an 18-year, 150MW lease",
+    "summary": "Applied Digital is +13% premarket. It signed an 18-year, 150MW lease with an unnamed investment-grade hyperscaler, worth about $5.4 billion over the base term, plus a $300 million bridge loan. Total contracted lease revenue is now above $41 billion. The digest says to watch whether it can fund the buildout amid the neocloud selloff.",
+    "tickers": [
+      "APLD"
+    ],
+    "companies": [
+      "Applied Digital"
+    ],
+    "industry": "AI/Cloud",
+    "event_type": "deal",
+    "key_number": "18-year, 150MW lease, about $5.4B over the base term, plus a $300M bridge. Contracted lease revenue above $41B. Premarket +13%",
+    "price_mentioned": null,
+    "move_pct": 13,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-neoclouds",
+      "2026-11-23-chips",
+      "2026-11-23-vnet"
+    ],
+    "connection_notes": "The +13% is Monday premarket. No price was stated. The hyperscaler was not named."
+  },
+  {
+    "id": "2026-11-23-vnet",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "VNET rises after a 14.8% revenue gain and a $50 million buyback",
+    "summary": "VNET is +8.7% premarket. Third-quarter revenue rose 14.8%, wholesale data-center revenue rose 27.6% on AI demand, and it approved a $50 million buyback. Alibaba is +4.2% premarket.",
+    "tickers": [
+      "VNET",
+      "BABA"
+    ],
+    "companies": [
+      "VNET",
+      "Alibaba"
+    ],
+    "industry": "AI/Cloud",
+    "event_type": "earnings",
+    "key_number": "Q3 revenue +14.8%; wholesale data-center revenue +27.6%; $50M buyback. VNET +8.7% premarket; BABA +4.2%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-19-baba-earnings",
+      "2026-11-23-apld"
+    ],
+    "connection_notes": "Two different premarket moves, so move_pct stays empty."
+  },
+  {
+    "id": "2026-11-23-kymr",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Kymera's STAT6 pill meets Phase 2b eczema endpoints",
+    "summary": "Kymera is +29% premarket. Its once-daily STAT6 pill KT-621 met all endpoints in a 244-patient Phase 2b in eczema, with a 72% drop in severity on the mid dose versus 27% on placebo. The digest calls that a pill aiming at Dupixent-level results in a cross-trial comparison. Phase 3 starts by mid-2027.",
+    "tickers": [
+      "KYMR"
+    ],
+    "companies": [
+      "Kymera"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "trial",
+    "key_number": "Phase 2b met all endpoints. Mid dose -72% severity vs -27% placebo, 244 patients. Premarket +29%. Phase 3 by mid-2027",
+    "price_mentioned": null,
+    "move_pct": 29,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2027-06-01-kymr-phase3",
+      "2026-11-23-futures"
+    ],
+    "connection_notes": "The +29% is Monday premarket. No price was stated. The Dupixent comparison is cross-trial, as the digest says."
+  },
+  {
+    "id": "2027-06-01-kymr-phase3",
+    "date": "2027-06-01",
+    "date_precision": "month",
+    "status": "upcoming",
+    "title": "Kymera plans a KT-621 Phase 3 by mid-2027",
+    "summary": "Kymera says Phase 3 of KT-621 starts by mid-2027. No day was stated.",
+    "tickers": [
+      "KYMR"
+    ],
+    "companies": [
+      "Kymera"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "trial",
+    "key_number": "Phase 3 by mid-2027",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-kymr"
+    ],
+    "connection_notes": "Mid-2027 is not a day, so this stays off the calendar grid. The Phase 2b result is the linked row."
+  },
+  {
+    "id": "2026-11-23-nvs-orion4",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Novartis says Leqvio cut heart attacks and strokes in ORION-4",
+    "summary": "Novartis said its twice-yearly cholesterol shot Leqvio cut heart attacks and strokes in the 16,000-patient ORION-4 trial. Alnylam, the royalty partner, is +2.2% premarket and Novartis is +0.9%. Full ORION-4 data are guided for the first half of 2027.",
+    "tickers": [
+      "NVS",
+      "ALNY"
+    ],
+    "companies": [
+      "Novartis",
+      "Alnylam"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "trial",
+    "key_number": "ORION-4, 16,000 patients. ALNY +2.2% premarket; NVS +0.9%. Full data in H1 2027",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2027-01-01-nvs-orion4",
+      "2026-11-18-nvs-cosentyx",
+      "2026-11-23-futures"
+    ],
+    "connection_notes": "Two different premarket moves, so move_pct stays empty. No effect size was stated."
+  },
+  {
+    "id": "2027-01-01-nvs-orion4",
+    "date": "2027-01-01",
+    "date_precision": "unknown",
+    "status": "upcoming",
+    "title": "Novartis full ORION-4 data guided for the first half of 2027",
+    "summary": "Novartis guides full ORION-4 data for the first half of 2027. No day was stated.",
+    "tickers": [
+      "NVS",
+      "ALNY"
+    ],
+    "companies": [
+      "Novartis",
+      "Alnylam"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "trial",
+    "key_number": "Full ORION-4 data in H1 2027",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-nvs-orion4"
+    ],
+    "connection_notes": "A half year is not a day, so this stays off the calendar grid."
+  },
+  {
+    "id": "2027-01-01-ivvd-bla",
+    "date": "2027-01-01",
+    "date_precision": "quarter",
+    "status": "upcoming",
+    "title": "Invivyd plans a VYD2311 filing in the first quarter of 2027",
+    "summary": "Invivyd plans an accelerated-approval filing for VYD2311 in the first quarter of 2027. No day was stated.",
+    "tickers": [
+      "IVVD"
+    ],
+    "companies": [
+      "Invivyd"
+    ],
+    "industry": "Pharma/Biotech",
+    "event_type": "fda",
+    "key_number": "Accelerated-approval filing in Q1 2027",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-ivvd-declaration"
+    ],
+    "connection_notes": "The quarter is not a day, so this stays off the calendar grid. The interim Phase 3 result is the linked row."
+  },
+  {
+    "id": "2026-11-23-crwd-zs",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "CrowdStrike agrees to buy Zscaler for about $43.9 billion in stock",
+    "summary": "CrowdStrike is buying Zscaler in an all-stock deal worth about $43.9 billion, at 1.135 CRWD shares per ZS share, or $260.41, a 34% premium at Friday's prices. Zscaler is +20.8% premarket at $235.25 and CrowdStrike is -6.9%. CrowdStrike reported third-quarter revenue of $1.58 billion, up 28%, and raised its outlook, while Zscaler withdrew guidance. Closing is targeted for the second half of CrowdStrike's fiscal 2028. The deal needs Zscaler shareholder and regulatory approval. Founder Chaudhry, about 34% of the shares, agreed to vote yes, and Zscaler holders get about 16% of the combined company.",
+    "tickers": [
+      "CRWD",
+      "ZS"
+    ],
+    "companies": [
+      "CrowdStrike",
+      "Zscaler"
+    ],
+    "industry": "Software",
+    "event_type": "deal",
+    "key_number": "About $43.9B all-stock. 1.135 CRWD shares per ZS share, or $260.41, a 34% premium. ZS +20.8% at $235.25; CRWD -6.9%. CRWD Q3 revenue $1.58B, +28%",
+    "price_mentioned": {
+      "ticker": "ZS",
+      "price": 235.25
+    },
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-12-01-huang-house",
+      "2026-11-03-crm-crwd-deals"
+    ],
+    "connection_notes": "Two opposite premarket moves, so move_pct stays empty. $260.41 is the deal value, not the stored price. Closing and approvals are still ahead, so this stays developing. CrowdStrike's quarter is the reason it drops off the Dec 1 earnings line."
+  },
+  {
+    "id": "2026-11-20-hum",
+    "date": "2026-11-20",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "TD Cowen upgrades Humana to Buy",
+    "summary": "TD Cowen upgraded Humana to Buy with a $485 target on Friday, and the stock closed up 3%.",
+    "tickers": [
+      "HUM"
+    ],
+    "companies": [
+      "Humana"
+    ],
+    "industry": "Health insurance",
+    "event_type": "analyst",
+    "key_number": "TD Cowen Buy, $485 target. Friday close +3%",
+    "price_mentioned": null,
+    "move_pct": 3,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-upgrades",
+      "2026-11-20-analysts"
+    ],
+    "connection_notes": "The +3% is Friday's close. $485 is a target, not a traded price."
+  },
+  {
+    "id": "2026-11-23-upgrades",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "Baird, Piper, and JPMorgan upgrade banks, Dollar General, and LuxExperience",
+    "summary": "Baird upgraded Citizens and Truist to Outperform, and both are +2% premarket. Piper upgraded Dollar General to Overweight, and it is +2%. JPMorgan upgraded LuxExperience to Overweight, and it is +6.6%. The digest does not give a LuxExperience ticker.",
+    "tickers": [
+      "CFG",
+      "TFC",
+      "DG"
+    ],
+    "companies": [
+      "Citizens",
+      "Truist",
+      "Dollar General",
+      "LuxExperience"
+    ],
+    "industry": "Other",
+    "event_type": "analyst",
+    "key_number": "CFG and TFC to Outperform, both +2%. DG to Overweight, +2%. LuxExperience to Overweight, +6.6%",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-hum",
+      "2026-11-19-upgrades"
+    ],
+    "connection_notes": "Different premarket moves, so move_pct stays empty. No LuxExperience ticker was stated."
+  },
+  {
+    "id": "2026-11-23-gm",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "developing",
+    "title": "Sterling Anderson is considered to succeed Mary Barra",
+    "summary": "General Motors is +2.3% premarket after Bloomberg reported that Sterling Anderson, formerly of Aurora and Tesla Autopilot, is being considered to succeed CEO Mary Barra.",
+    "tickers": [
+      "GM"
+    ],
+    "companies": [
+      "General Motors"
+    ],
+    "industry": "Autos",
+    "event_type": "other",
+    "key_number": "Premarket +2.3%. Sterling Anderson considered to succeed Mary Barra",
+    "price_mentioned": null,
+    "move_pct": 2.3,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-futures"
+    ],
+    "connection_notes": "The succession is not decided, so this stays developing. The +2.3% is Monday premarket. No price was stated."
+  },
+  {
+    "id": "2026-11-23-gas",
+    "date": "2026-11-23",
+    "date_precision": "day",
+    "status": "happened",
+    "title": "National gas price is $3.69",
+    "summary": "Gas is $3.69 nationally, AAA says, and AAA says it could fall another 15 cents by Thanksgiving.",
+    "tickers": [],
+    "companies": [
+      "AAA"
+    ],
+    "industry": "Energy",
+    "event_type": "macro_data",
+    "key_number": "AAA national average $3.69. Could fall another 15 cents by Thanksgiving",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-20-umich",
+      "2026-11-26-thanksgiving"
+    ],
+    "connection_notes": "A pump price is not a stock move."
+  },
+  {
+    "id": "2026-11-24-confidence",
+    "date": "2026-11-24",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "Conference Board confidence at 10:00",
+    "summary": "Conference Board consumer confidence is at 10:00 on Tuesday, with 92.1 expected.",
+    "tickers": [],
+    "companies": [
+      "Conference Board"
+    ],
+    "industry": "Macro",
+    "event_type": "macro_data",
+    "key_number": "Conference Board confidence at 10:00. 92.1 expected",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-24-adi-mdt-hpq",
+      "2026-11-24-dell"
+    ],
+    "connection_notes": "Status stays upcoming."
+  },
+  {
+    "id": "2026-11-25-deere",
+    "date": "2026-11-25",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "Deere reports before the open",
+    "summary": "Deere reports before the open on Wednesday, Nov 25. No consensus figure was stated.",
+    "tickers": [],
+    "companies": [
+      "Deere"
+    ],
+    "industry": "Industrials",
+    "event_type": "earnings",
+    "key_number": "Deere before the open Nov 25",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-25-pce-gdp"
+    ],
+    "connection_notes": "No ticker and no consensus figure were stated. PCE and GDP are the same morning."
+  },
+  {
+    "id": "2026-11-27-early-close",
+    "date": "2026-11-27",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "Markets close at 1:00; Black Friday",
+    "summary": "Friday, Nov 27 is a 1:00 early close and Black Friday. BridgeBio's BBP-418 FDA decision is the same day.",
+    "tickers": [],
+    "companies": [
+      "NYSE",
+      "Nasdaq"
+    ],
+    "industry": "Macro",
+    "event_type": "other",
+    "key_number": "1:00 early close. Black Friday. BBIO FDA decision the same day",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-11-23-futures",
+      "2026-11-26-thanksgiving",
+      "2026-11-27-bridgebio-bbp418"
+    ],
+    "connection_notes": "Status stays upcoming."
+  },
+  {
+    "id": "2026-12-01-senate-dems",
+    "date": "2026-12-01",
+    "date_precision": "day",
+    "status": "upcoming",
+    "title": "Senate Democratic leadership elections",
+    "summary": "Senate Democratic leadership elections are Dec 1. They sit beside the Dec 11 fight over funding the Pentagon but not the Iran war.",
+    "tickers": [],
+    "companies": [
+      "Senate"
+    ],
+    "industry": "Policy",
+    "event_type": "policy",
+    "key_number": "Senate Democratic leadership elections Dec 1",
+    "price_mentioned": null,
+    "move_pct": null,
+    "source_digest_date": "2026-11-23",
+    "related_ids": [
+      "2026-12-11-funding-deadline",
+      "2026-12-01-huang-house"
+    ],
+    "connection_notes": "Status stays upcoming. The funding deadline is the linked item."
   }
 ]

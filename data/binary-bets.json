@@ -8,11 +8,11 @@
       "drug": "Deramiocel (CAP-1002)",
       "indication": "Duchenne muscular dystrophy, with a proposed focus on upper-limb impairment in patients older than 9",
       "catalyst_type": "pdufa",
-      "date": "2026-11-22",
+      "date": "2026-11-20",
       "date_precision": "day",
       "date_window": "",
       "timing": "confirmed",
-      "status": "upcoming",
+      "status": "resolved",
       "market_cap": "about $470 million",
       "cash": {
         "on_hand": "$198.5 million",
@@ -25,10 +25,16 @@
         "source_label": "Capricor Q3 2026 release, Nov 10, 2026",
         "reported": false
       },
-      "success_means": "An approval would be Capricor's first product. The company reported no revenue in the first three quarters of 2026 and said the San Diego plant is ready for an initial launch if the FDA says yes. A rare-pediatric designation could also qualify it for a priority-review voucher, which the cash outlook does not include.",
-      "miss_means": "The Nov 20 digest calls the complete-response risk high. A complete response letter would leave Capricor with no approved product. The same release says the 12-month cash outlook excludes product sales. A distribution fight with NS Pharma is already in arbitration, with a hearing expected in mid-2027.",
-      "why_it_matters": "The Nov 20 digest flags Sunday's decision, with the stock at $7.53, and calls the complete-response risk high after a 2025 CMC rejection and a 9-3 vote against in July. The Nov 19 digest calls this the second try, three days out, after a July 2025 complete response letter and a 9-3 negative advisory committee. Roth's approval odds are 25% and Oppenheimer's target is $54. Cash of $199 million versus a $44.7 million quarterly operating loss is about four quarters on the digest's estimate, and short interest was not verified. The Nov 18 note had called the same date a squeeze-or-crater setup. The FDA date is still ahead.",
-      "outcome": null,
+      "success_means": "An approval is not what the Nov 23 digest reports. The FDA rejected deramiocel. An approval would have been Capricor's first product. The company reported no revenue in the first three quarters of 2026 and said the San Diego plant was ready for an initial launch if the FDA said yes. A rare-pediatric designation could also have qualified it for a priority-review voucher, which the cash outlook does not include.",
+      "miss_means": "The rejection happened. The Nov 23 digest says a second complete response letter, for serious HOPE-3 data-integrity problems, leaves deramiocel unapproved. Cash is $198.5 million, about 12 months of runway.",
+      "why_it_matters": "The Nov 23 digest says the FDA rejected deramiocel Friday night and the stock is -75% premarket, from $7.59 to $1.86. The letter cites serious HOPE-3 data-integrity problems. Cash of $198.5 million is about 12 months of runway on the digest's words. The Nov 20 digest flags Sunday's decision, with the stock at $7.53, and calls the complete-response risk high after a 2025 CMC rejection and a 9-3 vote against in July. The Nov 19 digest calls this the second try, three days out, after a July 2025 complete response letter and a 9-3 negative advisory committee. Roth's approval odds are 25% and Oppenheimer's target is $54. Cash of $199 million versus a $44.7 million quarterly operating loss is about four quarters on the digest's estimate, and short interest was not verified. The Nov 18 note had called the same date a squeeze-or-crater setup. The FDA rejected the drug Friday night.",
+      "outcome": {
+        "result": "miss",
+        "move": "The stock is -75% premarket, from $7.59 to $1.86.",
+        "source": "https://www.capricor.com/",
+        "source_label": "Nov 23, 2026 morning stock digest",
+        "reported": true
+      },
       "facts": [
         {
           "label": "PDUFA date",
@@ -127,11 +133,18 @@
           "source": "https://www.capricor.com/",
           "source_label": "Nov 20, 2026 morning stock digest",
           "reported": true
+        },
+        {
+          "label": "Rejection",
+          "value": "The Nov 23, 2026 morning digest says the FDA rejected deramiocel a second time Friday night, citing serious data-integrity problems in the HOPE-3 trial: unauthorized changes to the analysis plan and blinding breaches. The stock is -75% premarket, from $7.59 to $1.86. Cash is $198.5 million, about 12 months of runway.",
+          "source": "https://www.capricor.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
         }
       ],
-      "title": "Binary: Capricor deramiocel PDUFA",
-      "summary": "The Nov 20 digest keeps Capricor's deramiocel PDUFA on Sunday, Nov 22, for Duchenne. The stock is $7.53. It follows a 2025 rejection on CMC issues and a 9-3 advisory committee vote against in July. The digest calls the complete-response risk high. The Nov 19 digest keeps Capricor's deramiocel PDUFA on November 22, 2026 for Duchenne muscular dystrophy and flags the three-day window. The stock is about $8 and the estimated market cap is about $470 million. It is the second try after a July 2025 complete response letter and a 9-3 negative advisory committee in July on the cardiomyopathy question. The FDA inspection 483 had one observation. Roth puts approval odds at 25%, and Oppenheimer has a $54 price target. Cash was $199 million as of September 30 against a third-quarter operating loss of $44.7 million, about four quarters of runway on the digest's estimate. Short interest was not verified. The digest infers that an earlier action is possible because November 22 is a Sunday. The filing cash figure on this card is still $198.5 million.",
-      "key_number": "PDUFA Sun Nov 22, 2026. Stock $7.53. 2025 rejection on CMC issues; 9-3 adcomm vote against in July. High CRL risk.",
+      "title": "Binary outcome: Capricor deramiocel rejected",
+      "summary": "The Nov 23 digest says the FDA rejected Capricor's deramiocel a second time Friday night, citing serious data-integrity problems in the HOPE-3 trial: unauthorized changes to the analysis plan and blinding breaches. The stock is -75% premarket, from $7.59 to $1.86. Cash is $198.5 million, about 12 months of runway. The Nov 20 digest keeps Capricor's deramiocel PDUFA on Sunday, Nov 22, for Duchenne. The stock is $7.53. It follows a 2025 rejection on CMC issues and a 9-3 advisory committee vote against in July. The digest calls the complete-response risk high. The Nov 19 digest keeps Capricor's deramiocel PDUFA on November 22, 2026 for Duchenne muscular dystrophy and flags the three-day window. The stock is about $8 and the estimated market cap is about $470 million. It is the second try after a July 2025 complete response letter and a 9-3 negative advisory committee in July on the cardiomyopathy question. The FDA inspection 483 had one observation. Roth puts approval odds at 25%, and Oppenheimer has a $54 price target. Cash was $199 million as of September 30 against a third-quarter operating loss of $44.7 million, about four quarters of runway on the digest's estimate. Short interest was not verified. The digest infers that an earlier action is possible because November 22 is a Sunday. The filing cash figure on this card is still $198.5 million.",
+      "key_number": "Rejected Friday night. -75% premarket, from $7.59 to $1.86. HOPE-3 data-integrity problems.",
       "related_ids": [
         "bb-2026-11-22-svra"
       ],
@@ -175,10 +188,10 @@
       "drug": "MOLBREEVI (molgramostim)",
       "indication": "Autoimmune pulmonary alveolar proteinosis",
       "catalyst_type": "pdufa",
-      "date": "2026-11-22",
-      "date_precision": "day",
-      "date_window": "",
-      "timing": "confirmed",
+      "date": "2027-01-01",
+      "date_precision": "month",
+      "date_window": "no new date",
+      "timing": "expected",
       "status": "upcoming",
       "market_cap": "",
       "cash": {
@@ -192,9 +205,9 @@
         "source_label": "Savara 10-Q for the quarter ended Sep 30, 2026",
         "reported": false
       },
-      "success_means": "An approval would be Savara's first product, and the Nov 19 digest still calls Molbreevi the only program. The same digest says to expect a raise after the decision either way. The 10-Q says the company has had no product revenue from inception through September 30, 2026.",
-      "miss_means": "A rejection would leave the only program unapproved. The Nov 19 digest says to expect a raise after the decision either way, not only if the FDA says no. The September 30 balance sheet still shows the cash and short-term investments above, and $30.2 million of long-term debt.",
-      "why_it_matters": "The Nov 20 digest keeps the Nov 22 decision, notes that it was already extended once, and puts the stock at $5.21. Molbreevi is the only program, and the Nov 19 digest says a raise is likely after the decision either way. Cash plus investments of about $130 million versus a $43 million third-quarter net loss is under one year on the digest's estimate. JPM is Overweight with a $12 target. The FDA date is still ahead.",
+      "success_means": "An approval would still be Savara's first product. The Nov 23 digest says the FDA missed Nov 22 and gave no new date, so that decision has not been made.",
+      "miss_means": "There is no rejection letter. The Nov 23 digest says the FDA missed the Nov 22 date, gave no new date, and the stock fell 18% Friday to $4.26.",
+      "why_it_matters": "The Nov 22 date passed with no decision and no rejection letter. The stock fell 18% Friday to $4.26. Analysts blame FDA bandwidth, and the digest says it is still a binary with the timing now unknown. The Nov 20 digest keeps the Nov 22 decision, notes that it was already extended once, and puts the stock at $5.21. Molbreevi is the only program, and the Nov 19 digest says a raise is likely after the decision either way. Cash plus investments of about $130 million versus a $43 million third-quarter net loss is under one year on the digest's estimate. JPM is Overweight with a $12 target. The Nov 22 date has passed with no decision.",
       "outcome": null,
       "facts": [
         {
@@ -252,11 +265,18 @@
           "source": "https://www.savarapharma.com/",
           "source_label": "Nov 20, 2026 morning stock digest",
           "reported": true
+        },
+        {
+          "label": "Missed PDUFA date",
+          "value": "The Nov 23, 2026 morning digest says the FDA missed the Nov 22 decision date for Molbreevi. No new date was given and there is no rejection letter. The stock fell 18% Friday to $4.26. Analysts blame FDA bandwidth, so it is still a binary and the timing is now unknown.",
+          "source": "https://www.savarapharma.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
         }
       ],
-      "title": "Binary: Savara MOLBREEVI PDUFA",
-      "summary": "The Nov 20 digest keeps Savara's Molbreevi decision on Nov 22. The drug is inhaled molgramostim for autoimmune pulmonary alveolar proteinosis, the review was already extended once, and the stock is $5.21. The Nov 19 digest keeps Savara's Molbreevi PDUFA on November 22, 2026 for autoimmune pulmonary alveolar proteinosis. The stock is about $4.72. It is the company's only program, and it received priority review after a 3-month extension. JPM is Overweight with a $12 price target. Cash plus investments were about $130 million on September 30 against a third-quarter net loss of $43 million, under one year of runway on the digest's estimate, so the digest says to expect a raise after the decision either way. The filing figure on this card is still $129.6 million of cash and short-term investments.",
-      "key_number": "PDUFA Nov 22, 2026. Inhaled molgramostim for autoimmune PAP; already extended once. Stock $5.21.",
+      "title": "Binary: Savara MOLBREEVI PDUFA missed, no new date",
+      "summary": "The Nov 23 digest says the FDA missed the Nov 22 Molbreevi decision date. No new date was given and there is no rejection letter. The stock fell 18% Friday to $4.26. Analysts blame FDA bandwidth, so it is still a binary and the timing is now unknown. The Nov 20 digest keeps Savara's Molbreevi decision on Nov 22. The drug is inhaled molgramostim for autoimmune pulmonary alveolar proteinosis, the review was already extended once, and the stock is $5.21. The Nov 19 digest keeps Savara's Molbreevi PDUFA on November 22, 2026 for autoimmune pulmonary alveolar proteinosis. The stock is about $4.72. It is the company's only program, and it received priority review after a 3-month extension. JPM is Overweight with a $12 price target. Cash plus investments were about $130 million on September 30 against a third-quarter net loss of $43 million, under one year of runway on the digest's estimate, so the digest says to expect a raise after the decision either way. The filing figure on this card is still $129.6 million of cash and short-term investments.",
+      "key_number": "Nov 22 PDUFA missed. No new date and no rejection letter. Friday -18% to $4.26.",
       "related_ids": [
         "bb-2026-11-22-capr"
       ],
@@ -275,6 +295,22 @@
           "target": "$12",
           "source": "https://www.savarapharma.com/",
           "source_label": "Nov 19, 2026 morning stock digest"
+        }
+      ],
+      "guidance_history": [
+        {
+          "date": "2026-11-20",
+          "wording": "Nov 22 PDUFA",
+          "source": "https://www.savarapharma.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "missed": true
+        },
+        {
+          "date": "2026-11-23",
+          "wording": "no new date",
+          "source": "https://www.savarapharma.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "missed": false
         }
       ]
     },
@@ -304,7 +340,7 @@
       },
       "success_means": "BridgeBio says an approval would be the first treatment for LGMD2I/R9 and the first approval of a therapy for any form of limb-girdle muscular dystrophy. The U.S. field team is already hired.",
       "miss_means": "A miss would delay that launch. It would not remove Attruby, which already sells. The same release reports $253.2 million of U.S. Attruby net product revenue in the third quarter. Two more BridgeBio PDUFA dates, infigratinib on February 4 and encaleret on May 8, would still be on the calendar.",
-      "why_it_matters": "The Nov 20 digest says the company is launch-ready for a priority-review decision on Nov 27 with no advisory committee. This is a real yes-or-no for a disease with no approved drug, but it is not the whole company. BridgeBio already sells Attruby and has two more FDA dates inside the next seven months.",
+      "why_it_matters": "The Nov 23 digest flags Friday's decision, under priority review, with the company launch-ready and about 16 quarters of cash. The Nov 20 digest says the company is launch-ready for a priority-review decision on Nov 27 with no advisory committee. This is a real yes-or-no for a disease with no approved drug, but it is not the whole company. BridgeBio already sells Attruby and has two more FDA dates inside the next seven months.",
       "outcome": null,
       "facts": [
         {
@@ -334,11 +370,18 @@
           "source": "https://investor.bridgebio.com/",
           "source_label": "Nov 20, 2026 morning stock digest",
           "reported": true
+        },
+        {
+          "label": "Nov 23 digest",
+          "value": "The Nov 23, 2026 morning digest says the BBP-418 decision for LGMD2I is Friday, Nov 27, under priority review. The company is launch-ready with about 16 quarters of cash.",
+          "source": "https://investor.bridgebio.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
         }
       ],
       "title": "Binary: BridgeBio BBP-418 PDUFA",
-      "summary": "The Nov 20 digest keeps the Nov 27 decision for BBP-418 in LGMD2I under priority review, with no advisory committee, and says the company is launch-ready. BridgeBio's BBP-418 for limb-girdle muscular dystrophy type 2I/R9 has an FDA target date of November 27, 2026. The company already sells Attruby and says its $1.5 billion cash balance funds three launches.",
-      "key_number": "PDUFA Nov 27, 2026. Priority review, no adcomm. Company says launch-ready.",
+      "summary": "The Nov 23 digest keeps Friday, Nov 27 as the BBP-418 decision under priority review and says the company is launch-ready with about 16 quarters of cash. The Nov 20 digest keeps the Nov 27 decision for BBP-418 in LGMD2I under priority review, with no advisory committee, and says the company is launch-ready. BridgeBio's BBP-418 for limb-girdle muscular dystrophy type 2I/R9 has an FDA target date of November 27, 2026. The company already sells Attruby and says its $1.5 billion cash balance funds three launches.",
+      "key_number": "PDUFA Fri Nov 27. Priority review. Launch-ready. About 16 quarters of cash.",
       "related_ids": [
         "bb-2027-02-04-bbio-infigratinib",
         "bb-2027-05-08-bbio-encaleret"
@@ -349,7 +392,16 @@
         "period": "nine months ended 2026-09-30",
         "source": "https://www.sec.gov/Archives/edgar/data/1743881/000174388126000034/bbio-20260930.htm",
         "source_label": "BridgeBio 10-Q for the quarter ended Sep 30, 2026"
-      }
+      },
+      "guidance_history": [
+        {
+          "date": "2026-11-23",
+          "wording": "November 27, 2026",
+          "source": "https://investor.bridgebio.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "missed": false
+        }
+      ]
     },
     {
       "id": "bb-2026-11-28-pypd",
@@ -461,7 +513,7 @@
       },
       "success_means": "An approval would be Cogent's first product, in patients whose GIST was already treated with imatinib. In the Phase 3 PEAK trial the combination cut the risk of progression or death by 50% versus sunitinib alone, with median progression-free survival of 16.5 months versus 9.2 months. Overall survival was still immature.",
       "miss_means": "A miss on November 30 would be a no for this GIST use. It would not decide the two mastocytosis applications. Those FDA dates are December 30, 2026 and June 29, 2027. Cash of $791.1 million was guided into late 2028, past all three dates.",
-      "why_it_matters": "The Nov 20 digest confirms the Nov 30 GIST date and restates the Dec 30 mastocytosis decision. Cogent presented at UBS on Nov 17. Bezuclastinib is the company, and this is the first of three FDA decisions on it. A GIST yes or no lands before the mastocytosis decisions, with enough cash that one letter does not empty the account.",
+      "why_it_matters": "The Nov 23 digest flags both dates, Nov 30 for GIST and Dec 30, which it labels AdvSM. The Nov 20 digest confirms the Nov 30 GIST date and restates the Dec 30 mastocytosis decision. Cogent presented at UBS on Nov 17. Bezuclastinib is the company, and this is the first of three FDA decisions on it. A GIST yes or no lands before the mastocytosis decisions, with enough cash that one letter does not empty the account.",
       "outcome": null,
       "facts": [
         {
@@ -491,11 +543,18 @@
           "source": "https://investors.cogentbio.com/",
           "source_label": "Nov 20, 2026 morning stock digest",
           "reported": true
+        },
+        {
+          "label": "Nov 23 digest",
+          "value": "The Nov 23, 2026 morning digest says the bezuclastinib decisions are Nov 30 (GIST) and Dec 30 (AdvSM).",
+          "source": "https://investors.cogentbio.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
         }
       ],
       "title": "Binary: Cogent bezuclastinib GIST PDUFA",
-      "summary": "The Nov 20 digest says the Nov 30 GIST decision is confirmed, the second decision in non-advanced systemic mastocytosis is Dec 30, and Cogent presented at UBS on Nov 17. Cogent's first FDA decision on bezuclastinib, combined with sunitinib for gastrointestinal stromal tumor after imatinib, is November 30, 2026. Cash was $791.1 million on September 30.",
-      "key_number": "PDUFA Nov 30, 2026, confirmed. NonAdvSM decision Dec 30. Presented at UBS on Nov 17.",
+      "summary": "The Nov 23 digest lists the bezuclastinib decisions as Nov 30 for GIST and Dec 30 for AdvSM. The Nov 20 digest says the Nov 30 GIST decision is confirmed, the second decision in non-advanced systemic mastocytosis is Dec 30, and Cogent presented at UBS on Nov 17. Cogent's first FDA decision on bezuclastinib, combined with sunitinib for gastrointestinal stromal tumor after imatinib, is November 30, 2026. Cash was $791.1 million on September 30.",
+      "key_number": "Nov 23 digest: Nov 30 GIST and Dec 30 AdvSM.",
       "related_ids": [
         "bb-2026-12-30-cogt-nonadvsm"
       ],
@@ -505,7 +564,16 @@
         "period": "nine months ended 2026-09-30",
         "source": "https://www.sec.gov/Archives/edgar/data/1622229/000119312526449963/cogt-20260930.htm",
         "source_label": "Cogent 10-Q for the quarter ended Sep 30, 2026"
-      }
+      },
+      "guidance_history": [
+        {
+          "date": "2026-11-23",
+          "wording": "November 30, 2026",
+          "source": "https://investors.cogentbio.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "missed": false
+        }
+      ]
     },
     {
       "id": "bb-2026-12-12-vnda",
@@ -724,7 +792,7 @@
       },
       "success_means": "An approval would open the larger, chronic mastocytosis use. Cogent has said the SUMMIT trial hit its primary and key secondary endpoints. The company said the FDA was not planning an advisory committee when it accepted the file.",
       "miss_means": "A miss would be a no for non-advanced systemic mastocytosis. The GIST decision on November 30 is a separate letter, and the advanced-mastocytosis date is June 29, 2027, which is outside this six-month list. Cash was guided into late 2028.",
-      "why_it_matters": "This is the second bezuclastinib decision, a month after GIST. Same drug, different disease, and still the main thing Cogent has in front of the FDA this year.",
+      "why_it_matters": "The Nov 23 digest names Dec 30 and calls that decision AdvSM. The indication stored here remains the filing's non-advanced systemic mastocytosis. This is the second bezuclastinib decision, a month after GIST. Same drug, different disease, and still the main thing Cogent has in front of the FDA this year.",
       "outcome": null,
       "facts": [
         {
@@ -747,11 +815,18 @@
           "source": "https://investors.cogentbio.com/",
           "source_label": "Nov 20, 2026 morning stock digest",
           "reported": true
+        },
+        {
+          "label": "Nov 23 digest",
+          "value": "The Nov 23, 2026 morning digest says a bezuclastinib decision is Dec 30 and labels it AdvSM. This card does not change the filing indication of non-advanced systemic mastocytosis.",
+          "source": "https://investors.cogentbio.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
         }
       ],
       "title": "Binary: Cogent bezuclastinib mastocytosis PDUFA",
-      "summary": "The Nov 20 digest restates this Dec 30 decision in non-advanced systemic mastocytosis as the second bezuclastinib date, after the confirmed Nov 30 GIST decision. Cogent's bezuclastinib application for non-advanced systemic mastocytosis has an FDA target date of December 30, 2026. It is a separate decision from the November 30 GIST date. Cash was $791.1 million on September 30.",
-      "key_number": "PDUFA Dec 30, 2026. Same $791.1 million cash balance as the GIST date.",
+      "summary": "The Nov 23 digest lists a Dec 30 bezuclastinib decision and labels it AdvSM. This card's indication stays the filing's non-advanced systemic mastocytosis. The Nov 20 digest restates this Dec 30 decision in non-advanced systemic mastocytosis as the second bezuclastinib date, after the confirmed Nov 30 GIST decision. Cogent's bezuclastinib application for non-advanced systemic mastocytosis has an FDA target date of December 30, 2026. It is a separate decision from the November 30 GIST date. Cash was $791.1 million on September 30.",
+      "key_number": "Dec 30 decision. Nov 23 digest labels it AdvSM. Filing indication on this card stays non-advanced systemic mastocytosis.",
       "related_ids": [
         "bb-2026-11-30-cogt-gist"
       ],
@@ -761,7 +836,16 @@
         "period": "nine months ended 2026-09-30",
         "source": "https://www.sec.gov/Archives/edgar/data/1622229/000119312526449963/cogt-20260930.htm",
         "source_label": "Cogent 10-Q for the quarter ended Sep 30, 2026"
-      }
+      },
+      "guidance_history": [
+        {
+          "date": "2026-11-23",
+          "wording": "December 30, 2026",
+          "source": "https://investors.cogentbio.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "missed": false
+        }
+      ]
     },
     {
       "id": "bb-2026-12-kod-peak",
@@ -789,7 +873,7 @@
       },
       "success_means": "The Nov 20 digest says dilution is likely either way, including if the December readout works, because the third-quarter filing flagged substantial going-concern doubt. A positive topline from the first 300-patient PEAK cohort would support a KSI-101 filing. The company says that if this December readout works, it plans a BLA in the second quarter of 2027. Kodiak has other late-stage retina programs, including Zenkuda. The Nov 19 digest says more dilution is likely either way.",
       "miss_means": "The Nov 20 digest says dilution is likely either way and that the third-quarter filing flagged substantial going-concern doubt. A miss would hit the lead inflammation program and the filing plan that depends on it. Cash of $88.7 million was guided only into 2027, so a failed readout would land on a shorter runway than most names on this list. The company did not state a quarter count. The Nov 19 digest says more dilution is likely either way.",
-      "why_it_matters": "The Nov 20 digest keeps the December guide and adds that the third-quarter filing flagged substantial going-concern doubt, so the readout is do-or-die and dilution is likely either way. December is still the first pivotal look at KSI-101, and the day was not announced. The Nov 19 digest says the stock is about $98 and likely above a $2 billion cap, that $69 million was raised after quarter-end, and that more dilution is likely either way against an $88.7 million September 30 balance and a $67 million third-quarter burn.",
+      "why_it_matters": "The Nov 23 digest does not move the December guide. It still flags a going-concern warning and says dilution is likely either way. The Nov 20 digest keeps the December guide and adds that the third-quarter filing flagged substantial going-concern doubt, so the readout is do-or-die and dilution is likely either way. December is still the first pivotal look at KSI-101, and the day was not announced. The Nov 19 digest says the stock is about $98 and likely above a $2 billion cap, that $69 million was raised after quarter-end, and that more dilution is likely either way against an $88.7 million September 30 balance and a $67 million third-quarter burn.",
       "outcome": null,
       "facts": [
         {
@@ -833,11 +917,18 @@
           "source": "https://kodiak.com/",
           "source_label": "Nov 20, 2026 morning stock digest",
           "reported": true
+        },
+        {
+          "label": "Readout window in the Nov 23 digest",
+          "value": "The Nov 23, 2026 morning digest says the PEAK topline is still guided for December, with a going-concern flag, and that dilution is likely either way. No day inside December was stated.",
+          "source": "https://kodiak.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
         }
       ],
       "title": "Binary: Kodiak KSI-101 PEAK readout",
-      "summary": "The Nov 20 digest says the PEAK pivotal analysis 1 topline for KSI-101 is still guided for December, and the third-quarter filing flagged substantial going-concern doubt. It calls the readout do-or-die, with dilution likely either way. The Nov 19 digest keeps Kodiak's PEAK Pivotal Analysis 1 topline for KSI-101 guided to December. The stock is about $98, and the digest says that is likely above a $2 billion cap. Cash was $88.7 million on September 30, plus $69 million raised through an at-the-market program after quarter-end, against a $67 million third-quarter burn. The digest says more dilution is likely either way. No day inside December was stated.",
-      "key_number": "Still guided for December. Q3 filing flagged substantial going-concern doubt. Do-or-die readout; dilution likely either way.",
+      "summary": "The Nov 23 digest says the PEAK topline is still guided for December, with a going-concern flag, and that dilution is likely either way. The Nov 20 digest says the PEAK pivotal analysis 1 topline for KSI-101 is still guided for December, and the third-quarter filing flagged substantial going-concern doubt. It calls the readout do-or-die, with dilution likely either way. The Nov 19 digest keeps Kodiak's PEAK Pivotal Analysis 1 topline for KSI-101 guided to December. The stock is about $98, and the digest says that is likely above a $2 billion cap. Cash was $88.7 million on September 30, plus $69 million raised through an at-the-market program after quarter-end, against a $67 million third-quarter burn. The digest says more dilution is likely either way. No day inside December was stated.",
+      "key_number": "Still guided for December. Going-concern flag. Dilution likely either way.",
       "related_ids": [
         "bb-2027-q2-kod-pinnacle"
       ],
@@ -861,6 +952,13 @@
           "wording": "December",
           "source": "https://kodiak.com/",
           "source_label": "Nov 20, 2026 morning stock digest",
+          "missed": false
+        },
+        {
+          "date": "2026-11-23",
+          "wording": "December",
+          "source": "https://kodiak.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
           "missed": false
         }
       ],
@@ -2082,7 +2180,7 @@
       },
       "success_means": "The Nov 19 digest calls the twin ENSURE-1 and ENSURE-2 relapsing MS toplines a December 2026 event and does not spell out a separate stock case. The company says $132 million funds operations into late 2027.",
       "miss_means": "The Nov 19 digest does not spell out a miss case. It says the toplines are guided to December 2026 and that the company says $132 million funds operations into late 2027. The Nov 18 note had called the readouts make-or-break and had estimated roughly three quarters of cash.",
-      "why_it_matters": "The Nov 20 digest does not move the window. ENSURE-1 and ENSURE-2 are still guided for December 2026, and no day was stated. The twin ENSURE readouts are guided to December 2026, and the Nov 19 digest flags that window as inside about six weeks. The company says $132 million funds operations into late 2027. No day inside December was stated.",
+      "why_it_matters": "The Nov 23 digest does not move the December guide for the Phase 3 relapsing-MS topline. No day was stated. The Nov 20 digest does not move the window. ENSURE-1 and ENSURE-2 are still guided for December 2026, and no day was stated. The twin ENSURE readouts are guided to December 2026, and the Nov 19 digest flags that window as inside about six weeks. The company says $132 million funds operations into late 2027. No day inside December was stated.",
       "outcome": null,
       "facts": [
         {
@@ -2126,11 +2224,18 @@
           "source": "https://finance.yahoo.com/quote/IMUX/",
           "source_label": "Nov 20, 2026 morning stock digest",
           "reported": true
+        },
+        {
+          "label": "Readout window in the Nov 23 digest",
+          "value": "The Nov 23, 2026 morning digest says the Phase 3 relapsing-MS topline is still guided for December. No day was stated.",
+          "source": "https://finance.yahoo.com/quote/IMUX/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
         }
       ],
       "title": "Binary: Immunic ENSURE Phase 3 readouts",
-      "summary": "The Nov 20 digest says the ENSURE-1 and ENSURE-2 Phase 3 relapsing-MS topline is still guided for December 2026. The Nov 19 digest says Immunic's twin Phase 3 ENSURE-1 and ENSURE-2 relapsing MS toplines are guided to December 2026, inside about six weeks. The stock is about $7.52. Cash is $132 million, which the company says funds operations into late 2027. The Nov 18 digest had estimated roughly three quarters from about $43 million of quarterly spending. This note does not repeat that spending figure.",
-      "key_number": "ENSURE-1 and ENSURE-2 still guided for December 2026.",
+      "summary": "The Nov 23 digest says the Phase 3 relapsing-MS topline is still guided for December. The Nov 20 digest says the ENSURE-1 and ENSURE-2 Phase 3 relapsing-MS topline is still guided for December 2026. The Nov 19 digest says Immunic's twin Phase 3 ENSURE-1 and ENSURE-2 relapsing MS toplines are guided to December 2026, inside about six weeks. The stock is about $7.52. Cash is $132 million, which the company says funds operations into late 2027. The Nov 18 digest had estimated roughly three quarters from about $43 million of quarterly spending. This note does not repeat that spending figure.",
+      "key_number": "Phase 3 relapsing-MS topline still guided for December.",
       "related_ids": [],
       "guidance_history": [
         {
@@ -2152,6 +2257,13 @@
           "wording": "December 2026",
           "source": "https://finance.yahoo.com/quote/IMUX/",
           "source_label": "Nov 20, 2026 morning stock digest",
+          "missed": false
+        },
+        {
+          "date": "2026-11-23",
+          "wording": "December",
+          "source": "https://finance.yahoo.com/quote/IMUX/",
+          "source_label": "Nov 23, 2026 morning stock digest",
           "missed": false
         }
       ]
@@ -2251,13 +2363,13 @@
       "ticker": "IVVD",
       "company": "Invivyd",
       "drug": "VYD2311",
-      "indication": "Not named in the Nov 19 digest",
+      "indication": "COVID-19",
       "catalyst_type": "phase3",
-      "date": "2026-11-01",
-      "date_precision": "month",
-      "date_window": "imminently",
-      "timing": "expected",
-      "status": "upcoming",
+      "date": "2026-11-23",
+      "date_precision": "day",
+      "date_window": "",
+      "timing": "confirmed",
+      "status": "resolved",
       "market_cap": "",
       "cash": {
         "on_hand": "$126.4 million",
@@ -2270,10 +2382,16 @@
         "source_label": "Nov 19, 2026 morning stock digest",
         "reported": true
       },
-      "success_means": "The Nov 19 digest does not say what a positive DECLARATION readout would mean. It says the Phase 3 data for VYD2311 are now guided as imminent and that the readout timing was reworked through FDA talks.",
-      "miss_means": "The Nov 19 digest does not say what a negative DECLARATION readout would mean. It says cash is $126.4 million against a $34.7 million third-quarter operating loss, about 3.5 quarters on its estimate.",
-      "why_it_matters": "The Nov 20 digest keeps the readout imminent and puts the stock at about $0.45, with delisting and dilution risk high. The readout timing was tightened to imminent after FDA talks, and the digest flags that as an early warning. Cash of $126.4 million versus a $34.7 million quarterly operating loss is about 3.5 quarters on the digest's estimate. No day, indication, market cap, or short-interest figure was stated.",
-      "outcome": null,
+      "success_means": "The interim readout was positive. The Nov 23 digest says VYD2311 met all interim Phase 3 endpoints and Invivyd plans an accelerated-approval filing in the first quarter of 2027.",
+      "miss_means": "A miss is not what the Nov 23 digest reports. It says the interim Phase 3 was positive, and that at under $1 the delisting and dilution risk remains.",
+      "why_it_matters": "The Nov 23 digest says the interim Phase 3 met every endpoint and the stock is +18% premarket at $0.49. The filing is planned for the first quarter of 2027. Under $1, delisting and dilution risk remains. The Nov 20 digest keeps the readout imminent and puts the stock at about $0.45, with delisting and dilution risk high. The readout timing was tightened to imminent after FDA talks, and the digest flags that as an early warning. Cash of $126.4 million versus a $34.7 million quarterly operating loss is about 3.5 quarters on the digest's estimate. No day, indication, market cap, or short-interest figure was stated.",
+      "outcome": {
+        "result": "success",
+        "move": "The stock is +18% premarket at $0.49. The digest says that at under $1 the delisting and dilution risk remains.",
+        "source": "https://invivyd.com/",
+        "source_label": "Nov 23, 2026 morning stock digest",
+        "reported": true
+      },
       "facts": [
         {
           "label": "Readout window",
@@ -2302,11 +2420,18 @@
           "source": "https://invivyd.com/",
           "source_label": "Nov 20, 2026 morning stock digest",
           "reported": true
+        },
+        {
+          "label": "Interim result",
+          "value": "The Nov 23, 2026 morning digest says VYD2311, a COVID antibody, met all interim Phase 3 endpoints. The stock is +18% premarket at $0.49. An accelerated-approval filing is planned for Q1 2027. At under $1, delisting and dilution risk remains.",
+          "source": "https://invivyd.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
         }
       ],
-      "title": "Binary: Invivyd VYD2311 readout guided as imminent",
-      "summary": "The Nov 20 digest says Phase 3 DECLARATION data on VYD2311 are imminent, citing Nov 16 guidance. The stock is about $0.45, and the note says delisting and dilution risk is high. The Nov 19 digest says Invivyd's Phase 3 DECLARATION data for VYD2311 are now guided as imminent, with the timing reworked through FDA talks. The stock is about $0.47. Cash is $126.4 million against a $34.7 million third-quarter operating loss, about 3.5 quarters on the digest's estimate. No indication or day was stated.",
-      "key_number": "Imminent, Nov 16 guidance. Stock about $0.45. Delisting and dilution risk high.",
+      "title": "Binary outcome: Invivyd VYD2311 interim Phase 3 positive",
+      "summary": "The Nov 23 digest says Invivyd's VYD2311 COVID antibody met all interim Phase 3 endpoints and the stock is +18% premarket at $0.49. An accelerated-approval filing is planned for the first quarter of 2027. At under $1, the digest says delisting and dilution risk remains. The Nov 20 digest says Phase 3 DECLARATION data on VYD2311 are imminent, citing Nov 16 guidance. The stock is about $0.45, and the note says delisting and dilution risk is high. The Nov 19 digest says Invivyd's Phase 3 DECLARATION data for VYD2311 are now guided as imminent, with the timing reworked through FDA talks. The stock is about $0.47. Cash is $126.4 million against a $34.7 million third-quarter operating loss, about 3.5 quarters on the digest's estimate. No indication or day was stated.",
+      "key_number": "Interim Phase 3 met all endpoints. +18% premarket at $0.49. BLA filing in Q1 2027. Delisting and dilution risk remains.",
       "related_ids": [],
       "guidance_history": [
         {
@@ -2322,12 +2447,19 @@
           "source": "https://invivyd.com/",
           "source_label": "Nov 20, 2026 morning stock digest",
           "missed": false
+        },
+        {
+          "date": "2026-11-23",
+          "wording": "interim Phase 3 met; BLA filing in Q1 2027",
+          "source": "https://invivyd.com/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "missed": false
         }
       ],
       "dilution": {
-        "summary": "The Nov 20, 2026 morning digest says the stock is about $0.45 and that delisting and dilution risk is high. It does not give a share count or an offering size.",
+        "summary": "The Nov 23, 2026 morning digest says the stock is +18% premarket at $0.49 and that at under $1 the delisting and dilution risk remains. The Nov 20 digest had said the stock was about $0.45 and that delisting and dilution risk was high. Neither note gives a share count or an offering size.",
         "source": "https://invivyd.com/",
-        "source_label": "Nov 20, 2026 morning stock digest"
+        "source_label": "Nov 23, 2026 morning stock digest"
       }
     },
     {
@@ -2458,7 +2590,7 @@
       },
       "success_means": "The Nov 20 digest calls this a single-asset binary. A positive topline would be the pivotal result for patidegib gel in Gorlin syndrome. The primary endpoint is new facial basal-cell carcinomas at month 12.",
       "miss_means": "The Nov 20 digest calls this a single-asset binary, so a miss would leave that one asset without a positive pivotal topline. Cash was $45.7 million with runway into the first quarter of 2028.",
-      "why_it_matters": "The topline is guided for late November and the note says it could come any day. 102 of 113 patients have completed. The stock is about $54, the market cap is roughly $177 million, and this is the only asset.",
+      "why_it_matters": "The Nov 23 digest keeps the late-November guide, says the topline is not out, and puts 8 days on the clock. Friday's close was $55.17 and runway lasts into Q1 2028. The 102 of 113 patient count is the prior note's figure. This note does not update it. The topline is guided for late November and the note says it could come any day. 102 of 113 patients have completed. The stock is about $54, the market cap is roughly $177 million, and this is the only asset.",
       "outcome": null,
       "event_counter": {
         "current": 102,
@@ -2473,6 +2605,13 @@
           "wording": "late November",
           "source": "https://finance.yahoo.com/quote/SLGL/",
           "source_label": "Nov 20, 2026 morning stock digest",
+          "missed": false
+        },
+        {
+          "date": "2026-11-23",
+          "wording": "late November",
+          "source": "https://finance.yahoo.com/quote/SLGL/",
+          "source_label": "Nov 23, 2026 morning stock digest",
           "missed": false
         }
       ],
@@ -2504,11 +2643,18 @@
           "source": "https://finance.yahoo.com/quote/SLGL/",
           "source_label": "Nov 20, 2026 morning stock digest",
           "reported": true
+        },
+        {
+          "label": "Readout window in the Nov 23 digest",
+          "value": "The Nov 23, 2026 morning digest says the Phase 3 patidegib (Gorlin) topline is still guided for late November, with 8 days left, and is not out yet. The stock closed Friday at $55.17. Runway lasts into Q1 2028. It does not update the patient count.",
+          "source": "https://finance.yahoo.com/quote/SLGL/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
         }
       ],
       "title": "Binary: Sol-Gel SGT-610 Phase 3 topline",
-      "summary": "The Nov 20 digest says Sol-Gel's pivotal Phase 3 topline for SGT-610, patidegib gel, in Gorlin syndrome is guided for late November and could come any day. 102 of 113 patients completed. The stock is about $54, the market cap is roughly $177 million, and cash was $45.7 million with runway into the first quarter of 2028. The note calls it a single-asset binary.",
-      "key_number": "Late November. 102 of 113 completed. About $54; market cap roughly $177 million. Cash $45.7 million, runway into Q1 2028.",
+      "summary": "The Nov 23 digest says the Phase 3 patidegib topline in Gorlin is still guided for late November, with 8 days left, and is not out yet. The stock closed Friday at $55.17. Runway lasts into Q1 2028. The Nov 20 digest says Sol-Gel's pivotal Phase 3 topline for SGT-610, patidegib gel, in Gorlin syndrome is guided for late November and could come any day. 102 of 113 patients completed. The stock is about $54, the market cap is roughly $177 million, and cash was $45.7 million with runway into the first quarter of 2028. The note calls it a single-asset binary.",
+      "key_number": "Still late November. Not out. 8 days left. Closed Friday at $55.17. Runway into Q1 2028.",
       "related_ids": []
     },
     {
@@ -2623,6 +2769,58 @@
       "summary": "The Nov 20 digest says Moleculin's MIRACLE Part A data guidance slipped from Dec 2026-Feb 2027 to the first quarter of 2027, a soft delay. It does not name a trial phase or an indication. The stock rose 17% Thursday on patent news. No cash figure or market cap was stated.",
       "key_number": "Guidance slipped to Q1 2027 from Dec 2026-Feb 2027. Thursday +17% on patent news.",
       "related_ids": []
+    },
+    {
+      "id": "bb-2026-11-23-dwtx",
+      "ticker": "DWTX",
+      "company": "Dogwood",
+      "drug": "Halneuron",
+      "indication": "Chemo-induced nerve pain",
+      "catalyst_type": "phase3",
+      "date": "2027-01-01",
+      "date_precision": "month",
+      "date_window": "Phase 3 still needs FDA sign-off; no date stated",
+      "timing": "expected",
+      "status": "upcoming",
+      "market_cap": "",
+      "cash": null,
+      "success_means": "The Nov 23 digest says Halneuron met its Phase 2b primary endpoint. It does not say what FDA sign-off for a Phase 3 would mean for the stock. Some secondary endpoints were only borderline.",
+      "miss_means": "The Nov 23 digest says Phase 3 still needs FDA sign-off and flags microcap dilution risk. It does not spell out a separate rejection case. The stock was about $1 and is +18% premarket at $1.22.",
+      "why_it_matters": "Halneuron met the Phase 2b primary endpoint in chemo-induced nerve pain, 23.3% versus 9.2% responders, and the stock is +18% premarket at $1.22. Some secondary endpoints were only borderline. Phase 3 still needs FDA sign-off, and the digest flags microcap dilution risk. No date, cash figure, or market cap was stated.",
+      "outcome": null,
+      "facts": [
+        {
+          "label": "Next window",
+          "value": "The Nov 23, 2026 morning digest says Phase 3 still needs FDA sign-off. No date was stated.",
+          "source": "https://finance.yahoo.com/quote/DWTX/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
+        },
+        {
+          "label": "Phase 2b result",
+          "value": "The Nov 23, 2026 morning digest says Halneuron met its Phase 2b primary endpoint in chemo-induced nerve pain, 23.3% versus 9.2% responders. Some secondary endpoints were only borderline.",
+          "source": "https://finance.yahoo.com/quote/DWTX/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
+        },
+        {
+          "label": "Price",
+          "value": "The Nov 23, 2026 morning digest says Dogwood is about $1 and the stock is +18% premarket at $1.22. It flags microcap dilution risk. A market cap was not stated.",
+          "source": "https://finance.yahoo.com/quote/DWTX/",
+          "source_label": "Nov 23, 2026 morning stock digest",
+          "reported": true
+        }
+      ],
+      "title": "Binary: Dogwood Halneuron Phase 3 still needs FDA sign-off",
+      "summary": "The Nov 23 digest says Dogwood's Halneuron met its Phase 2b primary endpoint in chemo-induced nerve pain, 23.3% versus 9.2% responders, and the stock is +18% premarket at $1.22. Some secondary endpoints were only borderline, Phase 3 still needs FDA sign-off, and the note flags microcap dilution risk. No date was stated.",
+      "key_number": "Phase 2b primary endpoint met, 23.3% vs 9.2%. Phase 3 needs FDA sign-off. +18% premarket at $1.22. Microcap dilution risk.",
+      "related_ids": [],
+      "prior_phase_data": "Phase 2b primary endpoint in chemo-induced nerve pain: 23.3% versus 9.2% responders. Some secondary endpoints were only borderline.",
+      "dilution": {
+        "summary": "The Nov 23, 2026 morning digest says Dogwood is about $1, the stock is +18% premarket at $1.22, and microcap dilution risk remains. It does not give a share count or an offering size.",
+        "source": "https://finance.yahoo.com/quote/DWTX/",
+        "source_label": "Nov 23, 2026 morning stock digest"
+      }
     }
   ]
 }

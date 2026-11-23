@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import type { IChartApi, IPriceLine, ISeriesApi, ISeriesMarkersPluginApi, LineStyle, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
-import { clock, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
+import { clock, growToInclude, priceWindow, seriesNeedsReset } from "@/lib/practice-path";
 
 export type ChartCandle = { t: number; o: number; h: number; l: number; c: number };
 export type ChartMark = { time: number; side: "buy" | "sell" };
@@ -65,6 +65,16 @@ function publish(chart: IChartApi, candles: ChartCandle[], host: HTMLElement | n
   host.dataset.manual = manual ? "1" : "0";
 }
 
+/** With a hand-set price range, widen it just enough (plus a little room) when the live candle pokes out. */
+function keepLiveCandleInView(chart: IChartApi, candles: ChartCandle[]) {
+  const scale = chart.priceScale("right");
+  if (!candles.length || scale.options().autoScale) return;
+  const range = scale.getVisibleRange();
+  if (!range) return;
+  const next = growToInclude(range, candles[candles.length - 1]);
+  if (next) scale.setVisibleRange(next);
+}
+
 function holdApply(applying: { current: boolean }, run: () => void) {
   applying.current = true;
   run();
@@ -120,7 +130,6 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       const range = chart.timeScale().getVisibleLogicalRange();
       if (!range) return;
       manual.current = true;
-      chart.priceScale("right").setAutoScale(false);
       const center = (range.from + range.to) / 2;
       const half = Math.max(2, ((range.to - range.from) / 2) * factor);
       applying.current = true;
@@ -191,10 +200,8 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       host.current.addEventListener("pointerup", disarm);
       host.current.addEventListener("wheel", arm, { passive: true });
       const onRange = () => {
-        if (gesture.current && !applying.current) {
-          manual.current = true;
-          chart?.priceScale("right").setAutoScale(false);
-        }
+        // Scrolling or zooming time keeps the user's time window, but the price axis keeps fitting the candles.
+        if (gesture.current && !applying.current) manual.current = true;
         if (chart) publish(chart, latest.current.candles, host.current, manual.current);
       };
       chart.timeScale().subscribeVisibleLogicalRangeChange(onRange);
@@ -339,7 +346,8 @@ function paint(
   const replace = seriesNeedsReset(previousId.current, seriesId, previous.current, candles) || !candles.length;
   const sig = markers.map((mark) => `${mark.time}:${mark.side}`).join("|");
   const savedTime: LogicalRange | null = manual.current ? chart.timeScale().getVisibleLogicalRange() : null;
-  const savedPrice = manual.current ? chart.priceScale("right").getVisibleRange() : null;
+  // Only a price-axis drag turns autoscale off; restore that hand-set price range, never freeze an autoscaled one.
+  const savedPrice = manual.current && !chart.priceScale("right").options().autoScale ? chart.priceScale("right").getVisibleRange() : null;
   const markerData = markers.map((mark) => ({
     time: mark.time as UTCTimestamp,
     position: mark.side === "buy" ? ("belowBar" as const) : ("aboveBar" as const),
@@ -376,6 +384,7 @@ function paint(
       if (savedTime) chart.timeScale().setVisibleLogicalRange(savedTime);
       if (savedPrice) chart.priceScale("right").setVisibleRange(savedPrice);
       applying.current = false;
+      keepLiveCandleInView(chart, candles);
       publish(chart, candles, host, true);
     }
   } else if (candles.length) {
@@ -393,6 +402,8 @@ function paint(
       if (!range || last > range.to - 1 || last < range.from) {
         holdApply(applying, () => chart.timeScale().setVisibleLogicalRange({ from: last - 14, to: last + 5 }));
       }
+    } else {
+      keepLiveCandleInView(chart, candles);
     }
     publish(chart, candles, host, manual.current);
   }

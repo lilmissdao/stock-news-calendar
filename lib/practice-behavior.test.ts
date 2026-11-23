@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState, restartDay } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { buildSession, candleInView, chartBars, clock, minuteSeed, openingPlan, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
+import { buildSession, candleInView, chartBars, clock, growToInclude, minuteSeed, openingPlan, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
 import { addDayEntry, attemptNumbers, deleteDayEntry, emptyDayLog, parseDayLog } from "./practice-daylog";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
@@ -283,6 +283,17 @@ function scaleFramesTheCandleNotThePriorClose() {
   assert.ok((bar.h - bar.l) / (range.to - range.from) >= 0.5, "candle fills less than half the view");
 }
 
+function frameGrowsWhenTheCandleLeavesIt() {
+  const view = { from: 80, to: 81 };
+  assert.equal(growToInclude(view, { l: 80.2, h: 80.9 }), null, "fits already");
+  const up = growToInclude(view, { l: 80.5, h: 81.4 });
+  assert.ok(up && up.to > 81.4 && up.from === 80, "breakout up widens the top only");
+  const down = growToInclude(view, { l: 79.3, h: 80.4 });
+  assert.ok(down && down.from < 79.3 && down.to === 81, "breakdown widens the bottom only");
+  const out = growToInclude(view, { l: 83, h: 84 });
+  assert.ok(out && candleInView(out, { from: 0, to: 1 }, { l: 83, h: 84, c: 83.5 }, 0), "gap far away still lands in view");
+}
+
 function regulatoryFeesOnly() {
   assert.equal(secFee(500), 0);
   assert.equal(secFee(500.01), 0.02);
@@ -501,6 +512,7 @@ tapeMovesAndMirrors();
 switchKeepsTheLiveCandle();
 scaleStaysOnTheTicker();
 scaleFramesTheCandleNotThePriorClose();
+frameGrowsWhenTheCandleLeavesIt();
 clockAndCatchUp();
 historyDeleteLeavesTheRest();
 console.log("practice behavior ok");

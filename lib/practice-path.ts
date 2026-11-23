@@ -201,6 +201,17 @@ export function priceWindow(bars: { h: number; l: number; o?: number; c?: number
   return { from: low - pad, to: high + pad };
 }
 
+/** A price range widened to include the bar with a little headroom, or null when the bar already fits. */
+export function growToInclude(range: PriceWindow, bar: { h: number; l: number }): PriceWindow | null {
+  const low = Math.min(range.from, range.to);
+  const high = Math.max(range.from, range.to);
+  if (bar.l >= low && bar.h <= high) return null;
+  const from = Math.min(low, bar.l);
+  const to = Math.max(high, bar.h);
+  const room = (to - from) * 0.08;
+  return { from: bar.l < low ? from - room : from, to: bar.h > high ? to + room : to };
+}
+
 export function candleInView(range: PriceWindow, time: { from: number; to: number }, bar: { h: number; l: number; c: number }, index: number): boolean {
   const priceOk = bar.l >= range.from - 1e-6 && bar.h <= range.to + 1e-6 && bar.c >= range.from && bar.c <= range.to;
   const timeOk = index >= time.from - 1e-6 && index <= time.to + 1e-6;

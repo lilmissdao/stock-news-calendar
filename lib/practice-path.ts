@@ -614,8 +614,8 @@ export function clockSeconds(unix: number): string {
     .replace(/^0/, "");
 }
 
-/** Every replay speed plays at this fraction of its label: 1x takes 2:00 of real time per one-minute candle. */
-export const PLAYBACK_PACE = 0.5;
+/** Every replay speed plays at this fraction of its label: 1 is real time, so 1x takes 1:00 per one-minute candle. */
+export const PLAYBACK_PACE = 1;
 /** Real milliseconds one candle takes at 1x. */
 export const REAL_CANDLE_MS = 60_000 / PLAYBACK_PACE;
 

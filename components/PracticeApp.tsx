@@ -1012,7 +1012,7 @@ export function PracticeApp() {
                     Realistic fills
                   </button>
                 </div>
-                <p className="pr-note">At 1x each 1-minute candle takes about {secondsLeft(0, 1)} to form, and the clock follows the chart.</p>
+                <p className="pr-note">1x is real time. Each 1-minute candle takes one minute, and the clock follows the chart.</p>
                 <dl className="pr-stats">
                   <Stat label="Cash" value={formatWholeDollars(game.cash)} />
                   <Stat label="Value" value={formatWholeDollars(value)} />

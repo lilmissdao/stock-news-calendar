@@ -600,15 +600,6 @@ export function formingBar(bar: MinuteBar, path: number[], tick: number): Minute
 }
 
 /** Market time with seconds, e.g. "9:31:18", for the live countdown. */
-/**
- * The on-screen clock. Candles replay slowed to PLAYBACK_PACE, but the clock ticks one second per real second at 1x
- * (faster at higher speeds), so it runs ahead of the candle times on the chart.
- */
-export function playClock(openUnix: number, cursor: number, tick: number): number {
-  const ticks = Math.max(0, cursor) * SUBTICKS + Math.max(0, Math.min(SUBTICKS, tick));
-  return openUnix + (ticks * (REAL_CANDLE_MS / 1000)) / SUBTICKS;
-}
-
 export function clockSeconds(unix: number): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",

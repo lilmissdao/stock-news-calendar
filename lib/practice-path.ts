@@ -189,19 +189,15 @@ export function minuteSeed(daySeed: number, minute: number): number {
 
 export type PriceWindow = { from: number; to: number };
 
-/** Visible price range for the candles on screen. A prior close from the other ticker is left out. */
-export function priceWindow(bars: { h: number; l: number; o?: number; c?: number }[], priorClose: number | null): PriceWindow | null {
+/** Visible price range: framed on the candles only. The prior close is never pulled in, so a gap can't squash the candles into a sliver. */
+export function priceWindow(bars: { h: number; l: number; o?: number; c?: number }[]): PriceWindow | null {
   if (!bars.length) return null;
   let high = Math.max(...bars.map((bar) => Math.max(bar.h, bar.o ?? bar.h, bar.c ?? bar.h)));
   let low = Math.min(...bars.map((bar) => Math.min(bar.l, bar.o ?? bar.l, bar.c ?? bar.l)));
   if (!Number.isFinite(high) || !Number.isFinite(low)) return null;
   if (high < low) [high, low] = [low, high];
   const mid = (high + low) / 2 || Math.abs(high) || 1;
-  if (priorClose !== null && Number.isFinite(priorClose) && Math.abs(priorClose - mid) / mid <= 0.04) {
-    high = Math.max(high, priorClose);
-    low = Math.min(low, priorClose);
-  }
-  const pad = Math.max((high - low) * 0.2, Math.abs(mid) * 0.004, 0.05);
+  const pad = Math.max((high - low) * 0.15, Math.abs(mid) * 0.0008, 0.02);
   return { from: low - pad, to: high + pad };
 }
 

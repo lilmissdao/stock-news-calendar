@@ -265,13 +265,22 @@ function scaleStaysOnTheTicker() {
   for (const frame of frames) {
     const bars = chartBars(sqqq, 8, 12, 99, -1, frame);
     const last = bars[bars.length - 1];
-    const range = priceWindow(bars, 82);
+    const range = priceWindow(bars);
     assert.ok(range, frame);
     const time = { from: -0.5, to: bars.length - 1 + 1.5 };
     assert.equal(candleInView(range, time, last, bars.length - 1), true, `${frame} live candle outside the view`);
     assert.ok(82 > range.to, `${frame} still includes the other ticker at ${range.to}`);
     assert.ok((range.from + range.to) / 2 < last.c * 1.2, `${frame} scale center drifted`);
   }
+}
+
+function scaleFramesTheCandleNotThePriorClose() {
+  // A 2% gap up: the prior close (78) must not stretch the view around one small 9:30 candle.
+  const bar = { o: 80, h: 80.18, l: 79.95, c: 80.1 };
+  const range = priceWindow([bar]);
+  assert.ok(range);
+  assert.ok(range.from > 79.5, `view reaches down to ${range.from}`);
+  assert.ok((bar.h - bar.l) / (range.to - range.from) >= 0.5, "candle fills less than half the view");
 }
 
 function regulatoryFeesOnly() {
@@ -491,6 +500,7 @@ switchTickerThenSell();
 tapeMovesAndMirrors();
 switchKeepsTheLiveCandle();
 scaleStaysOnTheTicker();
+scaleFramesTheCandleNotThePriorClose();
 clockAndCatchUp();
 historyDeleteLeavesTheRest();
 console.log("practice behavior ok");

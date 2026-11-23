@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import market from "@/data/practice-market.json";
 import { PracticeChart, type ChartCandle, type ChartMark, type PracticeChartHandle } from "@/components/PracticeChart";
 import { PracticeHistory } from "@/components/PracticeHistory";
@@ -290,6 +290,11 @@ export function PracticeApp() {
   const [preset, setPreset] = useState(DEFAULT_PRESET);
   const hotkeys = useRef<{ act: (side: "buy" | "sell", size: TradeSize) => void; flatten: () => void; preset: number } | null>(null);
   const chartRef = useRef<PracticeChartHandle>(null);
+  // The main chart's pixels-per-dollar, so the 5m box draws at the same scale. Small jitters are ignored to avoid re-renders.
+  const [pxPerDollar, setPxPerDollar] = useState<number | null>(null);
+  const onScale = useCallback((next: number) => {
+    setPxPerDollar((current) => (current && Math.abs(next - current) / current < 0.02 ? current : next));
+  }, []);
   gameRef.current = game;
   realisticRef.current = realistic;
   const stageRef = useRef<HTMLDivElement>(null);
@@ -859,7 +864,7 @@ export function PracticeApp() {
                   <span className="pr-timer-clock">{liveTime}</span>
                   <span className="pr-timer-left">{secondsLeft(game.tick, game.speed)}</span>
                 </span>
-                <MiniFiveChart candles={fiveCandles as ChartCandle[]} />
+                <MiniFiveChart candles={fiveCandles as ChartCandle[]} pxPerDollar={pxPerDollar} />
                 <PracticeChart
                   ref={chartRef}
                   candles={candles as ChartCandle[]}
@@ -868,6 +873,7 @@ export function PracticeApp() {
                   priorClose={prior}
                   costLines={costLines}
                   seriesId={`TQQQ-${game.timeframe}`}
+                  onScale={onScale}
                 />
                 {full ? (
                   <button type="button" className="pr-skip pr-fullskip" onClick={askSkip}>

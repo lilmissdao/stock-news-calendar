@@ -10,13 +10,22 @@ const BOTTOM = 6;
 /** The session is 9:30–10:00, so six 5-minute slots. Fixed slots keep candles from resizing as they appear. */
 const SLOTS = 6;
 
-/** A small, read-only 5-minute candle view that sits in the main chart's top-left corner. */
-export function MiniFiveChart({ candles }: { candles: ChartCandle[] }) {
+/**
+ * A small, read-only 5-minute candle view that sits in the main chart's top-left corner.
+ * It uses the main chart's pixels-per-dollar, so a 5m candle is drawn the same height as the
+ * same move on the 1m chart. Only when the 5m candles are too tall for the box does it shrink to fit.
+ */
+export function MiniFiveChart({ candles, pxPerDollar }: { candles: ChartCandle[]; pxPerDollar?: number | null }) {
   const slots = Math.max(SLOTS, candles.length);
   const hi = candles.length ? Math.max(...candles.map((bar) => bar.h)) : 1;
   const lo = candles.length ? Math.min(...candles.map((bar) => bar.l)) : 0;
+  const plot = H - TOP - BOTTOM;
   const span = hi - lo || Math.max(hi * 0.001, 0.01);
-  const y = (price: number) => TOP + ((hi - price) / span) * (H - TOP - BOTTOM);
+  const fit = plot / span;
+  const scale = pxPerDollar && pxPerDollar > 0 ? Math.min(pxPerDollar, fit) : fit;
+  const mid = TOP + plot / 2;
+  const center = (hi + lo) / 2;
+  const y = (price: number) => mid + (center - price) * scale;
   const slotW = (W - PAD_X * 2) / slots;
   const bodyW = Math.max(4, slotW * 0.6);
 

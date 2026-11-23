@@ -45,6 +45,17 @@ function publish(chart: IChartApi, candles: ChartCandle[], host: HTMLElement | n
     host.dataset.priceFrom = String(price.from);
     host.dataset.priceTo = String(price.to);
   }
+  // Read the scale after the chart has redrawn, so autoscale changes are included.
+  window.requestAnimationFrame(() => {
+    try {
+      const range = chart.priceScale("right").getVisibleRange();
+      const height = chart.paneSize().height;
+      const span = range ? Math.abs(range.to - range.from) : 0;
+      if (height > 0 && span > 0) host.dispatchEvent(new CustomEvent("pr-scale", { detail: height / span }));
+    } catch {
+      /* The chart was removed before the frame ran. */
+    }
+  });
   if (time) {
     host.dataset.timeFrom = String(time.from);
     host.dataset.timeTo = String(time.to);
@@ -62,9 +73,9 @@ function holdApply(applying: { current: boolean }, run: () => void) {
   }, 120);
 }
 
-function fitNow(chart: IChartApi, candles: ChartCandle[], priorClose: number | null, host: HTMLElement | null, applying: { current: boolean }) {
+function fitNow(chart: IChartApi, candles: ChartCandle[], host: HTMLElement | null, applying: { current: boolean }) {
   const scale = chart.priceScale("right");
-  const window = priceWindow(candles, priorClose);
+  const window = priceWindow(candles);
   holdApply(applying, () => {
     chart.timeScale().applyOptions({ barSpacing: 16, rightOffset: 5, minBarSpacing: 8 });
     if (window) {
@@ -85,7 +96,9 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
   /** Average entry of each open position, drawn as a dashed line with no right-axis tag. */
   costLines?: CostLine[];
   seriesId: string;
-}>(function PracticeChart({ candles, markers, theme, priorClose, costLines = NO_COST_LINES, seriesId }, ref) {
+  /** Pixels per dollar on the price axis, reported whenever the view changes. */
+  onScale?: (pxPerDollar: number) => void;
+}>(function PracticeChart({ candles, markers, theme, priorClose, costLines = NO_COST_LINES, seriesId, onScale }, ref) {
   const host = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -119,7 +132,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
       const chart = chartRef.current;
       if (!chart) return;
       manual.current = false;
-      fitNow(chart, latest.current.candles, latest.current.priorClose, host.current, applying);
+      fitNow(chart, latest.current.candles, host.current, applying);
       window.setTimeout(() => {
         manual.current = false;
         if (chartRef.current) publish(chartRef.current, latest.current.candles, host.current, false);
@@ -193,7 +206,7 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
         borderVisible: false,
         autoscaleInfoProvider: () => {
           const data = latest.current.candles;
-          const window = priceWindow(data, latest.current.priorClose);
+          const window = priceWindow(data);
           if (!window) return null;
           return { priceRange: { minValue: window.from, maxValue: window.to } };
         },
@@ -220,10 +233,20 @@ export const PracticeChart = forwardRef<PracticeChartHandle, {
     };
   }, [theme]);
 
+  const scaleCb = useRef(onScale);
+  scaleCb.current = onScale;
   useEffect(() => {
     const el = host.current;
     if (!el) return;
-    const down = (event: PointerEvent) => {
+    const report = (event: Event) => scaleCb.current?.((event as CustomEvent<number>).detail);
+    el.addEventListener("pr-scale", report);
+    return () => el.removeEventListener("pr-scale", report);
+  }, []);
+
+  useEffect(() => {
+    const el = host.current;
+    if (!el) return;
+    const down =(event: PointerEvent) => {
       const box = el.getBoundingClientRect();
       if (event.clientX > box.right - 72) {
         manual.current = true;
@@ -333,7 +356,7 @@ function paint(
     }
     series.setData(candles.map(toBar));
     applyMarkers(marks, markerData, markerSig, sig);
-    const window = priceWindow(candles, priorClose);
+    const window = priceWindow(candles);
     if (priorClose !== null && window && priorClose >= window.from && priorClose <= window.to) {
       const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink-soft").trim();
       line.current = series.createPriceLine({
@@ -347,7 +370,7 @@ function paint(
     }
     if (!manual.current || switched) {
       manual.current = false;
-      fitNow(chart, candles, priorClose, host, applying);
+      fitNow(chart, candles, host, applying);
     } else {
       applying.current = true;
       if (savedTime) chart.timeScale().setVisibleLogicalRange(savedTime);

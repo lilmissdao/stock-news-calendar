@@ -202,7 +202,7 @@ function livePrices(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[]): { t
   const sBar = sqqq[minute];
   if (!tBar || !sBar) return { t: 0, s: 0 };
   const seed = minuteSeed(state.seeds[state.day] || 1, minute);
-  return { t: subpath(tBar, seed, 1)[tick], s: subpath(sBar, seed, -1)[tick] };
+  return { t: subpath(tBar, seed, 1, minute === 0)[tick], s: subpath(sBar, seed, -1, minute === 0)[tick] };
 }
 
 export function liveQuote(state: GameState, tqqq: MinuteBar[], sqqq: MinuteBar[]): { TQQQ: number; SQQQ: number } {

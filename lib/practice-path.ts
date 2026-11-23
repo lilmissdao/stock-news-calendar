@@ -232,7 +232,7 @@ export function chartBars(minutes: MinuteBar[], cursor: number, tick: number, da
   const bars = minutes.slice(0, Math.max(0, completeThrough + 1));
   if (formed < SUBTICKS) {
     const bar = minutes[minute];
-    bars.push(formingBar(bar, subpath(bar, minuteSeed(daySeed, minute), sign), formed));
+    bars.push(formingBar(bar, subpath(bar, minuteSeed(daySeed, minute), sign, minute === 0), formed));
   }
   return aggregate(bars, timeframe, bars.length);
 }
@@ -385,6 +385,7 @@ function fillLeg(
   plan: TapePlan,
   leg: number,
   sign: number,
+  swingScale = 1,
 ) {
   const steps = to - from;
   if (steps <= 0) {
@@ -406,7 +407,7 @@ function fillLeg(
   // A random walk pinned to zero at both anchors (a Brownian bridge), scaled to the leg: real swings up and down.
   const w0 = plan.walk[from % plan.walk.length];
   const w1 = plan.walk[to % plan.walk.length];
-  const swing = Math.min(travel * 0.28 + span * 0.05, span * 0.24);
+  const swing = Math.min((travel * 0.28 + span * 0.05) * swingScale, span * 0.24 * Math.max(1, swingScale));
   const pinned: number[] = [0];
   let reach = 0;
   for (let k = 1; k < steps; k += 1) {
@@ -450,13 +451,91 @@ function fillLeg(
  * Green bars usually take the lower wick, then the body and upper wick, then settle at the close. Red bars are the mirror.
  * Each leg wanders a little on the way. SQQQ uses its own inverse bar and the opposite wiggle, so it moves against TQQQ.
  */
-export function subpath(bar: MinuteBar, seed: number, sign = 1): number[] {
-  const key = `${seed >>> 0}:${sign}:${bar.o}:${bar.h}:${bar.l}:${bar.c}`;
+export function subpath(bar: MinuteBar, seed: number, sign = 1, opening = false): number[] {
+  const key = `${seed >>> 0}:${sign}:${opening ? 1 : 0}:${bar.o}:${bar.h}:${bar.l}:${bar.c}`;
   const hit = paths.get(key);
   if (hit) return hit;
-  const points = makePath(bar, seed, sign >= 0 ? 1 : -1);
+  const points = (opening && openingPath(bar, seed, sign >= 0 ? 1 : -1)) || makePath(bar, seed, sign >= 0 ? 1 : -1);
   if (paths.size > 48) paths.delete(paths.keys().next().value as string);
   paths.set(key, points);
+  return points;
+}
+
+/** How often the 9:30 candle gets the spike-and-retreat shape. More often than not, but not always. */
+export const OPENING_SPIKE_ODDS = 0.7;
+
+export type OpeningPlan = {
+  /** Tick where the fast spike tags its extreme. */
+  spike: number;
+  /** Tick where the retreat bottoms out. */
+  retreat: number;
+  /** Share of the spike given back (0.6–0.9). */
+  giveBack: number;
+};
+
+/**
+ * The 9:30 candle's plan, or null when this day's opening minute is an ordinary candle. TQQQ and SQQQ share it,
+ * so they spike and retreat at the same moments, in opposite directions.
+ */
+export function openingPlan(seed: number): OpeningPlan | null {
+  const rng = mulberry32((seed ^ 0x5bd1e995) >>> 0);
+  if (rng() >= OPENING_SPIKE_ODDS) return null;
+  const n = SUBTICKS;
+  // A fast spike in the first ~4–12% of the minute, then most of it given back by ~22–38%.
+  const spike = Math.round(n * (0.04 + rng() * 0.08));
+  const retreat = Math.max(spike + Math.round(n * 0.1), Math.round(n * (0.22 + rng() * 0.16)));
+  const giveBack = 0.6 + rng() * 0.3;
+  return { spike, retreat, giveBack };
+}
+
+/**
+ * The opening minute: one fast push to an extreme, a quick retreat that gives back most of it, then a slower,
+ * choppier drift for the rest of the minute that still tags the other extreme and lands on the real close.
+ * The spike goes the candle's way (up on a green candle); a near-doji spikes toward its longer wick.
+ */
+function openingPath(bar: MinuteBar, seed: number, sign: number): number[] | null {
+  const plan = openingPlan(seed);
+  const n = SUBTICKS;
+  const low = Math.min(bar.l, bar.o, bar.c);
+  const high = Math.max(bar.h, bar.o, bar.c);
+  const span = high - low;
+  if (!plan || !(span > 1e-6)) return null;
+  const body = bar.c - bar.o;
+  const up = Math.abs(body) >= span * 0.08 ? body > 0 : high - bar.o >= bar.o - low;
+  const peak = up ? high : low;
+  const other = up ? low : high;
+  const move = Math.abs(peak - bar.o);
+  // No room to spike (the open is the extreme): use the normal shape.
+  if (!(move > 0.005)) return null;
+  // Give back most of the spike, but never past the other extreme.
+  let back = peak + (up ? -1 : 1) * move * plan.giveBack;
+  back = up ? Math.max(back, other) : Math.min(back, other);
+  const otherTagged = Math.abs(back - other) < 1e-9 || Math.abs(bar.o - other) < 1e-9;
+  const rng = mulberry32((seed ^ 0x27d4eb2d) >>> 0);
+  const anchors = [
+    { t: 0, p: bar.o },
+    { t: plan.spike, p: peak },
+    { t: plan.retreat, p: back },
+  ];
+  if (!otherTagged) {
+    // The far wick prints soon after the retreat (by mid-minute), so the rest of the minute is the slower drift back.
+    const from = plan.retreat + Math.round(n * 0.06);
+    const to = Math.max(from + 1, Math.round(n * 0.55));
+    anchors.push({ t: Math.min(to, from + Math.floor(rng() * Math.max(1, to - from))), p: other });
+  }
+  anchors.push({ t: n, p: bar.c });
+  const points = new Array<number>(n + 1).fill(bar.o);
+  const tape = planOf(seed);
+  const shape = { open: bar.o, low, high };
+  // The spike and the retreat are quick and direct; the rest of the minute swings wider.
+  const swings = [0.25, 0.5, 1.7, 1.7];
+  for (let i = 0; i < anchors.length - 1; i += 1) {
+    const from = anchors[i];
+    const to = anchors[i + 1];
+    if (to.t <= from.t) continue;
+    fillLeg(points, from.t, to.t, points[from.t] ?? from.p, to.p, shape, tape, i, sign, swings[i] ?? 1.7);
+  }
+  for (const anchor of anchors) points[anchor.t] = anchor.p;
   return points;
 }
 

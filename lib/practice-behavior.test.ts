@@ -3,7 +3,7 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState, restartDay } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { buildSession, candleInView, chartBars, clock, minuteSeed, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
+import { buildSession, candleInView, chartBars, clock, minuteSeed, openingPlan, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
 import { addDayEntry, attemptNumbers, deleteDayEntry, emptyDayLog, parseDayLog } from "./practice-daylog";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
@@ -195,7 +195,7 @@ function switchKeepsTheLiveCandle() {
         assert.ok(bars.length >= 1, `${frame} ${spot.cursor}:${spot.tick} missing the live candle`);
         for (let i = 1; i < bars.length; i += 1) assert.ok(bars[i].t > bars[i - 1].t, "candle times must increase");
         const last = bars[bars.length - 1];
-        const path = subpath(minutes[spot.cursor], minuteSeed(99, spot.cursor), sign);
+        const path = subpath(minutes[spot.cursor], minuteSeed(99, spot.cursor), sign, spot.cursor === 0);
         assert.equal(last.c, path[spot.tick], `${frame} live close`);
         assert.ok(last.h >= Math.max(last.o, last.c) - 1e-9);
         assert.ok(last.l <= Math.min(last.o, last.c) + 1e-9);
@@ -208,6 +208,53 @@ function switchKeepsTheLiveCandle() {
   const before = chartBars(tqqq, 0, 10, 99, 1, "1m");
   const after = chartBars(tqqq, 0, 11, 99, 1, "1m");
   assert.equal(seriesNeedsReset("TQQQ-1m", "TQQQ-1m", before, after), false, "the same ticker keeps updating the live candle");
+}
+
+function openingCandleSpikesThenRetreats() {
+  const book = market as PracticeMarket;
+  let shaped = 0;
+  let tried = 0;
+  for (const day of book.days) {
+    for (let daySeed = 1; daySeed <= 40; daySeed += 1) {
+      const session = buildSession(day, daySeed);
+      const seed = minuteSeed(daySeed, 0);
+      const plan = openingPlan(seed);
+      for (const [bar, sign] of [
+        [session.TQQQ[0], 1],
+        [session.SQQQ[0], -1],
+      ] as const) {
+        const path = subpath(bar, seed, sign, true);
+        const high = Math.max(bar.h, bar.o, bar.c);
+        const low = Math.min(bar.l, bar.o, bar.c);
+        assert.equal(path.length, SUBTICKS + 1);
+        assert.equal(path[0], bar.o, "opens at the real open");
+        assert.equal(path[SUBTICKS], bar.c, "closes at the real close");
+        assert.ok(Math.abs(Math.max(...path) - high) < 1e-9, "tags the real high");
+        assert.ok(Math.abs(Math.min(...path) - low) < 1e-9, "tags the real low");
+        assert.ok(path.every((price) => Number.isFinite(price) && price >= low - 1e-9 && price <= high + 1e-9));
+        if (sign !== 1 || !plan) continue;
+        const up = Math.abs(bar.c - bar.o) >= (high - low) * 0.08 ? bar.c > bar.o : high - bar.o >= bar.o - low;
+        const peak = up ? high : low;
+        const move = Math.abs(peak - bar.o);
+        if (!(move > 0.005)) continue;
+        tried += 1;
+        assert.equal(path[plan.spike], peak, "spikes to the extreme early");
+        const kept = Math.abs(path[plan.retreat] - bar.o);
+        const other = up ? low : high;
+        const roomBack = Math.abs(other - peak);
+        assert.ok(Math.abs(peak - path[plan.retreat]) >= Math.min(move * 0.6, roomBack) - 1e-9, "gives back most of the spike");
+        assert.ok(kept <= Math.max(move * 0.4, Math.abs(other - bar.o)) + 1e-9);
+        shaped += 1;
+      }
+    }
+  }
+  assert.ok(shaped > 0 && shaped === tried);
+  let on = 0;
+  for (let seed = 1; seed <= 2000; seed += 1) if (openingPlan(minuteSeed(seed, 0))) on += 1;
+  assert.ok(on / 2000 > 0.6 && on / 2000 < 0.8, `spike shape should be more common than not, but not always (${on / 2000})`);
+  // Only the first minute: later minutes ignore the opening shape.
+  const later = buildSession(book.days[0], 7).TQQQ[3];
+  assert.deepEqual(subpath(later, minuteSeed(7, 3), 1), subpath(later, minuteSeed(7, 3), 1, false));
 }
 
 function scaleStaysOnTheTicker() {
@@ -435,6 +482,7 @@ shuffleUsesEveryDayBeforeRepeating();
 dealtSessionAdvancesTheBatch();
 buyThenSellAll();
 exactShareHotkeys();
+openingCandleSpikesThenRetreats();
 dayLogKeepsEveryAttempt();
 resetReplaysTheDay();
 partialSellsThenAll();

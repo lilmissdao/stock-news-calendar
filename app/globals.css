@@ -1378,6 +1378,20 @@ main { min-width: 0; }
 .pr-stats div { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; min-width: 0; }
 .pr-stats dt { margin: 0; color: var(--ink-soft); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
 .pr-stats dd { margin: 2px 0 0; font-variant-numeric: tabular-nums; font-weight: 600; overflow-wrap: anywhere; }
+.pr-pad { display: flex; flex-direction: column; gap: 8px; }
+.pr-pad div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pr-buy, .pr-sell {
+  min-height: 52px;
+  border: 0;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 16px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-buy { background: var(--up); color: #fff; }
+.pr-sell { background: var(--down); color: #fff; }
+.pr-sell:disabled, .pr-buy:disabled { opacity: 0.4; }
 .pr-dock {
   position: sticky;
   bottom: 0;
@@ -1458,6 +1472,7 @@ main { min-width: 0; }
 .pr-hotkeys { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
 .pr-hotkeys label { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
 .pr-hotkeys input { width: 84px; min-height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-elev); color: var(--ink); font: inherit; font-variant-numeric: tabular-nums; }
+@media (hover: none) { .pr-hotkeys-keys { display: none; } }
 .pr-hotkeys kbd { padding: 1px 5px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg-elev); color: var(--ink); font: inherit; font-size: 12px; }
 .pr-mini-label { fill: var(--ink-soft); font-size: 10px; font-weight: 700; }
 @media (max-width: 640px) { .pr-mini { width: 120px; height: 74px; } .pr-mini svg { width: 120px; height: 74px; } }
@@ -1504,6 +1519,7 @@ main { min-width: 0; }
   .pr-stage-set { height: auto; min-height: 0; }
   .pr-dock, .pr-trade .pr-dock { position: static; background: transparent; padding: 0; }
   .pr-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pr-buy, .pr-sell { min-height: 44px; font-size: 15px; }
   .pr-bar { align-items: center; }
   .pr-ticker button { min-height: 48px; font-size: 18px; }
   .pr-book { font-size: 13px; }

@@ -954,7 +954,7 @@ export function PracticeApp() {
                       TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
                     </p>
                     {orderNote ? <p className="pr-note pr-order-note" role="status">{orderNote}</p> : null}
-                    <OrderPad ticker={game.ticker} shares={position.shares} onAct={act} />
+                    <OrderPad shares={position.shares} onAct={act} />
                     <HotkeyBar preset={preset} onPreset={choosePreset} />
                   </div>
                 )}
@@ -974,7 +974,7 @@ export function PracticeApp() {
                   TQQQ {formatCents(quote.TQQQ)} · {game.positions.TQQQ.shares} sh | SQQQ {formatCents(quote.SQQQ)} · {game.positions.SQQQ.shares} sh
                 </p>
                 {orderNote ? <p className="pr-note pr-order-note" role="status">{orderNote}</p> : null}
-                <OrderPad ticker={game.ticker} shares={position.shares} onAct={act} />
+                <OrderPad shares={position.shares} onAct={act} />
                 <HotkeyBar preset={preset} onPreset={choosePreset} />
                 </div>
                 <div className="pr-dock">
@@ -1074,21 +1074,21 @@ function slippageText(value: number | undefined): string {
 }
 
 
-/** Tap buttons for phones: buy 50% or 100% of cash, or sell 50% or 100% of the shares held, in the selected ticker. */
-function OrderPad({ ticker, shares, onAct }: { ticker: Ticker; shares: number; onAct: (side: "buy" | "sell", fraction: number) => void }) {
+/** Tap buttons for phones: buy 50% or 100% of cash, or sell 50% or 100% of the shares held, in whichever ticker is selected. */
+function OrderPad({ shares, onAct }: { shares: number; onAct: (side: "buy" | "sell", fraction: number) => void }) {
   return (
     <div className="pr-pad">
       <div>
         {([0.5, 1] as const).map((fraction) => (
           <button key={fraction} type="button" className="pr-buy" onClick={() => onAct("buy", fraction)}>
-            Buy {fraction * 100}% {ticker}
+            Buy {fraction * 100}%
           </button>
         ))}
       </div>
       <div>
         {([0.5, 1] as const).map((fraction) => (
           <button key={fraction} type="button" className="pr-sell" disabled={shares <= 0} onClick={() => onAct("sell", fraction)}>
-            Sell {fraction * 100}% {ticker}
+            Sell {fraction * 100}%
           </button>
         ))}
       </div>

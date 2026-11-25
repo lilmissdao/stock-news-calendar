@@ -515,20 +515,22 @@ function avgDailyAndTotalReturn() {
 function recordedTapeReplaysRealSeconds() {
   const start = 1_000_000;
   const at = (second: number, ms = 0) => new Date((start + second) * 1000 + ms).toISOString();
-  // Odd lots (I) and out-of-sequence (Z) prints don't set the last price; the last regular trade in a second wins.
+  // Odd lots (I), out-of-sequence (Z) and off-exchange TRF reports (D) are left out; each second is the median of the rest.
   const seconds = perSecond(
     [
-      { t: at(0, 100), p: 10.01, s: 100, c: ["@"] },
-      { t: at(0, 900), p: 10.03, s: 100, c: ["@"] },
-      { t: at(1, 10), p: 99, s: 5, c: ["@", "I"] },
-      { t: at(2, 10), p: 1, s: 100, c: ["Z"] },
-      { t: at(3, 500), p: 10.02, s: 300 },
+      { t: at(0, 100), p: 10.01, s: 100, c: ["@"], x: "Q" },
+      { t: at(0, 500), p: 10.02, s: 100, c: ["@"], x: "P" },
+      { t: at(0, 900), p: 10.03, s: 100, c: ["@"], x: "Z" },
+      { t: at(0, 950), p: 9.5, s: 100, c: ["@"], x: "D" },
+      { t: at(1, 10), p: 99, s: 5, c: ["@", "I"], x: "Q" },
+      { t: at(2, 10), p: 1, s: 100, c: ["Z"], x: "Q" },
+      { t: at(3, 500), p: 10.04, s: 300, x: "Q" },
     ],
     start,
     10,
   );
   assert.equal(seconds.length, 1800);
-  assert.deepEqual(seconds.slice(0, 5), [10.03, 10.03, 10.03, 10.02, 10.02]);
+  assert.deepEqual(seconds.slice(0, 5), [10.02, 10.02, 10.02, 10.04, 10.04]);
 
   const tqqq = Array.from({ length: 1800 }, (_, i) => 50 + Math.sin(i / 7) * 0.2 + i * 0.001);
   const sqqq = tqqq.map((price) => 100 - price);

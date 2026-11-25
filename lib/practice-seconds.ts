@@ -7,10 +7,10 @@
 export const SECONDS_PER_SESSION = 30 * 60;
 export const SECONDS_DIR = "practice-seconds";
 
-/** Last eligible trade price at the end of each second, 1800 per ticker. */
+/** The typical (median) eligible trade price in each second, 1800 per ticker. */
 export type SessionSeconds = { date: string; source: string; tqqq: number[]; sqqq: number[] };
 
-export type AlpacaTrade = { t: string; p: number; s: number; c?: string[] };
+export type AlpacaTrade = { t: string; p: number; s: number; c?: string[]; x?: string };
 
 /**
  * Sale conditions that don't set the last sale price on the consolidated tape (odd lots, out-of-sequence and
@@ -18,28 +18,45 @@ export type AlpacaTrade = { t: string; p: number; s: number; c?: string[] };
  */
 const IGNORED_CONDITIONS = new Set(["I", "W", "Z", "U", "T", "4", "7", "9", "B", "C", "G", "H", "M", "N", "P", "Q", "R", "V"]);
 
+/**
+ * Off-exchange trades reported through FINRA's trade reporting facility (exchange "D") often print late and tens
+ * of cents away from where the market is trading, so they would make the replay jump and snap back.
+ */
+const IGNORED_EXCHANGES = new Set(["D"]);
+
 export function setsLastPrice(trade: AlpacaTrade): boolean {
-  return Number.isFinite(trade.p) && trade.p > 0 && !(trade.c ?? []).some((code) => IGNORED_CONDITIONS.has(code));
+  return (
+    Number.isFinite(trade.p) &&
+    trade.p > 0 &&
+    !IGNORED_EXCHANGES.has(trade.x ?? "") &&
+    !(trade.c ?? []).some((code) => IGNORED_CONDITIONS.has(code))
+  );
+}
+
+function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
 /**
- * One price per second from a morning's trades: the last eligible trade at or before the end of each second.
- * Seconds before the first trade use `open`. `start` is 9:30:00 ET as unix seconds.
+ * One price per second from a morning's trades: the median of the eligible trades in each second, so a single
+ * stray print can't make the chart jump. A second with no trades keeps the previous price; seconds before the first
+ * trade use `open`. `start` is 9:30:00 ET as unix seconds.
  */
 export function perSecond(trades: AlpacaTrade[], start: number, open: number): number[] {
   const out = new Array<number>(SECONDS_PER_SESSION);
-  const last = new Array<number | undefined>(SECONDS_PER_SESSION);
+  const prices: number[][] = Array.from({ length: SECONDS_PER_SESSION }, () => []);
   for (const trade of trades) {
     if (!setsLastPrice(trade)) continue;
     const at = Date.parse(trade.t) / 1000;
     const second = Math.floor(at - start);
     if (second < 0 || second >= SECONDS_PER_SESSION) continue;
-    // Trades arrive in time order, so the latest one in a second wins.
-    last[second] = trade.p;
+    prices[second].push(trade.p);
   }
   let price = open;
   for (let second = 0; second < SECONDS_PER_SESSION; second += 1) {
-    if (last[second] !== undefined) price = last[second]!;
+    if (prices[second].length) price = median(prices[second]);
     out[second] = Math.round(price * 10000) / 10000;
   }
   return out;

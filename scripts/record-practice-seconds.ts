@@ -75,7 +75,7 @@ async function main() {
     }
     const record: SessionSeconds = {
       date: day.date,
-      source: "Alpaca SIP trades, last eligible sale each second, 9:30:00–9:59:59 ET",
+      source: "Alpaca SIP trades, median exchange-printed sale each second (no off-exchange TRF reports), 9:30:00–9:59:59 ET",
       tqqq: perSecond(got.TQQQ, day.start, day.tqqq[0][0]),
       sqqq: perSecond(got.SQQQ, day.start, day.sqqq[0][0]),
     };

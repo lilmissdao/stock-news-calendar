@@ -368,7 +368,7 @@ function planOf(seed: number): TapePlan {
   }
   // Drawn last so every earlier part of the plan stays the same.
   const retest = {
-    on: rng() < 0.4,
+    on: rng() < 0.6,
     at: [0.25 + rng() * 0.15, 0.55 + rng() * 0.15] as [number, number],
     depth: [0.3 + rng() * 0.35, 0.35 + rng() * 0.4] as [number, number],
   };
@@ -639,8 +639,8 @@ function makePath(bar: MinuteBar, seed: number, sign: number): number[] {
     plan.retest.on &&
     first > 0 &&
     second - first >= Math.round(n * 0.2) &&
-    room(firstPrice) >= Math.max(0.02, span * 0.15) &&
-    room(secondPrice) >= Math.max(0.02, span * 0.15)
+    room(firstPrice) >= Math.max(0.02, span * 0.12) &&
+    room(secondPrice) >= Math.max(0.02, span * 0.12)
   ) {
     const gap = second - first;
     anchors.push(

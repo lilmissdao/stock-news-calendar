@@ -1,7 +1,7 @@
 /**
  * Real second-by-second prices for a practice morning (9:30:00–9:59:59 ET), recorded from Alpaca's trade feed.
  * Each day is a small file in public/practice-seconds/<date>.json, loaded only for the day being played.
- * When a day has a file, the game replays the real path inside each 1-minute candle instead of a simulated one.
+ * Recorded for studying how real candles move; the game doesn't replay them (it uses the simulated path).
  */
 
 export const SECONDS_PER_SESSION = 30 * 60;

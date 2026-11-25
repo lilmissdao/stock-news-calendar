@@ -52,7 +52,6 @@ import type { PracticeMarket } from "@/lib/practice-market";
 import { chartBars, clock, clockSeconds, secondsLeft, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
 import { slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
-import { cachedSeconds, loadSeconds } from "@/lib/practice-seconds";
 
 const REALISTIC_KEY = "snc-practice-realistic";
 const STORAGE_KEY = "snc-practice:v1";
@@ -456,37 +455,18 @@ export function PracticeApp() {
     }
   }, [history]);
 
-  // The day's recorded second-by-second tape (if any) must load before the clock runs, so the path never switches mid-play.
-  const tapeDate = game ? BOOK.days[game.session]?.date ?? "" : "";
-  const [tapeReady, setTapeReady] = useState("");
-  useEffect(() => {
-    if (!tapeDate) return;
-    if (cachedSeconds(tapeDate) !== undefined) {
-      setTapeReady(tapeDate);
-      return;
-    }
-    let live = true;
-    void loadSeconds(tapeDate).then(() => {
-      if (live) setTapeReady(tapeDate);
-    });
-    return () => {
-      live = false;
-    };
-  }, [tapeDate]);
-
-  const pace = useRef({ playing: false, speed: 1 as Speed, phase: "play" as GameState["phase"], ready: false });
+  const pace = useRef({ playing: false, speed: 1 as Speed, phase: "play" as GameState["phase"] });
   const clockRef = useRef<{ at: number; applied: number; speed: Speed; drawn: number } | null>(null);
   pace.current = {
     playing: !!game?.playing,
     speed: game?.speed ?? 1,
     phase: game?.phase ?? "play",
-    ready: !!tapeDate && tapeReady === tapeDate,
   };
   useEffect(() => {
     let frame = 0;
     const pump = () => {
-      const { playing, speed, phase, ready } = pace.current;
-      if (!playing || phase !== "play" || !ready) {
+      const { playing, speed, phase } = pace.current;
+      if (!playing || phase !== "play") {
         clockRef.current = null;
         return;
       }
@@ -528,11 +508,10 @@ export function PracticeApp() {
     const day = BOOK.days[game.session];
     if (!day) return null;
     const paths = buildSession(day, game.seeds[game.day] || 1);
-    return { day, TQQQ: paths.TQQQ.slice(0, SESSION_MINUTES), SQQQ: paths.SQQQ.slice(0, SESSION_MINUTES), recorded: !!cachedSeconds(day.date) };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathKey, tapeReady]);
+    return { day, TQQQ: paths.TQQQ.slice(0, SESSION_MINUTES), SQQQ: paths.SQQQ.slice(0, SESSION_MINUTES) };
+  }, [pathKey]);
 
-  if (!game || !session || !history || !dayLog || tapeReady !== tapeDate) {
+  if (!game || !session || !history || !dayLog) {
     return (
       <div className="shell">
         <p className="pr-loading">Loading practice…</p>
@@ -1064,9 +1043,7 @@ export function PracticeApp() {
               <BatchReview game={game} onNext={goNext} onReset={askNew} />
             ) : null}
             <p className="chart-note">
-              {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. {session.recorded
-                ? "This day replays the real tape: the price at every second comes from recorded TQQQ and SQQQ trades (Alpaca), and the candles are built from it."
-                : "Every 1-minute candle’s close, high, and low are real; the price path inside each minute is simulated, and each candle opens at the previous close."}
+              {BOOK.source}. Snapshot {BOOK.fetchedAt.slice(0, 10)}. Each day is 9:30–10:00 AM ET. Every 1-minute candle’s close, high, and low are real; the price path inside each minute is simulated, and each candle opens at the previous close.
             </p>
             <p className="pr-stamp">
               Build {process.env.NEXT_PUBLIC_COMMIT_SHA || "local"} · {process.env.NEXT_PUBLIC_BUILD_TIME || "dev"} ·{" "}

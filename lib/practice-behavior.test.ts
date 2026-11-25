@@ -8,7 +8,7 @@ import { addDayEntry, attemptNumbers, deleteDayEntry, emptyDayLog, parseDayLog }
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { avgDailyReturn, rowFromGame, rowSlippage } from "./practice-history";
-import { perSecond, rememberSeconds } from "./practice-seconds";
+import { perSecond } from "./practice-seconds";
 
 const price = 50;
 
@@ -547,14 +547,6 @@ function recordedTapeReplaysRealSeconds() {
   assert.equal(Math.max(...path), bars[3].h);
   assert.equal(Math.min(...path), bars[3].l);
 
-  // A day with a recording replays it; the same day without one falls back to the simulated path.
-  const day = { ...(market as unknown as PracticeMarket).days[0], date: "2099-01-01", start, tqqq: [[50, 51, 49, 50]], sqqq: [[50, 51, 49, 50]] } as PracticeDay;
-  assert.equal(buildSession(day, 1).TQQQ[0].p, undefined);
-  rememberSeconds(day.date, { date: day.date, source: "test", tqqq, sqqq });
-  const session = buildSession(day, 1);
-  assert.equal(session.TQQQ.length, 30);
-  assert.deepEqual(session.TQQQ[5].p?.slice(1), tqqq.slice(300, 360));
-  assert.equal(session.SQQQ[5].c, sqqq[359]);
 }
 
 regulatoryFeesOnly();

@@ -1,5 +1,4 @@
 import type { Ohlc, PracticeDay } from "./practice-market";
-import { cachedSeconds } from "./practice-seconds";
 
 export type MinuteBar = {
   t: number;
@@ -137,10 +136,6 @@ function candles(points: number[], origin: number, minuteBase: number, high: num
  * `seed` only matters for the 5-minute fallback.
  */
 export function buildSession(day: PracticeDay, seed: number): { TQQQ: MinuteBar[]; SQQQ: MinuteBar[] } {
-  const seconds = cachedSeconds(day.date);
-  if (seconds && day.tqqq.length > 0 && day.sqqq.length > 0) {
-    return { TQQQ: recordedBars(seconds.tqqq, day.tqqq[0][0], day.start), SQQQ: recordedBars(seconds.sqqq, day.sqqq[0][0], day.start) };
-  }
   if (day.tqqq.length <= SESSION_MINUTES) {
     const real = (bars: Ohlc[]) =>
       bars.slice(0, SESSION_MINUTES).map((tuple, index) => {
@@ -361,7 +356,7 @@ function planOf(seed: number): TapePlan {
     mood = mood * 0.97 + (rng() + rng() + rng() - 1.5) * 0.42;
     activity.push(Math.exp(0.3 * mood));
     // The walk has momentum, so it makes clean swings (some quick, some slow) rather than tick-to-tick jitter.
-    velocity = velocity * 0.85 + (rng() + rng() + rng() - 1.5) * Math.sqrt(activity[k]);
+    velocity = velocity * 0.94 + (rng() + rng() + rng() - 1.5) * Math.sqrt(activity[k]);
     if (k > 0) walk.push(walk[k - 1] + velocity);
   }
   const plan = { early, late, sharpFlip, wiggle, ease, chop, activity, walk };
@@ -456,8 +451,8 @@ function fillLeg(
   // A random walk pinned to zero at both anchors (a Brownian bridge), scaled to the leg: real swings up and down.
   const w0 = plan.walk[from % plan.walk.length];
   const w1 = plan.walk[to % plan.walk.length];
-  // Moderate: each leg heads to its target with a few small back-and-forth pullbacks along the way.
-  const swing = Math.min((travel * 0.14 + span * 0.025) * swingScale, span * 0.14 * Math.max(1, swingScale));
+  // Kept small so each leg heads to its target with only mild pullbacks.
+  const swing = Math.min((travel * 0.08 + span * 0.015) * swingScale, span * 0.08 * Math.max(1, swingScale));
   const pinned: number[] = [0];
   let reach = 0;
   for (let k = 1; k < steps; k += 1) {

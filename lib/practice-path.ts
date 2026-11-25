@@ -1,6 +1,15 @@
 import type { Ohlc, PracticeDay } from "./practice-market";
+import { cachedSeconds } from "./practice-seconds";
 
-export type MinuteBar = { t: number; o: number; h: number; l: number; c: number };
+export type MinuteBar = {
+  t: number;
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+  /** Real recorded path inside the minute when available: the open, then the price at the end of each of the 60 seconds. */
+  p?: number[];
+};
 export type Timeframe = "1m" | "5m" | "15m" | "30m" | "1D";
 
 const FRAME_MINUTES: Record<Timeframe, number> = { "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1D": 390 };
@@ -128,6 +137,10 @@ function candles(points: number[], origin: number, minuteBase: number, high: num
  * `seed` only matters for the 5-minute fallback.
  */
 export function buildSession(day: PracticeDay, seed: number): { TQQQ: MinuteBar[]; SQQQ: MinuteBar[] } {
+  const seconds = cachedSeconds(day.date);
+  if (seconds && day.tqqq.length > 0 && day.sqqq.length > 0) {
+    return { TQQQ: recordedBars(seconds.tqqq, day.tqqq[0][0], day.start), SQQQ: recordedBars(seconds.sqqq, day.sqqq[0][0], day.start) };
+  }
   if (day.tqqq.length <= SESSION_MINUTES) {
     const real = (bars: Ohlc[]) =>
       bars.slice(0, SESSION_MINUTES).map((tuple, index) => {
@@ -181,6 +194,34 @@ function joined(bars: MinuteBar[]): MinuteBar[] {
     const o = bars[index - 1].c;
     return { ...bar, o, h: Math.max(bar.h, o), l: Math.min(bar.l, o) };
   });
+}
+
+/**
+ * 1-minute candles built from the recorded per-second prices, so each candle matches the real path replayed inside
+ * it. Each candle opens where the last one closed (the first at the real open) and closes at its 60th second.
+ */
+export function recordedBars(seconds: number[], open: number, start: number): MinuteBar[] {
+  const bars: MinuteBar[] = [];
+  let prior = open;
+  for (let minute = 0; minute < SESSION_MINUTES; minute += 1) {
+    const slice = seconds.slice(minute * 60, minute * 60 + 60);
+    if (slice.length < 60) break;
+    const p = [prior, ...slice];
+    bars.push({ t: start + minute * 60, o: prior, h: Math.max(...p), l: Math.min(...p), c: slice[59], p });
+    prior = slice[59];
+  }
+  return bars;
+}
+
+/**
+ * Spread a recorded minute (open + 60 seconds) over the sub-ticks. Each tick shows the price as of the last
+ * completed second, so it never runs ahead of the real tape; the last tick is the close.
+ */
+function recordedPath(points: number[]): number[] {
+  const n = SUBTICKS;
+  const out = new Array<number>(n + 1);
+  for (let tick = 0; tick <= n; tick += 1) out[tick] = points[Math.min(60, Math.floor((tick * 60) / n))];
+  return out;
 }
 
 export function minuteSeed(daySeed: number, minute: number): number {
@@ -461,6 +502,7 @@ function fillLeg(
  * Each leg wanders a little on the way. SQQQ uses its own inverse bar and the opposite wiggle, so it moves against TQQQ.
  */
 export function subpath(bar: MinuteBar, seed: number, sign = 1, opening = false): number[] {
+  if (bar.p && bar.p.length === 61) return recordedPath(bar.p);
   const key = `${seed >>> 0}:${sign}:${opening ? 1 : 0}:${bar.o}:${bar.h}:${bar.l}:${bar.c}`;
   const hit = paths.get(key);
   if (hit) return hit;

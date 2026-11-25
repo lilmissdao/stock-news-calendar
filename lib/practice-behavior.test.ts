@@ -3,11 +3,12 @@ import { drawSession, emptyCycle, freshLeft, uniformIndex } from "./practice-cyc
 import { fastForward, holdTqqqValue, minuteLeft, newGame, nextDay, openBatchReview, skipDay, ticksDue, trade, type GameState, restartDay } from "./practice-engine";
 import { deleteAllHistory, deleteGame, emptyHistory, type ArchivedGame } from "./practice-history";
 import market from "../data/practice-market.json";
-import { buildSession, candleInView, chartBars, clock, growToInclude, minuteSeed, secondsLeft, openingPlan, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
+import { recordedBars, buildSession, candleInView, chartBars, clock, growToInclude, minuteSeed, secondsLeft, openingPlan, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
 import { addDayEntry, attemptNumbers, deleteDayEntry, emptyDayLog, parseDayLog } from "./practice-daylog";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
 import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { avgDailyReturn, rowFromGame, rowSlippage } from "./practice-history";
+import { perSecond, rememberSeconds } from "./practice-seconds";
 
 const price = 50;
 
@@ -511,6 +512,49 @@ function avgDailyAndTotalReturn() {
   assert.ok(Math.abs((row.avgDaily ?? 0) - 0.004) < 1e-12);
 }
 
+function recordedTapeReplaysRealSeconds() {
+  const start = 1_000_000;
+  const at = (second: number, ms = 0) => new Date((start + second) * 1000 + ms).toISOString();
+  // Odd lots (I) and out-of-sequence (Z) prints don't set the last price; the last regular trade in a second wins.
+  const seconds = perSecond(
+    [
+      { t: at(0, 100), p: 10.01, s: 100, c: ["@"] },
+      { t: at(0, 900), p: 10.03, s: 100, c: ["@"] },
+      { t: at(1, 10), p: 99, s: 5, c: ["@", "I"] },
+      { t: at(2, 10), p: 1, s: 100, c: ["Z"] },
+      { t: at(3, 500), p: 10.02, s: 300 },
+    ],
+    start,
+    10,
+  );
+  assert.equal(seconds.length, 1800);
+  assert.deepEqual(seconds.slice(0, 5), [10.03, 10.03, 10.03, 10.02, 10.02]);
+
+  const tqqq = Array.from({ length: 1800 }, (_, i) => 50 + Math.sin(i / 7) * 0.2 + i * 0.001);
+  const sqqq = tqqq.map((price) => 100 - price);
+  const bars = recordedBars(tqqq, 50, start);
+  assert.equal(bars.length, 30);
+  assert.equal(bars[0].o, 50);
+  assert.equal(bars[1].o, bars[0].c, "each candle opens at the previous close");
+  assert.equal(bars[29].c, tqqq[1799]);
+  const path = subpath(bars[3], 1, 1);
+  assert.equal(path.length, SUBTICKS + 1);
+  assert.equal(path[0], bars[3].o);
+  assert.equal(path[SUBTICKS], bars[3].c);
+  assert.equal(path[SUBTICKS / 2], tqqq[3 * 60 + 29], "halfway through the minute shows the price as of 30 seconds in");
+  assert.equal(Math.max(...path), bars[3].h);
+  assert.equal(Math.min(...path), bars[3].l);
+
+  // A day with a recording replays it; the same day without one falls back to the simulated path.
+  const day = { ...(market as unknown as PracticeMarket).days[0], date: "2099-01-01", start, tqqq: [[50, 51, 49, 50]], sqqq: [[50, 51, 49, 50]] } as PracticeDay;
+  assert.equal(buildSession(day, 1).TQQQ[0].p, undefined);
+  rememberSeconds(day.date, { date: day.date, source: "test", tqqq, sqqq });
+  const session = buildSession(day, 1);
+  assert.equal(session.TQQQ.length, 30);
+  assert.deepEqual(session.TQQQ[5].p?.slice(1), tqqq.slice(300, 360));
+  assert.equal(session.SQQQ[5].c, sqqq[359]);
+}
+
 regulatoryFeesOnly();
 realMinutesAreUsedAsIs();
 shuffleUsesEveryDayBeforeRepeating();
@@ -531,4 +575,5 @@ frameGrowsWhenTheCandleLeavesIt();
 clockAndCatchUp();
 historyDeleteLeavesTheRest();
 avgDailyAndTotalReturn();
+recordedTapeReplaysRealSeconds();
 console.log("practice behavior ok");

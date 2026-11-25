@@ -317,6 +317,12 @@ type TapePlan = {
   activity: number[];
   /** A random walk over the minute, stepped by activity, for up-and-down swings of every size. */
   walk: number[];
+  /**
+   * A failed break: between the two wicks the price crosses the open, falls back across it, then makes the real move.
+   * `at` are the two turning points as shares of the time between the wicks; `depth` how far past the open each
+   * reaches, as a share of the room on that side.
+   */
+  retest: { on: boolean; at: [number, number]; depth: [number, number] };
 };
 
 const plans = new Map<number, TapePlan>();
@@ -360,7 +366,13 @@ function planOf(seed: number): TapePlan {
     velocity = velocity * 0.94 + (rng() + rng() + rng() - 1.5) * Math.sqrt(activity[k]);
     if (k > 0) walk.push(walk[k - 1] + velocity);
   }
-  const plan = { early, late, sharpFlip, wiggle, ease, chop, activity, walk };
+  // Drawn last so every earlier part of the plan stays the same.
+  const retest = {
+    on: rng() < 0.4,
+    at: [0.25 + rng() * 0.15, 0.55 + rng() * 0.15] as [number, number],
+    depth: [0.3 + rng() * 0.35, 0.35 + rng() * 0.4] as [number, number],
+  };
+  const plan = { early, late, sharpFlip, wiggle, ease, chop, activity, walk, retest };
   plans.set(key, plan);
   return plan;
 }
@@ -615,7 +627,28 @@ function makePath(bar: MinuteBar, seed: number, sign: number): number[] {
     { t: lo, p: low },
     { t: hi, p: high },
     { t: n, p: bar.c },
-  ].sort((a, b) => a.t - b.t || a.p - b.p);
+  ];
+  // Fake-out: when both wicks have room, the price breaks across the open toward the second wick, fails back across
+  // it toward the first, and only then makes the real run. It stays inside the bar, so the candle itself is unchanged.
+  const first = Math.min(lo, hi);
+  const second = Math.max(lo, hi);
+  const firstPrice = first === lo ? low : high;
+  const secondPrice = first === lo ? high : low;
+  const room = (price: number) => Math.abs(price - bar.o);
+  if (
+    plan.retest.on &&
+    first > 0 &&
+    second - first >= Math.round(n * 0.2) &&
+    room(firstPrice) >= Math.max(0.02, span * 0.15) &&
+    room(secondPrice) >= Math.max(0.02, span * 0.15)
+  ) {
+    const gap = second - first;
+    anchors.push(
+      { t: first + Math.round(gap * plan.retest.at[0]), p: bar.o + (secondPrice - bar.o) * plan.retest.depth[0] },
+      { t: first + Math.round(gap * plan.retest.at[1]), p: bar.o + (firstPrice - bar.o) * plan.retest.depth[1] },
+    );
+  }
+  anchors.sort((a, b) => a.t - b.t || a.p - b.p);
   const shape = { open: bar.o, low, high };
   points[0] = bar.o;
   let leg = 0;

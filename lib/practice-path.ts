@@ -328,13 +328,14 @@ function planOf(seed: number): TapePlan {
   if (cached) return cached;
   const rng = mulberry32(key);
   const n = SUBTICKS;
-  // The first wick lands in the first ~30%. The second lands late (72–92%), so the short trip from it to the close
-  // doesn't stretch over a long stretch of the slowed-down candle and leave the price sitting still.
-  const early = Math.round(n * 0.065) + Math.floor(rng() * Math.floor(n * 0.24));
-  let late = Math.floor(n * 0.72) + Math.floor(rng() * Math.floor(n * 0.2));
+  // The first wick lands anywhere in the first ~45% of the minute, so the turn isn't on a fixed beat. The second
+  // lands late (66–92%), so the short trip from it to the close doesn't leave the price sitting still.
+  const early = Math.round(n * 0.06) + Math.floor(rng() * Math.floor(n * 0.4));
+  let late = Math.floor(n * 0.66) + Math.floor(rng() * Math.floor(n * 0.26));
   const gap = Math.round(n * 0.13);
   if (late - early < gap) late = Math.min(n - gap, early + gap);
-  const sharpFlip = rng() < 0.1;
+  // About one candle in four takes the "wrong" wick first (a fake-out) so the usual dip-then-run can't be relied on.
+  const sharpFlip = rng() < 0.25;
   const wiggle = [0, 1, 2].map(() => {
     const count = 1 + Math.floor(rng() * 2);
     return Array.from({ length: count }, () => ({ m: 2 + Math.floor(rng() * 3), a: (rng() * 2 - 1) * (0.6 + rng() * 0.4) }));
@@ -368,7 +369,7 @@ function planOf(seed: number): TapePlan {
  * Which wick prints first.
  * A green bar usually dips into its lower wick, runs up through the body into the upper wick, then settles at the close.
  * A red bar is the mirror. A near-doji goes to whichever wick is closer to the open.
- * Only bars with a small body sometimes take the far wick first; a strong body never does.
+ * About one candle in four whose body is under 75% of its range takes the far wick first instead, as a fake-out.
  */
 function lowFirstOf(plan: TapePlan, open: number, high: number, low: number, close: number): boolean {
   const span = high - low;
@@ -376,7 +377,7 @@ function lowFirstOf(plan: TapePlan, open: number, high: number, low: number, clo
   let lowFirst: boolean;
   if (span > 0 && Math.abs(body) >= span * 0.08) lowFirst = body > 0;
   else lowFirst = Math.abs(open - low) <= Math.abs(open - high);
-  if (plan.sharpFlip && span > 0 && Math.abs(body) < span * 0.3) lowFirst = !lowFirst;
+  if (plan.sharpFlip && span > 0 && Math.abs(body) < span * 0.75) lowFirst = !lowFirst;
   return lowFirst;
 }
 

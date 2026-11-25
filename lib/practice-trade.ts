@@ -42,6 +42,14 @@ export function fillDelayMs(random: () => number = Math.random): number {
   return Math.round(500 + Math.min(1, Math.max(0, random())) * 700);
 }
 
+/** Every practice fill crosses a 1¢ spread: buys pay 1¢ above the price shown, sells get 1¢ below it. */
+export const SPREAD_PER_SHARE = 0.01;
+
+/** Total cost per share against the price shown: the 1¢ spread, plus slippage when Realistic fills is on. */
+export function fillCostPerShare(minute: number, realistic: boolean, random: () => number = Math.random): number {
+  return Math.round((SPREAD_PER_SHARE + (realistic ? slipPerShare(minute, random) : 0)) * 100) / 100;
+}
+
 /**
  * Cents of slippage per share on a market order. TQQQ and SQQQ trade with a 1¢ spread, so a few hundred shares
  * usually fill within a penny of the last print: 1–2¢ in the opening five minutes while spreads are wider, then 0–1¢.

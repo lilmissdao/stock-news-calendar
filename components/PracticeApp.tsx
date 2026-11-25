@@ -51,7 +51,7 @@ import { CYCLE_KEY, drawSession, freshLeft, parseCycle, type CycleFile } from "@
 import type { PracticeMarket } from "@/lib/practice-market";
 import { chartBars, clock, clockSeconds, secondsLeft, SESSION_MINUTES, SUBTICKS, buildSession, type Timeframe } from "@/lib/practice-path";
 import { formatCents, formatWholeDollars } from "@/lib/simulator";
-import { slipPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
+import { fillCostPerShare, slippedPrice, type FillNote, type Ticker } from "@/lib/practice-trade";
 
 const REALISTIC_KEY = "snc-practice-realistic";
 const STORAGE_KEY = "snc-practice:v1";
@@ -551,7 +551,7 @@ export function PracticeApp() {
       return;
     }
     const at = quotesNow(snapshot);
-    const slip = realisticRef.current ? slipPerShare(snapshot.cursor) : 0;
+    const slip = fillCostPerShare(snapshot.cursor, realisticRef.current);
     setOrderNote(null);
     setGame((state) =>
       state && state.phase === "play"
@@ -590,8 +590,8 @@ export function PracticeApp() {
       setOrderNote(`Not enough cash to buy ${ticker}.`);
       return;
     }
-    // Fill right away at the price on screen when the key was pressed (plus the usual 0–2¢ slippage).
-    const slip = realisticRef.current ? slipPerShare(snapshot.cursor) : 0;
+    // Fill right away at the price on screen when the key was pressed, plus the 1¢ spread (and 0–2¢ slippage when realistic).
+    const slip = fillCostPerShare(snapshot.cursor, realisticRef.current);
     setOrderNote(null);
     setGame((state) => (state ? applyFill(state, side, fraction, ticker, slip, at) : state));
   }

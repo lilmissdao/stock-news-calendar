@@ -6,7 +6,7 @@ import market from "../data/practice-market.json";
 import { recordedBars, buildSession, candleInView, chartBars, clock, growToInclude, minuteSeed, secondsLeft, openingPlan, priceWindow, seriesNeedsReset, SESSION_MINUTES, sharedTape, subpath, SUBTICKS, type Timeframe } from "./practice-path";
 import { addDayEntry, attemptNumbers, deleteDayEntry, emptyDayLog, parseDayLog } from "./practice-daylog";
 import { mergePracticeDays, type PracticeDay, type PracticeMarket } from "./practice-market";
-import { buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
+import { fillCostPerShare, SPREAD_PER_SHARE, buyShares, catFee, fillDelayMs, secFee, sellFees, sellShares, slipPerShare, slippedPrice, tafFee } from "./practice-trade";
 import { avgDailyReturn, rowFromGame, rowSlippage } from "./practice-history";
 import { perSecond } from "./practice-seconds";
 
@@ -549,6 +549,16 @@ function recordedTapeReplaysRealSeconds() {
 
 }
 
+function everyFillPaysTheSpread() {
+  assert.equal(SPREAD_PER_SHARE, 0.01);
+  assert.equal(fillCostPerShare(10, false), 0.01, "spread even with Realistic fills off");
+  assert.equal(fillCostPerShare(10, true, () => 0), 0.01, "after the open, slippage can be 0, the spread stays");
+  assert.equal(fillCostPerShare(10, true, () => 0.9), 0.02);
+  assert.equal(fillCostPerShare(0, true, () => 0.9), 0.03, "opening minutes: 1¢ spread + 2¢ slippage");
+  assert.equal(slippedPrice(50, "buy", fillCostPerShare(10, false)), 50.01);
+  assert.equal(slippedPrice(50, "sell", fillCostPerShare(10, false)), 49.99);
+}
+
 regulatoryFeesOnly();
 realMinutesAreUsedAsIs();
 shuffleUsesEveryDayBeforeRepeating();
@@ -569,5 +579,6 @@ frameGrowsWhenTheCandleLeavesIt();
 clockAndCatchUp();
 historyDeleteLeavesTheRest();
 avgDailyAndTotalReturn();
+everyFillPaysTheSpread();
 recordedTapeReplaysRealSeconds();
 console.log("practice behavior ok");

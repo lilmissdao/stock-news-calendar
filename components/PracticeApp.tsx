@@ -285,6 +285,9 @@ export function PracticeApp() {
   const [tab, setTab] = useState<"play" | "history">("play");
   const [confirm, setConfirm] = useState(false);
   const [skipAsk, setSkipAsk] = useState(false);
+  /** The day picker: open, and the session she chose while holding shares (asked to sell first). */
+  const [pickOpen, setPickOpen] = useState(false);
+  const [pickTarget, setPickTarget] = useState<number | null>(null);
   const [realistic, setRealistic] = useState(true);
   /** Why the last hotkey order didn't go through, shown under the ticker for a few seconds. */
   const [orderNote, setOrderNote] = useState<string | null>(null);
@@ -609,11 +612,20 @@ export function PracticeApp() {
     setConfirm(true);
   }
 
-  function skipNow() {
+  /** Leave the day on screen for a dealt day, or for `chosen` (a session index picked from the day list). */
+  function skipNow(chosen: number | null = null) {
     if (!active || !cycle) return;
     setSkipAsk(false);
     setFull(false);
-    const dealt = deal(playedDates(saved, active), cycle, bookDay(active)?.date ?? "");
+    setPickOpen(false);
+    setPickTarget(null);
+    let dealt: { index: number; cycle: CycleFile };
+    if (chosen !== null && BOOK.days[chosen]) {
+      // A picked day counts as dealt this cycle, so the fresh-days count stays right.
+      dealt = { index: chosen, cycle: { ...cycle, dates: [...new Set([...cycle.dates, BOOK.days[chosen].date])] } };
+    } else {
+      dealt = deal(playedDates(saved, active), cycle, bookDay(active)?.date ?? "");
+    }
     setCycle(dealt.cycle);
     const day = bookDay(active);
     const paths = buildSession(day, active.seeds[active.day] || 1);
@@ -630,15 +642,16 @@ export function PracticeApp() {
     );
   }
 
-  function askSkip() {
+  function askSkip(chosen: number | null = null) {
     if (!active) return;
     clearFill();
     setGame((current) => (current ? { ...current, playing: false } : current));
     if (active.phase === "play" && sharesHeld(active) > 0) {
+      setPickTarget(chosen);
       setSkipAsk(true);
       return;
     }
-    skipNow();
+    skipNow(chosen);
   }
 
   function goNext() {
@@ -784,7 +797,7 @@ export function PracticeApp() {
                 <strong className="pr-price">{formatCents(price)}</strong>
                 <p className="pr-left">{game.phase === "play" ? minuteLeft(game.tick, game.speed) : "9:30–10:00"}</p>
                 <p className="pr-day">
-                  {game.phase === "play" ? `Day ${game.day + 1} of ${game.batchDaysTotal}` : prettyDate(session.day.date)}
+                  {game.phase === "play" ? `Day ${game.day + 1} of ${game.batchDaysTotal} · ${prettyDate(session.day.date)}` : prettyDate(session.day.date)}
                   <span>{game.phase === "play" ? asOf : `Day ${game.day + 1} of ${game.batchDaysTotal}${asOf ? ` · ${asOf}` : ""}`}</span>
                   <span>9:30–10:00{prior !== null ? ` · Prior ${formatCents(prior)}` : ""}</span>
                 </p>
@@ -795,21 +808,44 @@ export function PracticeApp() {
             </div>
             {game.phase === "play" || game.phase === "day" ? (
               <div className="pr-skiprow">
-                <button type="button" className="pr-skip" onClick={askSkip}>
+                <button type="button" className="pr-skip" aria-expanded={pickOpen} onClick={() => setPickOpen((open) => !open)}>
+                  Pick day
+                </button>
+                <button type="button" className="pr-skip" onClick={() => askSkip()}>
                   Skip day
                 </button>
               </div>
             ) : null}
+            {pickOpen && (game.phase === "play" || game.phase === "day") ? (
+              <DayPicker
+                current={game.session}
+                played={dayLog.entries}
+                onPick={(index) => {
+                  if (index === game.session) {
+                    setPickOpen(false);
+                    return;
+                  }
+                  askSkip(index);
+                }}
+              />
+            ) : null}
             {skipAsk ? (
               <section className="pr-confirm">
-                <h2>Sell and skip this day?</h2>
+                <h2>{pickTarget !== null ? `Sell and play ${prettyDate(BOOK.days[pickTarget]?.date ?? "")}?` : "Sell and skip this day?"}</h2>
                 <p className="pr-lead">The open position sells at the current price.</p>
                 <div className="pr-actions">
-                  <button type="button" className="text-btn" onClick={() => setSkipAsk(false)}>
+                  <button
+                    type="button"
+                    className="text-btn"
+                    onClick={() => {
+                      setSkipAsk(false);
+                      setPickTarget(null);
+                    }}
+                  >
                     Keep playing
                   </button>
-                  <button type="button" className="pr-skip" onClick={skipNow}>
-                    Sell and skip
+                  <button type="button" className="pr-skip" onClick={() => skipNow(pickTarget)}>
+                    {pickTarget !== null ? "Sell and switch" : "Sell and skip"}
                   </button>
                 </div>
               </section>
@@ -892,7 +928,7 @@ export function PracticeApp() {
                   onScale={onScale}
                 />
                 {full ? (
-                  <button type="button" className="pr-skip pr-fullskip" onClick={askSkip}>
+                  <button type="button" className="pr-skip pr-fullskip" onClick={() => askSkip()}>
                     Skip day
                   </button>
                 ) : null}
@@ -1093,6 +1129,29 @@ function OrderPad({ shares, onAct }: { shares: number; onAct: (side: "buy" | "se
         ))}
       </div>
     </div>
+  );
+}
+
+/** Every practice morning by date, newest first, so she can choose exactly which day to play. */
+function DayPicker({ current, played, onPick }: { current: number; played: { date: string }[]; onPick: (index: number) => void }) {
+  const times = new Map<string, number>();
+  for (const entry of played) times.set(entry.date, (times.get(entry.date) ?? 0) + 1);
+  const days = BOOK.days.map((day, index) => ({ date: day.date, index })).reverse();
+  return (
+    <section className="pr-picker" aria-label="Pick a day to play">
+      <p className="pr-note">Pick a market morning to play. It replaces the day on screen; your batch and history carry on.</p>
+      <div className="pr-picker-list">
+        {days.map(({ date, index }) => {
+          const count = times.get(date) ?? 0;
+          return (
+            <button key={date} type="button" className="pr-picker-day" aria-pressed={index === current} onClick={() => onPick(index)}>
+              <strong>{prettyDate(date)}</strong>
+              <span>{index === current ? "On screen" : count === 0 ? "New" : `Played ${count}×`}</span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

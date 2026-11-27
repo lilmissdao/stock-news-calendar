@@ -1436,8 +1436,27 @@ main { min-width: 0; }
 .pr-price { display: block; margin: 0; font-size: 1.45rem; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .pr-left { margin: 2px 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
 .pr-book { margin: 0; color: var(--ink-soft); font-size: 14px; font-variant-numeric: tabular-nums; }
-.pr-skiprow { display: flex; justify-content: flex-end; }
+.pr-skiprow { display: flex; justify-content: flex-end; gap: 8px; }
+.pr-picker { display: flex; flex-direction: column; gap: 8px; }
+.pr-picker-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 8px; }
+.pr-picker-day {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-elev);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  touch-action: manipulation;
+}
+.pr-picker-day span { color: var(--ink-soft); font-size: 12px; }
+.pr-picker-day[aria-pressed="true"] { border-color: var(--ink); }
 .pr-skip {
+  -webkit-tap-highlight-color: transparent;
   min-height: 40px;
   padding: 6px 14px;
   border: 1px solid var(--line);

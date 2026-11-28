@@ -5,9 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 /**
  * Direction Quiz: a random TQQQ session from the past year. Decks: daily turning points and big trend days, unpredictable
  * (choppy and inside) days, or both. The chart shows the day up to "now" with the levels a trader marks (prior day's
- * close/high/low, pre-market high/low, VWAP). For any of the next 5, 15 and 30 minutes she calls Higher, Flat or Lower,
- * then reveals. Every call is saved with its setup, so the report card can show where she goes wrong and drill those
- * moments until she gets them. The date shows once the day is over.
+ * close/high/low, pre-market high/low, VWAP). For any of the next 5, 15 and 30 minutes the player calls Higher, Flat or
+ * Lower, then reveals. Every call is saved with its setup, so the report card can show where the calls go wrong and drill
+ * those moments until they click. The date shows once the day is over.
  */
 
 type Ohlc = [number, number, number, number];
@@ -234,7 +234,7 @@ function vwapBands(day: QuizDay): Bands | null {
   return { up, down };
 }
 
-/** Words in her reasons that name a tool or idea, so the report card can show how each one works for her. */
+/** Words in the player's reasons that name a tool or idea, so the report card can show how each one works out. */
 const REASON_TOPICS: { topic: string; words: RegExp }[] = [
   { topic: "VWAP", words: /\bvwap\b/i },
   { topic: "support / resistance", words: /support|resistance|\blevel/i },
@@ -430,7 +430,7 @@ function buckets(calls: CallRecord[]): Bucket[] {
   return [...map.values()];
 }
 
-/** Setups with enough calls that are below her overall accuracy, worst first. */
+/** Setups with enough calls that are below the overall accuracy, worst first. */
 function weakSpots(calls: CallRecord[]): Bucket[] {
   const overall = calls.length ? calls.filter((record) => record.right).length / calls.length : 0;
   return buckets(calls)
@@ -463,7 +463,7 @@ export function QuizApp() {
   const [drillMinutes, setDrillMinutes] = useState<number[]>([]);
   const [showLevels, setShowLevels] = useState(true);
   const [showVwap, setShowVwap] = useState(true);
-  /** Her reason for the calls she's about to reveal (optional). */
+  /** The player's reason for the calls about to be revealed (optional). */
   const [reason, setReason] = useState("");
   const [tab, setTab] = useState<"play" | "report">("play");
   const [notice, setNotice] = useState("");
@@ -1209,7 +1209,7 @@ function exportNotes(stats: Stats) {
   URL.revokeObjectURL(url);
 }
 
-/** How her stated reasons work out: accuracy by what the reason mentions, and recent misses with her own words. */
+/** How the stated reasons work out: accuracy by what the reason mentions, and recent misses in the player's own words. */
 function ReasonsSection({ calls }: { calls: CallRecord[] }) {
   const withReason = calls.filter((record) => record.reason);
   if (withReason.length === 0) {

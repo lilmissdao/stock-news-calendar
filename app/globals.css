@@ -1763,3 +1763,30 @@ rect.qz-lv-pre { fill: #2a9d8f; }
 .qz-cell-reason { color: var(--ink-soft); font-style: italic; min-width: 160px; }
 .qz-file { cursor: pointer; display: inline-flex; align-items: center; }
 @media (max-width: 640px) { .qz-calls { font-size: 12px; } .qz-calls td, .qz-calls th { padding: 4px 5px; } }
+
+/* Quiz: coach, report tables, day review */
+.qz-coach { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 8px; background: var(--muted); }
+.qz-coach .qz-why { color: var(--ink); }
+.qz-lesson { margin: 0; font-size: 14px; line-height: 1.45; font-weight: 600; color: var(--ink); }
+.qz-verdict { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 12px; font-weight: 700; margin-right: 4px; vertical-align: 1px; }
+.qz-verdict-misread { background: var(--down); color: #fff; }
+.qz-verdict-unpredictable { background: var(--ink-soft); color: var(--bg); }
+.qz-verdict-right { background: var(--up); color: #fff; }
+.qz-scroll { overflow-x: auto; max-width: 100%; }
+.qz-summary td:first-child { font-weight: 600; }
+.qz-wide { width: 100%; }
+.qz-wide th, .qz-wide td { text-align: left; vertical-align: top; }
+.qz-cell-text { min-width: 260px; line-height: 1.45; }
+.qz-cell-text .qz-coach { background: none; padding: 0; }
+.qz-row-link { cursor: pointer; }
+.qz-row-link:hover td { background: var(--muted); }
+.qz-earlier summary { cursor: pointer; font-size: 14px; }
+.qz-review-head { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.qz-review-head h3 { margin: 0; }
+.qz-moments { display: flex; flex-wrap: wrap; gap: 6px; }
+.qz-moment { border: 1px solid var(--line); background: var(--bg-elev); color: var(--ink); border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 13px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.qz-moment-right { border-color: var(--up); }
+.qz-moment-wrong { border-color: var(--down); }
+.qz-moment[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+@media (max-width: 640px) { .qz-cell-text { min-width: 200px; } .qz-wide { font-size: 13px; } }
+.qz-summary { width: 100%; max-width: 560px; }

@@ -1701,3 +1701,26 @@ text.qz-mark-30 { fill: #8a63c7; }
 .qz-dim li, .qz-days li { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
 .qz-low { color: var(--down); font-weight: 600; }
 .qz-high { color: var(--up); font-weight: 600; }
+
+/* Quiz: VWAP bands and reasons */
+.qz-band { fill: none; stroke: #3fa35a; stroke-width: 2; }
+.qz-band-fill { fill: #3fa35a; opacity: 0.08; stroke: none; }
+.qz-key-band::before { color: #3fa35a; border-top-style: solid; }
+.qz-reason { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--ink-soft); }
+.qz-reason textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 56px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  resize: vertical;
+}
+.qz-yours { margin: 0; font-size: 14px; font-style: italic; color: var(--ink); }
+.qz-misses { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.qz-misses li { border-top: 1px solid var(--line); padding-top: 8px; display: flex; flex-direction: column; gap: 2px; }
+.qz-actions { display: flex; flex-wrap: wrap; gap: 8px; }

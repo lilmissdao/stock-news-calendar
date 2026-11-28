@@ -37,7 +37,7 @@ type Setup = {
   kind: string;
 };
 type Dim = keyof Setup;
-type CallRecord = { date: string; minute: number; horizon: number; call: Call; actual: Call; right: boolean; setup: Setup };
+type CallRecord = { date: string; minute: number; horizon: number; call: Call; actual: Call; right: boolean; setup: Setup; reason?: string };
 type Stats = {
   v: 1;
   answered: number;
@@ -50,7 +50,8 @@ type Stats = {
   days: { date: string; kinds: string[]; answered: number; correct: number; at: string }[];
 };
 type Result = { horizon: number; call: Call; to: number; change: number; pct: number; actual: Call; right: boolean; why: string[] };
-type Reveal = { from: number; to: number; results: Result[]; skipped: boolean; clue: string };
+type Reveal = { from: number; to: number; results: Result[]; skipped: boolean; clue: string; reason: string };
+type Bands = { up: number[]; down: number[] };
 type StartMode = "open" | "random";
 type Deck = "patterns" | "choppy" | "mix";
 type Deal = "any" | "drill" | "missed";
@@ -207,6 +208,47 @@ function vwapSeries(day: QuizDay): number[] | null {
   });
   return out;
 }
+
+/**
+ * VWAP ±1 standard deviation through each minute: how far typical prices have spread around VWAP, weighted by volume.
+ * The same bands TradingView's VWAP draws with its default multiplier of 1.
+ */
+function vwapBands(day: QuizDay): Bands | null {
+  if (!day.vol || day.vol.length < day.bars.length) return null;
+  const up: number[] = [];
+  const down: number[] = [];
+  let pv = 0;
+  let pv2 = 0;
+  let volume = 0;
+  day.bars.forEach((bar, i) => {
+    const v = day.vol![i] ?? 0;
+    const typical = (bar[1] + bar[2] + bar[3]) / 3;
+    pv += typical * v;
+    pv2 += typical * typical * v;
+    volume += v;
+    const mean = volume > 0 ? pv / volume : bar[3];
+    const sd = volume > 0 ? Math.sqrt(Math.max(0, pv2 / volume - mean * mean)) : 0;
+    up.push(mean + sd);
+    down.push(mean - sd);
+  });
+  return { up, down };
+}
+
+/** Words in her reasons that name a tool or idea, so the report card can show how each one works for her. */
+const REASON_TOPICS: { topic: string; words: RegExp }[] = [
+  { topic: "VWAP", words: /\bvwap\b/i },
+  { topic: "support / resistance", words: /support|resistance|\blevel/i },
+  { topic: "the prior close / high / low", words: /prior|yesterday|previous/i },
+  { topic: "pre-market levels", words: /pre-?market|premarket|\bpm\b/i },
+  { topic: "the opening range", words: /opening range|\borb?\b|9:3[05]/i },
+  { topic: "trend / momentum", words: /trend|momentum|higher highs|lower lows|strong|weak/i },
+  { topic: "a breakout / breakdown", words: /break ?out|break ?down|broke/i },
+  { topic: "a reversal / bounce", words: /reversal|revers|bounce|turn|rejected|rejection|double (top|bottom)|head and shoulders/i },
+  { topic: "a flag / pennant / triangle", words: /flag|pennant|triangle|wedge/i },
+  { topic: "a fake-out", words: /fake|trap|failed/i },
+  { topic: "a candle pattern", words: /hammer|doji|engulf|wick|shooting star|marubozu|inside bar/i },
+  { topic: "a gut feeling", words: /gut|feel|guess|hunch|random/i },
+];
 
 /** The fixed levels a trader marks before the open. */
 function fixedLevels(day: QuizDay): Level[] {
@@ -420,6 +462,9 @@ export function QuizApp() {
   /** Minutes in the day on screen that match the drill's setup. */
   const [drillMinutes, setDrillMinutes] = useState<number[]>([]);
   const [showLevels, setShowLevels] = useState(true);
+  const [showVwap, setShowVwap] = useState(true);
+  /** Her reason for the calls she's about to reveal (optional). */
+  const [reason, setReason] = useState("");
   const [tab, setTab] = useState<"play" | "report">("play");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
@@ -427,11 +472,18 @@ export function QuizApp() {
   useEffect(() => {
     setStats(loadStats());
     try {
-      const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}") as { timeframe?: Timeframe; startMode?: StartMode; deck?: Deck; showLevels?: boolean };
+      const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}") as {
+        timeframe?: Timeframe;
+        startMode?: StartMode;
+        deck?: Deck;
+        showLevels?: boolean;
+        showVwap?: boolean;
+      };
       if (prefs.timeframe === "1m" || prefs.timeframe === "5m") setTimeframe(prefs.timeframe);
       if (prefs.startMode === "open" || prefs.startMode === "random") setStartMode(prefs.startMode);
       if (prefs.deck === "patterns" || prefs.deck === "choppy" || prefs.deck === "mix") setDeck(prefs.deck);
       if (typeof prefs.showLevels === "boolean") setShowLevels(prefs.showLevels);
+      if (typeof prefs.showVwap === "boolean") setShowVwap(prefs.showVwap);
     } catch {
       /* ignore */
     }
@@ -443,13 +495,14 @@ export function QuizApp() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe, startMode, deck, showLevels }));
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe, startMode, deck, showLevels, showVwap }));
     } catch {
       /* ignore */
     }
-  }, [timeframe, startMode, deck, showLevels]);
+  }, [timeframe, startMode, deck, showLevels, showVwap]);
 
   const vwap = useMemo(() => (day ? vwapSeries(day) : null), [day]);
+  const bands = useMemo(() => (day ? vwapBands(day) : null), [day]);
 
   /** 9:45, or with Random time any 5-minute mark from 10:00 to 3:30, so there's always 30 minutes left to call. */
   function startAt(next: QuizDay): number {
@@ -550,9 +603,11 @@ export function QuizApp() {
       return { horizon, call, to, change, pct: rate, actual, right: call === actual, why: describeMove(day, from, to, vwap) };
     });
     const to = from + Math.max(...chosen);
-    setReveal({ from, to, results, skipped: false, clue: describeSetup(day, from, vwap) });
+    const why = reason.trim().slice(0, 500);
+    setReveal({ from, to, results, skipped: false, clue: describeSetup(day, from, vwap), reason: why });
     setCursor(to);
     setPicks({});
+    setReason("");
     const hits = results.filter((result) => result.right).length;
     setScore((current) => ({ answered: current.answered + results.length, correct: current.correct + hits }));
     setStats((current) => {
@@ -566,7 +621,16 @@ export function QuizApp() {
         next.byTimeframe[timeframe] = bump(next.byTimeframe[timeframe], hit);
         next.byHorizon[String(result.horizon)] = bump(next.byHorizon[String(result.horizon)], hit);
         next.byCall![result.call] = bump(next.byCall![result.call], hit);
-        records.push({ date: day.date, minute: from, horizon: result.horizon, call: result.call, actual: result.actual, right: result.right, setup });
+        records.push({
+          date: day.date,
+          minute: from,
+          horizon: result.horizon,
+          call: result.call,
+          actual: result.actual,
+          right: result.right,
+          setup,
+          ...(why ? { reason: why } : {}),
+        });
       }
       next.calls = [...(base.calls ?? []), ...records].slice(-3000);
       saveStats(next);
@@ -577,7 +641,7 @@ export function QuizApp() {
   function skip() {
     if (!day || reveal || done) return;
     const to = Math.min(cursor + SKIP, total);
-    setReveal({ from: cursor, to, results: [], skipped: true, clue: "" });
+    setReveal({ from: cursor, to, results: [], skipped: true, clue: "", reason: "" });
     setCursor(to);
     setPicks({});
   }
@@ -799,6 +863,9 @@ export function QuizApp() {
                 <button type="button" aria-pressed={showLevels} onClick={() => setShowLevels((current) => !current)}>
                   Levels
                 </button>
+                <button type="button" aria-pressed={showVwap} onClick={() => setShowVwap((current) => !current)}>
+                  VWAP + bands
+                </button>
                 <button type="button" onClick={restartDay} disabled={!day}>
                   Restart this day
                 </button>
@@ -847,22 +914,27 @@ export function QuizApp() {
                       timeframe={timeframe}
                       ahead={reveal ? 0 : furthest}
                       reveal={reveal}
-                      vwap={showLevels ? vwap : null}
+                      vwap={showVwap ? vwap : null}
+                      bands={showVwap ? bands : null}
                       levels={showLevels ? fixedLevels(day) : []}
                     />
-                    {showLevels ? (
+                    {showLevels || (showVwap && vwap) ? (
                       <p className="qz-legend">
-                        <span className="qz-key qz-key-close">Prior close</span>
-                        <span className="qz-key qz-key-prior">Prior day high / low</span>
-                        {day.pre ? <span className="qz-key qz-key-pre">Pre-market high / low</span> : null}
-                        {vwap ? <span className="qz-key qz-key-vwap">VWAP</span> : null}
+                        {showLevels ? <span className="qz-key qz-key-close">Prior close</span> : null}
+                        {showLevels ? <span className="qz-key qz-key-prior">Prior day high / low</span> : null}
+                        {showLevels && day.pre ? <span className="qz-key qz-key-pre">Pre-market high / low</span> : null}
+                        {showVwap && vwap ? <span className="qz-key qz-key-vwap">VWAP</span> : null}
+                        {showVwap && bands ? <span className="qz-key qz-key-band">VWAP ±1σ bands</span> : null}
                       </p>
                     ) : null}
                     <div className="qz-now">
                       <strong>{clock(Math.min(cursor, total))}</strong>
                       <span>
                         {day.symbol} ${priceNow.toFixed(2)} · day {signedPct(priceNow / day.before[day.before.length - 1][3] - 1)} vs prior close
-                        {vwap ? ` · VWAP ${money(vwap[Math.min(cursor, total) - 1])}` : ""}
+                        {vwap && showVwap ? ` · VWAP ${money(vwap[Math.min(cursor, total) - 1])}` : ""}
+                        {bands && showVwap
+                          ? ` (bands ${money(bands.down[Math.min(cursor, total) - 1])}–${money(bands.up[Math.min(cursor, total) - 1])})`
+                          : ""}
                       </span>
                     </div>
                   </>
@@ -900,6 +972,16 @@ export function QuizApp() {
                         </div>
                       );
                     })}
+                    <label className="qz-reason">
+                      <span>Why? (optional) What are you seeing?</span>
+                      <textarea
+                        value={reason}
+                        onChange={(event) => setReason(event.target.value)}
+                        rows={2}
+                        maxLength={500}
+                        placeholder="e.g. bounced off VWAP twice, higher lows, below the pre-market high"
+                      />
+                    </label>
                     <button type="button" className="qz-next" disabled={chosen.length === 0} onClick={lockIn}>
                       {chosen.length === 0
                         ? "Reveal my calls (pick one first)"
@@ -920,6 +1002,7 @@ export function QuizApp() {
                     {reveal ? (
                       <>
                         <p className="qz-q">{reveal.skipped ? `Skipped to ${clock(reveal.to)}` : `${rightNow} of ${reveal.results.length} right`}</p>
+                        {reveal.reason ? <p className="qz-yours">Your reason: “{reveal.reason}”</p> : null}
                         {reveal.clue ? <p className="qz-clue">{reveal.clue}</p> : null}
                         {reveal.results.map((result) => (
                           <div key={result.horizon} className="qz-call">
@@ -1074,6 +1157,8 @@ function ReportCard({
         })}
       </div>
 
+      <ReasonsSection calls={calls} />
+
       {missedDays.length ? (
         <>
           <h4>Days you missed most</h4>
@@ -1091,10 +1176,98 @@ function ReportCard({
           </ul>
         </>
       ) : null}
-      <button type="button" className="text-btn" onClick={onReset}>
-        Reset report card and accuracy
-      </button>
+      <div className="qz-actions">
+        <button type="button" className="text-btn" onClick={() => exportNotes(stats)}>
+          Export my notes
+        </button>
+        <button type="button" className="text-btn" onClick={onReset}>
+          Reset report card and accuracy
+        </button>
+      </div>
+      <p className="qz-note">Export my notes downloads every call with its setup, your reason and what happened, to review or to share.</p>
     </section>
+  );
+}
+
+function exportNotes(stats: Stats) {
+  const rows = (stats.calls ?? []).map((record) => ({
+    date: record.date,
+    time: clock(record.minute),
+    minutesAhead: record.horizon,
+    youSaid: CALL_WORD[record.call],
+    itWas: CALL_WORD[record.actual],
+    right: record.right,
+    reason: record.reason ?? "",
+    setup: Object.fromEntries(DIMS.map(({ dim }) => [dim, spotName(dim, String(record.setup[dim]))])),
+  }));
+  const blob = new Blob([JSON.stringify({ exported: new Date().toISOString(), calls: rows }, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "direction-quiz-notes.json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+/** How her stated reasons work out: accuracy by what the reason mentions, and recent misses with her own words. */
+function ReasonsSection({ calls }: { calls: CallRecord[] }) {
+  const withReason = calls.filter((record) => record.reason);
+  if (withReason.length === 0) {
+    return (
+      <>
+        <h4>Your reasons</h4>
+        <p className="qz-note">Write a reason in the “Why?” box when you call. Here you’ll see how each kind of reason works out for you.</p>
+      </>
+    );
+  }
+  const topics = REASON_TOPICS.map(({ topic, words }) => {
+    const mine = withReason.filter((record) => words.test(record.reason ?? ""));
+    return { topic, answered: mine.length, correct: mine.filter((record) => record.right).length };
+  })
+    .filter((row) => row.answered > 0)
+    .sort((a, b) => b.answered - a.answered);
+  const noReason = calls.filter((record) => !record.reason);
+  const misses = withReason.filter((record) => !record.right).slice(-8).reverse();
+  const rate = (right: number, of: number) => (of ? right / of : 0);
+  return (
+    <>
+      <h4>Your reasons</h4>
+      <p className="qz-note">
+        With a reason: {pct(rate(withReason.filter((record) => record.right).length, withReason.length))} of {withReason.length}. Without:{" "}
+        {noReason.length ? `${pct(rate(noReason.filter((record) => record.right).length, noReason.length))} of ${noReason.length}` : "—"}.
+      </p>
+      {topics.length ? (
+        <ul className="qz-days">
+          {topics.map((row) => (
+            <li key={row.topic}>
+              <span>When your reason mentions {row.topic}</span>
+              <span>
+                {pct(row.correct / row.answered)} of {row.answered}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {misses.length ? (
+        <>
+          <p className="qz-dim-title">Recent misses, in your words</p>
+          <ul className="qz-misses">
+            {misses.map((record, i) => (
+              <li key={`${record.date}-${record.minute}-${record.horizon}-${i}`}>
+                <p className="qz-line">
+                  {prettyDate(record.date)} {clock(record.minute)} · {record.horizon} min: you said {CALL_WORD[record.call]}, it was {CALL_WORD[record.actual]}
+                </p>
+                <p className="qz-yours">“{record.reason}”</p>
+                <p className="qz-why">
+                  Setup: {spotName("trend", record.setup.trend)}, {spotName("vwap", record.setup.vwap).toLowerCase()}, {spotName("range", record.setup.range).toLowerCase()},{" "}
+                  {spotName("extreme", record.setup.extreme).toLowerCase()}.
+                </p>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+    </>
   );
 }
 
@@ -1139,6 +1312,7 @@ function IntradayChart({
   ahead,
   reveal,
   vwap,
+  bands,
   levels,
 }: {
   day: QuizDay;
@@ -1147,6 +1321,7 @@ function IntradayChart({
   ahead: number;
   reveal: Reveal | null;
   vwap: number[] | null;
+  bands: Bands | null;
   levels: Level[];
 }) {
   const H = 420;
@@ -1173,7 +1348,9 @@ function IntradayChart({
   const near = (price: number) => price >= lowSeen - span * 1.2 && price <= highSeen + span * 1.2;
   const shownLevels = levels.filter((level) => near(level.price));
   const vwapPoints = vwap ? vwap.slice(view.firstMinute, shownCount) : [];
-  const vwapNear = vwapPoints.filter(near);
+  const upPoints = bands ? bands.up.slice(view.firstMinute, shownCount) : [];
+  const downPoints = bands ? bands.down.slice(view.firstMinute, shownCount) : [];
+  const vwapNear = [...vwapPoints, ...upPoints, ...downPoints].filter(near);
   let min = Math.min(lowSeen, ...shownLevels.map((level) => level.price), ...vwapNear);
   let max = Math.max(highSeen, ...shownLevels.map((level) => level.price), ...vwapNear);
   const pad = (max - min || max * 0.01) * 0.08;
@@ -1202,7 +1379,19 @@ function IntradayChart({
     lastLabel = at;
     return at;
   });
-  const vwapPath = vwapPoints.map((value, i) => `${i ? "L" : "M"}${xAt(view.firstMinute + i + 0.5).toFixed(1)} ${clampY(value).toFixed(1)}`).join(" ");
+  const line = (points: number[]) => points.map((value, i) => `${i ? "L" : "M"}${xAt(view.firstMinute + i + 0.5).toFixed(1)} ${clampY(value).toFixed(1)}`).join(" ");
+  const vwapPath = line(vwapPoints);
+  const upPath = line(upPoints);
+  const downPath = line(downPoints);
+  // The shaded zone between the bands: along the upper band, then back along the lower one.
+  const bandFill =
+    upPoints.length > 1
+      ? `${upPath} ${downPoints
+          .map((value, i) => [xAt(view.firstMinute + i + 0.5), clampY(value)] as const)
+          .reverse()
+          .map(([px, py]) => `L${px.toFixed(1)} ${py.toFixed(1)}`)
+          .join(" ")} Z`
+      : "";
 
   return (
     <figure className="qz-chart">
@@ -1234,6 +1423,9 @@ function IntradayChart({
         {labelled.map((level) => (
           <line key={level.key} className={`qz-level ${level.cls}`} x1={0} x2={plotW} y1={y(level.price)} y2={y(level.price)} />
         ))}
+        {bandFill ? <path className="qz-band-fill" d={bandFill} /> : null}
+        {upPath ? <path className="qz-band" d={upPath} /> : null}
+        {downPath ? <path className="qz-band" d={downPath} /> : null}
         {vwapPath ? <path className="qz-vwap" d={vwapPath} /> : null}
         <Candles bars={view.bars} x={x} y={y} width={width} />
         {labelled.map((level, i) => (

@@ -78,7 +78,20 @@ type Stats = {
   calls?: CallRecord[];
   days: DayEntry[];
 };
-type Result = { horizon: number; call: Call; to: number; change: number; pct: number; actual: Call; right: boolean; why: string[]; reason: string };
+type Result = {
+  horizon: number;
+  call: Call;
+  to: number;
+  change: number;
+  pct: number;
+  actual: Call;
+  right: boolean;
+  why: string[];
+  reason: string;
+  /** The trend line's prices at the call and at `to`, and its change. */
+  line: [number, number];
+  trend: number;
+};
 type Reveal = { from: number; to: number; results: Result[]; skipped: boolean; clue: string };
 type Bands = { up: number[]; down: number[] };
 type StartMode = "open" | "random";
@@ -90,31 +103,31 @@ type Level = { key: string; name: string; label: string; code: string; price: nu
 const STATS_KEY = "snc-quiz:v1";
 const PREFS_KEY = "snc-quiz-prefs:v1";
 const HORIZONS = [5, 15, 30, 60, 120];
-/** A finish more than ±0.15% from the price now is always Higher or Lower. */
+/** The trend line has to move more than ±0.15% over the call for Higher or Lower; less is Flat. */
 const FLAT = 0.0015;
-/**
- * Inside ±0.15%, a move counts as Higher or Lower when it went mostly one way (at least half of all the minute-to-minute
- * movement adds up in one direction) and finished at least 0.05% away. Back-and-forth chop is Flat.
- */
-const ONE_WAY = 0.5;
-const MIN_MOVE = 0.0005;
 
-/** What price did from the call to `to`: Higher, Lower, or Flat (choppy, back and forth, ending near where it started). */
-function judge(day: QuizDay, from: number, to: number): Call {
-  const start = day.bars[from - 1][3];
-  const end = day.bars[to - 1][3];
-  const rate = end / start - 1;
-  if (rate > FLAT) return "up";
-  if (rate < -FLAT) return "down";
-  let path = 0;
-  let previous = start;
-  for (let minute = from; minute < to; minute += 1) {
-    path += Math.abs(day.bars[minute][3] - previous);
-    previous = day.bars[minute][3];
-  }
-  if (Math.abs(rate) >= MIN_MOVE && path > 0 && Math.abs(end - start) / path >= ONE_WAY) return rate > 0 ? "up" : "down";
-  return "flat";
+/**
+ * The overall trend from the call to `to`: a straight line of best fit through the price at the call and every 1-minute
+ * close after it, so a single candle or a last-minute wiggle doesn't decide the answer. Returns the line's prices at the
+ * start and end, and its change as a share of the price at the call.
+ */
+function trendLine(day: QuizDay, from: number, to: number): { line: [number, number]; change: number } {
+  const ys = [day.bars[from - 1][3]];
+  for (let minute = from; minute < to; minute += 1) ys.push(day.bars[minute][3]);
+  const n = ys.length;
+  const xMean = (n - 1) / 2;
+  const yMean = ys.reduce((sum, value) => sum + value, 0) / n;
+  let num = 0;
+  let den = 0;
+  ys.forEach((value, x) => {
+    num += (x - xMean) * (value - yMean);
+    den += (x - xMean) ** 2;
+  });
+  const slope = den ? num / den : 0;
+  const line: [number, number] = [yMean - slope * xMean, yMean + slope * xMean];
+  return { line, change: (line[1] - line[0]) / ys[0] };
 }
+
 /** How much of the day is shown before the first call. */
 const WARMUP = 15;
 const SKIP = 15;
@@ -465,6 +478,10 @@ function rebuildReveal(day: QuizDay, from: number, records: CallRecord[], vwap: 
         change,
         pct: change / start,
         actual: record.actual,
+        ...(() => {
+          const fit = trendLine(day, from, to);
+          return { line: fit.line, trend: fit.change };
+        })(),
         right: record.right,
         why: describeMove(day, from, to, vwap),
         reason: record.reason ?? "",
@@ -690,7 +707,8 @@ export function QuizApp() {
       const to = from + horizon;
       const change = day.bars[to - 1][3] - start;
       const rate = change / start;
-      const actual = judge(day, from, to);
+      const fit = trendLine(day, from, to);
+      const actual: Call = fit.change > FLAT ? "up" : fit.change < -FLAT ? "down" : "flat";
       const call = picks[horizon]!;
       return {
         horizon,
@@ -698,6 +716,8 @@ export function QuizApp() {
         to,
         change,
         pct: rate,
+        line: fit.line,
+        trend: fit.change,
         actual,
         right: call === actual,
         why: describeMove(day, from, to, vwap),
@@ -886,7 +906,7 @@ export function QuizApp() {
             <h2>Direction quiz</h2>
             <p className="qz-note">
               A random {index?.symbol ?? "TQQQ"} day from the past year, 9:30 to 4:00. From “now”, call where it’ll be 5, 15 and 30 minutes and 1 and 2 hours later:
-              higher, flat (choppy, back and forth) or lower. Make one call or several, then reveal. The date shows when the day is over.
+              higher, flat or lower, judged on the overall trend. Make one call or several, then reveal. The date shows when the day is over.
             </p>
           </div>
           <dl className="qz-stats">
@@ -1084,8 +1104,8 @@ export function QuizApp() {
                   <div className="qz-ask">
                     <p className="qz-q">Where will {day.symbol} be?</p>
                     <p className="qz-note">
-                      Flat = choppy, back and forth, ending near ${priceNow.toFixed(2)}. A small move mostly one way counts as Higher or Lower; past ±$
-                      {(priceNow * FLAT).toFixed(2)} it always does.
+                      Graded on the overall trend (a line of best fit), not single candles. Flat = the trend moves less than ±$
+                      {(priceNow * FLAT).toFixed(2)} ({(FLAT * 100).toFixed(2)}%).
                     </p>
                     {HORIZONS.map((horizon) => {
                       const available = open.includes(horizon);
@@ -1160,7 +1180,7 @@ export function QuizApp() {
                             <p className={result.right ? "qz-line qz-line-right" : "qz-line qz-line-wrong"}>
                               <span className={`qz-tag qz-tag-${result.horizon}`}>{short(result.horizon)}</span> {result.right ? "✓" : "✗"}{" "}
                               <b>{long(result.horizon)}</b> ({clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]}{" "}
-                              {signedCents(result.change)} ({signedPct(result.pct)})
+                              (trend {signedPct(result.trend)})
                             </p>
                             {result.reason ? <p className="qz-yours">Your reason: “{result.reason}”</p> : null}
                             <p className="qz-why">What happened: it {result.why.join(", then ")}.</p>
@@ -1222,7 +1242,7 @@ function resultsText(calls: CallRecord[]): string {
   const line = (label: string, tally: Tally) =>
     `- ${label}: ${tally.correct}/${tally.answered} right (${tally.answered ? pct(tally.correct / tally.answered) : "—"})`;
   const out = [
-    "My TQQQ direction quiz results. Calls are Higher / Flat (within ±0.15%) / Lower, 5, 15 or 30 minutes ahead, on replayed 1-minute charts with VWAP ±1σ bands, prior close/high/low, pre-market high/low and the 9:30–9:35 range. Random guessing gets about 33%.",
+    "My TQQQ direction quiz results. Calls are Higher / Flat / Lower 5 min to 2 hours ahead, graded on the overall trend (a line of best fit through the 1-minute closes; Flat if it moves less than ±0.15%), on replayed 1-minute charts with VWAP ±1σ bands, prior close/high/low, pre-market high/low and the 9:30–9:35 range. Random guessing gets about 33%.",
     "Please tell me why I'm wrong, which habits cost me the most and what to practice. Say so when a miss looks like noise.",
     "",
     "SUMMARY",
@@ -1817,8 +1837,7 @@ function SessionReview({
                     <div key={result.horizon} className="qz-call">
                       <p className={result.right ? "qz-line qz-line-right" : "qz-line qz-line-wrong"}>
                         <span className={`qz-tag qz-tag-${result.horizon}`}>{short(result.horizon)}</span> {result.right ? "✓" : "✗"} <b>{long(result.horizon)}</b> (
-                        {clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]} {signedCents(result.change)} (
-                        {signedPct(result.pct)})
+                        {clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]} (trend {signedPct(result.trend)})
                       </p>
                       {result.reason ? <p className="qz-yours">Your reason: “{result.reason}”</p> : null}
                       <p className="qz-why">What happened: it {result.why.join(", then ")}.</p>
@@ -2112,10 +2131,10 @@ function IntradayChart({
               <line
                 key={result.horizon}
                 className={`qz-move qz-move-${result.horizon}`}
-                x1={xAt(reveal.from)}
-                x2={xAt(result.to - view.per / 2)}
-                y1={y(day.bars[reveal.from - 1][3])}
-                y2={y(day.bars[result.to - 1][3])}
+                x1={xAt(reveal.from - 0.5)}
+                x2={xAt(result.to - 0.5)}
+                y1={y(result.line[0])}
+                y2={y(result.line[1])}
               />
             ))
           : null}
@@ -2131,18 +2150,18 @@ function IntradayChart({
         {reveal
           ? (() => {
               // Labels go right of the "now" line, past the candles, nudged apart so they don't overlap.
-              const sorted = [...reveal.results].sort((a, b) => y(day.bars[a.to - 1][3]) - y(day.bars[b.to - 1][3]));
+              const sorted = [...reveal.results].sort((a, b) => y(a.line[1]) - y(b.line[1]));
               let last = -Infinity;
               const at = new Map(
                 sorted.map((result) => {
-                  const spot = Math.max(y(day.bars[result.to - 1][3]) + 6, last + 22);
+                  const spot = Math.max(y(result.line[1]) + 6, last + 22);
                   last = spot;
                   return [result.horizon, spot] as const;
                 }),
               );
               return reveal.results.map((result) => (
                 <g key={result.horizon}>
-                  <circle className={`qz-ring qz-ring-${result.horizon}`} cx={xAt(result.to - view.per / 2)} cy={y(day.bars[result.to - 1][3])} r={5} />
+                  <circle className={`qz-ring qz-ring-${result.horizon}`} cx={xAt(result.to - 0.5)} cy={y(result.line[1])} r={5} />
                   <text className={`qz-taglabel qz-dot-${result.horizon}`} x={nowX + 8} y={at.get(result.horizon)}>
                     {short(result.horizon)} {result.right ? "✓" : "✗"}
                   </text>

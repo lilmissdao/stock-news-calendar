@@ -734,6 +734,7 @@ export function PracticeApp() {
             <a href="/practice" aria-current="page">
               Practice
             </a>
+            <a href="/quiz">Quiz</a>
           </nav>
           <button type="button" className="theme" aria-pressed={theme === "dark"} onClick={() => toggle(setTheme)}>
             {theme === "dark" ? "Dark mode" : "Light mode"}

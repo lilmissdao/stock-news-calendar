@@ -8,7 +8,8 @@
     "start": "next start",
     "briefs": "tsx scripts/write-briefs.ts",
     "practice": "tsx scripts/refresh-practice.ts",
-    "practice:seconds": "tsx scripts/record-practice-seconds.ts"
+    "practice:seconds": "tsx scripts/record-practice-seconds.ts",
+    "quiz": "tsx scripts/build-quiz.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.9.0",

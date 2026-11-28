@@ -1787,3 +1787,22 @@ rect.qz-lv-pre { fill: #2a9d8f; }
 .qz-moment[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 @media (max-width: 640px) { .qz-cell-text { min-width: 200px; } .qz-wide { font-size: 13px; } }
 .qz-summary { width: 100%; max-width: 560px; }
+.qz-chart { position: relative; }
+.qz-zoom { position: absolute; top: 8px; left: 8px; display: flex; align-items: center; gap: 4px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 999px; padding: 2px; font-size: 12px; z-index: 1; opacity: 0.92; }
+.qz-zoom button { width: 28px; height: 28px; border-radius: 999px; border: none; background: var(--muted); color: var(--ink); font: inherit; font-size: 18px; line-height: 1; cursor: pointer; }
+.qz-zoom button:disabled { opacity: 0.35; cursor: default; }
+.qz-zoom span { min-width: 64px; text-align: center; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.qz-notebox { display: flex; flex-direction: column; gap: 2px; }
+.qz-note-box { font-size: 14px; }
+.qz-ring-60 { stroke: #2f9e8f; }
+.qz-ring-120 { stroke: #d0607a; }
+.qz-move-60 { stroke: #2f9e8f; }
+.qz-move-120 { stroke: #d0607a; }
+.qz-dot-60 { fill: #2f9e8f; }
+.qz-dot-120 { fill: #d0607a; }
+line.qz-mark-60 { stroke: #2f9e8f; }
+line.qz-mark-120 { stroke: #d0607a; }
+text.qz-mark-60 { fill: #2f9e8f; }
+text.qz-mark-120 { fill: #d0607a; }
+.qz-tag-60 { background: #23806f; }
+.qz-tag-120 { background: #b84a65; }

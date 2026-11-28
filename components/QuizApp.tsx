@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * Direction Quiz: a random TQQQ session from the past year. Decks: daily turning points and big trend days, unpredictable
@@ -46,6 +46,8 @@ type CallRecord = {
   right: boolean;
   setup: Setup;
   reason?: string;
+  /** Notes saved later, e.g. an explanation pasted from a chat. */
+  note?: string;
   /** The session (one sitting with one quiz day) and when the call was made. */
   session?: string;
   at?: string;
@@ -87,9 +89,32 @@ type Level = { key: string; name: string; label: string; code: string; price: nu
 
 const STATS_KEY = "snc-quiz:v1";
 const PREFS_KEY = "snc-quiz-prefs:v1";
-const HORIZONS = [5, 15, 30];
-/** Within ±0.15% of the price now counts as Flat; beyond it, Higher or Lower. */
+const HORIZONS = [5, 15, 30, 60, 120];
+/** A finish more than ±0.15% from the price now is always Higher or Lower. */
 const FLAT = 0.0015;
+/**
+ * Inside ±0.15%, a move counts as Higher or Lower when it went mostly one way (at least half of all the minute-to-minute
+ * movement adds up in one direction) and finished at least 0.05% away. Back-and-forth chop is Flat.
+ */
+const ONE_WAY = 0.5;
+const MIN_MOVE = 0.0005;
+
+/** What price did from the call to `to`: Higher, Lower, or Flat (choppy, back and forth, ending near where it started). */
+function judge(day: QuizDay, from: number, to: number): Call {
+  const start = day.bars[from - 1][3];
+  const end = day.bars[to - 1][3];
+  const rate = end / start - 1;
+  if (rate > FLAT) return "up";
+  if (rate < -FLAT) return "down";
+  let path = 0;
+  let previous = start;
+  for (let minute = from; minute < to; minute += 1) {
+    path += Math.abs(day.bars[minute][3] - previous);
+    previous = day.bars[minute][3];
+  }
+  if (Math.abs(rate) >= MIN_MOVE && path > 0 && Math.abs(end - start) / path >= ONE_WAY) return rate > 0 ? "up" : "down";
+  return "flat";
+}
 /** How much of the day is shown before the first call. */
 const WARMUP = 15;
 const SKIP = 15;
@@ -181,6 +206,16 @@ function clock(minute: number): string {
   const hour = Math.floor(total / 60);
   const mins = total % 60;
   return `${hour > 12 ? hour - 12 : hour}:${String(mins).padStart(2, "0")}`;
+}
+
+/** "5m", "1h": a horizon on a tag. */
+function short(horizon: number): string {
+  return horizon < 60 ? `${horizon}m` : `${horizon / 60}h`;
+}
+
+/** "5 min", "1 hr": a horizon in a sentence. */
+function long(horizon: number): string {
+  return horizon < 60 ? `${horizon} min` : `${horizon / 60} hr`;
 }
 
 function pct(rate: number): string {
@@ -565,6 +600,19 @@ export function QuizApp() {
     setError("");
   }
 
+  /** Saves notes onto one call, found by its sitting, day, minute and horizon. */
+  function saveNote(key: string, text: string) {
+    setStats((current) => {
+      if (!current) return current;
+      const next = {
+        ...current,
+        calls: (current.calls ?? []).map((record) => (recordKey(record) === key ? { ...record, note: text.trim() ? text : undefined } : record)),
+      };
+      saveStats(next);
+      return next;
+    });
+  }
+
   async function fetchDay(date: string): Promise<QuizDay> {
     const response = await fetch(`/quiz/${date}.json`);
     if (!response.ok) throw new Error(String(response.status));
@@ -642,7 +690,7 @@ export function QuizApp() {
       const to = from + horizon;
       const change = day.bars[to - 1][3] - start;
       const rate = change / start;
-      const actual: Call = rate > FLAT ? "up" : rate < -FLAT ? "down" : "flat";
+      const actual = judge(day, from, to);
       const call = picks[horizon]!;
       return {
         horizon,
@@ -704,6 +752,14 @@ export function QuizApp() {
       saveStats(next);
       return next;
     });
+  }
+
+  /** Reveal everything to the close and end the day. */
+  function showRest() {
+    if (!day || done) return;
+    setCursor(total);
+    setReveal(null);
+    setPicks({});
   }
 
   function skip() {
@@ -780,7 +836,7 @@ export function QuizApp() {
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
       const key = event.key.toLowerCase();
       if (!reveal && !done) {
-        if (key === "1" || key === "2" || key === "3") setKeyRow(HORIZONS[Number(key) - 1]);
+        if (["1", "2", "3", "4", "5"].includes(key)) setKeyRow(HORIZONS[Number(key) - 1]);
         else if (key === "arrowup" || key === "h") choose(keyRow, "up");
         else if (key === "f") choose(keyRow, "flat");
         else if (key === "arrowdown" || key === "l") choose(keyRow, "down");
@@ -829,8 +885,8 @@ export function QuizApp() {
           <div>
             <h2>Direction quiz</h2>
             <p className="qz-note">
-              A random {index?.symbol ?? "TQQQ"} day from the past year, 9:30 to 4:00. From “now”, call where it’ll be 5, 15 and 30 minutes later: higher,
-              flat (within ±{(FLAT * 100).toFixed(2)}%) or lower. Make one call or all three, then reveal. The date shows when the day is over.
+              A random {index?.symbol ?? "TQQQ"} day from the past year, 9:30 to 4:00. From “now”, call where it’ll be 5, 15 and 30 minutes and 1 and 2 hours later:
+              higher, flat (choppy, back and forth) or lower. Make one call or several, then reveal. The date shows when the day is over.
             </p>
           </div>
           <dl className="qz-stats">
@@ -865,6 +921,7 @@ export function QuizApp() {
           <HistoryView
             stats={stats}
             onReplay={replayDate}
+            onNote={saveNote}
             onImport={(imported) => {
               saveStats(imported);
               setStats(imported);
@@ -1027,14 +1084,15 @@ export function QuizApp() {
                   <div className="qz-ask">
                     <p className="qz-q">Where will {day.symbol} be?</p>
                     <p className="qz-note">
-                      Flat = within ±${(priceNow * FLAT).toFixed(2)} of ${priceNow.toFixed(2)}.
+                      Flat = choppy, back and forth, ending near ${priceNow.toFixed(2)}. A small move mostly one way counts as Higher or Lower; past ±$
+                      {(priceNow * FLAT).toFixed(2)} it always does.
                     </p>
                     {HORIZONS.map((horizon) => {
                       const available = open.includes(horizon);
                       return (
                         <div key={horizon} className={keyRow === horizon ? "qz-row qz-row-key" : "qz-row"}>
                           <p className="qz-row-label">
-                            <span className={`qz-tag qz-tag-${horizon}`}>{horizon}m</span> <b>{horizon} min ahead</b> · at{" "}
+                            <span className={`qz-tag qz-tag-${horizon}`}>{short(horizon)}</span> <b>{long(horizon)} ahead</b> · at{" "}
                             {available ? clock(cursor + horizon) : "after the close"}
                           </p>
                           <div className="qz-picks" role="group" aria-label={`${horizon} minutes ahead`}>
@@ -1060,7 +1118,13 @@ export function QuizApp() {
                               rows={1}
                               maxLength={500}
                               placeholder={
-                                horizon === 5 ? "Why? e.g. bouncing off VWAP" : horizon === 15 ? "Why? e.g. higher lows into the PMH" : "Why? e.g. trend day, holding above PC"
+                                horizon === 5
+                                  ? "Why? e.g. bouncing off VWAP"
+                                  : horizon === 15
+                                    ? "Why? e.g. higher lows into the PMH"
+                                    : horizon === 30
+                                      ? "Why? e.g. trend day, holding above PC"
+                                      : "Why? e.g. afternoon fade toward VWAP"
                               }
                             />
                           ) : null}
@@ -1075,7 +1139,10 @@ export function QuizApp() {
                     <button type="button" className="text-btn qz-skip" onClick={skip}>
                       Skip ahead {SKIP} min (no call)
                     </button>
-                    <p className="qz-keys">Keys: 1 2 3 pick a row · ↑ higher · F flat · ↓ lower · Enter reveal · S skip</p>
+                    <button type="button" className="text-btn qz-skip" onClick={showRest}>
+                      Show the rest of the day
+                    </button>
+                    <p className="qz-keys">Keys: 1–5 pick a row · ↑ higher · F flat · ↓ lower · Enter reveal · S skip</p>
                   </div>
                 ) : null}
                 {day && (reveal || done) ? (
@@ -1091,12 +1158,16 @@ export function QuizApp() {
                         {reveal.results.map((result) => (
                           <div key={result.horizon} className="qz-call">
                             <p className={result.right ? "qz-line qz-line-right" : "qz-line qz-line-wrong"}>
-                              <span className={`qz-tag qz-tag-${result.horizon}`}>{result.horizon}m</span> {result.right ? "✓" : "✗"}{" "}
-                              <b>{result.horizon} min</b> ({clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]}{" "}
+                              <span className={`qz-tag qz-tag-${result.horizon}`}>{short(result.horizon)}</span> {result.right ? "✓" : "✗"}{" "}
+                              <b>{long(result.horizon)}</b> ({clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]}{" "}
                               {signedCents(result.change)} ({signedPct(result.pct)})
                             </p>
                             {result.reason ? <p className="qz-yours">Your reason: “{result.reason}”</p> : null}
                             <p className="qz-why">What happened: it {result.why.join(", then ")}.</p>
+                            {(() => {
+                              const key = recordKey({ session, date: day.date, minute: reveal.from, horizon: result.horizon });
+                              return <NoteBox value={calls.find((record) => recordKey(record) === key)?.note ?? ""} onSave={(text) => saveNote(key, text)} />;
+                            })()}
                           </div>
                         ))}
                       </>
@@ -1111,8 +1182,13 @@ export function QuizApp() {
                       </div>
                     ) : null}
                     <button type="button" className="qz-next" onClick={goOn}>
-                      {done ? "Next day" : deal === "drill" ? "Next moment like this" : "Next"}
+                      {done ? "Next day" : deal === "drill" ? "Next moment like this" : `Keep guessing from ${clock(cursor)}`}
                     </button>
+                    {!done ? (
+                      <button type="button" className="text-btn qz-skip" onClick={showRest}>
+                        Show the rest of the day
+                      </button>
+                    ) : null}
                     <p className="qz-keys">Key: Enter or Space for {done ? "the next day" : "the next call"}</p>
                   </div>
                 ) : null}
@@ -1151,7 +1227,7 @@ function resultsText(calls: CallRecord[]): string {
     "",
     "SUMMARY",
     line("All calls", tallyOf(calls)),
-    ...HORIZONS.map((horizon) => line(`${horizon} min ahead`, tallyOf(calls.filter((record) => record.horizon === horizon)))),
+    ...HORIZONS.map((horizon) => line(`${long(horizon)} ahead`, tallyOf(calls.filter((record) => record.horizon === horizon)))),
     ...(["up", "flat", "down"] as Call[]).map((call) => line(`When I said ${CALL_WORD[call]}`, tallyOf(calls.filter((record) => record.call === call)))),
     line("Turnaround & trend days", tallyOf(calls.filter((record) => !UNPREDICTABLE.has(record.setup.kind)))),
     line("Unpredictable days", tallyOf(calls.filter((record) => UNPREDICTABLE.has(record.setup.kind)))),
@@ -1167,8 +1243,8 @@ function resultsText(calls: CallRecord[]): string {
   for (const record of calls.filter((item) => !item.right).slice(-40).reverse()) {
     const setup = DIMS.filter(({ dim }) => dim !== "kind" && record.setup[dim] !== "none").map(({ dim }) => spotName(dim, String(record.setup[dim])).toLowerCase());
     out.push(
-      `- ${record.date} ${clock(record.minute)} (${record.setup.kind}), ${record.horizon} min ahead: said ${CALL_WORD[record.call]}, was ${CALL_WORD[record.actual]}. ` +
-        `Reason: ${record.reason ? `"${record.reason}"` : "none"}. Setup: ${setup.join(", ")}.${record.whatHappened ? ` After: ${record.whatHappened}.` : ""}`,
+      `- ${record.date} ${clock(record.minute)} (${record.setup.kind}), ${long(record.horizon)} ahead: said ${CALL_WORD[record.call]}, was ${CALL_WORD[record.actual]}. ` +
+        `Reason: ${record.reason ? `"${record.reason}"` : "none"}. Setup: ${setup.join(", ")}.${record.whatHappened ? ` After: ${record.whatHappened}.` : ""}${record.note ? ` My notes: "${record.note}"` : ""}`,
     );
   }
   return out.join("\n");
@@ -1216,7 +1292,7 @@ function ReportCard({
     );
   }
 
-  const byHorizon = HORIZONS.map((horizon) => ({ label: `${horizon} min ahead`, tally: tallyOf(calls.filter((record) => record.horizon === horizon)) }));
+  const byHorizon = HORIZONS.map((horizon) => ({ label: `${long(horizon)} ahead`, tally: tallyOf(calls.filter((record) => record.horizon === horizon)) }));
   const summary = [
     { label: "All calls", tally: tallyOf(calls) },
     ...byHorizon,
@@ -1326,7 +1402,7 @@ function ReportCard({
                       <span className="qz-small">{clock(record.minute)}</span>
                     </td>
                     <td>
-                      {record.horizon}m: said {CALL_WORD[record.call]}, was {CALL_WORD[record.actual]}
+                      {short(record.horizon)}: said {CALL_WORD[record.call]}, was {CALL_WORD[record.actual]}
                     </td>
                     <td className="qz-cell-reason">{record.reason ?? "—"}</td>
                     <td className="qz-cell-text">
@@ -1413,10 +1489,12 @@ function HistoryView({
   stats,
   onReplay,
   onImport,
+  onNote,
 }: {
   stats: Stats | null;
   onReplay: (date: string) => void;
   onImport: (stats: Stats) => void;
+  onNote: (key: string, text: string) => void;
 }) {
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState<string | null>(null);
@@ -1476,6 +1554,7 @@ function HistoryView({
         calls={calls.filter((record) => record.session === opened.session)}
         onBack={() => setOpen(null)}
         onReplay={onReplay}
+        onNote={onNote}
       />
     );
   }
@@ -1616,11 +1695,13 @@ function SessionReview({
   calls,
   onBack,
   onReplay,
+  onNote,
 }: {
   entry: DayEntry;
   calls: CallRecord[];
   onBack: () => void;
   onReplay: (date: string) => void;
+  onNote: (key: string, text: string) => void;
 }) {
   const [day, setDay] = useState<QuizDay | null>(null);
   const [failed, setFailed] = useState(false);
@@ -1735,12 +1816,16 @@ function SessionReview({
                   return (
                     <div key={result.horizon} className="qz-call">
                       <p className={result.right ? "qz-line qz-line-right" : "qz-line qz-line-wrong"}>
-                        <span className={`qz-tag qz-tag-${result.horizon}`}>{result.horizon}m</span> {result.right ? "✓" : "✗"} <b>{result.horizon} min</b> (
+                        <span className={`qz-tag qz-tag-${result.horizon}`}>{short(result.horizon)}</span> {result.right ? "✓" : "✗"} <b>{long(result.horizon)}</b> (
                         {clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]} {signedCents(result.change)} (
                         {signedPct(result.pct)})
                       </p>
                       {result.reason ? <p className="qz-yours">Your reason: “{result.reason}”</p> : null}
                       <p className="qz-why">What happened: it {result.why.join(", then ")}.</p>
+                      {(() => {
+                        const record = moment.records.find((item) => item.horizon === result.horizon);
+                        return record ? <NoteBox value={record.note ?? ""} onSave={(text) => onNote(recordKey(record), text)} /> : null;
+                      })()}
                     </div>
                   );
                 })}
@@ -1753,6 +1838,44 @@ function SessionReview({
         </>
       ) : null}
     </section>
+  );
+}
+
+/** A saved notes box for one call: paste an explanation or write your own. Saves as you type. */
+function NoteBox({ value, onSave }: { value: string; onSave: (text: string) => void }) {
+  const [text, setText] = useState(value);
+  const [state, setState] = useState<"" | "saving" | "saved">("");
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => setText(value), [value]);
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
+  function save(next: string) {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+    onSave(next.slice(0, 4000));
+    setState("saved");
+  }
+  return (
+    <div className="qz-notebox">
+      <textarea
+        className="qz-reason-box qz-note-box"
+        aria-label="Why: notes for this call"
+        placeholder="Why? Paste the explanation here, or write your own notes. Saves automatically."
+        value={text}
+        rows={text ? Math.min(10, 2 + Math.floor(text.length / 60)) : 1}
+        maxLength={4000}
+        onChange={(event) => {
+          const next = event.target.value;
+          setText(next);
+          setState("saving");
+          if (timer.current) clearTimeout(timer.current);
+          timer.current = setTimeout(() => save(next), 600);
+        }}
+        onBlur={() => timer.current && save(text)}
+      />
+      {state ? <span className="qz-small">{state === "saving" ? "Saving…" : "Saved"}</span> : null}
+    </div>
   );
 }
 
@@ -1776,7 +1899,7 @@ function CallTable({ calls, showDate = false }: { calls: CallRecord[]; showDate?
           <tr key={`${record.minute}-${record.horizon}-${i}`}>
             {showDate ? <td>{prettyDate(record.date)}</td> : null}
             <td>{clock(record.minute)}</td>
-            <td>{record.horizon}m</td>
+            <td>{short(record.horizon)}</td>
             <td>{CALL_WORD[record.call]}</td>
             <td>{CALL_WORD[record.actual]}</td>
             <td className={record.right ? "qz-cell-right" : "qz-cell-wrong"}>{record.right ? "✓" : "✗"}</td>
@@ -1801,6 +1924,8 @@ function lesson(bucket: Bucket, said: Call, was: Call): string {
 }
 
 const W = 1000;
+/** Zoom steps: minutes of the day shown before "now" (the last is the whole day). */
+const ZOOMS = [15, 30, 60, 90, 180, SESSION];
 
 function Candles({ bars, x, y, width }: { bars: Ohlc[]; x: (i: number) => number; y: (price: number) => number; width: number }) {
   return (
@@ -1848,14 +1973,37 @@ function IntradayChart({
   const total = day.bars.length;
   const shownCount = Math.min(cursor, total);
   const shown = day.bars.slice(0, shownCount);
+  // Zoom: how many minutes before "now" are on screen. The whole day is the widest.
+  const [zooms, setZooms] = useState<Record<Timeframe, number>>({ "1m": 90, "5m": SESSION });
+  const zoom = zooms[timeframe];
+  const level = ZOOMS.indexOf(zoom);
+  const zoomTo = (next: number) => setZooms((current) => ({ ...current, [timeframe]: ZOOMS[Math.max(0, Math.min(ZOOMS.length - 1, next))] }));
+  const frame = useRef<HTMLElement>(null);
+  useEffect(() => {
+    // A trackpad pinch (or Ctrl + scroll) over the chart zooms it instead of the page.
+    const element = frame.current;
+    if (!element) return;
+    const onWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey) return;
+      event.preventDefault();
+      setZooms((current) => {
+        const at = ZOOMS.indexOf(current[timeframe]);
+        const next = ZOOMS[Math.max(0, Math.min(ZOOMS.length - 1, at + (event.deltaY > 0 ? 1 : -1)))];
+        return { ...current, [timeframe]: next };
+      });
+    };
+    element.addEventListener("wheel", onWheel, { passive: false });
+    return () => element.removeEventListener("wheel", onWheel);
+  }, [timeframe]);
 
   const view = useMemo(() => {
-    if (timeframe === "5m") return { bars: aggregate(shown, 5), slots: Math.ceil(SESSION / 5), firstMinute: 0, per: 5 };
-    // 1-minute: the last 90 minutes plus room for the furthest call (30 minutes).
-    const window = 90;
-    const first = Math.max(0, shown.length - window);
-    return { bars: shown.slice(first), slots: window + 30, firstMinute: first, per: 1 };
-  }, [shown, timeframe]);
+    const per = timeframe === "5m" ? 5 : 1;
+    if (zoom >= SESSION) return { bars: per === 5 ? aggregate(shown, 5) : shown, slots: Math.ceil(SESSION / per), firstMinute: 0, per };
+    // The last `zoom` minutes plus room for the furthest call (30 minutes).
+    const first = Math.max(0, Math.floor((shown.length - zoom) / per) * per);
+    const recent = shown.slice(first);
+    return { bars: per === 5 ? aggregate(recent, 5) : recent, slots: Math.ceil((zoom + Math.max(30, ahead)) / per) + 1, firstMinute: first, per };
+  }, [shown, timeframe, zoom, ahead]);
 
   const prices = view.bars.flatMap((bar) => [bar[1], bar[2]]);
   const lowSeen = Math.min(...prices);
@@ -1883,7 +2031,9 @@ function IntradayChart({
   const aheadW = Math.min(plotW - nowX, (ahead / view.per) * step);
   const ticks = Array.from({ length: 4 }, (_, i) => min + ((i + 0.5) * (max - min)) / 4);
   const timeMarks: number[] = [];
-  for (let minute = 0; minute <= SESSION; minute += timeframe === "5m" ? 60 : 30) {
+  const spanMinutes = view.slots * view.per;
+  const markEvery = spanMinutes <= 60 ? 10 : spanMinutes <= 150 ? 15 : spanMinutes <= 240 ? 30 : 60;
+  for (let minute = 0; minute <= SESSION; minute += markEvery) {
     const slot = (minute - view.firstMinute) / view.per;
     if (slot >= 0 && slot <= view.slots) timeMarks.push(minute);
   }
@@ -1912,7 +2062,16 @@ function IntradayChart({
       : "";
 
   return (
-    <figure className="qz-chart">
+    <figure className="qz-chart" ref={frame}>
+      <div className="qz-zoom" role="group" aria-label="Zoom">
+        <button type="button" aria-label="Zoom in" disabled={level <= 0} onClick={() => zoomTo(level - 1)}>
+          +
+        </button>
+        <span>{zoom >= SESSION ? "Whole day" : zoom >= 60 ? `${zoom / 60} hr` : `${zoom} min`}</span>
+        <button type="button" aria-label="Zoom out" disabled={level >= ZOOMS.length - 1} onClick={() => zoomTo(level + 1)}>
+          −
+        </button>
+      </div>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${day.symbol} ${timeframe === "5m" ? "5-minute" : "1-minute"} chart up to ${clock(shownCount)}`}>
         {!reveal && cursor < total && ahead > 0 ? <rect className="qz-ahead" x={nowX} y={top} width={Math.max(0, aheadW)} height={H - top - bottom} /> : null}
         {!reveal && cursor < total
@@ -1920,7 +2079,7 @@ function IntradayChart({
               <g key={horizon}>
                 <line className={`qz-mark qz-mark-${horizon}`} x1={xAt(cursor + horizon)} x2={xAt(cursor + horizon)} y1={H - bottom - 14} y2={H - bottom} />
                 <text className={`qz-marklabel qz-mark-${horizon}`} x={xAt(cursor + horizon)} y={H - bottom - 18 - (i % 2) * 18} textAnchor="middle">
-                  {horizon}m
+                  {short(horizon)}
                 </text>
               </g>
             ))
@@ -1954,7 +2113,7 @@ function IntradayChart({
                 key={result.horizon}
                 className={`qz-move qz-move-${result.horizon}`}
                 x1={xAt(reveal.from)}
-                x2={xAt(result.to)}
+                x2={xAt(result.to - view.per / 2)}
                 y1={y(day.bars[reveal.from - 1][3])}
                 y2={y(day.bars[result.to - 1][3])}
               />
@@ -1983,9 +2142,9 @@ function IntradayChart({
               );
               return reveal.results.map((result) => (
                 <g key={result.horizon}>
-                  <circle className={`qz-ring qz-ring-${result.horizon}`} cx={xAt(result.to)} cy={y(day.bars[result.to - 1][3])} r={5} />
+                  <circle className={`qz-ring qz-ring-${result.horizon}`} cx={xAt(result.to - view.per / 2)} cy={y(day.bars[result.to - 1][3])} r={5} />
                   <text className={`qz-taglabel qz-dot-${result.horizon}`} x={nowX + 8} y={at.get(result.horizon)}>
-                    {result.horizon}m {result.right ? "✓" : "✗"}
+                    {short(result.horizon)} {result.right ? "✓" : "✗"}
                   </text>
                 </g>
               ));

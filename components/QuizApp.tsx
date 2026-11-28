@@ -1947,6 +1947,19 @@ function IntradayChart({
         {upPath ? <path className="qz-band" d={upPath} /> : null}
         {downPath ? <path className="qz-band" d={downPath} /> : null}
         {vwapPath ? <path className="qz-vwap" d={vwapPath} /> : null}
+        {reveal ? <rect className="qz-revealed" x={xAt(reveal.from)} y={top} width={Math.max(0, xAt(reveal.to) - xAt(reveal.from))} height={H - top - bottom} /> : null}
+        {reveal
+          ? reveal.results.map((result) => (
+              <line
+                key={result.horizon}
+                className={`qz-move qz-move-${result.horizon}`}
+                x1={xAt(reveal.from)}
+                x2={xAt(result.to)}
+                y1={y(day.bars[reveal.from - 1][3])}
+                y2={y(day.bars[result.to - 1][3])}
+              />
+            ))
+          : null}
         <Candles bars={view.bars} x={x} y={y} width={width} />
         {labelled.map((level, i) => (
           <g key={level.key}>
@@ -1957,21 +1970,26 @@ function IntradayChart({
           </g>
         ))}
         {reveal
-          ? reveal.results.map((result, i) => (
-              <g key={result.horizon}>
-                <line
-                  className={`qz-move qz-move-${result.horizon}`}
-                  x1={xAt(reveal.from)}
-                  x2={xAt(result.to)}
-                  y1={y(day.bars[reveal.from - 1][3])}
-                  y2={y(day.bars[result.to - 1][3])}
-                />
-                <circle className={`qz-dot-${result.horizon}`} cx={xAt(result.to)} cy={y(day.bars[result.to - 1][3])} r={7} />
-                <text className={`qz-taglabel qz-dot-${result.horizon}`} x={xAt(result.to) + 9} y={y(day.bars[result.to - 1][3]) + 6 + (i - 1) * 22}>
-                  {result.horizon}m {result.right ? "✓" : "✗"}
-                </text>
-              </g>
-            ))
+          ? (() => {
+              // Labels go right of the "now" line, past the candles, nudged apart so they don't overlap.
+              const sorted = [...reveal.results].sort((a, b) => y(day.bars[a.to - 1][3]) - y(day.bars[b.to - 1][3]));
+              let last = -Infinity;
+              const at = new Map(
+                sorted.map((result) => {
+                  const spot = Math.max(y(day.bars[result.to - 1][3]) + 6, last + 22);
+                  last = spot;
+                  return [result.horizon, spot] as const;
+                }),
+              );
+              return reveal.results.map((result) => (
+                <g key={result.horizon}>
+                  <circle className={`qz-ring qz-ring-${result.horizon}`} cx={xAt(result.to)} cy={y(day.bars[result.to - 1][3])} r={5} />
+                  <text className={`qz-taglabel qz-dot-${result.horizon}`} x={nowX + 8} y={at.get(result.horizon)}>
+                    {result.horizon}m {result.right ? "✓" : "✗"}
+                  </text>
+                </g>
+              ));
+            })()
           : null}
         <line className="qz-nowline" x1={nowX} x2={nowX} y1={top} y2={H - bottom} />
       </svg>

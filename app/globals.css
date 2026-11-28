@@ -1634,8 +1634,13 @@ main { min-width: 0; }
 .qz-line-wrong { color: var(--down); }
 .qz-dot-right { fill: var(--up); }
 .qz-dot-wrong { fill: var(--down); }
-.qz-taglabel { font-size: 20px; font-weight: 700; }
-.qz-move { stroke-width: 3.5; stroke-dasharray: 7 5; }
+.qz-taglabel { font-size: 18px; font-weight: 700; }
+.qz-move { stroke-width: 1.5; stroke-dasharray: 5 4; opacity: 0.7; }
+.qz-revealed { fill: var(--ink); opacity: 0.05; }
+.qz-ring { fill: none; stroke-width: 2.5; }
+.qz-ring-5 { stroke: #3d8bd9; }
+.qz-ring-15 { stroke: #c08a1e; }
+.qz-ring-30 { stroke: #8a63c7; }
 .qz-move-5 { stroke: #3d8bd9; }
 .qz-move-15 { stroke: #c08a1e; }
 .qz-move-30 { stroke: #8a63c7; }

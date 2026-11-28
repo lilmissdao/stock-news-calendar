@@ -51,12 +51,7 @@ type CallRecord = {
   at?: string;
   /** What price did between the call and its time, in words. */
   whatHappened?: string;
-  /** The AI coach's read on a wrong call. */
-  coach?: Coach;
 };
-type Coach = { verdict: "misread" | "unpredictable" | "right"; why: string; lesson: string };
-/** Where the coach's read on the latest reveal stands. */
-type CoachState = { from: number; status: "loading" | "ready" | "off" | "error"; items: Record<number, Coach> };
 type DayEntry = {
   date: string;
   kinds: string[];
@@ -419,9 +414,6 @@ function recordKey(record: { session?: string; date: string; minute: number; hor
   return `${record.session ?? ""}|${record.date}|${record.minute}|${record.horizon}`;
 }
 
-/** Whether the coach answered "not set up" this page load, so it isn't asked again. */
-let coachOff = false;
-
 /** One revealed moment rebuilt from saved calls, the way the play screen showed it. */
 function rebuildReveal(day: QuizDay, from: number, records: CallRecord[], vwap: number[] | null): Reveal {
   const start = day.bars[from - 1][3];
@@ -445,74 +437,6 @@ function rebuildReveal(day: QuizDay, from: number, records: CallRecord[], vwap: 
     });
   const to = from + Math.max(0, ...results.map((result) => result.horizon));
   return { from, to, results, skipped: false, clue: describeSetup(day, from, vwap) };
-}
-
-/**
- * Asks the AI coach why the wrong calls at one moment were wrong, from what the chart showed then and the player's reasons.
- * Returns the coach's read by horizon, or "off" when the site has no API key set up.
- */
-async function askCoach(day: QuizDay, from: number, results: Result[]): Promise<Record<number, Coach> | "off" | "error"> {
-  if (coachOff) return "off";
-  const wrong = results.filter((result) => !result.right);
-  if (!wrong.length) return {};
-  const vwap = vwapSeries(day);
-  const bands = vwapBands(day);
-  const recent = day.bars.slice(Math.max(0, from - 45), from);
-  const first = from - recent.length;
-  const levels = levelsAt(day, from).map((level) => `${level.label} ${money(level.price)}`);
-  if (vwap) levels.push(`VWAP ${money(vwap[from - 1])}`);
-  if (bands) levels.push(`VWAP bands ${money(bands.down[from - 1])}–${money(bands.up[from - 1])}`);
-  const sofar = day.bars.slice(0, from);
-  levels.push(`Day's high so far ${money(Math.max(...sofar.map((bar) => bar[1])))}, low ${money(Math.min(...sofar.map((bar) => bar[2])))}`);
-  try {
-    const response = await fetch("/api/quiz-coach", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mode: "calls",
-        symbol: day.symbol,
-        time: clock(from),
-        setup: describeSetup(day, from, vwap).slice(0, 1200),
-        levels: levels.join("; ").slice(0, 800),
-        recentBars: recent.map((bar, i) => `${clock(first + i)} ${bar.join(" ")}`).join("\n").slice(0, 6000),
-        dayType: day.kinds.join(", ").slice(0, 100),
-        calls: wrong.map((result) => ({
-          horizon: result.horizon,
-          call: CALL_WORD[result.call],
-          actual: CALL_WORD[result.actual],
-          right: result.right,
-          ...(result.reason ? { reason: result.reason.slice(0, 600) } : {}),
-          whatHappened: `it ${result.why.join(", then ")}`.slice(0, 800),
-        })),
-      }),
-    });
-    if (response.status === 503) {
-      coachOff = true;
-      return "off";
-    }
-    if (!response.ok) return "error";
-    const body = (await response.json()) as { items?: (Coach & { horizon: number })[] };
-    const out: Record<number, Coach> = {};
-    for (const item of body.items ?? []) {
-      if (wrong.some((result) => result.horizon === item.horizon)) out[item.horizon] = { verdict: item.verdict, why: item.why, lesson: item.lesson };
-    }
-    return out;
-  } catch {
-    return "error";
-  }
-}
-
-const VERDICT: Record<Coach["verdict"], string> = { misread: "Misread", unpredictable: "Not predictable", right: "Right" };
-
-function CoachNote({ coach }: { coach: Coach }) {
-  return (
-    <div className="qz-coach">
-      <p className="qz-why">
-        <span className={`qz-verdict qz-verdict-${coach.verdict}`}>{VERDICT[coach.verdict]}</span> {coach.why}
-      </p>
-      {coach.lesson ? <p className="qz-lesson">Next time: {coach.lesson}</p> : null}
-    </div>
-  );
 }
 
 function inDeck(kinds: string[], deck: Deck): boolean {
@@ -587,7 +511,6 @@ export function QuizApp() {
   const [error, setError] = useState("");
   /** One sitting with one quiz day; starts when a day is dealt or restarted. */
   const [session, setSession] = useState("");
-  const [coachNow, setCoachNow] = useState<CoachState | null>(null);
 
   useEffect(() => {
     setStats(loadStats());
@@ -638,28 +561,8 @@ export function QuizApp() {
     setDrillMinutes(matches);
     setPicks({});
     setReveal(null);
-    setCoachNow(null);
     setScore({ answered: 0, correct: 0 });
     setError("");
-  }
-
-  /** Saves the coach's reads onto the matching calls. */
-  function saveCoach(reads: Map<string, Coach>) {
-    if (!reads.size) return;
-    setStats((current) => {
-      if (!current) return current;
-      let changed = false;
-      const callsNext = (current.calls ?? []).map((record) => {
-        const coach = reads.get(recordKey(record));
-        if (!coach) return record;
-        changed = true;
-        return { ...record, coach };
-      });
-      if (!changed) return current;
-      const next = { ...current, calls: callsNext };
-      saveStats(next);
-      return next;
-    });
   }
 
   async function fetchDay(date: string): Promise<QuizDay> {
@@ -801,24 +704,6 @@ export function QuizApp() {
       saveStats(next);
       return next;
     });
-    // Ask the coach why the wrong calls were wrong, and keep its answers with the calls.
-    if (results.some((result) => !result.right)) {
-      const sitting = session;
-      const quizDay = day;
-      setCoachNow({ from, status: "loading", items: {} });
-      void askCoach(quizDay, from, results).then((answer) => {
-        if (answer === "off" || answer === "error") {
-          setCoachNow((current) => (current && current.from === from ? { ...current, status: answer } : current));
-          return;
-        }
-        setCoachNow((current) => (current && current.from === from ? { from, status: "ready", items: answer } : current));
-        saveCoach(
-          new Map(
-            Object.entries(answer).map(([horizon, coach]) => [recordKey({ session: sitting, date: quizDay.date, minute: from, horizon: Number(horizon) }), coach]),
-          ),
-        );
-      });
-    } else setCoachNow(null);
   }
 
   function skip() {
@@ -975,12 +860,11 @@ export function QuizApp() {
         </div>
 
         {tab === "report" ? (
-          <ReportCard stats={stats} onDrill={startDrill} onReplay={replayDate} onReset={resetStats} onCoach={saveCoach} />
+          <ReportCard stats={stats} onDrill={startDrill} onReplay={replayDate} onReset={resetStats} />
         ) : tab === "history" ? (
           <HistoryView
             stats={stats}
             onReplay={replayDate}
-            onCoach={saveCoach}
             onImport={(imported) => {
               saveStats(imported);
               setStats(imported);
@@ -1213,20 +1097,8 @@ export function QuizApp() {
                             </p>
                             {result.reason ? <p className="qz-yours">Your reason: “{result.reason}”</p> : null}
                             <p className="qz-why">What happened: it {result.why.join(", then ")}.</p>
-                            {!result.right && coachNow && coachNow.from === reveal.from ? (
-                              coachNow.items[result.horizon] ? (
-                                <CoachNote coach={coachNow.items[result.horizon]} />
-                              ) : coachNow.status === "loading" ? (
-                                <p className="qz-note">Coach is reading this call…</p>
-                              ) : null
-                            ) : null}
                           </div>
                         ))}
-                        {coachNow && coachNow.from === reveal.from && coachNow.status === "off" ? (
-                          <p className="qz-note">The AI coach isn’t switched on for this site yet, so there’s no “why” for misses.</p>
-                        ) : coachNow && coachNow.from === reveal.from && coachNow.status === "error" ? (
-                          <p className="qz-note">The coach couldn’t answer this time. You can ask again from History.</p>
-                        ) : null}
                       </>
                     ) : null}
                     {done ? (
@@ -1253,7 +1125,7 @@ export function QuizApp() {
   );
 }
 
-/** Market days loaded for the coach and the review, kept for the page's lifetime. */
+/** Market days loaded for the review, kept for the page's lifetime. */
 const dayCache = new Map<string, Promise<QuizDay>>();
 
 function loadDay(date: string): Promise<QuizDay> {
@@ -1269,38 +1141,38 @@ function loadDay(date: string): Promise<QuizDay> {
   return found;
 }
 
-/** Asks the coach about saved wrong calls, one request per revealed moment. */
-async function coachRecords(records: CallRecord[]): Promise<Map<string, Coach> | "off" | "error"> {
-  const groups = new Map<string, CallRecord[]>();
-  for (const record of records) {
-    if (record.right || record.coach) continue;
-    const key = `${record.session ?? ""}|${record.date}|${record.minute}`;
-    groups.set(key, [...(groups.get(key) ?? []), record]);
+/** The record as plain text, to paste into a chat with Claude for a review. */
+function resultsText(calls: CallRecord[]): string {
+  const line = (label: string, tally: Tally) =>
+    `- ${label}: ${tally.correct}/${tally.answered} right (${tally.answered ? pct(tally.correct / tally.answered) : "—"})`;
+  const out = [
+    "My TQQQ direction quiz results. Calls are Higher / Flat (within ±0.15%) / Lower, 5, 15 or 30 minutes ahead, on replayed 1-minute charts with VWAP ±1σ bands, prior close/high/low, pre-market high/low and the 9:30–9:35 range. Random guessing gets about 33%.",
+    "Please tell me why I'm wrong, which habits cost me the most and what to practice. Say so when a miss looks like noise.",
+    "",
+    "SUMMARY",
+    line("All calls", tallyOf(calls)),
+    ...HORIZONS.map((horizon) => line(`${horizon} min ahead`, tallyOf(calls.filter((record) => record.horizon === horizon)))),
+    ...(["up", "flat", "down"] as Call[]).map((call) => line(`When I said ${CALL_WORD[call]}`, tallyOf(calls.filter((record) => record.call === call)))),
+    line("Turnaround & trend days", tallyOf(calls.filter((record) => !UNPREDICTABLE.has(record.setup.kind)))),
+    line("Unpredictable days", tallyOf(calls.filter((record) => UNPREDICTABLE.has(record.setup.kind)))),
+    line("Last 30 calls", tallyOf(calls.slice(-30))),
+    "",
+    "WEAKEST SETUPS",
+    ...weakSpots(calls)
+      .slice(0, 5)
+      .map((bucket) => line(spotName(bucket.dim, bucket.value), bucket.tally)),
+    "",
+    "RECENT MISSES (newest first)",
+  ];
+  for (const record of calls.filter((item) => !item.right).slice(-40).reverse()) {
+    const setup = DIMS.filter(({ dim }) => dim !== "kind" && record.setup[dim] !== "none").map(({ dim }) => spotName(dim, String(record.setup[dim])).toLowerCase());
+    out.push(
+      `- ${record.date} ${clock(record.minute)} (${record.setup.kind}), ${record.horizon} min ahead: said ${CALL_WORD[record.call]}, was ${CALL_WORD[record.actual]}. ` +
+        `Reason: ${record.reason ? `"${record.reason}"` : "none"}. Setup: ${setup.join(", ")}.${record.whatHappened ? ` After: ${record.whatHappened}.` : ""}`,
+    );
   }
-  const out = new Map<string, Coach>();
-  let failed = false;
-  for (const group of groups.values()) {
-    const { date, minute, session } = group[0];
-    try {
-      const day = await loadDay(date);
-      if (minute < 1 || minute > day.bars.length) continue;
-      const reveal = rebuildReveal(day, minute, group, vwapSeries(day));
-      const answer = await askCoach(day, minute, reveal.results);
-      if (answer === "off") return out.size ? out : "off";
-      if (answer === "error") {
-        failed = true;
-        continue;
-      }
-      for (const [horizon, coach] of Object.entries(answer)) out.set(recordKey({ session, date, minute, horizon: Number(horizon) }), coach);
-    } catch {
-      failed = true;
-    }
-  }
-  return failed && !out.size ? "error" : out;
+  return out.join("\n");
 }
-
-type SpotInsight = { name: string; insight: string };
-const COACH_REPORT_KEY = "snc-quiz-coach-report:v1";
 
 function Accuracy({ tally }: { tally: Tally }) {
   const rate = tally.answered ? tally.correct / tally.answered : NaN;
@@ -1316,22 +1188,17 @@ function ReportCard({
   onDrill,
   onReplay,
   onReset,
-  onCoach,
 }: {
   stats: Stats | null;
   onDrill: (drill: Drill) => void;
   onReplay: (date: string) => void;
   onReset: () => void;
-  onCoach: (reads: Map<string, Coach>) => void;
 }) {
   const calls = stats?.calls ?? [];
   const weak = weakSpots(calls).slice(0, 3);
   const misses = calls.filter((record) => !record.right).slice(-10).reverse();
-  const [insights, setInsights] = useState<SpotInsight[] | null>(null);
-  const [coachStatus, setCoachStatus] = useState<"idle" | "loading" | "off" | "error">("idle");
-  const [missStatus, setMissStatus] = useState<"idle" | "loading" | "off" | "error">("idle");
 
-  // The weak spots' summary for the coach; it only asks again after 10 more calls or when the spots change.
+  const [copied, setCopied] = useState("");
   const rows = weak.map((bucket) => {
     const spotMisses = calls.filter((record) => String(record.setup[bucket.dim]) === bucket.value && !record.right);
     const counts = new Map<string, number>();
@@ -1340,95 +1207,6 @@ function ReportCard({
     const [said, was] = top.split(">") as [Call, Call];
     return { bucket, name: spotName(bucket.dim, bucket.value), spotMisses, said, was, topCount };
   });
-  const signature = `${Math.floor(calls.length / 10)}|${rows.map((row) => row.name).join("|")}`;
-
-  useEffect(() => {
-    if (!rows.length) return;
-    try {
-      const saved = JSON.parse(localStorage.getItem(COACH_REPORT_KEY) ?? "null") as { signature: string; spots: SpotInsight[] } | null;
-      if (saved && saved.signature === signature) {
-        setInsights(saved.spots);
-        return;
-      }
-    } catch {
-      /* ignore */
-    }
-    if (coachOff) {
-      setCoachStatus("off");
-      return;
-    }
-    let cancelled = false;
-    setCoachStatus("loading");
-    const overall = tallyOf(calls);
-    void fetch("/api/quiz-coach", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mode: "report",
-        overall: `${overall.answered} calls, ${pct(overall.correct / overall.answered)} right (random guessing gets about 33%)`,
-        spots: rows.map((row) => ({
-          name: row.name,
-          accuracy: pct(row.bucket.tally.correct / row.bucket.tally.answered),
-          calls: row.bucket.tally.answered,
-          commonMiss: row.said ? `said ${CALL_WORD[row.said]}, went ${CALL_WORD[row.was]} (${row.topCount} of ${row.spotMisses.length} misses)` : "none",
-        })),
-        misses: rows
-          .flatMap((row) => row.spotMisses.slice(-6).map((record) => ({ row, record })))
-          .slice(-20)
-          .map(({ row, record }) => ({
-            spot: `${row.name}; ${clock(record.minute)}, ${record.horizon} min ahead`.slice(0, 300),
-            said: CALL_WORD[record.call],
-            was: CALL_WORD[record.actual],
-            ...(record.reason ? { reason: record.reason.slice(0, 600) } : {}),
-            whatHappened: (record.whatHappened ?? "not recorded").slice(0, 800),
-          })),
-      }),
-    })
-      .then(async (response) => {
-        if (cancelled) return;
-        if (response.status === 503) {
-          coachOff = true;
-          setCoachStatus("off");
-          return;
-        }
-        if (!response.ok) throw new Error(String(response.status));
-        const body = (await response.json()) as { spots?: SpotInsight[] };
-        const spots = body.spots ?? [];
-        setInsights(spots);
-        setCoachStatus("idle");
-        try {
-          localStorage.setItem(COACH_REPORT_KEY, JSON.stringify({ signature, spots }));
-        } catch {
-          /* ignore */
-        }
-      })
-      .catch(() => !cancelled && setCoachStatus("error"));
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signature]);
-
-  // Explain the recent misses that don't have the coach's read yet.
-  const unexplained = misses.filter((record) => !record.coach).length;
-  useEffect(() => {
-    if (!unexplained || missStatus !== "idle") return;
-    if (coachOff) {
-      setMissStatus("off");
-      return;
-    }
-    setMissStatus("loading");
-    void coachRecords(misses).then((answer) => {
-      if (answer === "off" || answer === "error") {
-        setMissStatus(answer);
-        return;
-      }
-      onCoach(answer);
-      setMissStatus("idle");
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unexplained]);
-
   if (!stats || calls.length === 0) {
     return (
       <section className="qz-report">
@@ -1449,12 +1227,14 @@ function ReportCard({
   const missedDays = [...new Map(stats.days.filter((entry) => entry.answered >= 3).map((entry) => [entry.date, entry])).values()]
     .sort((a, b) => a.correct / a.answered - b.correct / b.answered)
     .slice(0, 6);
-  const coachNote =
-    coachStatus === "off" || missStatus === "off"
-      ? "The AI coach isn’t switched on for this site yet, so the “why” columns show the built-in hints."
-      : coachStatus === "error" || missStatus === "error"
-        ? "The coach couldn’t answer just now. It will try again next time you open this page."
-        : "";
+
+  function copyForClaude() {
+    const text = resultsText(calls);
+    navigator.clipboard
+      .writeText(text)
+      .then(() => setCopied("Copied. Paste it into your chat with Claude."))
+      .catch(() => setCopied(text));
+  }
 
   return (
     <section className="qz-report">
@@ -1492,13 +1272,12 @@ function ReportCard({
                   <th>Setup</th>
                   <th>Accuracy</th>
                   <th>Most common miss</th>
-                  <th>Why, from your calls</th>
+                  <th>Hint</th>
                   <th />
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => {
-                  const insight = insights?.find((spot) => spot.name === row.name)?.insight;
                   return (
                     <tr key={row.name}>
                       <td>
@@ -1509,7 +1288,7 @@ function ReportCard({
                       </td>
                       <td>{row.said ? `Said ${CALL_WORD[row.said]}, went ${CALL_WORD[row.was]} (${row.topCount}×)` : "—"}</td>
                       <td className="qz-cell-text">
-                        {insight ?? (coachStatus === "loading" ? "Coach is looking at your misses…" : row.said ? lesson(row.bucket, row.said, row.was) : "")}
+                        {row.said ? lesson(row.bucket, row.said, row.was) : ""}
                       </td>
                       <td>
                         <button type="button" className="text-btn" onClick={() => onDrill({ dim: row.bucket.dim, value: row.bucket.value })}>
@@ -1527,7 +1306,7 @@ function ReportCard({
 
       {misses.length ? (
         <>
-          <h4>Recent misses: why you were wrong</h4>
+          <h4>Recent misses</h4>
           <div className="qz-scroll">
             <table className="qz-table qz-wide">
               <thead>
@@ -1535,7 +1314,7 @@ function ReportCard({
                   <th>Market day</th>
                   <th>Call</th>
                   <th>Your reason</th>
-                  <th>Why it was wrong</th>
+                  <th>What happened</th>
                 </tr>
               </thead>
               <tbody>
@@ -1551,13 +1330,7 @@ function ReportCard({
                     </td>
                     <td className="qz-cell-reason">{record.reason ?? "—"}</td>
                     <td className="qz-cell-text">
-                      {record.coach ? (
-                        <CoachNote coach={record.coach} />
-                      ) : missStatus === "loading" ? (
-                        "Coach is reading this call…"
-                      ) : (
-                        (record.whatHappened ?? "")
-                      )}
+                      {record.whatHappened ?? ""}
                     </td>
                   </tr>
                 ))}
@@ -1566,7 +1339,6 @@ function ReportCard({
           </div>
         </>
       ) : null}
-      {coachNote ? <p className="qz-note">{coachNote}</p> : null}
 
       {missedDays.length ? (
         <>
@@ -1602,10 +1374,14 @@ function ReportCard({
         </>
       ) : null}
       <div className="qz-actions">
+        <button type="button" className="text-btn" onClick={copyForClaude}>
+          Copy my results for Claude
+        </button>
         <button type="button" className="text-btn" onClick={onReset}>
           Reset report card and accuracy
         </button>
       </div>
+      {copied.startsWith("Copied") ? <p className="qz-note">{copied}</p> : copied ? <textarea className="qz-reason-box" readOnly rows={8} value={copied} /> : null}
     </section>
   );
 }
@@ -1637,12 +1413,10 @@ function HistoryView({
   stats,
   onReplay,
   onImport,
-  onCoach,
 }: {
   stats: Stats | null;
   onReplay: (date: string) => void;
   onImport: (stats: Stats) => void;
-  onCoach: (reads: Map<string, Coach>) => void;
 }) {
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState<string | null>(null);
@@ -1702,7 +1476,6 @@ function HistoryView({
         calls={calls.filter((record) => record.session === opened.session)}
         onBack={() => setOpen(null)}
         onReplay={onReplay}
-        onCoach={onCoach}
       />
     );
   }
@@ -1837,26 +1610,23 @@ function HistoryView({
   );
 }
 
-/** One played day again: the same charts at each call, what happened, your reasons and the coach's read. */
+/** One played day again: the same charts at each call, what happened, and your reasons. */
 function SessionReview({
   entry,
   calls,
   onBack,
   onReplay,
-  onCoach,
 }: {
   entry: DayEntry;
   calls: CallRecord[];
   onBack: () => void;
   onReplay: (date: string) => void;
-  onCoach: (reads: Map<string, Coach>) => void;
 }) {
   const [day, setDay] = useState<QuizDay | null>(null);
   const [failed, setFailed] = useState(false);
   const [step, setStep] = useState(0);
   const [after, setAfter] = useState(true);
   const [timeframe, setTimeframe] = useState<Timeframe>(entry.timeframe ?? "5m");
-  const [coachStatus, setCoachStatus] = useState<"idle" | "loading" | "off" | "error">("idle");
 
   useEffect(() => {
     loadDay(entry.date)
@@ -1873,30 +1643,6 @@ function SessionReview({
   const vwap = useMemo(() => (day ? vwapSeries(day) : null), [day]);
   const bands = useMemo(() => (day ? vwapBands(day) : null), [day]);
   const reveal = day && moment && moment.minute <= day.bars.length ? rebuildReveal(day, moment.minute, moment.records, vwap) : null;
-  const unexplained = moment ? moment.records.filter((record) => !record.right && !record.coach).length : 0;
-
-  useEffect(() => {
-    if (!moment || !unexplained) return;
-    if (coachOff) {
-      setCoachStatus("off");
-      return;
-    }
-    let cancelled = false;
-    setCoachStatus("loading");
-    void coachRecords(moment.records).then((answer) => {
-      if (cancelled) return;
-      if (answer === "off" || answer === "error") setCoachStatus(answer);
-      else {
-        onCoach(answer);
-        setCoachStatus("idle");
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [moment?.minute, unexplained]);
-
   const right = calls.filter((record) => record.right).length;
   const cursor = reveal ? (after ? reveal.to : reveal.from) : 0;
 
@@ -1986,7 +1732,6 @@ function SessionReview({
                 </p>
                 <p className="qz-clue">{reveal.clue}</p>
                 {reveal.results.map((result) => {
-                  const record = moment.records.find((item) => item.horizon === result.horizon);
                   return (
                     <div key={result.horizon} className="qz-call">
                       <p className={result.right ? "qz-line qz-line-right" : "qz-line qz-line-wrong"}>
@@ -1996,12 +1741,9 @@ function SessionReview({
                       </p>
                       {result.reason ? <p className="qz-yours">Your reason: “{result.reason}”</p> : null}
                       <p className="qz-why">What happened: it {result.why.join(", then ")}.</p>
-                      {record?.coach ? <CoachNote coach={record.coach} /> : !result.right && coachStatus === "loading" ? <p className="qz-note">Coach is reading this call…</p> : null}
                     </div>
                   );
                 })}
-                {coachStatus === "off" ? <p className="qz-note">The AI coach isn’t switched on for this site yet.</p> : null}
-                {coachStatus === "error" ? <p className="qz-note">The coach couldn’t answer just now.</p> : null}
               </div>
               <button type="button" className="text-btn" onClick={() => onReplay(entry.date)}>
                 Play this day again

@@ -1764,20 +1764,12 @@ rect.qz-lv-pre { fill: #2a9d8f; }
 .qz-file { cursor: pointer; display: inline-flex; align-items: center; }
 @media (max-width: 640px) { .qz-calls { font-size: 12px; } .qz-calls td, .qz-calls th { padding: 4px 5px; } }
 
-/* Quiz: coach, report tables, day review */
-.qz-coach { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 8px; background: var(--muted); }
-.qz-coach .qz-why { color: var(--ink); }
-.qz-lesson { margin: 0; font-size: 14px; line-height: 1.45; font-weight: 600; color: var(--ink); }
-.qz-verdict { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 12px; font-weight: 700; margin-right: 4px; vertical-align: 1px; }
-.qz-verdict-misread { background: var(--down); color: #fff; }
-.qz-verdict-unpredictable { background: var(--ink-soft); color: var(--bg); }
-.qz-verdict-right { background: var(--up); color: #fff; }
+/* Quiz: report tables, day review */
 .qz-scroll { overflow-x: auto; max-width: 100%; }
 .qz-summary td:first-child { font-weight: 600; }
 .qz-wide { width: 100%; }
 .qz-wide th, .qz-wide td { text-align: left; vertical-align: top; }
 .qz-cell-text { min-width: 260px; line-height: 1.45; }
-.qz-cell-text .qz-coach { background: none; padding: 0; }
 .qz-row-link { cursor: pointer; }
 .qz-row-link:hover td { background: var(--muted); }
 .qz-earlier summary { cursor: pointer; font-size: 14px; }

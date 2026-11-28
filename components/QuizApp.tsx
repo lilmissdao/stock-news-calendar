@@ -37,7 +37,32 @@ type Setup = {
   kind: string;
 };
 type Dim = keyof Setup;
-type CallRecord = { date: string; minute: number; horizon: number; call: Call; actual: Call; right: boolean; setup: Setup; reason?: string };
+type CallRecord = {
+  date: string;
+  minute: number;
+  horizon: number;
+  call: Call;
+  actual: Call;
+  right: boolean;
+  setup: Setup;
+  reason?: string;
+  /** The session (one sitting with one quiz day) and when the call was made. */
+  session?: string;
+  at?: string;
+};
+type DayEntry = {
+  date: string;
+  kinds: string[];
+  answered: number;
+  correct: number;
+  at: string;
+  session?: string;
+  deck?: Deck;
+  timeframe?: Timeframe;
+  started?: string;
+  completed?: boolean;
+  lastMinute?: number;
+};
 type Stats = {
   v: 1;
   answered: number;
@@ -47,10 +72,10 @@ type Stats = {
   byHorizon: Record<string, Tally>;
   byCall?: Partial<Record<Call, Tally>>;
   calls?: CallRecord[];
-  days: { date: string; kinds: string[]; answered: number; correct: number; at: string }[];
+  days: DayEntry[];
 };
-type Result = { horizon: number; call: Call; to: number; change: number; pct: number; actual: Call; right: boolean; why: string[] };
-type Reveal = { from: number; to: number; results: Result[]; skipped: boolean; clue: string; reason: string };
+type Result = { horizon: number; call: Call; to: number; change: number; pct: number; actual: Call; right: boolean; why: string[]; reason: string };
+type Reveal = { from: number; to: number; results: Result[]; skipped: boolean; clue: string };
 type Bands = { up: number[]; down: number[] };
 type StartMode = "open" | "random";
 type Deck = "patterns" | "choppy" | "mix";
@@ -463,11 +488,13 @@ export function QuizApp() {
   const [drillMinutes, setDrillMinutes] = useState<number[]>([]);
   const [showLevels, setShowLevels] = useState(true);
   const [showVwap, setShowVwap] = useState(true);
-  /** The player's reason for the calls about to be revealed (optional). */
-  const [reason, setReason] = useState("");
-  const [tab, setTab] = useState<"play" | "report">("play");
+  /** The player's reason for each row's call (optional), by minutes ahead. */
+  const [reasons, setReasons] = useState<Partial<Record<number, string>>>({});
+  const [tab, setTab] = useState<"play" | "report" | "history">("play");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  /** One sitting with one quiz day; starts when a day is dealt or restarted. */
+  const [session, setSession] = useState("");
 
   useEffect(() => {
     setStats(loadStats());
@@ -512,6 +539,7 @@ export function QuizApp() {
   }
 
   function startDay(next: QuizDay, at?: number, matches: number[] = []) {
+    setSession(new Date().toISOString());
     setDay(next);
     setCursor(at ?? startAt(next));
     setDrillMinutes(matches);
@@ -600,14 +628,23 @@ export function QuizApp() {
       const rate = change / start;
       const actual: Call = rate > FLAT ? "up" : rate < -FLAT ? "down" : "flat";
       const call = picks[horizon]!;
-      return { horizon, call, to, change, pct: rate, actual, right: call === actual, why: describeMove(day, from, to, vwap) };
+      return {
+        horizon,
+        call,
+        to,
+        change,
+        pct: rate,
+        actual,
+        right: call === actual,
+        why: describeMove(day, from, to, vwap),
+        reason: (reasons[horizon] ?? "").trim().slice(0, 500),
+      };
     });
     const to = from + Math.max(...chosen);
-    const why = reason.trim().slice(0, 500);
-    setReveal({ from, to, results, skipped: false, clue: describeSetup(day, from, vwap), reason: why });
+    setReveal({ from, to, results, skipped: false, clue: describeSetup(day, from, vwap) });
     setCursor(to);
     setPicks({});
-    setReason("");
+    setReasons({});
     const hits = results.filter((result) => result.right).length;
     setScore((current) => ({ answered: current.answered + results.length, correct: current.correct + hits }));
     setStats((current) => {
@@ -622,6 +659,8 @@ export function QuizApp() {
         next.byHorizon[String(result.horizon)] = bump(next.byHorizon[String(result.horizon)], hit);
         next.byCall![result.call] = bump(next.byCall![result.call], hit);
         records.push({
+          session,
+          at: new Date().toISOString(),
           date: day.date,
           minute: from,
           horizon: result.horizon,
@@ -629,10 +668,22 @@ export function QuizApp() {
           actual: result.actual,
           right: result.right,
           setup,
-          ...(why ? { reason: why } : {}),
+          ...(result.reason ? { reason: result.reason } : {}),
         });
       }
-      next.calls = [...(base.calls ?? []), ...records].slice(-3000);
+      next.calls = [...(base.calls ?? []), ...records].slice(-10000);
+      // Keep this sitting's entry up to date on every reveal, so leaving a day early still records it.
+      const now = new Date().toISOString();
+      const days = [...base.days];
+      const found = days.findIndex((entry) => entry.session === session);
+      const entry: DayEntry =
+        found >= 0
+          ? days[found]
+          : { date: day.date, kinds: day.kinds, answered: 0, correct: 0, at: now, session, deck, timeframe, started: session, completed: false };
+      const updated: DayEntry = { ...entry, answered: entry.answered + results.length, correct: entry.correct + hits, at: now, lastMinute: to, timeframe };
+      if (found >= 0) days[found] = updated;
+      else days.push(updated);
+      next.days = days.slice(-1000);
       saveStats(next);
       return next;
     });
@@ -641,19 +692,21 @@ export function QuizApp() {
   function skip() {
     if (!day || reveal || done) return;
     const to = Math.min(cursor + SKIP, total);
-    setReveal({ from: cursor, to, results: [], skipped: true, clue: "", reason: "" });
+    setReveal({ from: cursor, to, results: [], skipped: true, clue: "" });
     setCursor(to);
     setPicks({});
   }
 
+  /** Mark this sitting as played to the close. Sittings with no calls aren't kept. */
   function finishDay() {
     if (!day) return;
     setStats((current) => {
       const base = current ?? emptyStats();
-      const next = {
-        ...base,
-        days: [...base.days, { date: day.date, kinds: day.kinds, answered: score.answered, correct: score.correct, at: new Date().toISOString() }].slice(-500),
-      };
+      const found = base.days.findIndex((entry) => entry.session === session);
+      if (found < 0) return base;
+      const days = [...base.days];
+      days[found] = { ...days[found], completed: true, at: new Date().toISOString() };
+      const next = { ...base, days };
       saveStats(next);
       return next;
     });
@@ -784,10 +837,22 @@ export function QuizApp() {
           <button type="button" role="tab" aria-selected={tab === "report"} aria-pressed={tab === "report"} onClick={() => setTab("report")}>
             Report card
           </button>
+          <button type="button" role="tab" aria-selected={tab === "history"} aria-pressed={tab === "history"} onClick={() => setTab("history")}>
+            History
+          </button>
         </div>
 
         {tab === "report" ? (
           <ReportCard stats={stats} onDrill={startDrill} onReplay={replayDate} onReset={resetStats} />
+        ) : tab === "history" ? (
+          <HistoryView
+            stats={stats}
+            onReplay={replayDate}
+            onImport={(imported) => {
+              saveStats(imported);
+              setStats(imported);
+            }}
+          />
         ) : (
           <>
             <div className="qz-controls">
@@ -969,19 +1034,22 @@ export function QuizApp() {
                               </button>
                             ))}
                           </div>
+                          {available ? (
+                            <textarea
+                              className="qz-reason-box"
+                              aria-label={`Why, ${horizon} minutes ahead (optional)`}
+                              value={reasons[horizon] ?? ""}
+                              onChange={(event) => setReasons((current) => ({ ...current, [horizon]: event.target.value }))}
+                              rows={1}
+                              maxLength={500}
+                              placeholder={
+                                horizon === 5 ? "Why? e.g. bouncing off VWAP" : horizon === 15 ? "Why? e.g. higher lows into the PMH" : "Why? e.g. trend day, holding above PC"
+                              }
+                            />
+                          ) : null}
                         </div>
                       );
                     })}
-                    <label className="qz-reason">
-                      <span>Why? (optional) What are you seeing?</span>
-                      <textarea
-                        value={reason}
-                        onChange={(event) => setReason(event.target.value)}
-                        rows={2}
-                        maxLength={500}
-                        placeholder="e.g. bounced off VWAP twice, higher lows, below the pre-market high"
-                      />
-                    </label>
                     <button type="button" className="qz-next" disabled={chosen.length === 0} onClick={lockIn}>
                       {chosen.length === 0
                         ? "Reveal my calls (pick one first)"
@@ -1002,7 +1070,6 @@ export function QuizApp() {
                     {reveal ? (
                       <>
                         <p className="qz-q">{reveal.skipped ? `Skipped to ${clock(reveal.to)}` : `${rightNow} of ${reveal.results.length} right`}</p>
-                        {reveal.reason ? <p className="qz-yours">Your reason: “{reveal.reason}”</p> : null}
                         {reveal.clue ? <p className="qz-clue">{reveal.clue}</p> : null}
                         {reveal.results.map((result) => (
                           <div key={result.horizon} className="qz-call">
@@ -1011,7 +1078,8 @@ export function QuizApp() {
                               <b>{result.horizon} min</b> ({clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]}{" "}
                               {signedCents(result.change)} ({signedPct(result.pct)})
                             </p>
-                            <p className="qz-why">Why: it {result.why.join(", then ")}.</p>
+                            {result.reason ? <p className="qz-yours">Your reason: “{result.reason}”</p> : null}
+                            <p className="qz-why">What happened: it {result.why.join(", then ")}.</p>
                           </div>
                         ))}
                       </>
@@ -1186,6 +1254,235 @@ function ReportCard({
       </div>
       <p className="qz-note">Export my notes downloads every call with its setup, your reason and what happened, to review or to share.</p>
     </section>
+  );
+}
+
+function download(name: string, data: unknown) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function playedOn(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function playedAt(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime())
+    ? ""
+    : date.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+/** Every sitting and every call, newest first, with accuracy over time and a backup of the whole record. */
+function HistoryView({ stats, onReplay, onImport }: { stats: Stats | null; onReplay: (date: string) => void; onImport: (stats: Stats) => void }) {
+  const [message, setMessage] = useState("");
+  const calls = stats?.calls ?? [];
+  const sessions = (stats?.days ?? []).filter((entry) => entry.session && entry.answered > 0).slice().reverse();
+  const earlier = calls.filter((record) => !record.session);
+
+  // Accuracy by the calendar day you played.
+  const byDate = new Map<string, Tally>();
+  for (const record of calls) {
+    if (!record.at) continue;
+    const key = new Date(record.at).toISOString().slice(0, 10);
+    byDate.set(key, bump(byDate.get(key), record.right ? 1 : 0));
+  }
+  const timeline = [...byDate.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-30);
+
+  function importFile(file: File) {
+    void file.text().then((text) => {
+      try {
+        const parsed = JSON.parse(text) as Stats;
+        if (!parsed || parsed.v !== 1 || !Array.isArray(parsed.days)) throw new Error("not a record");
+        if (!window.confirm("Replace the record on this device with the one in this file?")) return;
+        onImport({ ...emptyStats(), ...parsed });
+        setMessage("Record restored.");
+      } catch {
+        setMessage("That file isn’t a Direction quiz record.");
+      }
+    });
+  }
+
+  const backup = (
+    <div className="qz-actions">
+      <button type="button" className="text-btn" onClick={() => stats && download("direction-quiz-record.json", stats)} disabled={!stats}>
+        Back up my record
+      </button>
+      <label className="text-btn qz-file">
+        Restore a backup
+        <input
+          type="file"
+          accept="application/json,.json"
+          hidden
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.target.value = "";
+            if (file) importFile(file);
+          }}
+        />
+      </label>
+    </div>
+  );
+
+  if (!stats || (calls.length === 0 && sessions.length === 0)) {
+    return (
+      <section className="qz-report">
+        <h3>History</h3>
+        <p className="qz-note">Every sitting and every call you make will be listed here.</p>
+        {backup}
+        {message ? <p className="qz-note">{message}</p> : null}
+      </section>
+    );
+  }
+
+  const right = calls.filter((record) => record.right).length;
+  const playDays = new Set(calls.filter((record) => record.at).map((record) => new Date(record.at!).toISOString().slice(0, 10))).size;
+  const quizDays = new Set(calls.map((record) => record.date)).size;
+  const maxH = 140;
+
+  return (
+    <section className="qz-report">
+      <h3>History</h3>
+      <dl className="qz-stats qz-stats-wide">
+        <div>
+          <dt>Calls</dt>
+          <dd>{calls.length}</dd>
+          <dd className="qz-small">{pct(right / Math.max(1, calls.length))} right</dd>
+        </div>
+        <div>
+          <dt>Sessions</dt>
+          <dd>{sessions.length}</dd>
+          <dd className="qz-small">{sessions.filter((entry) => entry.completed).length} played to the close</dd>
+        </div>
+        <div>
+          <dt>Market days seen</dt>
+          <dd>{quizDays}</dd>
+          <dd className="qz-small">of the quiz days</dd>
+        </div>
+        <div>
+          <dt>Days you practiced</dt>
+          <dd>{playDays}</dd>
+          <dd className="qz-small">{playDays === 1 ? "calendar day" : "calendar days"}</dd>
+        </div>
+      </dl>
+
+      {timeline.length ? (
+        <>
+          <h4>Accuracy by day you practiced</h4>
+          <svg
+            className="qz-timeline"
+            width={Math.max(300, timeline.length * 60)}
+            viewBox={`0 0 ${Math.max(300, timeline.length * 60)} ${maxH + 46}`}
+            role="img"
+            aria-label="Accuracy for each day you practiced"
+          >
+            <line className="qz-grid" x1={0} x2={Math.max(300, timeline.length * 60)} y1={maxH - maxH / 3} y2={maxH - maxH / 3} />
+            {timeline.map(([date, tally], i) => {
+              const rate = tally.correct / tally.answered;
+              const h = Math.max(2, rate * maxH);
+              return (
+                <g key={date}>
+                  <rect className={rate >= 1 / 3 ? "qz-bar-up" : "qz-bar-down"} x={i * 60 + 12} y={maxH - h} width={36} height={h} rx={4} />
+                  <text className="qz-tick" x={i * 60 + 30} y={maxH - h - 6} textAnchor="middle">
+                    {pct(rate)}
+                  </text>
+                  <text className="qz-tick" x={i * 60 + 30} y={maxH + 20} textAnchor="middle">
+                    {new Date(`${date}T12:00:00`).toLocaleDateString("en-US", { month: "numeric", day: "numeric" })}
+                  </text>
+                  <text className="qz-tick qz-tick-small" x={i * 60 + 30} y={maxH + 40} textAnchor="middle">
+                    {tally.answered} calls
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+          <p className="qz-note">The line marks 33%, what random guessing gets.</p>
+        </>
+      ) : null}
+
+      <h4>Sessions</h4>
+      <ul className="qz-sessions">
+        {sessions.map((entry) => {
+          const mine = calls.filter((record) => record.session === entry.session);
+          return (
+            <li key={entry.session}>
+              <details>
+                <summary>
+                  <span className="qz-session-main">
+                    <b>{playedAt(entry.started ?? entry.at)}</b> · market day {prettyDate(entry.date)} · {entry.kinds.join(", ")}
+                  </span>
+                  <span className="qz-session-score">
+                    {pct(entry.correct / Math.max(1, entry.answered))} ({entry.correct} of {entry.answered}){" "}
+                    {entry.completed ? "· to the close" : entry.lastMinute ? `· stopped at ${clock(entry.lastMinute)}` : ""}
+                    {entry.timeframe ? ` · ${entry.timeframe === "1m" ? "1-min" : "5-min"} chart` : ""}
+                  </span>
+                </summary>
+                <CallTable calls={mine} />
+                <button type="button" className="text-btn" onClick={() => onReplay(entry.date)}>
+                  Replay this day
+                </button>
+              </details>
+            </li>
+          );
+        })}
+        {earlier.length ? (
+          <li>
+            <details>
+              <summary>
+                <span className="qz-session-main">
+                  <b>Earlier calls</b> · before sessions were tracked
+                </span>
+                <span className="qz-session-score">
+                  {pct(earlier.filter((record) => record.right).length / earlier.length)} ({earlier.filter((record) => record.right).length} of {earlier.length})
+                </span>
+              </summary>
+              <CallTable calls={earlier} showDate />
+            </details>
+          </li>
+        ) : null}
+      </ul>
+      {backup}
+      <p className="qz-note">Your record lives in this browser. Back it up to keep it safe, and restore it on another device to continue there.</p>
+      {message ? <p className="qz-note">{message}</p> : null}
+    </section>
+  );
+}
+
+function CallTable({ calls, showDate = false }: { calls: CallRecord[]; showDate?: boolean }) {
+  if (!calls.length) return <p className="qz-note">No calls saved for this session.</p>;
+  return (
+    <table className="qz-table qz-calls">
+      <thead>
+        <tr>
+          {showDate ? <th>Market day</th> : null}
+          <th>Time</th>
+          <th>Ahead</th>
+          <th>You said</th>
+          <th>It was</th>
+          <th>Result</th>
+          <th>Your reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        {calls.map((record, i) => (
+          <tr key={`${record.minute}-${record.horizon}-${i}`}>
+            {showDate ? <td>{prettyDate(record.date)}</td> : null}
+            <td>{clock(record.minute)}</td>
+            <td>{record.horizon}m</td>
+            <td>{CALL_WORD[record.call]}</td>
+            <td>{CALL_WORD[record.actual]}</td>
+            <td className={record.right ? "qz-cell-right" : "qz-cell-wrong"}>{record.right ? "✓" : "✗"}</td>
+            <td className="qz-cell-reason">{record.reason ?? ""}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 

@@ -226,12 +226,16 @@ function clock(minute: number): string {
 
 /** "5m", "1h": a horizon on a tag. */
 function short(horizon: number): string {
-  return horizon < 60 ? `${horizon}m` : `${horizon / 60}h`;
+  if (horizon < 60) return `${horizon}m`;
+  const rest = horizon % 60;
+  return `${Math.floor(horizon / 60)}h${rest ? `${rest}m` : ""}`;
 }
 
 /** "5 min", "1 hr": a horizon in a sentence. */
 function long(horizon: number): string {
-  return horizon < 60 ? `${horizon} min` : `${horizon / 60} hr`;
+  if (horizon < 60) return `${horizon} min`;
+  const rest = horizon % 60;
+  return `${Math.floor(horizon / 60)} hr${rest ? ` ${rest} min` : ""}`;
 }
 
 function pct(rate: number): string {
@@ -566,6 +570,10 @@ export function QuizApp() {
   const [error, setError] = useState("");
   /** One sitting with one quiz day; starts when a day is dealt or restarted. */
   const [session, setSession] = useState("");
+  /** Bar by bar: step one candle at a time and hold a call until you change it. */
+  const [barMode, setBarMode] = useState(false);
+  const [stance, setStance] = useState<{ call: Call; from: number; reason: string } | null>(null);
+  const [held, setHeld] = useState<{ from: number; result: Result }[]>([]);
 
   useEffect(() => {
     setStats(loadStats());
@@ -576,12 +584,14 @@ export function QuizApp() {
         deck?: Deck;
         showLevels?: boolean;
         showVwap?: boolean;
+        barMode?: boolean;
       };
       if (prefs.timeframe === "1m" || prefs.timeframe === "5m") setTimeframe(prefs.timeframe);
       if (prefs.startMode === "open" || prefs.startMode === "random" || prefs.startMode === "first30") setStartMode(prefs.startMode);
       if (prefs.deck === "patterns" || prefs.deck === "choppy" || prefs.deck === "mix") setDeck(prefs.deck);
       if (typeof prefs.showLevels === "boolean") setShowLevels(prefs.showLevels);
       if (typeof prefs.showVwap === "boolean") setShowVwap(prefs.showVwap);
+      if (typeof prefs.barMode === "boolean") setBarMode(prefs.barMode);
     } catch {
       /* ignore */
     }
@@ -593,11 +603,11 @@ export function QuizApp() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe, startMode, deck, showLevels, showVwap }));
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe, startMode, deck, showLevels, showVwap, barMode }));
     } catch {
       /* ignore */
     }
-  }, [timeframe, startMode, deck, showLevels, showVwap]);
+  }, [timeframe, startMode, deck, showLevels, showVwap, barMode]);
 
   const vwap = useMemo(() => (day ? vwapSeries(day) : null), [day]);
   const bands = useMemo(() => (day ? vwapBands(day) : null), [day]);
@@ -617,6 +627,8 @@ export function QuizApp() {
     setDrillMinutes(matches);
     setPicks({});
     setReveal(null);
+    setStance(null);
+    setHeld([]);
     setScore({ answered: 0, correct: 0 });
     setError("");
   }
@@ -707,38 +719,32 @@ export function QuizApp() {
     setPicks((current) => ({ ...current, [horizon]: current[horizon] === call ? undefined : call }));
   }
 
-  function lockIn() {
-    if (!day || reveal || done || chosen.length === 0) return;
-    const from = cursor;
-    const start = day.bars[from - 1][3];
-    const setup = setupAt(day, from, vwap);
-    const results: Result[] = chosen.map((horizon) => {
-      const to = from + horizon;
-      const change = day.bars[to - 1][3] - start;
-      const rate = change / start;
-      const fit = trendLine(day, from, to);
-      const actual: Call = fit.change > FLAT ? "up" : fit.change < -FLAT ? "down" : "flat";
-      const call = picks[horizon]!;
-      return {
-        horizon,
-        call,
-        to,
-        change,
-        pct: rate,
-        line: fit.line,
-        trend: fit.change,
-        actual,
-        right: call === actual,
-        why: describeMove(day, from, to, vwap),
-        reason: (reasons[horizon] ?? "").trim().slice(0, 500),
-      };
-    });
-    const to = from + Math.max(...chosen);
-    setReveal({ from, to, results, skipped: false, clue: describeSetup(day, from, vwap) });
-    setCursor(to);
-    setPicks({});
-    setReasons({});
+  /** Grades one call held from `from` to `to` on the trend over that stretch. */
+  function grade(quizDay: QuizDay, from: number, to: number, call: Call, reason: string): Result {
+    const start = quizDay.bars[from - 1][3];
+    const change = quizDay.bars[to - 1][3] - start;
+    const fit = trendLine(quizDay, from, to);
+    const actual: Call = fit.change > FLAT ? "up" : fit.change < -FLAT ? "down" : "flat";
+    return {
+      horizon: to - from,
+      call,
+      to,
+      change,
+      pct: change / start,
+      line: fit.line,
+      trend: fit.change,
+      actual,
+      right: call === actual,
+      why: describeMove(quizDay, from, to, quizDay === day ? vwap : vwapSeries(quizDay)),
+      reason: reason.trim().slice(0, 500),
+    };
+  }
+
+  /** Saves graded calls made at `from` to the all-time record and this sitting's entry. */
+  function record(quizDay: QuizDay, from: number, results: Result[]) {
+    const setup = setupAt(quizDay, from, quizDay === day ? vwap : vwapSeries(quizDay));
     const hits = results.filter((result) => result.right).length;
+    const to = Math.max(...results.map((result) => result.to));
     setScore((current) => ({ answered: current.answered + results.length, correct: current.correct + hits }));
     setStats((current) => {
       const base = current ?? emptyStats();
@@ -754,7 +760,7 @@ export function QuizApp() {
         records.push({
           session,
           at: new Date().toISOString(),
-          date: day.date,
+          date: quizDay.date,
           minute: from,
           horizon: result.horizon,
           call: result.call,
@@ -766,14 +772,14 @@ export function QuizApp() {
         });
       }
       next.calls = [...(base.calls ?? []), ...records].slice(-10000);
-      // Keep this sitting's entry up to date on every reveal, so leaving a day early still records it.
+      // Keep this sitting's entry up to date on every call, so leaving a day early still records it.
       const now = new Date().toISOString();
       const days = [...base.days];
       const found = days.findIndex((entry) => entry.session === session);
       const entry: DayEntry =
         found >= 0
           ? days[found]
-          : { date: day.date, kinds: day.kinds, answered: 0, correct: 0, at: now, session, deck, timeframe, started: session, completed: false };
+          : { date: quizDay.date, kinds: quizDay.kinds, answered: 0, correct: 0, at: now, session, deck, timeframe, started: session, completed: false };
       const updated: DayEntry = { ...entry, answered: entry.answered + results.length, correct: entry.correct + hits, at: now, lastMinute: to, timeframe };
       if (found >= 0) days[found] = updated;
       else days.push(updated);
@@ -783,9 +789,54 @@ export function QuizApp() {
     });
   }
 
+  function lockIn() {
+    if (!day || reveal || done || chosen.length === 0) return;
+    const from = cursor;
+    const results = chosen.map((horizon) => grade(day, from, from + horizon, picks[horizon]!, reasons[horizon] ?? ""));
+    const to = from + Math.max(...chosen);
+    setReveal({ from, to, results, skipped: false, clue: describeSetup(day, from, vwap) });
+    setCursor(to);
+    setPicks({});
+    setReasons({});
+    record(day, from, results);
+  }
+
+  /** Bar by bar: the call held now ends at `at` and is graded; holding it for no time at all isn't graded. */
+  function closeStance(at: number) {
+    if (!day || !stance) return;
+    if (at > stance.from) {
+      const result = grade(day, stance.from, at, stance.call, stance.reason);
+      setHeld((current) => [...current, { from: stance.from, result }]);
+      record(day, stance.from, [result]);
+    }
+    setStance(null);
+  }
+
+  /** Bar by bar: take a call from now, ending (and grading) the one held before. */
+  function takeCall(call: Call) {
+    if (!day || done) return;
+    if (stance && stance.call === call) return;
+    if (stance && stance.from === cursor) {
+      setStance({ ...stance, call });
+      return;
+    }
+    closeStance(cursor);
+    setStance({ call, from: cursor, reason: "" });
+  }
+
+  /** Bar by bar: add one candle (one minute, or the rest of the 5-minute candle on the 5-min chart). */
+  function nextBar() {
+    if (!day || done) return;
+    const step = timeframe === "5m" ? 5 - (cursor % 5) : 1;
+    const next = Math.min(stop, cursor + step);
+    if (next >= stop) closeStance(next);
+    setCursor(next);
+  }
+
   /** Reveal everything to the close and end the day. */
   function showRest() {
     if (!day || done) return;
+    closeStance(cursor);
     setCursor(Math.max(cursor, stop));
     setReveal(null);
     setPicks({});
@@ -864,7 +915,14 @@ export function QuizApp() {
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
       const key = event.key.toLowerCase();
-      if (!reveal && !done) {
+      if (barMode && !done) {
+        if (key === "arrowup" || key === "h") takeCall("up");
+        else if (key === "f") takeCall("flat");
+        else if (key === "arrowdown" || key === "l") takeCall("down");
+        else if (key === "x") closeStance(cursor);
+        else if (key === "enter" || key === " " || key === "arrowright" || key === "n") nextBar();
+        else return;
+      } else if (!reveal && !done) {
         if (["1", "2", "3", "4", "5"].includes(key)) setKeyRow(HORIZONS[Number(key) - 1]);
         else if (key === "arrowup" || key === "h") choose(keyRow, "up");
         else if (key === "f") choose(keyRow, "flat");
@@ -1041,6 +1099,18 @@ export function QuizApp() {
                 <button type="button" aria-pressed={showLevels} onClick={() => setShowLevels((current) => !current)}>
                   Levels
                 </button>
+                <button
+                  type="button"
+                  aria-pressed={barMode}
+                  onClick={() => {
+                    setBarMode((current) => !current);
+                    setStance(null);
+                    setReveal(null);
+                    setPicks({});
+                  }}
+                >
+                  Bar by bar
+                </button>
                 <button type="button" aria-pressed={showVwap} onClick={() => setShowVwap((current) => !current)}>
                   VWAP + bands
                 </button>
@@ -1090,13 +1160,15 @@ export function QuizApp() {
                       day={day}
                       cursor={cursor}
                       timeframe={timeframe}
-                      ahead={reveal ? 0 : furthest}
+                      ahead={reveal || barMode ? 0 : furthest}
                       reveal={reveal}
                       vwap={showVwap ? vwap : null}
                       bands={showVwap ? bands : null}
                       levels={showLevels ? fixedLevels(day) : []}
                       startZoom={openHour ? 60 : undefined}
-                      horizons={rows}
+                      horizons={barMode ? [] : rows}
+                      held={barMode ? held : undefined}
+                      stance={barMode && stance ? stance : undefined}
                     />
                     {showLevels || (showVwap && vwap) ? (
                       <p className="qz-legend">
@@ -1121,7 +1193,78 @@ export function QuizApp() {
                 ) : null}
               </div>
               <div className="qz-side">
-                {day && !reveal && !done ? (
+                {barMode && day && !done ? (
+                  <div className="qz-ask">
+                    <p className="qz-q">
+                      {clock(cursor)} · ${priceNow.toFixed(2)}
+                    </p>
+                    <p className="qz-note">
+                      Add one candle at a time. Pick a call whenever you like: it holds until you change it, and it’s graded on the trend over the
+                      time you held it (Flat = the trend moves less than ±${(priceNow * FLAT).toFixed(2)}).
+                    </p>
+                    <div className="qz-picks" role="group" aria-label="Your call from here">
+                      {CALLS.map(({ call, label, cls }) => (
+                        <button key={call} type="button" className={`qz-pick ${cls}`} aria-pressed={stance?.call === call} onClick={() => takeCall(call)}>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    {stance ? (
+                      <>
+                        <p className="qz-note">
+                          Holding <b>{CALL_WORD[stance.call]}</b> since {clock(stance.from)}
+                          {cursor > stance.from ? ` (${long(cursor - stance.from)})` : ""}.{" "}
+                          <button type="button" className="text-btn qz-inline" onClick={() => closeStance(cursor)}>
+                            End this call
+                          </button>
+                        </p>
+                        <textarea
+                          className="qz-reason-box"
+                          aria-label="Why (optional)"
+                          value={stance.reason}
+                          onChange={(event) => setStance({ ...stance, reason: event.target.value })}
+                          rows={1}
+                          maxLength={500}
+                          placeholder="Why? e.g. holding above VWAP after the open"
+                        />
+                      </>
+                    ) : (
+                      <p className="qz-note">No call yet: you’re watching.</p>
+                    )}
+                    <button type="button" className="qz-next" onClick={nextBar}>
+                      Next bar → ({timeframe === "5m" ? "5-min candle" : "1 minute"})
+                    </button>
+                    <button type="button" className="text-btn qz-skip" onClick={showRest}>
+                      {openHour ? "Show the rest, to 10:30" : "Show the rest of the day"}
+                    </button>
+                    <p className="qz-keys">Keys: ↑ higher · F flat · ↓ lower · X end call · Enter or → next bar</p>
+                  </div>
+                ) : null}
+                {barMode && day && held.length ? (
+                  <div className="qz-result">
+                    <p className="qz-q">
+                      Your calls: {held.filter((item) => item.result.right).length} of {held.length} right
+                    </p>
+                    {held
+                      .slice()
+                      .reverse()
+                      .map(({ from, result }) => {
+                        const key = recordKey({ session, date: day.date, minute: from, horizon: result.horizon });
+                        return (
+                          <div key={key} className="qz-call">
+                            <p className={result.right ? "qz-line qz-line-right" : "qz-line qz-line-wrong"}>
+                              {result.right ? "✓" : "✗"} <b>{clock(from)}–{clock(result.to)}</b> ({long(result.horizon)}): you said {CALL_WORD[result.call]}, it was{" "}
+                              {CALL_WORD[result.actual]} (trend {signedPct(result.trend)})
+                            </p>
+                            {result.reason ? <p className="qz-yours">Your reason: “{result.reason}”</p> : null}
+                            <p className="qz-why">What happened: it {result.why.join(", then ")}.</p>
+                            <NoteBox value={calls.find((item) => recordKey(item) === key)?.note ?? ""} onSave={(text) => saveNote(key, text)} />
+                          </div>
+                        );
+                      })}
+                  </div>
+                ) : null}
+                {!barMode && day && !reveal && !done ? (
                   <div className="qz-ask">
                     <p className="qz-q">Where will {day.symbol} be?</p>
                     <p className="qz-note">
@@ -1998,6 +2141,8 @@ function IntradayChart({
   levels,
   startZoom,
   horizons = HORIZONS,
+  held,
+  stance,
 }: {
   day: QuizDay;
   cursor: number;
@@ -2011,6 +2156,9 @@ function IntradayChart({
   startZoom?: number;
   /** The horizons marked ahead of "now". */
   horizons?: number[];
+  /** Bar by bar: calls already graded, and the one held now. */
+  held?: { from: number; result: Result }[];
+  stance?: { call: Call; from: number };
 }) {
   const H = 420;
   const top = 16;
@@ -2168,6 +2316,24 @@ function IntradayChart({
               />
             ))
           : null}
+        {held?.map(({ from, result }) => (
+          <line
+            key={`${from}-${result.to}`}
+            className={result.right ? "qz-held qz-held-right" : "qz-held qz-held-wrong"}
+            x1={xAt(from - 0.5)}
+            x2={xAt(result.to - 0.5)}
+            y1={y(result.line[0])}
+            y2={y(result.line[1])}
+          />
+        ))}
+        {stance ? (
+          <g>
+            <line className="qz-stance" x1={xAt(stance.from)} x2={xAt(stance.from)} y1={top} y2={H - bottom} />
+            <text className={`qz-stance-label qz-stance-${stance.call}`} x={xAt(stance.from) + 6} y={top + 16}>
+              {stance.call === "up" ? "▲" : stance.call === "down" ? "▼" : "—"} {CALL_WORD[stance.call]}
+            </text>
+          </g>
+        ) : null}
         <Candles bars={view.bars} x={x} y={y} width={width} />
         {labelled.map((level, i) => (
           <g key={level.key}>

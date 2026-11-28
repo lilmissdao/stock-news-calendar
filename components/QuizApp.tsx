@@ -94,7 +94,7 @@ type Result = {
 };
 type Reveal = { from: number; to: number; results: Result[]; skipped: boolean; clue: string };
 type Bands = { up: number[]; down: number[] };
-type StartMode = "open" | "random";
+type StartMode = "open" | "random" | "first30";
 type Deck = "patterns" | "choppy" | "mix";
 type Deal = "any" | "drill" | "missed";
 type Drill = { dim: Dim; value: string };
@@ -131,6 +131,9 @@ function trendLine(day: QuizDay, from: number, to: number): { line: [number, num
 /** How much of the day is shown before the first call. */
 const WARMUP = 15;
 const SKIP = 15;
+/** "9:30–10:30 only": the first call at 9:35 (after the opening 5-minute candle), the last one before 10:30. */
+const FIRST_START = 5;
+const FIRST_END = 60;
 const SESSION = 390;
 const CALLS: { call: Call; label: string; cls: string }[] = [
   { call: "up", label: "▲ Higher", cls: "qz-pick-up" },
@@ -575,7 +578,7 @@ export function QuizApp() {
         showVwap?: boolean;
       };
       if (prefs.timeframe === "1m" || prefs.timeframe === "5m") setTimeframe(prefs.timeframe);
-      if (prefs.startMode === "open" || prefs.startMode === "random") setStartMode(prefs.startMode);
+      if (prefs.startMode === "open" || prefs.startMode === "random" || prefs.startMode === "first30") setStartMode(prefs.startMode);
       if (prefs.deck === "patterns" || prefs.deck === "choppy" || prefs.deck === "mix") setDeck(prefs.deck);
       if (typeof prefs.showLevels === "boolean") setShowLevels(prefs.showLevels);
       if (typeof prefs.showVwap === "boolean") setShowVwap(prefs.showVwap);
@@ -600,16 +603,17 @@ export function QuizApp() {
   const bands = useMemo(() => (day ? vwapBands(day) : null), [day]);
 
   /** 9:45, or with Random time any 5-minute mark from 10:00 to 3:30, so there's always 30 minutes left to call. */
-  function startAt(next: QuizDay): number {
-    if (startMode === "open") return WARMUP;
+  function startAt(next: QuizDay, mode: StartMode = startMode): number {
+    if (mode === "first30") return FIRST_START;
+    if (mode === "open") return WARMUP;
     const slots = Math.max(1, Math.floor((next.bars.length - 30 - 30) / 5) + 1);
     return 30 + 5 * Math.floor(Math.random() * slots);
   }
 
-  function startDay(next: QuizDay, at?: number, matches: number[] = []) {
+  function startDay(next: QuizDay, at?: number, matches: number[] = [], mode: StartMode = startMode) {
     setSession(new Date().toISOString());
     setDay(next);
-    setCursor(at ?? startAt(next));
+    setCursor(at ?? startAt(next, mode));
     setDrillMinutes(matches);
     setPicks({});
     setReveal(null);
@@ -637,7 +641,7 @@ export function QuizApp() {
   }
 
   /** Deal the next day by the chosen mode: any day in the deck, a day with moments that match the drill, or a missed day. */
-  async function newDay(mode: Deal = deal, focus: Drill | null = drill, chosenDeck: Deck = deck) {
+  async function newDay(mode: Deal = deal, focus: Drill | null = drill, chosenDeck: Deck = deck, start: StartMode = startMode) {
     if (!index || index.days.length === 0) return;
     setNotice("");
     const recent = new Set((stats?.days ?? []).slice(-20).map((entry) => entry.date));
@@ -648,7 +652,7 @@ export function QuizApp() {
         const missed = (stats?.days ?? []).filter((entry) => entry.answered >= 3 && entry.correct / entry.answered < 0.5).map((entry) => entry.date);
         const unique = [...new Set(missed)].filter((date) => date !== day?.date && index.days.some((entry) => entry.date === date));
         if (unique.length) {
-          startDay(await fetchDay(unique[Math.floor(Math.random() * unique.length)]));
+          startDay(await fetchDay(unique[Math.floor(Math.random() * unique.length)]), undefined, [], start);
           return;
         }
         setNotice("No missed days yet (days under 50% with at least 3 calls). Dealing any day.");
@@ -660,18 +664,18 @@ export function QuizApp() {
           const next = await fetchDay(entry.date);
           const series = vwapSeries(next);
           const matches: number[] = [];
-          for (let minute = WARMUP; minute + 5 <= next.bars.length; minute += 5) {
+          for (let minute = start === "first30" ? FIRST_START : WARMUP; minute + 5 <= (start === "first30" ? FIRST_END : next.bars.length); minute += 5) {
             if (String(setupAt(next, minute, series)[focus.dim]) === focus.value) matches.push(minute);
           }
           if (matches.length) {
-            startDay(next, matches[0], matches);
+            startDay(next, matches[0], matches, start);
             return;
           }
         }
         setNotice(`No day in this deck has “${spotName(focus.dim, focus.value)}”. Try the Mix deck. Dealing any day.`);
       }
       const choices = fresh.length ? fresh : pool.length ? pool : index.days;
-      startDay(await fetchDay(choices[Math.floor(Math.random() * choices.length)].date));
+      startDay(await fetchDay(choices[Math.floor(Math.random() * choices.length)].date), undefined, [], start);
     } catch {
       setError("Couldn’t load that day. Try again.");
     }
@@ -683,8 +687,13 @@ export function QuizApp() {
   }, [index]);
 
   const total = day?.bars.length ?? SESSION;
-  const done = !!day && cursor >= total;
-  const open = HORIZONS.filter((horizon) => cursor + horizon <= total);
+  const openHour = startMode === "first30";
+  /** Where this sitting ends: 10:30 in "9:30–10:30 only", otherwise the close. */
+  const stop = openHour ? Math.min(FIRST_END, total) : total;
+  const done = !!day && cursor >= stop;
+  const rows = openHour ? HORIZONS.filter((horizon) => horizon <= 30) : HORIZONS;
+  const open = rows.filter((horizon) => cursor + horizon <= total);
+  const skipBy = openHour ? 5 : SKIP;
   const chosen = open.filter((horizon) => picks[horizon]);
   const furthest = chosen.length ? Math.max(...chosen) : SKIP;
   const priceNow = day ? day.bars[Math.min(cursor, total) - 1][3] : 0;
@@ -777,14 +786,14 @@ export function QuizApp() {
   /** Reveal everything to the close and end the day. */
   function showRest() {
     if (!day || done) return;
-    setCursor(total);
+    setCursor(Math.max(cursor, stop));
     setReveal(null);
     setPicks({});
   }
 
   function skip() {
     if (!day || reveal || done) return;
-    const to = Math.min(cursor + SKIP, total);
+    const to = Math.min(cursor + skipBy, total);
     setReveal({ from: cursor, to, results: [], skipped: true, clue: "" });
     setCursor(to);
     setPicks({});
@@ -814,7 +823,7 @@ export function QuizApp() {
     }
     if (deal === "drill" && drillMinutes.length) {
       // Jump to the next moment in this day that matches the drill; none left ends the day.
-      const next = drillMinutes.find((minute) => minute >= cursor && minute + 5 <= total);
+      const next = drillMinutes.find((minute) => minute >= cursor && minute < stop && minute + 5 <= total);
       if (next === undefined) {
         setCursor(total);
         return;
@@ -1017,6 +1026,16 @@ export function QuizApp() {
                 <button type="button" aria-pressed={startMode === "random"} onClick={() => setStartMode("random")}>
                   Start at a random time
                 </button>
+                <button
+                  type="button"
+                  aria-pressed={startMode === "first30"}
+                  onClick={() => {
+                    setStartMode("first30");
+                    void newDay(deal, drill, deck, "first30");
+                  }}
+                >
+                  9:30–10:30 only
+                </button>
               </div>
               <div className="pr-toggle" role="group" aria-label="Day">
                 <button type="button" aria-pressed={showLevels} onClick={() => setShowLevels((current) => !current)}>
@@ -1076,6 +1095,8 @@ export function QuizApp() {
                       vwap={showVwap ? vwap : null}
                       bands={showVwap ? bands : null}
                       levels={showLevels ? fixedLevels(day) : []}
+                      startZoom={openHour ? 60 : undefined}
+                      horizons={rows}
                     />
                     {showLevels || (showVwap && vwap) ? (
                       <p className="qz-legend">
@@ -1107,7 +1128,7 @@ export function QuizApp() {
                       Graded on the overall trend (a line of best fit), not single candles. Flat = the trend moves less than ±$
                       {(priceNow * FLAT).toFixed(2)} ({(FLAT * 100).toFixed(2)}%).
                     </p>
-                    {HORIZONS.map((horizon) => {
+                    {rows.map((horizon) => {
                       const available = open.includes(horizon);
                       return (
                         <div key={horizon} className={keyRow === horizon ? "qz-row qz-row-key" : "qz-row"}>
@@ -1157,10 +1178,10 @@ export function QuizApp() {
                         : `Reveal my ${chosen.length} call${chosen.length === 1 ? "" : "s"} (to ${clock(cursor + furthest)})`}
                     </button>
                     <button type="button" className="text-btn qz-skip" onClick={skip}>
-                      Skip ahead {SKIP} min (no call)
+                      Skip ahead {skipBy} min (no call)
                     </button>
                     <button type="button" className="text-btn qz-skip" onClick={showRest}>
-                      Show the rest of the day
+                      {openHour ? "Show the rest, to 10:30" : "Show the rest of the day"}
                     </button>
                     <p className="qz-keys">Keys: 1–5 pick a row · ↑ higher · F flat · ↓ lower · Enter reveal · S skip</p>
                   </div>
@@ -1206,7 +1227,7 @@ export function QuizApp() {
                     </button>
                     {!done ? (
                       <button type="button" className="text-btn qz-skip" onClick={showRest}>
-                        Show the rest of the day
+                        {openHour ? "Show the rest, to 10:30" : "Show the rest of the day"}
                       </button>
                     ) : null}
                     <p className="qz-keys">Key: Enter or Space for {done ? "the next day" : "the next call"}</p>
@@ -1975,6 +1996,8 @@ function IntradayChart({
   vwap,
   bands,
   levels,
+  startZoom,
+  horizons = HORIZONS,
 }: {
   day: QuizDay;
   cursor: number;
@@ -1984,6 +2007,10 @@ function IntradayChart({
   vwap: number[] | null;
   bands: Bands | null;
   levels: Level[];
+  /** Start zoomed to this many minutes (both timeframes); changes reset the zoom. */
+  startZoom?: number;
+  /** The horizons marked ahead of "now". */
+  horizons?: number[];
 }) {
   const H = 420;
   const top = 16;
@@ -1993,7 +2020,10 @@ function IntradayChart({
   const shownCount = Math.min(cursor, total);
   const shown = day.bars.slice(0, shownCount);
   // Zoom: how many minutes before "now" are on screen. The whole day is the widest.
-  const [zooms, setZooms] = useState<Record<Timeframe, number>>({ "1m": 90, "5m": SESSION });
+  const [zooms, setZooms] = useState<Record<Timeframe, number>>(startZoom ? { "1m": startZoom, "5m": startZoom } : { "1m": 90, "5m": SESSION });
+  useEffect(() => {
+    setZooms(startZoom ? { "1m": startZoom, "5m": startZoom } : { "1m": 90, "5m": SESSION });
+  }, [startZoom]);
   const zoom = zooms[timeframe];
   const level = ZOOMS.indexOf(zoom);
   const zoomTo = (next: number) => setZooms((current) => ({ ...current, [timeframe]: ZOOMS[Math.max(0, Math.min(ZOOMS.length - 1, next))] }));
@@ -2094,7 +2124,7 @@ function IntradayChart({
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${day.symbol} ${timeframe === "5m" ? "5-minute" : "1-minute"} chart up to ${clock(shownCount)}`}>
         {!reveal && cursor < total && ahead > 0 ? <rect className="qz-ahead" x={nowX} y={top} width={Math.max(0, aheadW)} height={H - top - bottom} /> : null}
         {!reveal && cursor < total
-          ? HORIZONS.filter((horizon) => cursor + horizon <= total).map((horizon, i) => (
+          ? horizons.filter((horizon) => cursor + horizon <= total).map((horizon, i) => (
               <g key={horizon}>
                 <line className={`qz-mark qz-mark-${horizon}`} x1={xAt(cursor + horizon)} x2={xAt(cursor + horizon)} y1={H - bottom - 14} y2={H - bottom} />
                 <text className={`qz-marklabel qz-mark-${horizon}`} x={xAt(cursor + horizon)} y={H - bottom - 18 - (i % 2) * 18} textAnchor="middle">

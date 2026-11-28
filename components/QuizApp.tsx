@@ -574,6 +574,9 @@ export function QuizApp() {
   const [barMode, setBarMode] = useState(false);
   const [stance, setStance] = useState<{ call: Call; from: number; reason: string } | null>(null);
   const [held, setHeld] = useState<{ from: number; result: Result }[]>([]);
+  /** Bar by bar: candles add themselves every `speed` ms while playing. */
+  const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1500);
 
   useEffect(() => {
     setStats(loadStats());
@@ -629,6 +632,7 @@ export function QuizApp() {
     setReveal(null);
     setStance(null);
     setHeld([]);
+    setPlaying(false);
     setScore({ answered: 0, correct: 0 });
     setError("");
   }
@@ -822,6 +826,7 @@ export function QuizApp() {
     }
     closeStance(cursor);
     setStance({ call, from: cursor, reason: "" });
+    setPlaying(true);
   }
 
   /** Bar by bar: add one candle (one minute, or the rest of the 5-minute candle on the 5-min chart). */
@@ -832,6 +837,17 @@ export function QuizApp() {
     if (next >= stop) closeStance(next);
     setCursor(next);
   }
+
+  useEffect(() => {
+    if (!playing || !barMode || !day) return;
+    if (done) {
+      setPlaying(false);
+      return;
+    }
+    const timer = setTimeout(nextBar, speed);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playing, barMode, cursor, done, speed, day]);
 
   /** Reveal everything to the close and end the day. */
   function showRest() {
@@ -920,6 +936,7 @@ export function QuizApp() {
         else if (key === "f") takeCall("flat");
         else if (key === "arrowdown" || key === "l") takeCall("down");
         else if (key === "x") closeStance(cursor);
+        else if (key === "p") setPlaying((current) => !current);
         else if (key === "enter" || key === " " || key === "arrowright" || key === "n") nextBar();
         else return;
       } else if (!reveal && !done) {
@@ -1169,6 +1186,7 @@ export function QuizApp() {
                       horizons={barMode ? [] : rows}
                       held={barMode ? held : undefined}
                       stance={barMode && stance ? stance : undefined}
+                      compact={barMode}
                     />
                     {showLevels || (showVwap && vwap) ? (
                       <p className="qz-legend">
@@ -1199,7 +1217,7 @@ export function QuizApp() {
                       {clock(cursor)} · ${priceNow.toFixed(2)}
                     </p>
                     <p className="qz-note">
-                      Add one candle at a time. Pick a call whenever you like: it holds until you change it, and it’s graded on the trend over the
+                      Candles play one at a time once you make a call (or press Play). Pick a call whenever you like: it holds until you change it, and it’s graded on the trend over the
                       time you held it (Flat = the trend moves less than ±${(priceNow * FLAT).toFixed(2)}).
                     </p>
                     <div className="qz-picks" role="group" aria-label="Your call from here">
@@ -1231,13 +1249,29 @@ export function QuizApp() {
                     ) : (
                       <p className="qz-note">No call yet: you’re watching.</p>
                     )}
-                    <button type="button" className="qz-next" onClick={nextBar}>
-                      Next bar → ({timeframe === "5m" ? "5-min candle" : "1 minute"})
-                    </button>
+                    <div className="qz-play">
+                      <button type="button" className="qz-next" onClick={() => setPlaying((current) => !current)}>
+                        {playing ? "❚❚ Pause" : "▶ Play"}
+                      </button>
+                      <button type="button" className="qz-next qz-next-alt" onClick={nextBar} disabled={playing}>
+                        Next bar →
+                      </button>
+                    </div>
+                    <div className="pr-toggle" role="group" aria-label="Speed">
+                      {[
+                        { ms: 3000, label: "Slow" },
+                        { ms: 1500, label: "Normal" },
+                        { ms: 600, label: "Fast" },
+                      ].map((option) => (
+                        <button key={option.ms} type="button" aria-pressed={speed === option.ms} onClick={() => setSpeed(option.ms)}>
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
                     <button type="button" className="text-btn qz-skip" onClick={showRest}>
                       {openHour ? "Show the rest, to 10:30" : "Show the rest of the day"}
                     </button>
-                    <p className="qz-keys">Keys: ↑ higher · F flat · ↓ lower · X end call · Enter or → next bar</p>
+                    <p className="qz-keys">Keys: ↑ higher · F flat · ↓ lower · X end call · P play / pause · Enter or → next bar</p>
                   </div>
                 ) : null}
                 {barMode && day && held.length ? (
@@ -2143,6 +2177,7 @@ function IntradayChart({
   horizons = HORIZONS,
   held,
   stance,
+  compact = false,
 }: {
   day: QuizDay;
   cursor: number;
@@ -2159,9 +2194,11 @@ function IntradayChart({
   /** Bar by bar: calls already graded, and the one held now. */
   held?: { from: number; result: Result }[];
   stance?: { call: Call; from: number };
+  /** Leave only a little room ahead of "now" (bar by bar has no calls to mark there). */
+  compact?: boolean;
 }) {
   const H = 420;
-  const top = 16;
+  const top = 24;
   const bottom = 44;
   const right = 96;
   const total = day.bars.length;
@@ -2198,9 +2235,12 @@ function IntradayChart({
     if (zoom >= SESSION) return { bars: per === 5 ? aggregate(shown, 5) : shown, slots: Math.ceil(SESSION / per), firstMinute: 0, per };
     // The last `zoom` minutes plus room for the furthest call (30 minutes).
     const first = Math.max(0, Math.floor((shown.length - zoom) / per) * per);
+    // Only as much past as exists (early in the day that's a few minutes), plus a little room ahead.
+    const past = Math.max(Math.min(zoom, shown.length - first), 10);
+    const room = compact ? Math.max(2 * per, Math.round(past * 0.2)) : Math.max(30, ahead);
     const recent = shown.slice(first);
-    return { bars: per === 5 ? aggregate(recent, 5) : recent, slots: Math.ceil((zoom + Math.max(30, ahead)) / per) + 1, firstMinute: first, per };
-  }, [shown, timeframe, zoom, ahead]);
+    return { bars: per === 5 ? aggregate(recent, 5) : recent, slots: Math.ceil((past + room) / per) + 1, firstMinute: first, per };
+  }, [shown, timeframe, zoom, ahead, compact]);
 
   const prices = view.bars.flatMap((bar) => [bar[1], bar[2]]);
   const lowSeen = Math.min(...prices);

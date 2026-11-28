@@ -1788,7 +1788,7 @@ rect.qz-lv-pre { fill: #2a9d8f; }
 @media (max-width: 640px) { .qz-cell-text { min-width: 200px; } .qz-wide { font-size: 13px; } }
 .qz-summary { width: 100%; max-width: 560px; }
 .qz-chart { position: relative; }
-.qz-zoom { position: absolute; top: 8px; left: 8px; display: flex; align-items: center; gap: 4px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 999px; padding: 2px; font-size: 12px; z-index: 1; opacity: 0.92; }
+.qz-zoom { display: inline-flex; align-items: center; gap: 4px; margin: 0 0 4px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 999px; padding: 2px; font-size: 12px; }
 .qz-zoom button { width: 28px; height: 28px; border-radius: 999px; border: none; background: var(--muted); color: var(--ink); font: inherit; font-size: 18px; line-height: 1; cursor: pointer; }
 .qz-zoom button:disabled { opacity: 0.35; cursor: default; }
 .qz-zoom span { min-width: 64px; text-align: center; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
@@ -1819,3 +1819,6 @@ text.qz-mark-120 { fill: #d0607a; }
 :where(.qz-move) { stroke: var(--ink-soft); }
 :where(.qz-ring) { stroke: var(--ink-soft); }
 :where(.qz-taglabel) { fill: var(--ink); }
+
+.qz-play { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.qz-next-alt { background: var(--muted); color: var(--ink); }

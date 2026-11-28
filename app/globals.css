@@ -1820,3 +1820,4 @@ text.qz-mark-120 { fill: #d0607a; }
 .qz-vol-up { fill: var(--up); }
 .qz-vol-down { fill: var(--down); }
 .qz-vol-label { font-size: 13px; }
+.qz-mode button { font-weight: 700; }

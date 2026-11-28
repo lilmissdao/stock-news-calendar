@@ -573,7 +573,7 @@ export function QuizApp() {
   /** One sitting with one quiz day; starts when a day is dealt or restarted. */
   const [session, setSession] = useState("");
   /** Bar by bar: step one candle at a time and hold a call until you change it. */
-  const [barMode, setBarMode] = useState(false);
+  const [barMode, setBarMode] = useState(true);
   /** Bar by bar: an optional reason for the next guess. */
   const [barReason, setBarReason] = useState("");
   const [held, setHeld] = useState<{ from: number; result: Result }[]>([]);
@@ -587,14 +587,14 @@ export function QuizApp() {
         deck?: Deck;
         showLevels?: boolean;
         showVwap?: boolean;
-        barMode?: boolean;
+        guess?: "candle" | "ahead";
       };
       if (prefs.timeframe === "1m" || prefs.timeframe === "5m") setTimeframe(prefs.timeframe);
       if (prefs.startMode === "open" || prefs.startMode === "random" || prefs.startMode === "first30") setStartMode(prefs.startMode);
       if (prefs.deck === "patterns" || prefs.deck === "choppy" || prefs.deck === "mix") setDeck(prefs.deck);
       if (typeof prefs.showLevels === "boolean") setShowLevels(prefs.showLevels);
       if (typeof prefs.showVwap === "boolean") setShowVwap(prefs.showVwap);
-      if (typeof prefs.barMode === "boolean") setBarMode(prefs.barMode);
+      if (prefs.guess === "candle" || prefs.guess === "ahead") setBarMode(prefs.guess === "candle");
     } catch {
       /* ignore */
     }
@@ -606,7 +606,7 @@ export function QuizApp() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe, startMode, deck, showLevels, showVwap, barMode }));
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe, startMode, deck, showLevels, showVwap, guess: barMode ? "candle" : "ahead" }));
     } catch {
       /* ignore */
     }
@@ -1026,6 +1026,27 @@ export function QuizApp() {
         ) : (
           <>
             <div className="qz-controls">
+              <div className="pr-toggle qz-mode" role="group" aria-label="What to guess">
+                {[
+                  { candle: true, label: "Next candle" },
+                  { candle: false, label: "5–30 min ahead" },
+                ].map((option) => (
+                  <button
+                    key={option.label}
+                    type="button"
+                    aria-pressed={barMode === option.candle}
+                    onClick={() => {
+                      setBarMode(option.candle);
+                      setReveal(null);
+                      setPicks({});
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="qz-controls">
               <div className="pr-toggle" role="group" aria-label="Days to deal">
                 {DECKS.map((entry) => (
                   <button
@@ -1107,17 +1128,6 @@ export function QuizApp() {
               <div className="pr-toggle" role="group" aria-label="Day">
                 <button type="button" aria-pressed={showLevels} onClick={() => setShowLevels((current) => !current)}>
                   Levels
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={barMode}
-                  onClick={() => {
-                    setBarMode((current) => !current);
-                    setReveal(null);
-                    setPicks({});
-                  }}
-                >
-                  Guess each candle
                 </button>
                 <button type="button" aria-pressed={showVwap} onClick={() => setShowVwap((current) => !current)}>
                   VWAP + bands

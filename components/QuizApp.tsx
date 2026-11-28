@@ -4,15 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 
 /**
  * Direction Quiz: a random TQQQ session from the past year, picked from daily turning points and big trend days.
- * The chart shows the day up to "now"; she calls whether TQQQ will be higher or lower a few minutes later, the next
- * stretch is revealed, and so on until the close. The date stays hidden until the day is over.
+ * The chart shows the day up to "now". For any of the next 5, 15 and 30 minutes she calls Higher, Flat or Lower,
+ * then reveals: every call is scored and the chart moves on to the furthest one. The date shows once the day is over.
  */
 
 type Ohlc = [number, number, number, number];
 type QuizDay = { date: string; symbol: string; kinds: string[]; start: number; bars: Ohlc[]; before: Ohlc[]; day: Ohlc; after: Ohlc[] };
 type QuizIndex = { symbol: string; days: { date: string; kinds: string[] }[] };
 type Timeframe = "1m" | "5m";
-type Guess = "up" | "down";
+type Call = "up" | "flat" | "down";
 type Tally = { answered: number; correct: number };
 type Stats = {
   v: 1;
@@ -21,21 +21,30 @@ type Stats = {
   flat: number;
   byTimeframe: Record<Timeframe, Tally>;
   byHorizon: Record<string, Tally>;
+  byCall?: Partial<Record<Call, Tally>>;
   days: { date: string; kinds: string[]; answered: number; correct: number; at: string }[];
 };
-type Reveal = { guess: Guess | "skip"; from: number; to: number; change: number; pct: number; outcome: "right" | "wrong" | "flat" | "skip" };
+type Result = { horizon: number; call: Call; to: number; change: number; pct: number; actual: Call; right: boolean };
+type Reveal = { from: number; to: number; results: Result[]; skipped: boolean };
 
 const STATS_KEY = "snc-quiz:v1";
 const PREFS_KEY = "snc-quiz-prefs:v1";
 const HORIZONS = [5, 15, 30];
-/** Moves smaller than this (0.05%) count as flat: neither right nor wrong. */
-const FLAT = 0.0005;
-/** How much of the day is shown before the first question. */
+/** Within ±0.15% of the price now counts as Flat; beyond it, Higher or Lower. */
+const FLAT = 0.0015;
+/** How much of the day is shown before the first call. */
 const WARMUP = 15;
+const SKIP = 15;
 const SESSION = 390;
+const CALLS: { call: Call; label: string; cls: string }[] = [
+  { call: "up", label: "▲ Higher", cls: "qz-pick-up" },
+  { call: "flat", label: "— Flat", cls: "qz-pick-flat" },
+  { call: "down", label: "▼ Lower", cls: "qz-pick-down" },
+];
+const CALL_WORD: Record<Call, string> = { up: "Higher", flat: "Flat", down: "Lower" };
 
 function emptyStats(): Stats {
-  return { v: 1, answered: 0, correct: 0, flat: 0, byTimeframe: { "1m": { answered: 0, correct: 0 }, "5m": { answered: 0, correct: 0 } }, byHorizon: {}, days: [] };
+  return { v: 1, answered: 0, correct: 0, flat: 0, byTimeframe: { "1m": { answered: 0, correct: 0 }, "5m": { answered: 0, correct: 0 } }, byHorizon: {}, byCall: {}, days: [] };
 }
 
 function loadStats(): Stats {
@@ -54,6 +63,10 @@ function saveStats(stats: Stats) {
   } catch {
     /* ignore */
   }
+}
+
+function bump(tally: Tally | undefined, hit: number): Tally {
+  return { answered: (tally?.answered ?? 0) + 1, correct: (tally?.correct ?? 0) + hit };
 }
 
 function clock(minute: number): string {
@@ -97,19 +110,20 @@ export function QuizApp() {
   const [index, setIndex] = useState<QuizIndex | null>(null);
   const [day, setDay] = useState<QuizDay | null>(null);
   const [cursor, setCursor] = useState(WARMUP);
+  const [picks, setPicks] = useState<Partial<Record<number, Call>>>({});
   const [reveal, setReveal] = useState<Reveal | null>(null);
   const [score, setScore] = useState<Tally>({ answered: 0, correct: 0 });
   const [stats, setStats] = useState<Stats | null>(null);
   const [timeframe, setTimeframe] = useState<Timeframe>("5m");
-  const [horizon, setHorizon] = useState(15);
+  /** The row the keyboard's ↑ / F / ↓ keys fill in. */
+  const [keyRow, setKeyRow] = useState(15);
   const [error, setError] = useState("");
 
   useEffect(() => {
     setStats(loadStats());
     try {
-      const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}") as { timeframe?: Timeframe; horizon?: number };
+      const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}") as { timeframe?: Timeframe };
       if (prefs.timeframe === "1m" || prefs.timeframe === "5m") setTimeframe(prefs.timeframe);
-      if (prefs.horizon && HORIZONS.includes(prefs.horizon)) setHorizon(prefs.horizon);
     } catch {
       /* ignore */
     }
@@ -121,28 +135,32 @@ export function QuizApp() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe, horizon }));
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe }));
     } catch {
       /* ignore */
     }
-  }, [timeframe, horizon]);
+  }, [timeframe]);
+
+  function startDay(next: QuizDay) {
+    setDay(next);
+    setCursor(WARMUP);
+    setPicks({});
+    setReveal(null);
+    setScore({ answered: 0, correct: 0 });
+    setError("");
+  }
 
   async function newDay() {
     if (!index || index.days.length === 0) return;
     // Prefer days not played recently.
     const recent = new Set((stats?.days ?? []).slice(-Math.min(30, index.days.length - 1)).map((entry) => entry.date));
-    const pool = index.days.filter((entry) => !recent.has(entry.date));
+    const pool = index.days.filter((entry) => !recent.has(entry.date) && entry.date !== day?.date);
     const choices = pool.length ? pool : index.days;
     const pick = choices[Math.floor(Math.random() * choices.length)];
     try {
       const response = await fetch(`/quiz/${pick.date}.json`);
       if (!response.ok) throw new Error(String(response.status));
-      const body = (await response.json()) as QuizDay;
-      setDay(body);
-      setCursor(WARMUP);
-      setReveal(null);
-      setScore({ answered: 0, correct: 0 });
-      setError("");
+      startDay((await response.json()) as QuizDay);
     } catch {
       setError("Couldn’t load that day. Try again.");
     }
@@ -154,49 +172,63 @@ export function QuizApp() {
   }, [index]);
 
   const total = day?.bars.length ?? SESSION;
-  const done = !!day && cursor >= total && !!reveal;
-  const nextTo = Math.min(cursor + horizon, total);
+  const done = !!day && cursor >= total;
+  const open = HORIZONS.filter((horizon) => cursor + horizon <= total);
+  const chosen = open.filter((horizon) => picks[horizon]);
+  const furthest = chosen.length ? Math.max(...chosen) : SKIP;
+  const priceNow = day ? day.bars[Math.min(cursor, total) - 1][3] : 0;
 
-  function answer(guess: Guess | "skip") {
-    if (!day || reveal || cursor >= total) return;
+  function choose(horizon: number, call: Call) {
+    if (reveal || !open.includes(horizon)) return;
+    setKeyRow(horizon);
+    setPicks((current) => ({ ...current, [horizon]: current[horizon] === call ? undefined : call }));
+  }
+
+  function lockIn() {
+    if (!day || reveal || done || chosen.length === 0) return;
     const from = cursor;
-    const to = nextTo;
-    const startPrice = day.bars[from - 1][3];
-    const change = day.bars[to - 1][3] - startPrice;
-    const rate = change / startPrice;
-    const outcome: Reveal["outcome"] =
-      guess === "skip" ? "skip" : Math.abs(rate) < FLAT ? "flat" : (rate > 0) === (guess === "up") ? "right" : "wrong";
-    setReveal({ guess, from, to, change, pct: rate, outcome });
+    const start = day.bars[from - 1][3];
+    const results: Result[] = chosen.map((horizon) => {
+      const to = from + horizon;
+      const change = day.bars[to - 1][3] - start;
+      const rate = change / start;
+      const actual: Call = rate > FLAT ? "up" : rate < -FLAT ? "down" : "flat";
+      const call = picks[horizon]!;
+      return { horizon, call, to, change, pct: rate, actual, right: call === actual };
+    });
+    const to = from + Math.max(...chosen);
+    setReveal({ from, to, results, skipped: false });
     setCursor(to);
-    if (outcome === "right" || outcome === "wrong") {
-      const hit = outcome === "right" ? 1 : 0;
-      setScore((current) => ({ answered: current.answered + 1, correct: current.correct + hit }));
-      setStats((current) => {
-        const base = current ?? emptyStats();
-        const key = String(to - from);
-        const next: Stats = {
-          ...base,
-          answered: base.answered + 1,
-          correct: base.correct + hit,
-          byTimeframe: { ...base.byTimeframe, [timeframe]: { answered: base.byTimeframe[timeframe].answered + 1, correct: base.byTimeframe[timeframe].correct + hit } },
-          byHorizon: { ...base.byHorizon, [key]: { answered: (base.byHorizon[key]?.answered ?? 0) + 1, correct: (base.byHorizon[key]?.correct ?? 0) + hit } },
-        };
-        saveStats(next);
-        return next;
-      });
-    } else if (outcome === "flat") {
-      setStats((current) => {
-        const base = current ?? emptyStats();
-        const next = { ...base, flat: base.flat + 1 };
-        saveStats(next);
-        return next;
-      });
-    }
+    setPicks({});
+    const hits = results.filter((result) => result.right).length;
+    setScore((current) => ({ answered: current.answered + results.length, correct: current.correct + hits }));
+    setStats((current) => {
+      const base = current ?? emptyStats();
+      const next: Stats = { ...base, byHorizon: { ...base.byHorizon }, byCall: { ...(base.byCall ?? {}) }, byTimeframe: { ...base.byTimeframe } };
+      for (const result of results) {
+        const hit = result.right ? 1 : 0;
+        next.answered += 1;
+        next.correct += hit;
+        next.byTimeframe[timeframe] = bump(next.byTimeframe[timeframe], hit);
+        next.byHorizon[String(result.horizon)] = bump(next.byHorizon[String(result.horizon)], hit);
+        next.byCall![result.call] = bump(next.byCall![result.call], hit);
+      }
+      saveStats(next);
+      return next;
+    });
+  }
+
+  function skip() {
+    if (!day || reveal || done) return;
+    const to = Math.min(cursor + SKIP, total);
+    setReveal({ from: cursor, to, results: [], skipped: true });
+    setCursor(to);
+    setPicks({});
   }
 
   function goOn() {
     if (!day) return;
-    if (cursor >= total) {
+    if (done) {
       // Record the finished day once, then deal another.
       setStats((current) => {
         const base = current ?? emptyStats();
@@ -210,16 +242,24 @@ export function QuizApp() {
     setReveal(null);
   }
 
+  /** Play the same day again from 9:45. Calls already scored stay in the all-time numbers. */
+  function restartDay() {
+    if (day) startDay(day);
+  }
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey || event.repeat) return;
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
       const key = event.key.toLowerCase();
-      if (!reveal) {
-        if (key === "arrowup" || key === "h") answer("up");
-        else if (key === "arrowdown" || key === "l") answer("down");
-        else if (key === "s") answer("skip");
+      if (!reveal && !done) {
+        if (key === "1" || key === "2" || key === "3") setKeyRow(HORIZONS[Number(key) - 1]);
+        else if (key === "arrowup" || key === "h") choose(keyRow, "up");
+        else if (key === "f") choose(keyRow, "flat");
+        else if (key === "arrowdown" || key === "l") choose(keyRow, "down");
+        else if (key === "enter" || key === " ") lockIn();
+        else if (key === "s") skip();
         else return;
       } else if (key === "enter" || key === " " || key === "arrowright" || key === "n") {
         goOn();
@@ -235,6 +275,8 @@ export function QuizApp() {
     saveStats(fresh);
     setStats(fresh);
   }
+
+  const rightNow = reveal ? reveal.results.filter((result) => result.right).length : 0;
 
   return (
     <div className="shell qz-shell">
@@ -261,8 +303,9 @@ export function QuizApp() {
           <div>
             <h2>Direction quiz</h2>
             <p className="qz-note">
-              A random {index?.symbol ?? "TQQQ"} day from the past year: daily turning points and big trend days. Call whether it’s higher or lower
-              {` ${horizon} minutes`} from now, all day long. The date shows when the day is over.
+              A random {index?.symbol ?? "TQQQ"} day from the past year: daily turning points and big trend days. From “now”, call where it’ll be 5, 15
+              and 30 minutes later: higher, flat (within ±{(FLAT * 100).toFixed(2)}%) or lower. Make one call or all three, then reveal. The date shows
+              when the day is over.
             </p>
           </div>
           <dl className="qz-stats">
@@ -287,12 +330,13 @@ export function QuizApp() {
               </button>
             ))}
           </div>
-          <div className="pr-toggle" role="group" aria-label="Call how far ahead">
-            {HORIZONS.map((value) => (
-              <button key={value} type="button" aria-pressed={horizon === value} onClick={() => setHorizon(value)} disabled={!!reveal && !done}>
-                {value} min ahead
-              </button>
-            ))}
+          <div className="pr-toggle" role="group" aria-label="Day">
+            <button type="button" onClick={restartDay} disabled={!day}>
+              Restart this day
+            </button>
+            <button type="button" onClick={() => void newDay()} disabled={!index}>
+              New day
+            </button>
           </div>
         </div>
 
@@ -300,58 +344,79 @@ export function QuizApp() {
         {!day ? <p className="qz-note">Loading a day…</p> : null}
 
         <div className="qz-board">
-        <div className="qz-charts">
-        {day ? (
-          <>
-            <DailyContext day={day} done={done} />
-            <IntradayChart day={day} cursor={cursor} timeframe={timeframe} horizon={horizon} reveal={reveal} />
-            <div className="qz-now">
-              <strong>{clock(Math.min(cursor, total))}</strong>
-              <span>
-                {day.symbol} ${day.bars[Math.min(cursor, total) - 1][3].toFixed(2)} · day {signedPct(day.bars[Math.min(cursor, total) - 1][3] / day.before[day.before.length - 1][3] - 1)} vs prior close
-              </span>
-            </div>
-          </>
-        ) : null}
-        </div>
-        <div className="qz-side">
-        {day ? (
-          <>
-            {!reveal ? (
-              <div className="qz-ask">
-                <p className="qz-q">
-                  Higher or lower at <b>{clock(nextTo)}</b>?
-                </p>
-                <div className="qz-buttons">
-                  <button type="button" className="qz-up" onClick={() => answer("up")}>
-                    ▲ Higher
-                  </button>
-                  <button type="button" className="qz-down" onClick={() => answer("down")}>
-                    ▼ Lower
-                  </button>
+          <div className="qz-charts">
+            {day ? (
+              <>
+                <DailyContext day={day} done={done} />
+                <IntradayChart day={day} cursor={cursor} timeframe={timeframe} ahead={reveal ? 0 : furthest} reveal={reveal} />
+                <div className="qz-now">
+                  <strong>{clock(Math.min(cursor, total))}</strong>
+                  <span>
+                    {day.symbol} ${priceNow.toFixed(2)} · day {signedPct(priceNow / day.before[day.before.length - 1][3] - 1)} vs prior close
+                  </span>
                 </div>
-                <button type="button" className="text-btn qz-skip" onClick={() => answer("skip")}>
-                  Skip this one
-                </button>
-                <p className="qz-keys">Keys: ↑ higher · ↓ lower · S skip</p>
-              </div>
-            ) : (
-              <div className={`qz-result qz-${reveal.outcome}`}>
-                <p className="qz-q">
-                  {reveal.outcome === "right"
-                    ? "✓ Right"
-                    : reveal.outcome === "wrong"
-                      ? "✗ Wrong"
-                      : reveal.outcome === "flat"
-                        ? "Flat, not counted"
-                        : "Skipped"}
-                  {` · ${clock(reveal.from)} → ${clock(reveal.to)}: ${signedCents(reveal.change)} (${signedPct(reveal.pct)})`}
+              </>
+            ) : null}
+          </div>
+          <div className="qz-side">
+            {day && !reveal && !done ? (
+              <div className="qz-ask">
+                <p className="qz-q">Where will {day.symbol} be?</p>
+                <p className="qz-note">
+                  Flat = within ±${(priceNow * FLAT).toFixed(2)} of ${priceNow.toFixed(2)}.
                 </p>
+                {HORIZONS.map((horizon) => {
+                  const available = open.includes(horizon);
+                  return (
+                    <div key={horizon} className={keyRow === horizon ? "qz-row qz-row-key" : "qz-row"}>
+                      <p className="qz-row-label">
+                        <b>{horizon} min</b> · {available ? clock(cursor + horizon) : "after the close"}
+                      </p>
+                      <div className="qz-picks" role="group" aria-label={`${horizon} minutes ahead`}>
+                        {CALLS.map(({ call, label, cls }) => (
+                          <button
+                            key={call}
+                            type="button"
+                            className={`qz-pick ${cls}`}
+                            aria-pressed={picks[horizon] === call}
+                            disabled={!available}
+                            onClick={() => choose(horizon, call)}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+                <button type="button" className="qz-next" disabled={chosen.length === 0} onClick={lockIn}>
+                  {chosen.length === 0 ? "Make a call to reveal" : `Reveal ${chosen.length} call${chosen.length === 1 ? "" : "s"} (to ${clock(cursor + furthest)})`}
+                </button>
+                <button type="button" className="text-btn qz-skip" onClick={skip}>
+                  Skip {SKIP} min
+                </button>
+                <p className="qz-keys">Keys: 1 2 3 pick a row · ↑ higher · F flat · ↓ lower · Enter reveal · S skip</p>
+              </div>
+            ) : null}
+            {day && reveal ? (
+              <div className={`qz-result ${reveal.skipped ? "" : rightNow === reveal.results.length ? "qz-right" : rightNow === 0 ? "qz-wrong" : ""}`}>
+                <p className="qz-q">
+                  {reveal.skipped
+                    ? `Skipped to ${clock(reveal.to)}`
+                    : `${rightNow} of ${reveal.results.length} right`}
+                </p>
+                {reveal.results.map((result) => (
+                  <p key={result.horizon} className={result.right ? "qz-line qz-line-right" : "qz-line qz-line-wrong"}>
+                    {result.right ? "✓" : "✗"} <b>{result.horizon} min</b> ({clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]}{" "}
+                    {signedCents(result.change)} ({signedPct(result.pct)})
+                  </p>
+                ))}
                 {done ? (
                   <div className="qz-done">
                     <h3>{prettyDate(day.date)}</h3>
                     <p className="qz-note">
-                      {day.kinds.join(" · ")} on the daily chart. You were {score.answered ? pct(score.correct / score.answered) : "—"} right ({score.correct} of {score.answered}).
+                      {day.kinds.join(" · ")} on the daily chart. You were {score.answered ? pct(score.correct / score.answered) : "—"} right ({score.correct} of{" "}
+                      {score.answered}).
                     </p>
                   </div>
                 ) : null}
@@ -360,38 +425,45 @@ export function QuizApp() {
                 </button>
                 <p className="qz-keys">Key: Enter or Space for {done ? "the next day" : "the next call"}</p>
               </div>
-            )}
-          </>
-        ) : null}
+            ) : null}
 
-        {stats && stats.answered ? (
-          <section className="qz-breakdown">
-            <h3>Your accuracy</h3>
-            <ul>
-              {(["1m", "5m"] as Timeframe[]).map((value) =>
-                stats.byTimeframe[value].answered ? (
-                  <li key={value}>
-                    {value === "1m" ? "1-min chart" : "5-min chart"}: {pct(stats.byTimeframe[value].correct / stats.byTimeframe[value].answered)} of {stats.byTimeframe[value].answered}
-                  </li>
-                ) : null,
-              )}
-              {Object.entries(stats.byHorizon)
-                .filter(([key]) => HORIZONS.includes(Number(key)))
-                .sort(([a], [b]) => Number(a) - Number(b))
-                .map(([key, tally]) => (
-                  <li key={key}>
-                    {key} min ahead: {pct(tally.correct / tally.answered)} of {tally.answered}
-                  </li>
-                ))}
-              <li>Days finished: {stats.days.length}</li>
-            </ul>
-            <p className="qz-note">50% is a coin flip. Moves under 0.05% count as flat and aren’t scored.</p>
-            <button type="button" className="text-btn" onClick={resetStats}>
-              Reset accuracy
-            </button>
-          </section>
-        ) : null}
-        </div>
+            {stats && stats.answered ? (
+              <section className="qz-breakdown">
+                <h3>Your accuracy</h3>
+                <ul>
+                  {(["1m", "5m"] as Timeframe[]).map((value) =>
+                    stats.byTimeframe[value].answered ? (
+                      <li key={value}>
+                        {value === "1m" ? "1-min chart" : "5-min chart"}: {pct(stats.byTimeframe[value].correct / stats.byTimeframe[value].answered)} of{" "}
+                        {stats.byTimeframe[value].answered}
+                      </li>
+                    ) : null,
+                  )}
+                  {HORIZONS.filter((horizon) => stats.byHorizon[String(horizon)]?.answered).map((horizon) => {
+                    const tally = stats.byHorizon[String(horizon)];
+                    return (
+                      <li key={horizon}>
+                        {horizon} min ahead: {pct(tally.correct / tally.answered)} of {tally.answered}
+                      </li>
+                    );
+                  })}
+                  {CALLS.filter(({ call }) => stats.byCall?.[call]?.answered).map(({ call }) => {
+                    const tally = stats.byCall![call]!;
+                    return (
+                      <li key={call}>
+                        When you said {CALL_WORD[call]}: {pct(tally.correct / tally.answered)} of {tally.answered}
+                      </li>
+                    );
+                  })}
+                  <li>Days finished: {stats.days.length}</li>
+                </ul>
+                <p className="qz-note">With three choices, guessing at random gets about 33%.</p>
+                <button type="button" className="text-btn" onClick={resetStats}>
+                  Reset accuracy
+                </button>
+              </section>
+            ) : null}
+          </div>
         </div>
       </main>
     </div>
@@ -420,7 +492,7 @@ function Candles({ bars, x, y, width }: { bars: Ohlc[]; x: (i: number) => number
   );
 }
 
-function IntradayChart({ day, cursor, timeframe, horizon, reveal }: { day: QuizDay; cursor: number; timeframe: Timeframe; horizon: number; reveal: Reveal | null }) {
+function IntradayChart({ day, cursor, timeframe, ahead, reveal }: { day: QuizDay; cursor: number; timeframe: Timeframe; ahead: number; reveal: Reveal | null }) {
   const H = 420;
   const top = 16;
   const bottom = 44;
@@ -435,11 +507,11 @@ function IntradayChart({ day, cursor, timeframe, horizon, reveal }: { day: QuizD
       const slots = Math.ceil(SESSION / 5);
       return { bars, slots, firstMinute: 0, per: 5 };
     }
-    // 1-minute: the last 90 minutes plus room for the next call.
+    // 1-minute: the last 90 minutes plus room for the furthest call (30 minutes).
     const window = 90;
     const first = Math.max(0, shown.length - window);
-    return { bars: shown.slice(first), slots: window + horizon, firstMinute: first, per: 1 };
-  }, [shown, timeframe, horizon]);
+    return { bars: shown.slice(first), slots: window + 30, firstMinute: first, per: 1 };
+  }, [shown, timeframe]);
 
   const prices = view.bars.flatMap((bar) => [bar[1], bar[2]]);
   let min = Math.min(...prices, priorClose);
@@ -458,7 +530,7 @@ function IntradayChart({ day, cursor, timeframe, horizon, reveal }: { day: QuizD
   const y = (price: number) => top + ((max - price) / (max - min)) * (H - top - bottom);
   const width = Math.max(1.5, Math.min(14, step * 0.6));
   const nowX = step * view.bars.length;
-  const aheadW = Math.min(plotW - nowX, (horizon / view.per) * step);
+  const aheadW = Math.min(plotW - nowX, (ahead / view.per) * step);
   const ticks = Array.from({ length: 4 }, (_, i) => min + ((i + 0.5) * (max - min)) / 4);
   const timeMarks: number[] = [];
   for (let minute = 0; minute <= SESSION; minute += timeframe === "5m" ? 60 : 30) {
@@ -466,12 +538,12 @@ function IntradayChart({ day, cursor, timeframe, horizon, reveal }: { day: QuizD
     if (slot >= 0 && slot <= view.slots) timeMarks.push(minute);
   }
   const showPrior = priorClose >= min && priorClose <= max;
-  const answerFrom = reveal && reveal.guess !== "skip" ? reveal.from : null;
+  const xAt = (minute: number) => ((minute - view.firstMinute) / view.per) * step;
 
   return (
     <figure className="qz-chart">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${day.symbol} ${timeframe === "5m" ? "5-minute" : "1-minute"} chart up to ${clock(Math.min(cursor, total))}`}>
-        {!reveal && cursor < total ? <rect className="qz-ahead" x={nowX} y={top} width={Math.max(0, aheadW)} height={H - top - bottom} /> : null}
+        {!reveal && cursor < total && ahead > 0 ? <rect className="qz-ahead" x={nowX} y={top} width={Math.max(0, aheadW)} height={H - top - bottom} /> : null}
         {ticks.map((tick) => (
           <g key={tick}>
             <line className="qz-grid" x1={0} x2={plotW} y1={y(tick)} y2={y(tick)} />
@@ -500,15 +572,20 @@ function IntradayChart({ day, cursor, timeframe, horizon, reveal }: { day: QuizD
           </g>
         ) : null}
         <Candles bars={view.bars} x={x} y={y} width={width} />
-        {answerFrom !== null && reveal ? (
-          <line
-            className={reveal.outcome === "right" ? "qz-move-right" : reveal.outcome === "wrong" ? "qz-move-wrong" : "qz-move-flat"}
-            x1={((answerFrom - view.firstMinute) / view.per) * step}
-            x2={((reveal.to - view.firstMinute) / view.per) * step}
-            y1={y(day.bars[answerFrom - 1][3])}
-            y2={y(day.bars[reveal.to - 1][3])}
-          />
-        ) : null}
+        {reveal
+          ? reveal.results.map((result) => (
+              <g key={result.horizon}>
+                <line
+                  className={result.right ? "qz-move-right" : "qz-move-wrong"}
+                  x1={xAt(reveal.from)}
+                  x2={xAt(result.to)}
+                  y1={y(day.bars[reveal.from - 1][3])}
+                  y2={y(day.bars[result.to - 1][3])}
+                />
+                <circle className={result.right ? "qz-dot-right" : "qz-dot-wrong"} cx={xAt(result.to)} cy={y(day.bars[result.to - 1][3])} r={6} />
+              </g>
+            ))
+          : null}
         <line className="qz-nowline" x1={nowX} x2={nowX} y1={top} y2={H - bottom} />
       </svg>
     </figure>

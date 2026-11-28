@@ -24,8 +24,9 @@ type Stats = {
   byCall?: Partial<Record<Call, Tally>>;
   days: { date: string; kinds: string[]; answered: number; correct: number; at: string }[];
 };
-type Result = { horizon: number; call: Call; to: number; change: number; pct: number; actual: Call; right: boolean };
-type Reveal = { from: number; to: number; results: Result[]; skipped: boolean };
+type Result = { horizon: number; call: Call; to: number; change: number; pct: number; actual: Call; right: boolean; why: string[] };
+type Reveal = { from: number; to: number; results: Result[]; skipped: boolean; clue: string };
+type StartMode = "open" | "random";
 
 const STATS_KEY = "snc-quiz:v1";
 const PREFS_KEY = "snc-quiz-prefs:v1";
@@ -106,6 +107,101 @@ function aggregate(bars: Ohlc[], size: number): Ohlc[] {
   return out;
 }
 
+function money(value: number): string {
+  return `$${value.toFixed(2)}`;
+}
+
+function cents(value: number): string {
+  return `${Math.round(Math.abs(value) * 100)}¢`;
+}
+
+type Level = { name: string; price: number };
+
+/** The levels a trader would have marked by this minute: the prior close and, after 9:35, the opening range. */
+function levelsAt(day: QuizDay, from: number): Level[] {
+  const levels: Level[] = [{ name: "the prior close", price: day.before[day.before.length - 1][3] }];
+  if (from >= 5) {
+    const range = day.bars.slice(0, 5);
+    levels.push({ name: "the 9:30–9:35 high", price: Math.max(...range.map((bar) => bar[1])) });
+    levels.push({ name: "the 9:30–9:35 low", price: Math.min(...range.map((bar) => bar[2])) });
+  }
+  return levels;
+}
+
+/** What the chart showed at the moment of the call. */
+function describeSetup(day: QuizDay, from: number): string {
+  const now = day.bars[from - 1][3];
+  const earlier = from > 15 ? day.bars[from - 16][3] : day.bars[0][0];
+  const trend = now / earlier - 1;
+  const trendText =
+    Math.abs(trend) <= FLAT ? `flat over the last ${Math.min(15, from)} min` : `${trend > 0 ? "up" : "down"} ${signedPct(trend).replace(/^[+-]/, "")} over the last ${Math.min(15, from)} min`;
+  const prior = day.before[day.before.length - 1][3];
+  const priorText = `${now >= prior ? "above" : "below"} the prior close (${money(prior)})`;
+  let rangeText = "";
+  if (from >= 5) {
+    const range = day.bars.slice(0, 5);
+    const high = Math.max(...range.map((bar) => bar[1]));
+    const low = Math.min(...range.map((bar) => bar[2]));
+    rangeText = now > high ? `, above the 9:30–9:35 range (${money(low)}–${money(high)})` : now < low ? `, below the 9:30–9:35 range (${money(low)}–${money(high)})` : `, inside the 9:30–9:35 range (${money(low)}–${money(high)})`;
+  }
+  const sofar = day.bars.slice(0, from);
+  const high = Math.max(...sofar.map((bar) => bar[1]));
+  const low = Math.min(...sofar.map((bar) => bar[2]));
+  const extreme =
+    high - now <= 0.03 ? "right at the day’s high" : now - low <= 0.03 ? "right at the day’s low" : high - now < now - low ? `${cents(high - now)} under the day’s high` : `${cents(now - low)} above the day’s low`;
+  return `At ${clock(from)}: ${trendText}, ${priorText}${rangeText}, ${extreme}.`;
+}
+
+/** What price did between the call and its time: levels broken, new highs or lows, or a tight range. */
+function describeMove(day: QuizDay, from: number, to: number): string[] {
+  const events: string[] = [];
+  const levels = levelsAt(day, from);
+  const sofar = day.bars.slice(0, from);
+  let high = Math.max(...sofar.map((bar) => bar[1]));
+  let low = Math.min(...sofar.map((bar) => bar[2]));
+  let newHigh = false;
+  let newLow = false;
+  const crossed = new Set<string>();
+  let previous = day.bars[from - 1][3];
+  for (let minute = from; minute < to; minute += 1) {
+    const [, h, l, c] = day.bars[minute];
+    if (!newHigh && h > high + 0.005) {
+      events.push(`made a new high of the day at ${clock(minute)} (${money(h)})`);
+      newHigh = true;
+    }
+    if (!newLow && l < low - 0.005) {
+      events.push(`made a new low of the day at ${clock(minute)} (${money(l)})`);
+      newLow = true;
+    }
+    high = Math.max(high, h);
+    low = Math.min(low, l);
+    for (const level of levels) {
+      if (crossed.has(level.name)) continue;
+      if (previous < level.price && c > level.price) {
+        events.push(`closed above ${level.name} (${money(level.price)}) at ${clock(minute)}`);
+        crossed.add(level.name);
+      } else if (previous > level.price && c < level.price) {
+        events.push(`closed below ${level.name} (${money(level.price)}) at ${clock(minute)}`);
+        crossed.add(level.name);
+      } else if (previous < level.price && h >= level.price - 0.03 && c < level.price - 0.03) {
+        events.push(`tested ${level.name} (${money(level.price)}) at ${clock(minute)} and was turned back`);
+        crossed.add(level.name);
+      } else if (previous > level.price && l <= level.price + 0.03 && c > level.price + 0.03) {
+        events.push(`dipped to ${level.name} (${money(level.price)}) at ${clock(minute)} and held`);
+        crossed.add(level.name);
+      }
+    }
+    previous = c;
+  }
+  const window = day.bars.slice(from, to);
+  const top = Math.max(...window.map((bar) => bar[1]));
+  const bottom = Math.min(...window.map((bar) => bar[2]));
+  const out = events.slice(0, 3);
+  if (out.length === 0) out.push(`stayed in a ${cents(top - bottom)} range (${money(bottom)}–${money(top)}) without breaking a key level`);
+  out.push(`finished at ${money(day.bars[to - 1][3])}`);
+  return out;
+}
+
 export function QuizApp() {
   const [index, setIndex] = useState<QuizIndex | null>(null);
   const [day, setDay] = useState<QuizDay | null>(null);
@@ -117,13 +213,15 @@ export function QuizApp() {
   const [timeframe, setTimeframe] = useState<Timeframe>("5m");
   /** The row the keyboard's ↑ / F / ↓ keys fill in. */
   const [keyRow, setKeyRow] = useState(15);
+  const [startMode, setStartMode] = useState<StartMode>("open");
   const [error, setError] = useState("");
 
   useEffect(() => {
     setStats(loadStats());
     try {
-      const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}") as { timeframe?: Timeframe };
+      const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}") as { timeframe?: Timeframe; startMode?: StartMode };
       if (prefs.timeframe === "1m" || prefs.timeframe === "5m") setTimeframe(prefs.timeframe);
+      if (prefs.startMode === "open" || prefs.startMode === "random") setStartMode(prefs.startMode);
     } catch {
       /* ignore */
     }
@@ -135,15 +233,22 @@ export function QuizApp() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe }));
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe, startMode }));
     } catch {
       /* ignore */
     }
-  }, [timeframe]);
+  }, [timeframe, startMode]);
+
+  /** 9:45, or with Random time any 5-minute mark from 10:00 to 3:30, so there's always 30 minutes left to call. */
+  function startAt(next: QuizDay): number {
+    if (startMode === "open") return WARMUP;
+    const slots = Math.max(1, Math.floor((next.bars.length - 30 - 30) / 5) + 1);
+    return 30 + 5 * Math.floor(Math.random() * slots);
+  }
 
   function startDay(next: QuizDay) {
     setDay(next);
-    setCursor(WARMUP);
+    setCursor(startAt(next));
     setPicks({});
     setReveal(null);
     setScore({ answered: 0, correct: 0 });
@@ -194,10 +299,10 @@ export function QuizApp() {
       const rate = change / start;
       const actual: Call = rate > FLAT ? "up" : rate < -FLAT ? "down" : "flat";
       const call = picks[horizon]!;
-      return { horizon, call, to, change, pct: rate, actual, right: call === actual };
+      return { horizon, call, to, change, pct: rate, actual, right: call === actual, why: describeMove(day, from, to) };
     });
     const to = from + Math.max(...chosen);
-    setReveal({ from, to, results, skipped: false });
+    setReveal({ from, to, results, skipped: false, clue: describeSetup(day, from) });
     setCursor(to);
     setPicks({});
     const hits = results.filter((result) => result.right).length;
@@ -221,7 +326,7 @@ export function QuizApp() {
   function skip() {
     if (!day || reveal || done) return;
     const to = Math.min(cursor + SKIP, total);
-    setReveal({ from: cursor, to, results: [], skipped: true });
+    setReveal({ from: cursor, to, results: [], skipped: true, clue: "" });
     setCursor(to);
     setPicks({});
   }
@@ -242,7 +347,7 @@ export function QuizApp() {
     setReveal(null);
   }
 
-  /** Play the same day again from 9:45. Calls already scored stay in the all-time numbers. */
+  /** Play the same day again from its start (9:45, or a new random time). Calls already scored stay in the all-time numbers. */
   function restartDay() {
     if (day) startDay(day);
   }
@@ -303,9 +408,9 @@ export function QuizApp() {
           <div>
             <h2>Direction quiz</h2>
             <p className="qz-note">
-              A random {index?.symbol ?? "TQQQ"} day from the past year: daily turning points and big trend days. From “now”, call where it’ll be 5, 15
-              and 30 minutes later: higher, flat (within ±{(FLAT * 100).toFixed(2)}%) or lower. Make one call or all three, then reveal. The date shows
-              when the day is over.
+              A random {index?.symbol ?? "TQQQ"} day from the past year: daily turning points and big trend days. It runs all day, 9:30 to 4:00. From
+              “now”, call where it’ll be 5, 15 and 30 minutes later: higher, flat (within ±{(FLAT * 100).toFixed(2)}%) or lower. Make one call or all three,
+              then reveal. The date shows when the day is over.
             </p>
           </div>
           <dl className="qz-stats">
@@ -329,6 +434,14 @@ export function QuizApp() {
                 {value === "1m" ? "1 min" : "5 min"}
               </button>
             ))}
+          </div>
+          <div className="pr-toggle" role="group" aria-label="Start each day at">
+            <button type="button" aria-pressed={startMode === "open"} onClick={() => setStartMode("open")}>
+              Start 9:45
+            </button>
+            <button type="button" aria-pressed={startMode === "random"} onClick={() => setStartMode("random")}>
+              Start at a random time
+            </button>
           </div>
           <div className="pr-toggle" role="group" aria-label="Day">
             <button type="button" onClick={restartDay} disabled={!day}>
@@ -370,7 +483,7 @@ export function QuizApp() {
                   return (
                     <div key={horizon} className={keyRow === horizon ? "qz-row qz-row-key" : "qz-row"}>
                       <p className="qz-row-label">
-                        <b>{horizon} min</b> · {available ? clock(cursor + horizon) : "after the close"}
+                        <span className={`qz-tag qz-tag-${horizon}`}>{horizon}m</span> <b>{horizon} min ahead</b> · at {available ? clock(cursor + horizon) : "after the close"}
                       </p>
                       <div className="qz-picks" role="group" aria-label={`${horizon} minutes ahead`}>
                         {CALLS.map(({ call, label, cls }) => (
@@ -390,10 +503,10 @@ export function QuizApp() {
                   );
                 })}
                 <button type="button" className="qz-next" disabled={chosen.length === 0} onClick={lockIn}>
-                  {chosen.length === 0 ? "Make a call to reveal" : `Reveal ${chosen.length} call${chosen.length === 1 ? "" : "s"} (to ${clock(cursor + furthest)})`}
+                  {chosen.length === 0 ? "Reveal my calls (pick one first)" : `Reveal my ${chosen.length} call${chosen.length === 1 ? "" : "s"} (to ${clock(cursor + furthest)})`}
                 </button>
                 <button type="button" className="text-btn qz-skip" onClick={skip}>
-                  Skip {SKIP} min
+                  Skip ahead {SKIP} min (no call)
                 </button>
                 <p className="qz-keys">Keys: 1 2 3 pick a row · ↑ higher · F flat · ↓ lower · Enter reveal · S skip</p>
               </div>
@@ -405,11 +518,16 @@ export function QuizApp() {
                     ? `Skipped to ${clock(reveal.to)}`
                     : `${rightNow} of ${reveal.results.length} right`}
                 </p>
+                {reveal.clue ? <p className="qz-clue">{reveal.clue}</p> : null}
                 {reveal.results.map((result) => (
-                  <p key={result.horizon} className={result.right ? "qz-line qz-line-right" : "qz-line qz-line-wrong"}>
-                    {result.right ? "✓" : "✗"} <b>{result.horizon} min</b> ({clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]}{" "}
-                    {signedCents(result.change)} ({signedPct(result.pct)})
-                  </p>
+                  <div key={result.horizon} className="qz-call">
+                    <p className={result.right ? "qz-line qz-line-right" : "qz-line qz-line-wrong"}>
+                      <span className={`qz-tag qz-tag-${result.horizon}`}>{result.horizon}m</span> {result.right ? "✓" : "✗"} <b>{result.horizon} min</b> (
+                      {clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]} {signedCents(result.change)} (
+                      {signedPct(result.pct)})
+                    </p>
+                    <p className="qz-why">Why: it {result.why.join(", then ")}.</p>
+                  </div>
                 ))}
                 {done ? (
                   <div className="qz-done">
@@ -544,6 +662,16 @@ function IntradayChart({ day, cursor, timeframe, ahead, reveal }: { day: QuizDay
     <figure className="qz-chart">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${day.symbol} ${timeframe === "5m" ? "5-minute" : "1-minute"} chart up to ${clock(Math.min(cursor, total))}`}>
         {!reveal && cursor < total && ahead > 0 ? <rect className="qz-ahead" x={nowX} y={top} width={Math.max(0, aheadW)} height={H - top - bottom} /> : null}
+        {!reveal && cursor < total
+          ? HORIZONS.filter((horizon) => cursor + horizon <= total).map((horizon, i) => (
+              <g key={horizon}>
+                <line className={`qz-mark qz-mark-${horizon}`} x1={xAt(cursor + horizon)} x2={xAt(cursor + horizon)} y1={top} y2={H - bottom} />
+                <text className={`qz-marklabel qz-mark-${horizon}`} x={xAt(cursor + horizon) + 4} y={top + 20 + i * 24}>
+                  {horizon}m
+                </text>
+              </g>
+            ))
+          : null}
         {ticks.map((tick) => (
           <g key={tick}>
             <line className="qz-grid" x1={0} x2={plotW} y1={y(tick)} y2={y(tick)} />
@@ -576,13 +704,20 @@ function IntradayChart({ day, cursor, timeframe, ahead, reveal }: { day: QuizDay
           ? reveal.results.map((result) => (
               <g key={result.horizon}>
                 <line
-                  className={result.right ? "qz-move-right" : "qz-move-wrong"}
+                  className={`qz-move qz-move-${result.horizon}`}
                   x1={xAt(reveal.from)}
                   x2={xAt(result.to)}
                   y1={y(day.bars[reveal.from - 1][3])}
                   y2={y(day.bars[result.to - 1][3])}
                 />
-                <circle className={result.right ? "qz-dot-right" : "qz-dot-wrong"} cx={xAt(result.to)} cy={y(day.bars[result.to - 1][3])} r={6} />
+                <circle className={`qz-dot-${result.horizon}`} cx={xAt(result.to)} cy={y(day.bars[result.to - 1][3])} r={7} />
+                <text
+                  className={`qz-taglabel qz-dot-${result.horizon}`}
+                  x={xAt(result.to) + 9}
+                  y={y(day.bars[result.to - 1][3]) + 6 + (reveal.results.indexOf(result) - 1) * 22}
+                >
+                  {result.horizon}m {result.right ? "✓" : "✗"}
+                </text>
               </g>
             ))
           : null}

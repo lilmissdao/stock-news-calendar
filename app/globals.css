@@ -1634,6 +1634,30 @@ main { min-width: 0; }
 .qz-line-wrong { color: var(--down); }
 .qz-dot-right { fill: var(--up); }
 .qz-dot-wrong { fill: var(--down); }
+.qz-taglabel { font-size: 20px; font-weight: 700; }
+.qz-move { stroke-width: 3.5; stroke-dasharray: 7 5; }
+.qz-move-5 { stroke: #3d8bd9; }
+.qz-move-15 { stroke: #c08a1e; }
+.qz-move-30 { stroke: #8a63c7; }
+.qz-dot-5 { fill: #3d8bd9; }
+.qz-dot-15 { fill: #c08a1e; }
+.qz-dot-30 { fill: #8a63c7; }
+.qz-mark { stroke-width: 2; stroke-dasharray: 3 5; }
+.qz-marklabel { font-size: 18px; font-weight: 700; }
+line.qz-mark-5 { stroke: #3d8bd9; }
+line.qz-mark-15 { stroke: #c08a1e; }
+line.qz-mark-30 { stroke: #8a63c7; }
+text.qz-mark-5 { fill: #3d8bd9; }
+text.qz-mark-15 { fill: #c08a1e; }
+text.qz-mark-30 { fill: #8a63c7; }
+.qz-tag { display: inline-block; min-width: 34px; padding: 1px 6px; border-radius: 999px; font-size: 12px; font-weight: 700; text-align: center; color: #fff; }
+.qz-tag-5 { background: #3d8bd9; }
+.qz-tag-15 { background: #a8761a; }
+.qz-tag-30 { background: #8a63c7; }
+.qz-clue { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink-soft); }
+.qz-call { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; border-top: 1px solid var(--line); }
+.qz-why { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink-soft); }
+.qz-next:disabled { background: var(--muted); color: var(--ink-soft); opacity: 1; }
 @media (hover: none) { .qz-keys { display: none; } }
 @media (min-width: 1000px) {
   .qz-board { display: grid; grid-template-columns: minmax(0, 1fr) 340px; align-items: start; }

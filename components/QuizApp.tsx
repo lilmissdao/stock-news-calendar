@@ -210,6 +210,26 @@ export function QuizApp() {
     setReveal(null);
   }
 
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey || event.repeat) return;
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+      const key = event.key.toLowerCase();
+      if (!reveal) {
+        if (key === "arrowup" || key === "h") answer("up");
+        else if (key === "arrowdown" || key === "l") answer("down");
+        else if (key === "s") answer("skip");
+        else return;
+      } else if (key === "enter" || key === " " || key === "arrowright" || key === "n") {
+        goOn();
+      } else return;
+      event.preventDefault();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   function resetStats() {
     const fresh = emptyStats();
     saveStats(fresh);
@@ -279,6 +299,8 @@ export function QuizApp() {
         {error ? <p className="qz-error">{error}</p> : null}
         {!day ? <p className="qz-note">Loading a day…</p> : null}
 
+        <div className="qz-board">
+        <div className="qz-charts">
         {day ? (
           <>
             <DailyContext day={day} done={done} />
@@ -289,7 +311,12 @@ export function QuizApp() {
                 {day.symbol} ${day.bars[Math.min(cursor, total) - 1][3].toFixed(2)} · day {signedPct(day.bars[Math.min(cursor, total) - 1][3] / day.before[day.before.length - 1][3] - 1)} vs prior close
               </span>
             </div>
-
+          </>
+        ) : null}
+        </div>
+        <div className="qz-side">
+        {day ? (
+          <>
             {!reveal ? (
               <div className="qz-ask">
                 <p className="qz-q">
@@ -306,6 +333,7 @@ export function QuizApp() {
                 <button type="button" className="text-btn qz-skip" onClick={() => answer("skip")}>
                   Skip this one
                 </button>
+                <p className="qz-keys">Keys: ↑ higher · ↓ lower · S skip</p>
               </div>
             ) : (
               <div className={`qz-result qz-${reveal.outcome}`}>
@@ -330,6 +358,7 @@ export function QuizApp() {
                 <button type="button" className="qz-next" onClick={goOn}>
                   {done ? "Next day" : "Next"}
                 </button>
+                <p className="qz-keys">Key: Enter or Space for {done ? "the next day" : "the next call"}</p>
               </div>
             )}
           </>
@@ -362,6 +391,8 @@ export function QuizApp() {
             </button>
           </section>
         ) : null}
+        </div>
+        </div>
       </main>
     </div>
   );

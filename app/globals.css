@@ -1816,3 +1816,7 @@ text.qz-mark-120 { fill: #d0607a; }
 .qz-bar-mark { font-size: 16px; font-weight: 700; }
 .qz-bar-mark-right { fill: var(--up); }
 .qz-bar-mark-wrong { fill: var(--down); }
+.qz-vol { opacity: 0.55; }
+.qz-vol-up { fill: var(--up); }
+.qz-vol-down { fill: var(--down); }
+.qz-vol-label { font-size: 13px; }

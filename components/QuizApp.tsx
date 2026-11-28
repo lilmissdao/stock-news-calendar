@@ -2154,9 +2154,12 @@ function IntradayChart({
   /** Leave only a little room ahead of "now" (bar by bar has no calls to mark there). */
   compact?: boolean;
 }) {
-  const H = 420;
+  // Volume gets its own strip under the candles, above the time axis.
+  const axis = 44;
+  const volH = day.vol ? 72 : 0;
+  const H = 420 + volH;
   const top = 24;
-  const bottom = 44;
+  const bottom = axis + volH;
   const right = 96;
   const total = day.bars.length;
   const shownCount = Math.min(cursor, total);
@@ -2314,6 +2317,42 @@ function IntradayChart({
             ))
           : null}
         <Candles bars={view.bars} x={x} y={y} width={width} />
+        {volH
+          ? (() => {
+              const vols = view.bars.map((_, i) => {
+                const start = view.firstMinute + i * view.per;
+                return day.vol!.slice(start, Math.min(start + view.per, shownCount)).reduce((sum, value) => sum + value, 0);
+              });
+              const most = Math.max(1, ...vols);
+              const base = H - axis - 4;
+              const room = volH - 14;
+              return (
+                <g>
+                  <line className="qz-grid" x1={0} x2={plotW} y1={base} y2={base} />
+                  <text className="qz-tick qz-vol-label" x={4} y={H - bottom + 18}>
+                    Volume
+                  </text>
+                  <text className="qz-tick qz-vol-label" x={plotW + 8} y={base - room + 10}>
+                    {most >= 1e6 ? `${(most / 1e6).toFixed(1)}M` : `${Math.round(most / 1e3)}k`}
+                  </text>
+                  {vols.map((value, i) => {
+                    const h = Math.max(1, (value / most) * room);
+                    const bar = view.bars[i];
+                    return (
+                      <rect
+                        key={i}
+                        className={bar[3] >= bar[0] ? "qz-vol qz-vol-up" : "qz-vol qz-vol-down"}
+                        x={x(i) - width / 2}
+                        y={base - h}
+                        width={width}
+                        height={h}
+                      />
+                    );
+                  })}
+                </g>
+              );
+            })()
+          : null}
         {held?.map(({ from, result }) => {
           if (from < view.firstMinute) return null;
           const top = Math.max(...day.bars.slice(from, result.to).map((bar) => bar[1]));

@@ -37,6 +37,24 @@ type Setup = {
   kind: string;
 };
 type Dim = keyof Setup;
+/** The chart right before a next-candle guess. */
+type CandleContext = {
+  /** Color of the last candle: up = green, down = red, flat = doji. */
+  prev: Call;
+  /** The last candle's body was at least 1.5× the average of the 10 before it. */
+  big: boolean;
+  /** How many candles in a row (ending with the last one) had the same color. */
+  streak: number;
+  /** A wick at least twice the body: selling at the top (upper) or buying at the bottom (lower). */
+  wick: "upper" | "lower" | "none";
+  vwap: "above" | "below" | "at" | "none";
+  /** The guess against the last candle: same color, the other color, or a doji. */
+  style: "with" | "against" | "flat";
+  /** Minutes per candle (1 or 5). */
+  per: number;
+  /** Minutes after 9:30 the guessed candle starts. */
+  minute: number;
+};
 type CallRecord = {
   date: string;
   minute: number;
@@ -46,6 +64,9 @@ type CallRecord = {
   right: boolean;
   setup: Setup;
   reason?: string;
+  /** "candle" for a next-candle guess, with what the chart looked like right before it. */
+  kind?: "candle";
+  ctx?: CandleContext;
   /** Notes saved later, e.g. an explanation pasted from a chat. */
   note?: string;
   /** The session (one sitting with one quiz day) and when the call was made. */
@@ -88,6 +109,8 @@ type Result = {
   right: boolean;
   why: string[];
   reason: string;
+  /** Next-candle guesses: what the chart looked like right before the guess. */
+  ctx?: CandleContext;
   /** The trend line's prices at the call and at `to`, and its change. */
   line: [number, number];
   trend: number;
@@ -500,6 +523,148 @@ function rebuildReveal(day: QuizDay, from: number, records: CallRecord[], vwap: 
   return { from, to, results, skipped: false, clue: describeSetup(day, from, vwap) };
 }
 
+/** The candle made of the minutes [end - per, end), or null before 9:30. */
+function candleBefore(day: QuizDay, end: number, per: number): Ohlc | null {
+  const start = end - per;
+  if (start < 0) return null;
+  const slice = day.bars.slice(start, end);
+  return [slice[0][0], Math.max(...slice.map((bar) => bar[1])), Math.min(...slice.map((bar) => bar[2])), slice[slice.length - 1][3]];
+}
+
+function colorOf(candle: Ohlc): Call {
+  const rate = candle[3] / candle[0] - 1;
+  return rate > DOJI ? "up" : rate < -DOJI ? "down" : "flat";
+}
+
+function candleContext(day: QuizDay, from: number, per: number, vwap: number[] | null, call: Call): CandleContext {
+  const last = candleBefore(day, from, per);
+  const prev: Call = last ? colorOf(last) : "flat";
+  const body = (candle: Ohlc) => Math.abs(candle[3] - candle[0]);
+  const earlier: Ohlc[] = [];
+  for (let k = 1; k <= 10; k += 1) {
+    const candle = candleBefore(day, from - k * per, per);
+    if (candle) earlier.push(candle);
+  }
+  const average = earlier.length ? earlier.reduce((sum, candle) => sum + body(candle), 0) / earlier.length : 0;
+  let streak = 0;
+  for (let k = 0; prev !== "flat"; k += 1) {
+    const candle = candleBefore(day, from - k * per, per);
+    if (!candle || colorOf(candle) !== prev) break;
+    streak += 1;
+  }
+  let wick: CandleContext["wick"] = "none";
+  if (last) {
+    const upper = last[1] - Math.max(last[0], last[3]);
+    const lower = Math.min(last[0], last[3]) - last[2];
+    const size = Math.max(body(last), last[0] * DOJI);
+    if (upper >= 2 * size && upper > lower) wick = "upper";
+    else if (lower >= 2 * size && lower > upper) wick = "lower";
+  }
+  const price = day.bars[from - 1][3];
+  const level = vwap ? vwap[from - 1] : null;
+  return {
+    prev,
+    big: !!last && average > 0 && body(last) >= 1.5 * average,
+    streak,
+    wick,
+    vwap: level === null ? "none" : Math.abs(price / level - 1) <= 0.001 ? "at" : price > level ? "above" : "below",
+    style: call === "flat" ? "flat" : call === prev ? "with" : "against",
+    per,
+    minute: from,
+  };
+}
+
+const COLOR_WORD: Record<Call, string> = { up: "green", flat: "doji", down: "red" };
+
+/** Next-candle patterns the report card checks, each with what to do about the most common miss. */
+const CANDLE_PATTERNS: { label: string; test: (ctx: CandleContext, call: Call) => boolean; tip: (said: Call, was: Call) => string }[] = [
+  {
+    label: "Calling the same color as the last candle",
+    test: (ctx) => ctx.style === "with",
+    tip: () => "You bet on one more of the same and it turned. After a run, look for a stretch from VWAP, a big candle or a wick before betting on another.",
+  },
+  {
+    label: "Calling a turn (the opposite color)",
+    test: (ctx) => ctx.style === "against",
+    tip: () => "You called a turn and it kept going. Wait for a candle that actually closes the other way, or a long wick, before calling the turn.",
+  },
+  {
+    label: "Calling a doji",
+    test: (_, call) => call === "flat",
+    tip: () => "True dojis are rare. Pick a color unless the last few candles are tiny and overlapping.",
+  },
+  {
+    label: "After a green candle",
+    test: (ctx) => ctx.prev === "up",
+    tip: (said, was) => (said === "up" ? "The green didn’t follow through. Check whether it ran into a level or VWAP band." : `It stayed ${COLOR_WORD[was]}. One green candle often leads to another while price is above VWAP.`),
+  },
+  {
+    label: "After a red candle",
+    test: (ctx) => ctx.prev === "down",
+    tip: (said, was) => (said === "down" ? "The red didn’t follow through. Check whether it was dipping into support or VWAP." : `It went ${COLOR_WORD[was]}. One red candle often leads to another while price is below VWAP.`),
+  },
+  {
+    label: "After a big candle",
+    test: (ctx) => ctx.big,
+    tip: (said, was) =>
+      said !== "flat" && was !== "flat" && said !== was
+        ? "Big candles often pause or give some back, but when they come with volume they can keep running. Look at the volume bar."
+        : "After a big candle, expect the next one to be smaller and less certain.",
+  },
+  {
+    label: "After 3+ candles the same color",
+    test: (ctx) => ctx.streak >= 3,
+    tip: () => "Streaks end eventually, but not on schedule. Look for the first sign of a stall (a wick or a small candle) instead of guessing when.",
+  },
+  {
+    label: "After a long upper wick",
+    test: (ctx) => ctx.wick === "upper",
+    tip: (said) => (said === "up" ? "A long upper wick is selling at the high. Respect it: the next candle is often red." : "The wick didn’t stop buyers this time. Check whether price was still above VWAP."),
+  },
+  {
+    label: "After a long lower wick",
+    test: (ctx) => ctx.wick === "lower",
+    tip: (said) => (said === "down" ? "A long lower wick is buying at the low. Respect it: the next candle is often green." : "The wick didn’t stop sellers this time. Check whether price was still below VWAP."),
+  },
+  {
+    label: "Right at VWAP",
+    test: (ctx) => ctx.vwap === "at",
+    tip: () => "At VWAP, price is deciding between a bounce and a break. Lean with the side it has spent the most time on.",
+  },
+  {
+    label: "Above VWAP",
+    test: (ctx) => ctx.vwap === "above",
+    tip: (said) => (said === "down" ? "Above VWAP, buyers are in control. Red guesses here need a clear rejection." : "Even above VWAP, candles pull back. Watch for stretch to the upper band."),
+  },
+  {
+    label: "Below VWAP",
+    test: (ctx) => ctx.vwap === "below",
+    tip: (said) => (said === "up" ? "Below VWAP, sellers are in control. Green guesses here need a clear bounce." : "Even below VWAP, candles bounce. Watch for stretch to the lower band."),
+  },
+  {
+    label: "The first 15 minutes (9:30–9:45)",
+    test: (ctx) => ctx.minute < 15,
+    tip: () => "The open is the noisiest part of the day. Lean on the opening range and VWAP rather than single candles.",
+  },
+];
+
+type PatternRow = { label: string; tally: Tally; said: Call | null; was: Call | null; missCount: number; misses: number; tip: string };
+
+/** How next-candle guesses go in each pattern, weakest first. */
+function candlePatterns(guesses: CallRecord[]): PatternRow[] {
+  return CANDLE_PATTERNS.map((pattern) => {
+    const mine = guesses.filter((record) => record.ctx && pattern.test(record.ctx, record.call));
+    const wrong = mine.filter((record) => !record.right);
+    const counts = new Map<string, number>();
+    for (const record of wrong) counts.set(`${record.call}>${record.actual}`, (counts.get(`${record.call}>${record.actual}`) ?? 0) + 1);
+    const [top, missCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? ["", 0];
+    const [said, was] = top ? (top.split(">") as [Call, Call]) : [null, null];
+    return { label: pattern.label, tally: tallyOf(mine), said, was, missCount, misses: wrong.length, tip: said && was ? pattern.tip(said, was) : "" };
+  })
+    .filter((row) => row.tally.answered > 0)
+    .sort((a, b) => a.tally.correct / a.tally.answered - b.tally.correct / b.tally.answered);
+}
+
 function inDeck(kinds: string[], deck: Deck): boolean {
   if (deck === "mix") return true;
   const unpredictable = kinds.some((kind) => UNPREDICTABLE.has(kind));
@@ -550,13 +715,10 @@ export function QuizApp() {
   const [index, setIndex] = useState<QuizIndex | null>(null);
   const [day, setDay] = useState<QuizDay | null>(null);
   const [cursor, setCursor] = useState(WARMUP);
-  const [picks, setPicks] = useState<Partial<Record<number, Call>>>({});
   const [reveal, setReveal] = useState<Reveal | null>(null);
   const [score, setScore] = useState<Tally>({ answered: 0, correct: 0 });
   const [stats, setStats] = useState<Stats | null>(null);
   const [timeframe, setTimeframe] = useState<Timeframe>("5m");
-  /** The row the keyboard's ↑ / F / ↓ keys fill in. */
-  const [keyRow, setKeyRow] = useState(15);
   const [startMode, setStartMode] = useState<StartMode>("open");
   const [deck, setDeck] = useState<Deck>("patterns");
   const [deal, setDeal] = useState<Deal>("any");
@@ -565,15 +727,12 @@ export function QuizApp() {
   const [drillMinutes, setDrillMinutes] = useState<number[]>([]);
   const [showLevels, setShowLevels] = useState(true);
   const [showVwap, setShowVwap] = useState(true);
-  /** The player's reason for each row's call (optional), by minutes ahead. */
-  const [reasons, setReasons] = useState<Partial<Record<number, string>>>({});
   const [tab, setTab] = useState<"play" | "report" | "history">("play");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   /** One sitting with one quiz day; starts when a day is dealt or restarted. */
   const [session, setSession] = useState("");
   /** Bar by bar: step one candle at a time and hold a call until you change it. */
-  const [barMode, setBarMode] = useState(true);
   /** Bar by bar: an optional reason for the next guess. */
   const [barReason, setBarReason] = useState("");
   const [held, setHeld] = useState<{ from: number; result: Result }[]>([]);
@@ -587,14 +746,12 @@ export function QuizApp() {
         deck?: Deck;
         showLevels?: boolean;
         showVwap?: boolean;
-        guess?: "candle" | "ahead";
       };
       if (prefs.timeframe === "1m" || prefs.timeframe === "5m") setTimeframe(prefs.timeframe);
       if (prefs.startMode === "open" || prefs.startMode === "random" || prefs.startMode === "first30") setStartMode(prefs.startMode);
       if (prefs.deck === "patterns" || prefs.deck === "choppy" || prefs.deck === "mix") setDeck(prefs.deck);
       if (typeof prefs.showLevels === "boolean") setShowLevels(prefs.showLevels);
       if (typeof prefs.showVwap === "boolean") setShowVwap(prefs.showVwap);
-      if (prefs.guess === "candle" || prefs.guess === "ahead") setBarMode(prefs.guess === "candle");
     } catch {
       /* ignore */
     }
@@ -606,11 +763,11 @@ export function QuizApp() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe, startMode, deck, showLevels, showVwap, guess: barMode ? "candle" : "ahead" }));
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ timeframe, startMode, deck, showLevels, showVwap }));
     } catch {
       /* ignore */
     }
-  }, [timeframe, startMode, deck, showLevels, showVwap, barMode]);
+  }, [timeframe, startMode, deck, showLevels, showVwap]);
 
   const vwap = useMemo(() => (day ? vwapSeries(day) : null), [day]);
   const bands = useMemo(() => (day ? vwapBands(day) : null), [day]);
@@ -628,7 +785,6 @@ export function QuizApp() {
     setDay(next);
     setCursor(at ?? startAt(next, mode));
     setDrillMinutes(matches);
-    setPicks({});
     setReveal(null);
     setHeld([]);
     setBarReason("");
@@ -706,21 +862,11 @@ export function QuizApp() {
   /** Where this sitting ends: 10:30 in "9:30–10:30 only", otherwise the close. */
   const stop = openHour ? Math.min(FIRST_END, total) : total;
   const done = !!day && cursor >= stop;
-  const rows = openHour ? HORIZONS.filter((horizon) => horizon <= 30) : HORIZONS;
-  const open = rows.filter((horizon) => cursor + horizon <= total);
-  const skipBy = openHour ? 5 : SKIP;
-  const chosen = open.filter((horizon) => picks[horizon]);
-  const furthest = chosen.length ? Math.max(...chosen) : SKIP;
   const priceNow = day ? day.bars[Math.min(cursor, total) - 1][3] : 0;
   const calls = stats?.calls ?? [];
   const drillProgress = drill ? recentInSpot(calls, drill) : null;
   const mastered = !!drillProgress && drillProgress.answered >= 10 && drillProgress.correct / drillProgress.answered >= MASTERY;
 
-  function choose(horizon: number, call: Call) {
-    if (reveal || !open.includes(horizon)) return;
-    setKeyRow(horizon);
-    setPicks((current) => ({ ...current, [horizon]: current[horizon] === call ? undefined : call }));
-  }
 
   /** Grades one call held from `from` to `to` on the trend over that stretch. */
   function grade(quizDay: QuizDay, from: number, to: number, call: Call, reason: string): Result {
@@ -771,6 +917,7 @@ export function QuizApp() {
           right: result.right,
           setup,
           whatHappened: `it ${result.why.join(", then ")}`,
+          ...(result.ctx ? { kind: "candle" as const, ctx: result.ctx } : {}),
           ...(result.reason ? { reason: result.reason } : {}),
         });
       }
@@ -792,17 +939,6 @@ export function QuizApp() {
     });
   }
 
-  function lockIn() {
-    if (!day || reveal || done || chosen.length === 0) return;
-    const from = cursor;
-    const results = chosen.map((horizon) => grade(day, from, from + horizon, picks[horizon]!, reasons[horizon] ?? ""));
-    const to = from + Math.max(...chosen);
-    setReveal({ from, to, results, skipped: false, clue: describeSetup(day, from, vwap) });
-    setCursor(to);
-    setPicks({});
-    setReasons({});
-    record(day, from, results);
-  }
 
   /** Bar by bar: the next candle: one minute, or the rest of the current 5-minute candle on the 5-min chart. */
   function nextBarEnd(): number {
@@ -831,6 +967,7 @@ export function QuizApp() {
       right: call === actual,
       why: describeMove(day, from, to, vwap),
       reason: barReason.trim().slice(0, 500),
+      ctx: candleContext(day, from, timeframe === "5m" ? 5 : 1, vwap, call),
     };
     setHeld((current) => [...current, { from, result }]);
     record(day, from, [result]);
@@ -849,16 +986,8 @@ export function QuizApp() {
     if (!day || done) return;
     setCursor(Math.max(cursor, stop));
     setReveal(null);
-    setPicks({});
   }
 
-  function skip() {
-    if (!day || reveal || done) return;
-    const to = Math.min(cursor + skipBy, total);
-    setReveal({ from: cursor, to, results: [], skipped: true, clue: "" });
-    setCursor(to);
-    setPicks({});
-  }
 
   /** Mark this sitting as played to the close. Sittings with no calls aren't kept. */
   function finishDay() {
@@ -925,19 +1054,11 @@ export function QuizApp() {
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
       const key = event.key.toLowerCase();
-      if (barMode && !done) {
+      if (!done) {
         if (key === "arrowup" || key === "h") guessBar("up");
         else if (key === "f") guessBar("flat");
         else if (key === "arrowdown" || key === "l") guessBar("down");
         else if (key === "arrowright" || key === "s") skipBar();
-        else return;
-      } else if (!reveal && !done) {
-        if (["1", "2", "3", "4", "5"].includes(key)) setKeyRow(HORIZONS[Number(key) - 1]);
-        else if (key === "arrowup" || key === "h") choose(keyRow, "up");
-        else if (key === "f") choose(keyRow, "flat");
-        else if (key === "arrowdown" || key === "l") choose(keyRow, "down");
-        else if (key === "enter" || key === " ") lockIn();
-        else if (key === "s") skip();
         else return;
       } else if (key === "enter" || key === " " || key === "arrowright" || key === "n") {
         goOn();
@@ -954,7 +1075,6 @@ export function QuizApp() {
     setStats(fresh);
   }
 
-  const rightNow = reveal ? reveal.results.filter((result) => result.right).length : 0;
 
   return (
     <div className="shell qz-shell">
@@ -981,8 +1101,8 @@ export function QuizApp() {
           <div>
             <h2>Direction quiz</h2>
             <p className="qz-note">
-              A random {index?.symbol ?? "TQQQ"} day from the past year, 9:30 to 4:00. From “now”, call where it’ll be 5, 15 and 30 minutes and 1 and 2 hours later:
-              higher, flat or lower, judged on the overall trend. Make one call or several, then reveal. The date shows when the day is over.
+              A random {index?.symbol ?? "TQQQ"} day from the past year. Guess whether the next candle closes green (Higher), red (Lower) or as a doji (Flat),
+              see it, and keep going. The date shows when the day is over.
             </p>
           </div>
           <dl className="qz-stats">
@@ -1025,27 +1145,6 @@ export function QuizApp() {
           />
         ) : (
           <>
-            <div className="qz-controls">
-              <div className="pr-toggle qz-mode" role="group" aria-label="What to guess">
-                {[
-                  { candle: true, label: "Next candle" },
-                  { candle: false, label: "5–30 min ahead" },
-                ].map((option) => (
-                  <button
-                    key={option.label}
-                    type="button"
-                    aria-pressed={barMode === option.candle}
-                    onClick={() => {
-                      setBarMode(option.candle);
-                      setReveal(null);
-                      setPicks({});
-                    }}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
             <div className="qz-controls">
               <div className="pr-toggle" role="group" aria-label="Days to deal">
                 {DECKS.map((entry) => (
@@ -1178,15 +1277,15 @@ export function QuizApp() {
                       day={day}
                       cursor={cursor}
                       timeframe={timeframe}
-                      ahead={reveal || barMode ? 0 : furthest}
-                      reveal={reveal}
+                      ahead={0}
+                      reveal={null}
                       vwap={showVwap ? vwap : null}
                       bands={showVwap ? bands : null}
                       levels={showLevels ? fixedLevels(day) : []}
                       startZoom={openHour ? 60 : undefined}
-                      horizons={barMode ? [] : rows}
-                      held={barMode ? held : undefined}
-                      compact={barMode}
+                      horizons={[]}
+                      held={held}
+                      compact
                     />
                     {showLevels || (showVwap && vwap) ? (
                       <p className="qz-legend">
@@ -1211,7 +1310,7 @@ export function QuizApp() {
                 ) : null}
               </div>
               <div className="qz-side">
-                {barMode && day && !done ? (
+                {day && !done ? (
                   <div className="qz-ask">
                     <p className="qz-q">
                       {clock(cursor)} · ${priceNow.toFixed(2)}
@@ -1243,7 +1342,7 @@ export function QuizApp() {
                     <p className="qz-keys">Keys: ↑ higher (green) · F flat (doji) · ↓ lower (red) · → skip a candle</p>
                   </div>
                 ) : null}
-                {barMode && day && held.length ? (
+                {day && held.length ? (
                   <div className="qz-result">
                     <p className="qz-q">
                       Your guesses: {held.filter((item) => item.result.right).length} of {held.length} right
@@ -1267,116 +1366,19 @@ export function QuizApp() {
                       })}
                   </div>
                 ) : null}
-                {!barMode && day && !reveal && !done ? (
-                  <div className="qz-ask">
-                    <p className="qz-q">Where will {day.symbol} be?</p>
-                    <p className="qz-note">
-                      Graded on the overall trend (a line of best fit), not single candles. Flat = the trend moves less than ±$
-                      {(priceNow * FLAT).toFixed(2)} ({(FLAT * 100).toFixed(2)}%).
-                    </p>
-                    {rows.map((horizon) => {
-                      const available = open.includes(horizon);
-                      return (
-                        <div key={horizon} className={keyRow === horizon ? "qz-row qz-row-key" : "qz-row"}>
-                          <p className="qz-row-label">
-                            <span className={`qz-tag qz-tag-${horizon}`}>{short(horizon)}</span> <b>{long(horizon)} ahead</b> · at{" "}
-                            {available ? clock(cursor + horizon) : "after the close"}
-                          </p>
-                          <div className="qz-picks" role="group" aria-label={`${horizon} minutes ahead`}>
-                            {CALLS.map(({ call, label, cls }) => (
-                              <button
-                                key={call}
-                                type="button"
-                                className={`qz-pick ${cls}`}
-                                aria-pressed={picks[horizon] === call}
-                                disabled={!available}
-                                onClick={() => choose(horizon, call)}
-                              >
-                                {label}
-                              </button>
-                            ))}
-                          </div>
-                          {available ? (
-                            <textarea
-                              className="qz-reason-box"
-                              aria-label={`Why, ${horizon} minutes ahead (optional)`}
-                              value={reasons[horizon] ?? ""}
-                              onChange={(event) => setReasons((current) => ({ ...current, [horizon]: event.target.value }))}
-                              rows={1}
-                              maxLength={500}
-                              placeholder={
-                                horizon === 5
-                                  ? "Why? e.g. bouncing off VWAP"
-                                  : horizon === 15
-                                    ? "Why? e.g. higher lows into the PMH"
-                                    : horizon === 30
-                                      ? "Why? e.g. trend day, holding above PC"
-                                      : "Why? e.g. afternoon fade toward VWAP"
-                              }
-                            />
-                          ) : null}
-                        </div>
-                      );
-                    })}
-                    <button type="button" className="qz-next" disabled={chosen.length === 0} onClick={lockIn}>
-                      {chosen.length === 0
-                        ? "Reveal my calls (pick one first)"
-                        : `Reveal my ${chosen.length} call${chosen.length === 1 ? "" : "s"} (to ${clock(cursor + furthest)})`}
-                    </button>
-                    <button type="button" className="text-btn qz-skip" onClick={skip}>
-                      Skip ahead {skipBy} min (no call)
-                    </button>
-                    <button type="button" className="text-btn qz-skip" onClick={showRest}>
-                      {openHour ? "Show the rest, to 10:30" : "Show the rest of the day"}
-                    </button>
-                    <p className="qz-keys">Keys: 1–5 pick a row · ↑ higher · F flat · ↓ lower · Enter reveal · S skip</p>
-                  </div>
-                ) : null}
-                {day && (reveal || done) ? (
-                  <div
-                    className={`qz-result ${
-                      !reveal || reveal.skipped ? "" : rightNow === reveal.results.length ? "qz-right" : rightNow === 0 ? "qz-wrong" : ""
-                    }`}
-                  >
-                    {reveal ? (
-                      <>
-                        <p className="qz-q">{reveal.skipped ? `Skipped to ${clock(reveal.to)}` : `${rightNow} of ${reveal.results.length} right`}</p>
-                        {reveal.clue ? <p className="qz-clue">{reveal.clue}</p> : null}
-                        {reveal.results.map((result) => (
-                          <div key={result.horizon} className="qz-call">
-                            <p className={result.right ? "qz-line qz-line-right" : "qz-line qz-line-wrong"}>
-                              <span className={`qz-tag qz-tag-${result.horizon}`}>{short(result.horizon)}</span> {result.right ? "✓" : "✗"}{" "}
-                              <b>{long(result.horizon)}</b> ({clock(result.to)}): you said {CALL_WORD[result.call]}, it was {CALL_WORD[result.actual]}{" "}
-                              (trend {signedPct(result.trend)})
-                            </p>
-                            {result.reason ? <p className="qz-yours">Your reason: “{result.reason}”</p> : null}
-                            <p className="qz-why">What happened: it {result.why.join(", then ")}.</p>
-                            {(() => {
-                              const key = recordKey({ session, date: day.date, minute: reveal.from, horizon: result.horizon });
-                              return <NoteBox value={calls.find((record) => recordKey(record) === key)?.note ?? ""} onSave={(text) => saveNote(key, text)} />;
-                            })()}
-                          </div>
-                        ))}
-                      </>
-                    ) : null}
-                    {done ? (
-                      <div className="qz-done">
-                        <h3>{prettyDate(day.date)}</h3>
-                        <p className="qz-note">
-                          {day.kinds.join(" · ")} on the daily chart. You were {score.answered ? pct(score.correct / score.answered) : "—"} right ({score.correct}{" "}
-                          of {score.answered}).
-                        </p>
-                      </div>
-                    ) : null}
+                {day && done ? (
+                  <div className="qz-result">
+                    <div className="qz-done">
+                      <h3>{prettyDate(day.date)}</h3>
+                      <p className="qz-note">
+                        {day.kinds.join(" · ")} on the daily chart. You were {score.answered ? pct(score.correct / score.answered) : "—"} right ({score.correct} of{" "}
+                        {score.answered}).
+                      </p>
+                    </div>
                     <button type="button" className="qz-next" onClick={goOn}>
-                      {done ? "Next day" : deal === "drill" ? "Next moment like this" : `Keep guessing from ${clock(cursor)}`}
+                      Next day
                     </button>
-                    {!done ? (
-                      <button type="button" className="text-btn qz-skip" onClick={showRest}>
-                        {openHour ? "Show the rest, to 10:30" : "Show the rest of the day"}
-                      </button>
-                    ) : null}
-                    <p className="qz-keys">Key: Enter or Space for {done ? "the next day" : "the next call"}</p>
+                    <p className="qz-keys">Key: Enter or Space for the next day</p>
                   </div>
                 ) : null}
               </div>
@@ -1409,7 +1411,7 @@ function resultsText(calls: CallRecord[]): string {
   const line = (label: string, tally: Tally) =>
     `- ${label}: ${tally.correct}/${tally.answered} right (${tally.answered ? pct(tally.correct / tally.answered) : "—"})`;
   const out = [
-    "My TQQQ direction quiz results. Calls are Higher / Flat / Lower 5 min to 2 hours ahead, graded on the overall trend (a line of best fit through the 1-minute closes; Flat if it moves less than ±0.15%), on replayed 1-minute charts with VWAP ±1σ bands, prior close/high/low, pre-market high/low and the 9:30–9:35 range. Random guessing gets about 33%.",
+    "My TQQQ direction quiz results. I guess whether the next candle (1-min or 5-min) closes green (Higher), red (Lower) or as a doji (Flat, body within ±0.03%), on replayed charts with VWAP ±1σ bands, volume, prior close/high/low, pre-market high/low and the 9:30–9:35 range. Older calls were Higher/Flat/Lower minutes ahead, graded on the trend.",
     "Please tell me why I'm wrong, which habits cost me the most and what to practice. Say so when a miss looks like noise.",
     "",
     "SUMMARY",
@@ -1425,12 +1427,17 @@ function resultsText(calls: CallRecord[]): string {
       .slice(0, 5)
       .map((bucket) => line(spotName(bucket.dim, bucket.value), bucket.tally)),
     "",
+    "NEXT-CANDLE PATTERNS (weakest first; green = Higher, red = Lower, doji = Flat)",
+    ...candlePatterns(calls.filter((record) => record.kind === "candle")).map(
+      (row) => `${line(row.label, row.tally).slice(2)}${row.said && row.was ? `; most common miss: said ${COLOR_WORD[row.said]}, was ${COLOR_WORD[row.was]} (${row.missCount}×)` : ""}`,
+    ).map((text) => `- ${text}`),
+    "",
     "RECENT MISSES (newest first)",
   ];
   for (const record of calls.filter((item) => !item.right).slice(-40).reverse()) {
     const setup = DIMS.filter(({ dim }) => dim !== "kind" && record.setup[dim] !== "none").map(({ dim }) => spotName(dim, String(record.setup[dim])).toLowerCase());
     out.push(
-      `- ${record.date} ${clock(record.minute)} (${record.setup.kind}), ${long(record.horizon)} ahead: said ${CALL_WORD[record.call]}, was ${CALL_WORD[record.actual]}. ` +
+      `- ${record.date} ${clock(record.minute)} (${record.setup.kind}), ${record.kind === "candle" ? `next ${record.horizon}-min candle` : `${long(record.horizon)} ahead`}${record.ctx ? ` (last candle ${COLOR_WORD[record.ctx.prev]}${record.ctx.big ? ", big" : ""}${record.ctx.wick !== "none" ? `, long ${record.ctx.wick} wick` : ""}${record.ctx.streak >= 3 ? `, ${record.ctx.streak} in a row` : ""})` : ""}: said ${CALL_WORD[record.call]}, was ${CALL_WORD[record.actual]}. ` +
         `Reason: ${record.reason ? `"${record.reason}"` : "none"}. Setup: ${setup.join(", ")}.${record.whatHappened ? ` After: ${record.whatHappened}.` : ""}${record.note ? ` My notes: "${record.note}"` : ""}`,
     );
   }
@@ -1458,7 +1465,7 @@ function ReportCard({
   onReset: () => void;
 }) {
   const calls = stats?.calls ?? [];
-  const weak = weakSpots(calls).slice(0, 3);
+  const weak = weakSpots(calls.filter((record) => record.kind !== "candle")).slice(0, 3);
   const misses = calls.filter((record) => !record.right).slice(-10).reverse();
 
   const [copied, setCopied] = useState("");
@@ -1479,13 +1486,25 @@ function ReportCard({
     );
   }
 
-  const byHorizon = HORIZONS.map((horizon) => ({ label: `${long(horizon)} ahead`, tally: tallyOf(calls.filter((record) => record.horizon === horizon)) }));
+  const guesses = calls.filter((record) => record.kind === "candle");
+  const older = calls.filter((record) => record.kind !== "candle");
+  const patterns = candlePatterns(guesses);
+  const guessRate = guesses.length ? guesses.filter((record) => record.right).length / guesses.length : 0;
+  const weakPatterns = patterns.filter((row) => row.tally.answered >= MIN_SAMPLE && row.tally.correct / row.tally.answered <= guessRate).slice(0, 5);
+  const copycat = guesses.filter((record) => record.ctx && record.ctx.prev === record.actual).length;
   const summary = [
     { label: "All calls", tally: tallyOf(calls) },
-    ...byHorizon,
+    ...(guesses.length
+      ? [
+          { label: "Next-candle guesses", tally: tallyOf(guesses) },
+          { label: "· on 1-min candles", tally: tallyOf(guesses.filter((record) => record.ctx?.per === 1)) },
+          { label: "· on 5-min candles", tally: tallyOf(guesses.filter((record) => record.ctx?.per === 5)) },
+          { label: "Last 30 guesses", tally: tallyOf(guesses.slice(-30)) },
+        ]
+      : []),
+    ...(older.length ? [{ label: "Minutes-ahead calls (old mode)", tally: tallyOf(older) }] : []),
     { label: "Turnaround & trend days", tally: tallyOf(calls.filter((record) => !UNPREDICTABLE.has(record.setup.kind))) },
     { label: "Unpredictable days", tally: tallyOf(calls.filter((record) => UNPREDICTABLE.has(record.setup.kind))) },
-    { label: "Last 30 calls", tally: tallyOf(calls.slice(-30)) },
   ];
   const missedDays = [...new Map(stats.days.filter((entry) => entry.answered >= 3).map((entry) => [entry.date, entry])).values()]
     .sort((a, b) => a.correct / a.answered - b.correct / b.answered)
@@ -1524,6 +1543,62 @@ function ReportCard({
           ))}
         </tbody>
       </table>
+
+      {guesses.length ? (
+        <>
+          <p className="qz-note">
+            Just repeating the last candle’s color would have been right {pct(copycat / guesses.length)} of the time on your {guesses.length} guesses; you were right{" "}
+            {pct(guessRate)}.
+          </p>
+          <h4>Patterns you keep missing</h4>
+          {weakPatterns.length ? (
+            <div className="qz-scroll">
+              <table className="qz-table qz-wide">
+                <thead>
+                  <tr>
+                    <th>Pattern</th>
+                    <th>Accuracy</th>
+                    <th>Most common miss</th>
+                    <th>What to do</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {weakPatterns.map((row) => (
+                    <tr key={row.label}>
+                      <td>
+                        <b>{row.label}</b>
+                      </td>
+                      <td>
+                        {pct(row.tally.correct / row.tally.answered)} ({row.tally.correct}/{row.tally.answered})
+                      </td>
+                      <td>{row.said && row.was ? `Said ${COLOR_WORD[row.said]}, was ${COLOR_WORD[row.was]} (${row.missCount} of ${row.misses})` : "—"}</td>
+                      <td className="qz-cell-text">{row.tip}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="qz-note">Keep guessing: a pattern needs {MIN_SAMPLE} guesses before it’s judged, and none is below your overall accuracy yet.</p>
+          )}
+          <details className="qz-earlier">
+            <summary>Every pattern</summary>
+            <table className="qz-table qz-wide">
+              <tbody>
+                {patterns.map((row) => (
+                  <tr key={row.label}>
+                    <td>{row.label}</td>
+                    <td>
+                      {row.tally.correct}/{row.tally.answered}
+                    </td>
+                    <Accuracy tally={row.tally} />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </details>
+        </>
+      ) : null}
 
       {rows.length ? (
         <>
@@ -1589,7 +1664,9 @@ function ReportCard({
                       <span className="qz-small">{clock(record.minute)}</span>
                     </td>
                     <td>
-                      {short(record.horizon)}: said {CALL_WORD[record.call]}, was {CALL_WORD[record.actual]}
+                      {record.kind === "candle"
+                        ? `Next ${record.horizon}-min candle: said ${COLOR_WORD[record.call]}, was ${COLOR_WORD[record.actual]}`
+                        : `${short(record.horizon)}: said ${CALL_WORD[record.call]}, was ${CALL_WORD[record.actual]}`}
                     </td>
                     <td className="qz-cell-reason">{record.reason ?? "—"}</td>
                     <td className="qz-cell-text">

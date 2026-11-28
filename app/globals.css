@@ -1806,19 +1806,13 @@ text.qz-mark-60 { fill: #2f9e8f; }
 text.qz-mark-120 { fill: #d0607a; }
 .qz-tag-60 { background: #23806f; }
 .qz-tag-120 { background: #b84a65; }
-.qz-held { stroke-width: 3; opacity: 0.85; stroke-linecap: round; }
-.qz-held-right { stroke: var(--up); }
-.qz-held-wrong { stroke: var(--down); }
-.qz-stance { stroke: var(--ink-soft); stroke-width: 1.5; stroke-dasharray: 3 4; }
-.qz-stance-label { font-size: 16px; font-weight: 700; }
-.qz-stance-up { fill: var(--up); }
-.qz-stance-down { fill: var(--down); }
-.qz-stance-flat { fill: var(--ink-soft); }
 .qz-inline { padding: 0 6px; font-size: 13px; }
 :where(.qz-tag) { background: var(--ink-soft); }
 :where(.qz-move) { stroke: var(--ink-soft); }
 :where(.qz-ring) { stroke: var(--ink-soft); }
 :where(.qz-taglabel) { fill: var(--ink); }
 
-.qz-play { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .qz-next-alt { background: var(--muted); color: var(--ink); }
+.qz-bar-mark { font-size: 16px; font-weight: 700; }
+.qz-bar-mark-right { fill: var(--up); }
+.qz-bar-mark-wrong { fill: var(--down); }

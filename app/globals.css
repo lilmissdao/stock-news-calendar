@@ -1642,8 +1642,8 @@ main { min-width: 0; }
 .qz-dot-5 { fill: #3d8bd9; }
 .qz-dot-15 { fill: #c08a1e; }
 .qz-dot-30 { fill: #8a63c7; }
-.qz-mark { stroke-width: 2; stroke-dasharray: 3 5; }
-.qz-marklabel { font-size: 18px; font-weight: 700; }
+.qz-mark { stroke-width: 3; }
+.qz-marklabel { font-size: 16px; font-weight: 700; }
 line.qz-mark-5 { stroke: #3d8bd9; }
 line.qz-mark-15 { stroke: #c08a1e; }
 line.qz-mark-30 { stroke: #8a63c7; }
@@ -1665,7 +1665,7 @@ text.qz-mark-30 { fill: #8a63c7; }
 }
 
 /* Quiz: levels */
-.qz-level { stroke-width: 2; fill: none; }
+.qz-level { stroke-width: 1.5; fill: none; opacity: 0.75; }
 .qz-lv-close { stroke: var(--accent); stroke-dasharray: 10 6; }
 .qz-lv-prior { stroke: var(--ink-soft); stroke-dasharray: 4 6; }
 .qz-lv-pre { stroke: #2a9d8f; stroke-dasharray: 2 5; stroke-width: 2.5; }
@@ -1724,3 +1724,10 @@ text.qz-mark-30 { fill: #8a63c7; }
 .qz-misses { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
 .qz-misses li { border-top: 1px solid var(--line); padding-top: 8px; display: flex; flex-direction: column; gap: 2px; }
 .qz-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Quiz: level tags on the price axis */
+.qz-level-tag { stroke: none; opacity: 0.95; }
+rect.qz-lv-close { fill: var(--accent); }
+rect.qz-lv-prior { fill: #6b7077; }
+rect.qz-lv-pre { fill: #2a9d8f; }
+.qz-level-tagtext { fill: #fff; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }

@@ -56,7 +56,7 @@ type StartMode = "open" | "random";
 type Deck = "patterns" | "choppy" | "mix";
 type Deal = "any" | "drill" | "missed";
 type Drill = { dim: Dim; value: string };
-type Level = { key: string; name: string; label: string; price: number; cls: string };
+type Level = { key: string; name: string; label: string; code: string; price: number; cls: string };
 
 const STATS_KEY = "snc-quiz:v1";
 const PREFS_KEY = "snc-quiz-prefs:v1";
@@ -254,13 +254,13 @@ const REASON_TOPICS: { topic: string; words: RegExp }[] = [
 function fixedLevels(day: QuizDay): Level[] {
   const prior = day.before[day.before.length - 1];
   const levels: Level[] = [
-    { key: "pc", name: "the prior close", label: "Prior close", price: prior[3], cls: "qz-lv-close" },
-    { key: "ph", name: "the prior day’s high", label: "Prior high", price: prior[1], cls: "qz-lv-prior" },
-    { key: "pl", name: "the prior day’s low", label: "Prior low", price: prior[2], cls: "qz-lv-prior" },
+    { key: "pc", name: "the prior close", label: "Prior close", code: "PC", price: prior[3], cls: "qz-lv-close" },
+    { key: "ph", name: "the prior day’s high", label: "Prior high", code: "PDH", price: prior[1], cls: "qz-lv-prior" },
+    { key: "pl", name: "the prior day’s low", label: "Prior low", code: "PDL", price: prior[2], cls: "qz-lv-prior" },
   ];
   if (day.pre) {
-    levels.push({ key: "mh", name: "the pre-market high", label: "Pre-mkt high", price: day.pre[0], cls: "qz-lv-pre" });
-    levels.push({ key: "ml", name: "the pre-market low", label: "Pre-mkt low", price: day.pre[1], cls: "qz-lv-pre" });
+    levels.push({ key: "mh", name: "the pre-market high", label: "Pre-mkt high", code: "PMH", price: day.pre[0], cls: "qz-lv-pre" });
+    levels.push({ key: "ml", name: "the pre-market low", label: "Pre-mkt low", code: "PML", price: day.pre[1], cls: "qz-lv-pre" });
   }
   return levels;
 }
@@ -270,8 +270,8 @@ function levelsAt(day: QuizDay, from: number): Level[] {
   const levels = fixedLevels(day);
   if (from >= 5) {
     const range = day.bars.slice(0, 5);
-    levels.push({ key: "oh", name: "the 9:30–9:35 high", label: "9:30–9:35 high", price: Math.max(...range.map((bar) => bar[1])), cls: "" });
-    levels.push({ key: "ol", name: "the 9:30–9:35 low", label: "9:30–9:35 low", price: Math.min(...range.map((bar) => bar[2])), cls: "" });
+    levels.push({ key: "oh", name: "the 9:30–9:35 high", label: "9:30–9:35 high", code: "ORH", price: Math.max(...range.map((bar) => bar[1])), cls: "" });
+    levels.push({ key: "ol", name: "the 9:30–9:35 low", label: "9:30–9:35 low", code: "ORL", price: Math.min(...range.map((bar) => bar[2])), cls: "" });
   }
   return levels;
 }
@@ -920,9 +920,9 @@ export function QuizApp() {
                     />
                     {showLevels || (showVwap && vwap) ? (
                       <p className="qz-legend">
-                        {showLevels ? <span className="qz-key qz-key-close">Prior close</span> : null}
-                        {showLevels ? <span className="qz-key qz-key-prior">Prior day high / low</span> : null}
-                        {showLevels && day.pre ? <span className="qz-key qz-key-pre">Pre-market high / low</span> : null}
+                        {showLevels ? <span className="qz-key qz-key-close">PC prior close</span> : null}
+                        {showLevels ? <span className="qz-key qz-key-prior">PDH / PDL prior day high / low</span> : null}
+                        {showLevels && day.pre ? <span className="qz-key qz-key-pre">PMH / PML pre-market high / low</span> : null}
                         {showVwap && vwap ? <span className="qz-key qz-key-vwap">VWAP</span> : null}
                         {showVwap && bands ? <span className="qz-key qz-key-band">VWAP ±1σ bands</span> : null}
                       </p>
@@ -1371,14 +1371,15 @@ function IntradayChart({
     if (slot >= 0 && slot <= view.slots) timeMarks.push(minute);
   }
   const xAt = (minute: number) => ((minute - view.firstMinute) / view.per) * step;
-  // Level labels sit on the left, nudged apart so they don't overlap.
+  // Level tags sit on the price axis, nudged apart so they don't overlap.
   const labelled = [...shownLevels].sort((a, b) => y(a.price) - y(b.price));
   let lastLabel = -Infinity;
   const labelY = labelled.map((level) => {
-    const at = Math.max(y(level.price) - 6, lastLabel + 22);
+    const at = Math.max(y(level.price), lastLabel + 22);
     lastLabel = at;
     return at;
   });
+  const tickHidden = (tick: number) => labelY.some((at) => Math.abs(at - y(tick)) < 16);
   const line = (points: number[]) => points.map((value, i) => `${i ? "L" : "M"}${xAt(view.firstMinute + i + 0.5).toFixed(1)} ${clampY(value).toFixed(1)}`).join(" ");
   const vwapPath = line(vwapPoints);
   const upPath = line(upPoints);
@@ -1400,8 +1401,8 @@ function IntradayChart({
         {!reveal && cursor < total
           ? HORIZONS.filter((horizon) => cursor + horizon <= total).map((horizon, i) => (
               <g key={horizon}>
-                <line className={`qz-mark qz-mark-${horizon}`} x1={xAt(cursor + horizon)} x2={xAt(cursor + horizon)} y1={top} y2={H - bottom} />
-                <text className={`qz-marklabel qz-mark-${horizon}`} x={xAt(cursor + horizon) + 4} y={top + 20 + i * 24}>
+                <line className={`qz-mark qz-mark-${horizon}`} x1={xAt(cursor + horizon)} x2={xAt(cursor + horizon)} y1={H - bottom - 14} y2={H - bottom} />
+                <text className={`qz-marklabel qz-mark-${horizon}`} x={xAt(cursor + horizon)} y={H - bottom - 18 - (i % 2) * 18} textAnchor="middle">
                   {horizon}m
                 </text>
               </g>
@@ -1410,9 +1411,11 @@ function IntradayChart({
         {ticks.map((tick) => (
           <g key={tick}>
             <line className="qz-grid" x1={0} x2={plotW} y1={y(tick)} y2={y(tick)} />
-            <text className="qz-tick" x={plotW + 8} y={y(tick) + 5}>
-              {tick.toFixed(2)}
-            </text>
+            {tickHidden(tick) ? null : (
+              <text className="qz-tick" x={plotW + 8} y={y(tick) + 5}>
+                {tick.toFixed(2)}
+              </text>
+            )}
           </g>
         ))}
         {timeMarks.map((minute) => (
@@ -1429,9 +1432,12 @@ function IntradayChart({
         {vwapPath ? <path className="qz-vwap" d={vwapPath} /> : null}
         <Candles bars={view.bars} x={x} y={y} width={width} />
         {labelled.map((level, i) => (
-          <text key={level.key} className={`qz-level-label ${level.cls}`} x={6} y={labelY[i]}>
-            {level.label} {level.price.toFixed(2)}
-          </text>
+          <g key={level.key}>
+            <rect className={`qz-level-tag ${level.cls}`} x={plotW + 2} y={labelY[i] - 10} width={right - 4} height={20} rx={4} />
+            <text className="qz-level-tagtext" x={plotW + 6} y={labelY[i] + 5}>
+              {level.code} {level.price.toFixed(2)}
+            </text>
+          </g>
         ))}
         {reveal
           ? reveal.results.map((result, i) => (
